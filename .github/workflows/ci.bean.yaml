@@ -1,0 +1,72 @@
+name: Bean Subgraph
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - "src/subgraphs/bean/**"
+      - "src/core/**"
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    name: Compile
+    steps:
+      - name: Check out source repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+
+      - name: Cache Node Modules
+        id: node-modules-cache
+        uses: actions/cache@v3
+        with:
+          path: "**/node_modules"
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install The Graph CLI
+        run: npm install -g @graphprotocol/graph-cli
+
+      - name: Install Dependencies
+        if: steps.node-modules-cache.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: Generate Subgraph Code
+        run: npm run codegen bean
+
+      - name: Build Subgraph
+        run: npm run build bean arbitrum
+  test:
+    runs-on: ubuntu-latest
+    name: Test
+    steps:
+      - name: Check out source repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+
+      - name: Cache Node Modules
+        id: node-modules-cache
+        uses: actions/cache@v3
+        with:
+          path: "**/node_modules"
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install The Graph CLI
+        run: npm install -g @graphprotocol/graph-cli
+
+      - name: Install Dependencies
+        if: steps.node-modules-cache.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: Generate Subgraph Code
+        run: npm run codegen bean
+
+      - name: Run Tests
+        run: npm run test bean

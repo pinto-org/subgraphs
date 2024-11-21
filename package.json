@@ -1,0 +1,28 @@
+{
+  "name": "subgraphs",
+  "license": "MIT",
+  "description": "Subgraphs for Pinto on Base",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pintomoney/subgraphs"
+  },
+  "scripts": {
+    "codegen": "./scripts/codegen.sh",
+    "build": "./scripts/build.sh",
+    "test": "./scripts/test.sh",
+    "testd": "./scripts/test-docker.sh",
+    "testd-named": "./scripts/named-test-docker.sh",
+    "build-cache": "./scripts/build-cache.sh",
+    "prettier": "prettier --write ."
+  },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "0.79.2",
+    "@graphprotocol/graph-ts": "0.34.0"
+  },
+  "devDependencies": {
+    "graphql-request": "^6.1.0",
+    "matchstick-as": "^0.6.0",
+    "prettier": "^3.3.3"
+  },
+  "private": true
+}

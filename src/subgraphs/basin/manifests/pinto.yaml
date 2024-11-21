@@ -1,0 +1,115 @@
+specVersion: 0.0.9
+schema:
+  file: ../schema.graphql
+dataSources:
+  ###
+  # INITIALIZATION
+  ###
+  - kind: ethereum/contract
+    name: InitVersion
+    network: base
+    source:
+      address: "0xBA51AA60B3b8d9A36cc748a62Aa56801060183f8"
+      abi: Aquifer
+      startBlock: 22622966
+      endBlock: 22622966
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Version
+      abis:
+        - name: Aquifer
+          file: ../../../core/abis/Aquifer.json
+      blockHandlers:
+        - handler: handleInitVersion
+          filter:
+            kind: once
+      file: ../src/utils/constants/Version.ts
+  - kind: ethereum/contract
+    name: Aquifer
+    network: base
+    source:
+      address: "0xBA51AA60B3b8d9A36cc748a62Aa56801060183f8"
+      abi: Aquifer
+      startBlock: 22622966
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Aquifer
+      abis:
+        - name: Aquifer
+          file: ../../../core/abis/Aquifer.json
+        - name: ERC20
+          file: ../../../core/abis/ERC20.json
+      eventHandlers:
+        - event: BoreWell(address,address,address[],(address,bytes),(address,bytes)[],bytes)
+          handler: handleBoreWell
+      file: ../src/handlers/AquiferTemplateHandler.ts
+  - kind: ethereum/contract
+    name: HourlySnapshots
+    network: base
+    source:
+      address: "0xBA51AA60B3b8d9A36cc748a62Aa56801060183f8"
+      abi: Aquifer
+      startBlock: 22623515 # Initial liquidity added + 1
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Well
+      abis:
+        - name: Aquifer
+          file: ../../../core/abis/Aquifer.json
+      blockHandlers:
+        - handler: handleBlock
+          filter:
+            kind: polling
+            every: 30 # 1 minute on base
+      file: ../src/handlers/HourlySnapshotHandler.ts
+templates:
+  - kind: ethereum/contract
+    name: Well
+    network: base
+    source:
+      abi: Well
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Well
+      abis:
+        - name: Well
+          file: ../../../core/abis/Well.json
+        - name: WellFunction
+          file: ../../../core/abis/WellFunction.json
+        - name: PintoLaunch
+          file: ../../../core/abis/Beanstalk/Pinto-Launch.json
+        - name: BeanstalkPrice
+          file: ../../../core/abis/PintostalkPrice.json
+        - name: ERC20
+          file: ../../../core/abis/ERC20.json
+      eventHandlers:
+        - event: AddLiquidity(uint256[],uint256,address)
+          handler: handleAddLiquidity
+        - event: RemoveLiquidity(uint256,uint256[],address)
+          handler: handleRemoveLiquidity
+        - event: RemoveLiquidityOneToken(uint256,address,uint256,address)
+          handler: handleRemoveLiquidityOneToken
+        - event: Swap(address,address,uint256,uint256,address)
+          handler: handleSwap
+        - event: Shift(uint256[],address,uint256,address)
+          handler: handleShift
+        - event: Sync(uint256[],uint256,address)
+          handler: handleSync
+      file: ../src/handlers/WellHandler.ts
+# features:
+#   - grafting
+# graft:
+#   base: QmWHi6hu2wXnyxBHHmQHwCQLoq5KkoTX2qLm8MdyVXTyTu
+#   block: 20216425

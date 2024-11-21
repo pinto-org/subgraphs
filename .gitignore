@@ -1,0 +1,12 @@
+node_modules/
+.vscode/
+.DS_Store
+
+# graphprotocol
+src/subgraphs/*/build
+src/subgraphs/*/generated
+
+# matchstick tests
+src/subgraphs/*/tests/.latest.json
+src/subgraphs/*/tests/.bin
+src/subgraphs/*/tests/.docker
