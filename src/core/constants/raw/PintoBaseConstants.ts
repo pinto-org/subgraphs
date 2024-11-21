@@ -1,5 +1,7 @@
 import { Address, BigInt } from "@graphprotocol/graph-ts";
 
+// Change to trigger CI. dont merge.
+
 // Protocol tokens
 export const BEAN_ERC20 = Address.fromString("0xb170000aeeFa790fa61D6e837d1035906839a3c8");
 export const PINTO_WETH = Address.fromString("0x3e11001CfbB6dE5737327c59E10afAB47B82B5d3");
