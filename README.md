@@ -18,7 +18,7 @@ Explorers:
 
 Dev subgraphs can be accessed by appending `-dev` to the above links.
 
-All subgraphs are hosted on a mix of Alchemy and Graph Network, with responses served from a proxy api. Read more about the advantages of the proxy here: https://github.com/pintomoney/subgraph-proxy.
+All subgraphs are hosted on a mix of Alchemy and Graph Network, with responses served from a proxy api. Read more about the advantages of the proxy here: https://github.com/pinto-org/subgraph-proxy.
 
 This project is forked from Beanstalk. The original project can be found [here](https://github.com/BeanstalkFarms/Beanstalk-Subgraphs). The structure of this project is kept similar to the original - from a technical perspective this will allow either repository to benefit from future developments to the other.
 
