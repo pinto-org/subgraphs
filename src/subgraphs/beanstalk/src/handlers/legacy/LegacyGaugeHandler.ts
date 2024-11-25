@@ -1,5 +1,6 @@
 import { Bytes4_emptySelector } from "../../../../../core/utils/Bytes";
 import { ZERO_BI } from "../../../../../core/utils/Decimals";
+import { BeanToMaxLpGpPerBdvRatioChange } from "../../../generated/Beanstalk-ABIs/PintoLaunch";
 import {
   FarmerGerminatingStalkBalanceChanged,
   SeedGauge,
@@ -15,7 +16,7 @@ import {
   loadOrCreateGerminating
 } from "../../entities/Germinating";
 import { loadSilo, loadWhitelistTokenSetting } from "../../entities/Silo";
-import { takeSiloSnapshots } from "../../entities/snapshots/Silo";
+import { setSiloHourlyCaseId, takeSiloSnapshots } from "../../entities/snapshots/Silo";
 import { takeWhitelistTokenSettingSnapshots } from "../../entities/snapshots/WhitelistTokenSetting";
 import { getFarmerGerminatingBugOffset, savePrevFarmerGerminatingEvent } from "../../utils/legacy/LegacySilo";
 import { legacyInitGauge } from "../../utils/legacy/LegacyWhitelist";
@@ -122,4 +123,26 @@ export function handleUpdateGaugeSettings(event: UpdateGaugeSettings): void {
 
   takeWhitelistTokenSettingSnapshots(siloSettings, event.block);
   siloSettings.save();
+}
+
+// PintoLaunch -> PI1
+// There is a bug in this event which was fixed in PI-1. When the system starts raining,
+// The beanToMaxLpGpPerBdvRatio is set to zero. However, this event incorrectly emitted 0 rather
+// than the delta (which should bring the final value to zero). Emissions prior to deployment
+// of PI-1 should treat a zero absChange as a resetting vaue.
+export function handleBeanToMaxLpGpPerBdvRatioChange_bugged(event: BeanToMaxLpGpPerBdvRatioChange): void {
+  let silo = loadSilo(event.address);
+
+  if (event.params.absChange == ZERO_BI) {
+    silo.beanToMaxLpGpPerBdvRatio = ZERO_BI;
+  } else {
+    if (silo.beanToMaxLpGpPerBdvRatio === null) {
+      silo.beanToMaxLpGpPerBdvRatio = event.params.absChange;
+    } else {
+      silo.beanToMaxLpGpPerBdvRatio = silo.beanToMaxLpGpPerBdvRatio!.plus(event.params.absChange);
+    }
+  }
+  takeSiloSnapshots(silo, event.block);
+  setSiloHourlyCaseId(event.params.caseId, silo);
+  silo.save();
 }

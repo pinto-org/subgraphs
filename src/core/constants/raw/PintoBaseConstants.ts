@@ -26,3 +26,5 @@ export const WELL_STABLE2 = Address.fromString("0xBA51055a97b40d7f41f3F64b57469b
 
 export const PINTOSTALK_BLOCK = BigInt.fromU32(22622961);
 export const BASIN_BLOCK = BigInt.fromU64(22622966);
+// TODO: set this in a future release, after PI-1 Deployment
+export const PI_1_BLOCK = BigInt.fromU64(9999999999);
