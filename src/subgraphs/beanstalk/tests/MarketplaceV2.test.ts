@@ -15,6 +15,7 @@ import {
 } from "./utils/Marketplace";
 import { harvest, setHarvestable, sow } from "./utils/Field";
 import { initL1Version } from "./entity-mocking/MockVersion";
+import { mockSeasonStruct } from "./utils/Season";
 
 const account = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266".toLowerCase();
 const account2 = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8".toLowerCase();
@@ -35,6 +36,7 @@ describe("Marketplace", () => {
   beforeEach(() => {
     initL1Version();
 
+    mockSeasonStruct();
     setHarvestable(currentHarvestable);
     sow(account, listingIndex, sowedBeans, sowedPods);
   });

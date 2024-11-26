@@ -18,6 +18,7 @@ import { beans_BI as beans, podlineMil_BI } from "../../../core/tests/Values";
 import { assertFarmerHasPlot, assertFieldHas, setHarvestable, sow, transferPlot } from "./utils/Field";
 import { createListing_v2, createOrder_v2, fillListing_v2, fillOrder_v2 } from "./utils/Marketplace";
 import { initL1Version } from "./entity-mocking/MockVersion";
+import { mockSeasonStruct } from "./utils/Season";
 
 const account = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266".toLowerCase();
 const account2 = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8".toLowerCase();
@@ -61,6 +62,7 @@ const initialPlots: Plot[] = [
 describe("Field: Plot Transfer", () => {
   beforeEach(() => {
     initL1Version();
+    mockSeasonStruct();
 
     // Create two equally sized plots next to each other
     for (let i = 0; i < initialPlots.length; ++i) {
