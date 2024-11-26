@@ -5,7 +5,9 @@ import {
   Sunrise,
   Incentivization,
   Receipt,
-  Shipped
+  Shipped,
+  SeasonOfPlentyField,
+  SeasonOfPlentyWell
 } from "../../generated/Beanstalk-ABIs/PintoLaunch";
 import { toDecimal, ZERO_BD, ZERO_BI } from "../../../../core/utils/Decimals";
 import { loadBeanstalk, loadSeason } from "../entities/Beanstalk";
@@ -61,6 +63,14 @@ export function handleSoil(event: Soil): void {
   if (isReplanted(v(), event.block.number) && v().subgraphName == "beanstalk") {
     updateBeanEMA(event.address, event.block.timestamp);
   }
+}
+
+export function handlePlentyField(event: SeasonOfPlentyField): void {
+  //
+}
+
+export function handlePlentyWell(event: SeasonOfPlentyWell): void {
+  //
 }
 
 // This is the final function to be called during sunrise both pre and post replant

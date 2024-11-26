@@ -18,7 +18,8 @@ import {
   RemoveDeposits,
   StalkBalanceChanged,
   UpdatedStalkPerBdvPerSeason,
-  UpdateWhitelistStatus
+  UpdateWhitelistStatus,
+  ClaimPlenty
 } from "../../generated/Beanstalk-ABIs/PintoLaunch";
 import { unripeChopped } from "../utils/Barn";
 import { beanDecimals, getProtocolToken, isUnripe, stalkDecimals } from "../../../../core/constants/RuntimeConstants";
@@ -154,4 +155,8 @@ export function handleUpdatedStalkPerBdvPerSeason(event: UpdatedStalkPerBdvPerSe
 
   takeWhitelistTokenSettingSnapshots(siloSettings, event.block);
   siloSettings.save();
+}
+
+export function handleClaimPlenty(event: ClaimPlenty): void {
+  //
 }
