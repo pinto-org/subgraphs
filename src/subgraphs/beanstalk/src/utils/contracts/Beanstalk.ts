@@ -16,6 +16,7 @@ export function Beanstalk_harvestableIndex(fieldId: BigInt): BigInt {
 }
 
 export function Beanstalk_isRaining(): boolean {
-  // TODO
-  return false;
+  const beanstalk_contract = PintoLaunch.bind(v().protocolAddress);
+  const seasonStruct = beanstalk_contract.getSeasonStruct();
+  return seasonStruct.raining;
 }
