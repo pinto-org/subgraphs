@@ -89,6 +89,8 @@ dataSources:
           handler: handleDewhitelistToken
         - event: UpdatedStalkPerBdvPerSeason(indexed address,uint40,uint32)
           handler: handleUpdatedStalkPerBdvPerSeason
+        - event: ClaimPlenty(indexed address,address,uint256)
+          handler: handleClaimPlenty
       file: ../src/handlers/SiloHandler.ts
   ###
   # SEED GAUGE
@@ -225,6 +227,10 @@ dataSources:
           handler: handleWellOracle
         - event: Soil(indexed uint32,uint256)
           handler: handleSoil
+        - event: SeasonOfPlentyField(uint256)
+          handler: handlePlentyField
+        - event: SeasonOfPlentyWell(indexed uint256,address,address,uint256)
+          handler: handlePlentyWell
         - event: Incentivization(indexed address,uint256)
           handler: handleIncentive
       file: ../src/handlers/SeasonHandler.ts

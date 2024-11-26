@@ -7,7 +7,8 @@ import {
   SiloAsset,
   WhitelistTokenSetting,
   TokenYield,
-  UnripeToken
+  UnripeToken,
+  WellPlenty
 } from "../../generated/schema";
 import { ZERO_BD, ZERO_BI } from "../../../../core/utils/Decimals";
 import { getTokenDecimals, getUnripeUnderlying } from "../../../../core/constants/RuntimeConstants";
@@ -84,26 +85,19 @@ export function loadWhitelistTokenSetting(token: Address): WhitelistTokenSetting
   return setting as WhitelistTokenSetting;
 }
 
-/* ===== Unripe Entities ===== */
+/* ===== Plenty Entities ===== */
 
-export function loadUnripeToken(token: Address): UnripeToken {
-  let unripe = UnripeToken.load(token);
-  if (unripe == null) {
-    unripe = new UnripeToken(token);
-    unripe.underlyingToken = getUnripeUnderlying(v(), token, ZERO_BI);
-    unripe.totalUnderlying = ZERO_BI;
-    unripe.amountUnderlyingOne = ZERO_BI;
-    unripe.bdvUnderlyingOne = ZERO_BI;
-    unripe.choppableAmountOne = ZERO_BI;
-    unripe.choppableBdvOne = ZERO_BI;
-    unripe.chopRate = ZERO_BD;
-    unripe.recapPercent = ZERO_BD;
-    unripe.totalChoppedAmount = ZERO_BI;
-    unripe.totalChoppedBdv = ZERO_BI;
-    unripe.totalChoppedBdvReceived = ZERO_BI;
-    unripe.save();
+export function loadWellPlenty(silo: Address, token: Address): WellPlenty {
+  const id = silo.toHexString() + "-" + token.toHexString();
+  let plenty = WellPlenty.load(id);
+  if (plenty == null) {
+    plenty = new WellPlenty(id);
+    plenty.silo = silo;
+    plenty.token = token;
+    plenty.unclaimedAmount = ZERO_BI;
+    plenty.claimedAmount = ZERO_BI;
   }
-  return unripe as UnripeToken;
+  return plenty as WellPlenty;
 }
 
 /* ===== Deposit Entities ===== */
@@ -240,4 +234,26 @@ export function SiloAsset_findIndex_token(a: SiloAsset[], targetToken: Address):
     }
   }
   return -1;
+}
+
+/* ===== Unripe Entities ===== */
+
+export function loadUnripeToken(token: Address): UnripeToken {
+  let unripe = UnripeToken.load(token);
+  if (unripe == null) {
+    unripe = new UnripeToken(token);
+    unripe.underlyingToken = getUnripeUnderlying(v(), token, ZERO_BI);
+    unripe.totalUnderlying = ZERO_BI;
+    unripe.amountUnderlyingOne = ZERO_BI;
+    unripe.bdvUnderlyingOne = ZERO_BI;
+    unripe.choppableAmountOne = ZERO_BI;
+    unripe.choppableBdvOne = ZERO_BI;
+    unripe.chopRate = ZERO_BD;
+    unripe.recapPercent = ZERO_BD;
+    unripe.totalChoppedAmount = ZERO_BI;
+    unripe.totalChoppedBdv = ZERO_BI;
+    unripe.totalChoppedBdvReceived = ZERO_BI;
+    unripe.save();
+  }
+  return unripe as UnripeToken;
 }

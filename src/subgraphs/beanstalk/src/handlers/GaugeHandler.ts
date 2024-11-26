@@ -22,12 +22,18 @@ import { getCurrentSeason } from "../entities/Beanstalk";
 import { updateStalkBalances } from "../utils/Silo";
 import { UpdatedOptimalPercentDepositedBdvForToken } from "../../generated/Beanstalk-ABIs/PintoLaunch";
 import { beanDecimals } from "../../../../core/constants/RuntimeConstants";
+import { handleBeanToMaxLpGpPerBdvRatioChange_bugged } from "./legacy/LegacyGaugeHandler";
+import { PI_1_BLOCK } from "../../../../core/constants/raw/PintoBaseConstants";
 
 // SEED GAUGE SEASONAL ADJUSTMENTS //
 
 export function handleBeanToMaxLpGpPerBdvRatioChange(event: BeanToMaxLpGpPerBdvRatioChange): void {
-  let silo = loadSilo(event.address);
+  if (event.block.number <= PI_1_BLOCK && event.params.absChange == ZERO_BI) {
+    handleBeanToMaxLpGpPerBdvRatioChange_bugged(event);
+    return;
+  }
 
+  let silo = loadSilo(event.address);
   if (silo.beanToMaxLpGpPerBdvRatio === null) {
     silo.beanToMaxLpGpPerBdvRatio = event.params.absChange;
   } else {

@@ -5,10 +5,12 @@ import {
   Sunrise,
   Incentivization,
   Receipt,
-  Shipped
+  Shipped,
+  SeasonOfPlentyField,
+  SeasonOfPlentyWell
 } from "../../generated/Beanstalk-ABIs/PintoLaunch";
 import { toDecimal, ZERO_BD, ZERO_BI } from "../../../../core/utils/Decimals";
-import { loadBeanstalk, loadSeason } from "../entities/Beanstalk";
+import { getCurrentSeason, loadBeanstalk, loadSeason } from "../entities/Beanstalk";
 import { getBeanstalkPrice } from "../utils/contracts/BeanstalkPrice";
 import { takeFieldSnapshots } from "../entities/snapshots/Field";
 import { loadField } from "../entities/Field";
@@ -18,7 +20,8 @@ import { updateHarvestablePlots } from "../utils/Field";
 import { siloReceipt, sunrise } from "../utils/Season";
 import { isGaugeDeployed, isReplanted } from "../../../../core/constants/RuntimeConstants";
 import { v } from "../utils/constants/Version";
-import { Beanstalk_harvestableIndex } from "../utils/contracts/Beanstalk";
+import { Beanstalk_harvestableIndex, Beanstalk_isRaining } from "../utils/contracts/Beanstalk";
+import { loadWellPlenty } from "../entities/Silo";
 
 export function handleSunrise(event: Sunrise): void {
   sunrise(event.address, event.params.season, event.block);
@@ -63,6 +66,25 @@ export function handleSoil(event: Soil): void {
   }
 }
 
+export function handlePlentyField(event: SeasonOfPlentyField): void {
+  const season = loadSeason(BigInt.fromU32(getCurrentSeason()));
+  season.floodFieldBeans = event.params.toField;
+  season.save();
+}
+
+export function handlePlentyWell(event: SeasonOfPlentyWell): void {
+  const systemPlenty = loadWellPlenty(v().protocolAddress, event.params.token);
+  systemPlenty.unclaimedAmount = systemPlenty.unclaimedAmount.plus(event.params.amount);
+  systemPlenty.save();
+
+  // Order of mints during the sunrise are field plenty, silo plenty, twa deltaB mint, and incentivization.
+  // In all cases, the actual token mint event is before the Plenty event.
+  // Silo flood amount must be inferred based on this.
+  const season = loadSeason(BigInt.fromU32(getCurrentSeason()));
+  season.floodSiloBeans = season.deltaBeans.minus(season.floodFieldBeans);
+  season.save();
+}
+
 // This is the final function to be called during sunrise both pre and post replant
 export function handleIncentive(event: Incentivization): void {
   // Update market cap for season
@@ -71,6 +93,7 @@ export function handleIncentive(event: Incentivization): void {
 
   season.marketCap = season.price.times(toDecimal(season.beans));
   season.incentiveBeans = event.params.beans;
+  season.raining = Beanstalk_isRaining();
   season.save();
 
   let field = loadField(v().protocolAddress);

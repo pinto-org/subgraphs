@@ -45,7 +45,10 @@ export function loadSeason(id: BigInt): Season {
     season.deltaB = ZERO_BI;
     season.deltaBeans = ZERO_BI;
     season.rewardBeans = ZERO_BI;
+    season.floodFieldBeans = ZERO_BI;
+    season.floodSiloBeans = ZERO_BI;
     season.incentiveBeans = ZERO_BI;
+    season.raining = false;
 
     let lastSeason = Season.load(id.minus(ONE_BI).toString());
     if (lastSeason != null) {

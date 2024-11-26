@@ -79,10 +79,29 @@ type Season @entity {
   deltaB: BigInt!
   "Change in Bean supply"
   deltaBeans: BigInt!
-  "Amount of Beans minted during sunrise"
+  "Amount of Beans minted during sunrise from TWA. Does not include flood mints"
   rewardBeans: BigInt!
+  "Amount of beans minted to the Field due to the flood"
+  floodFieldBeans: BigInt!
+  "Amount of beans minted to the Silo due to the flood"
+  floodSiloBeans: BigInt!
   "Amount of Beans paid to sunrise caller"
   incentiveBeans: BigInt!
+  "Boolean indicating whether the system is currently raining"
+  raining: Boolean!
+}
+
+type WellPlenty @entity {
+  "{Address for the farmer or Beanstalk contract}-{Non-Pinto token}"
+  id: ID!
+  "Beanstalk or farmer silo (used in the ID)"
+  silo: Silo!
+  "Payout token (used in the ID)"
+  token: Bytes!
+  "The amount of unclaimed plenty for this token. Always = 0 for an individual Farmer's Silo."
+  unclaimedAmount: BigInt!
+  "The amount of claimed plenty for this token"
+  claimedAmount: BigInt!
 }
 
 type Silo @entity {

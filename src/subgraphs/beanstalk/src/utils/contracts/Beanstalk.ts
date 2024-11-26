@@ -14,3 +14,9 @@ export function Beanstalk_harvestableIndex(fieldId: BigInt): BigInt {
   let beanstalk_contract = PintoLaunch.bind(version.protocolAddress);
   return beanstalk_contract.harvestableIndex(fieldId);
 }
+
+export function Beanstalk_isRaining(): boolean {
+  const beanstalk_contract = PintoLaunch.bind(v().protocolAddress);
+  const seasonStruct = beanstalk_contract.getSeasonStruct();
+  return seasonStruct.raining;
+}
