@@ -84,7 +84,7 @@ type Season @entity {
   "Amount of beans minted to the Field due to the flood"
   floodFieldBeans: BigInt!
   "Amount of beans minted to the Silo due to the flood"
-  siloFieldBeans: BigInt!
+  floodSiloBeans: BigInt!
   "Amount of Beans paid to sunrise caller"
   incentiveBeans: BigInt!
   "Boolean indicating whether the system is currently raining"
