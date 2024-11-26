@@ -5,7 +5,7 @@ import {
   updateDepositInSiloAsset,
   updateStalkBalances
 } from "../utils/Silo";
-import { addToSiloWhitelist, loadSilo, loadWhitelistTokenSetting } from "../entities/Silo";
+import { addToSiloWhitelist, loadSilo, loadWellPlenty, loadWhitelistTokenSetting } from "../entities/Silo";
 import { takeSiloSnapshots } from "../entities/snapshots/Silo";
 import { takeWhitelistTokenSettingSnapshots } from "../entities/snapshots/WhitelistTokenSetting";
 import {
@@ -158,5 +158,12 @@ export function handleUpdatedStalkPerBdvPerSeason(event: UpdatedStalkPerBdvPerSe
 }
 
 export function handleClaimPlenty(event: ClaimPlenty): void {
-  //
+  const userPlenty = loadWellPlenty(event.params.account, event.params.token);
+  userPlenty.claimedAmount = userPlenty.claimedAmount.plus(event.params.plenty);
+  userPlenty.save();
+
+  const systemPlenty = loadWellPlenty(v().protocolAddress, event.params.token);
+  systemPlenty.unclaimedAmount = systemPlenty.unclaimedAmount.minus(event.params.plenty);
+  systemPlenty.claimedAmount = systemPlenty.claimedAmount.plus(event.params.plenty);
+  systemPlenty.save();
 }

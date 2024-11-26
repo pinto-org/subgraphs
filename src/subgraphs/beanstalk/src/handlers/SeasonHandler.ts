@@ -21,6 +21,7 @@ import { siloReceipt, sunrise } from "../utils/Season";
 import { isGaugeDeployed, isReplanted } from "../../../../core/constants/RuntimeConstants";
 import { v } from "../utils/constants/Version";
 import { Beanstalk_harvestableIndex } from "../utils/contracts/Beanstalk";
+import { loadWellPlenty } from "../entities/Silo";
 
 export function handleSunrise(event: Sunrise): void {
   sunrise(event.address, event.params.season, event.block);
@@ -70,7 +71,9 @@ export function handlePlentyField(event: SeasonOfPlentyField): void {
 }
 
 export function handlePlentyWell(event: SeasonOfPlentyWell): void {
-  //
+  const systemPlenty = loadWellPlenty(v().protocolAddress, event.params.token);
+  systemPlenty.unclaimedAmount = systemPlenty.unclaimedAmount.plus(event.params.amount);
+  systemPlenty.save();
 }
 
 // This is the final function to be called during sunrise both pre and post replant

@@ -92,12 +92,12 @@ type Season @entity {
 }
 
 type WellPlenty @entity {
-  "{Address for the farmer or Beanstalk contract}-{Whitelisted LP}"
+  "{Address for the farmer or Beanstalk contract}-{Non-Pinto token}"
   id: ID!
-  "Beanstalk or farmer silo (whichever is used in the ID)"
+  "Beanstalk or farmer silo (used in the ID)"
   silo: Silo!
-  "Whitelisted LP token used in the ID"
-  token: WhitelistTokenSetting!
+  "Payout token (used in the ID)"
+  token: Bytes!
   "The amount of unclaimed plenty for this token. Always = 0 for an individual Farmer's Silo."
   unclaimedAmount: BigInt!
   "The amount of claimed plenty for this token"
