@@ -89,6 +89,10 @@ export function protocolHasUnripe(): boolean {
   return true;
 }
 
+export function getWhitelistedWells(): Address[] {
+  return [BEAN_WETH_CP2_WELL, BEAN_WSTETH_CP2_WELL];
+}
+
 /// MILESTONE ///
 
 export function isReplanted(blockNumber: BigInt): boolean {

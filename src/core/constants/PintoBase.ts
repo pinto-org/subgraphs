@@ -58,6 +58,10 @@ export function protocolHasUnripe(): boolean {
   return false;
 }
 
+export function getWhitelistedWells(): Address[] {
+  return [PINTO_WETH, PINTO_CBETH, PINTO_CBBTC, PINTO_WSOL, PINTO_USDC];
+}
+
 /// MILESTONE ///
 
 export function isReplanted(): boolean {

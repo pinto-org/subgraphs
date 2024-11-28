@@ -103,6 +103,17 @@ export function protocolHasUnripe(v: VersionDto): boolean {
   throw new Error("Unsupported protocol");
 }
 
+export function getWhitelistedWells(v: VersionDto): Address[] {
+  if (v.chain == "ethereum" && v.protocolAddress == ConstantsEth.BEANSTALK) {
+    return BeanstalkEth.getWhitelistedWells();
+  } else if (v.chain == "arbitrum" && v.protocolAddress == ConstantsArb.BEANSTALK) {
+    return BeanstalkArb.getWhitelistedWells();
+  } else if (v.chain == "base" && v.protocolAddress == ConstantsPintoBase.BEANSTALK) {
+    return PintoBase.getWhitelistedWells();
+  }
+  throw new Error("Unsupported protocol");
+}
+
 /// MILESTONE ///
 
 export function isReplanted(v: VersionDto, blockNumber: BigInt): boolean {
