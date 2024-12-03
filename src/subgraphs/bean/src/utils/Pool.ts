@@ -73,17 +73,11 @@ export function incrementPoolCross(poolAddress: Address, block: ethereum.Block):
 
 export function updatePoolSeason(poolAddress: Address, season: i32, block: ethereum.Block): void {
   let pool = loadOrCreatePool(poolAddress, block.number);
-  let poolHourly = loadOrCreatePoolHourlySnapshot(poolAddress, block);
-  let poolDaily = loadOrCreatePoolDailySnapshot(poolAddress, block);
-
   pool.lastSeason = getSeason(season).id;
-  // TODO: only attach season if there is actually a season for this timestamp.
-  poolHourly.season = pool.lastSeason;
-  poolDaily.season = pool.lastSeason;
-
   pool.save();
-  poolHourly.save();
-  poolDaily.save();
+
+  loadOrCreatePoolHourlySnapshot(poolAddress, block);
+  loadOrCreatePoolDailySnapshot(poolAddress, block);
 }
 
 export function updatePoolPrice(

@@ -123,10 +123,6 @@ describe("DeltaB", () => {
       const b1 = mockBlock(BigInt.fromU32(18000000), t1);
       const b2 = mockBlock(BigInt.fromU32(18000300), t2);
       const b3 = mockBlock(BigInt.fromU32(18000600), t3);
-      const prefixCurve = BEAN_3CRV.toHexString() + "-";
-      const h1 = hourFromTimestamp(t1).toString();
-      const h2 = hourFromTimestamp(t2).toString();
-      const h3 = hourFromTimestamp(t3).toString();
       // 100, 100
       const reserves1 = [BigInt.fromString("100000000"), BigInt.fromString("100000000000000000000")];
       // 200, 210
@@ -156,8 +152,8 @@ describe("DeltaB", () => {
         "priceCumulativeLast",
         "[100000000, 100000000000000000000]"
       );
-      assert.fieldEquals("PoolHourlySnapshot", prefixCurve + h1, "twaDeltaBeans", "0");
-      assert.fieldEquals("PoolHourlySnapshot", prefixCurve + h1, "twaPrice", "0.9999995");
+      assert.fieldEquals("PoolHourlySnapshot", BEAN_3CRV.toHexString() + "-6074", "twaDeltaBeans", "0");
+      assert.fieldEquals("PoolHourlySnapshot", BEAN_3CRV.toHexString() + "-6074", "twaPrice", "0.9999995");
       assert.fieldEquals("BeanHourlySnapshot", BEAN_ERC20.toHexString() + "-6074", "twaDeltaB", "0");
 
       handleMetapoolOracle(createMetapoolOracleEvent(ONE_BI, ZERO_BI, reserves2, b2));
@@ -167,13 +163,13 @@ describe("DeltaB", () => {
         "priceCumulativeLast",
         "[" + reserves2[0].toString() + ", " + reserves2[1].toString() + "]"
       );
-      assert.fieldEquals("PoolHourlySnapshot", prefixCurve + h2, "twaDeltaBeans", "4969504");
-      assert.fieldEquals("PoolHourlySnapshot", prefixCurve + h2, "twaPrice", "1.024700651737");
+      assert.fieldEquals("PoolHourlySnapshot", BEAN_3CRV.toHexString() + "-6074", "twaDeltaBeans", "4969504");
+      assert.fieldEquals("PoolHourlySnapshot", BEAN_3CRV.toHexString() + "-6074", "twaPrice", "1.024700651737");
       assert.fieldEquals("BeanHourlySnapshot", BEAN_ERC20.toHexString() + "-6074", "twaPrice", "1.024700651737");
 
       handleMetapoolOracle(createMetapoolOracleEvent(ONE_BI, ZERO_BI, reserves3, b3));
-      assert.fieldEquals("PoolHourlySnapshot", prefixCurve + h3, "twaDeltaBeans", "0");
-      assert.fieldEquals("PoolHourlySnapshot", prefixCurve + h3, "twaPrice", "0.9999999975");
+      assert.fieldEquals("PoolHourlySnapshot", BEAN_3CRV.toHexString() + "-6074", "twaDeltaBeans", "0");
+      assert.fieldEquals("PoolHourlySnapshot", BEAN_3CRV.toHexString() + "-6074", "twaPrice", "0.9999999975");
     });
 
     test("WellOracle", () => {
@@ -214,7 +210,6 @@ describe("DeltaB", () => {
       event2.block = mockBlock(BigInt.fromI32(19200000), BigInt.fromI32(1713923600));
       handleWellOracle(event2);
 
-      const prefixWell = BEAN_WETH_CP2_WELL.toHexString() + "-";
       const h1 = hourFromTimestamp(event2.block.timestamp).toString();
       assert.fieldEquals(
         "TwaOracle",
@@ -222,11 +217,21 @@ describe("DeltaB", () => {
         "priceCumulativeLast",
         "[880768318, 1483096961]"
       );
-      assert.fieldEquals("PoolHourlySnapshot", prefixWell + h1, "twaDeltaBeans", event2.params.deltaB.toString());
-      assert.fieldEquals("PoolHourlySnapshot", prefixWell + h1, "twaPrice", "0.9128867742860822655628687132162919");
       assert.fieldEquals(
         "PoolHourlySnapshot",
-        prefixWell + h1,
+        BEAN_WETH_CP2_WELL.toHexString() + "-6074",
+        "twaDeltaBeans",
+        event2.params.deltaB.toString()
+      );
+      assert.fieldEquals(
+        "PoolHourlySnapshot",
+        BEAN_WETH_CP2_WELL.toHexString() + "-6074",
+        "twaPrice",
+        "0.9128867742860822655628687132162919"
+      );
+      assert.fieldEquals(
+        "PoolHourlySnapshot",
+        BEAN_WETH_CP2_WELL.toHexString() + "-6074",
         "twaToken2Price",
         "3204.340276349048918425043871982445"
       );

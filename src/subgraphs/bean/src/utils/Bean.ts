@@ -73,13 +73,8 @@ export function updateBeanSeason(bean: Bean, season: u32, block: ethereum.Block)
   bean.lastSeason = getSeason(season).id;
   bean.save();
 
-  let beanHourly = loadOrCreateBeanHourlySnapshot(bean, block);
-  let beanDaily = loadOrCreateBeanDailySnapshot(bean, block);
-  // TODO: only attach season if there is actually a season for this timestamp.
-  beanHourly.season = bean.lastSeason;
-  beanDaily.season = bean.lastSeason;
-  beanHourly.save();
-  beanDaily.save();
+  loadOrCreateBeanHourlySnapshot(bean, block);
+  loadOrCreateBeanDailySnapshot(bean, block);
 }
 
 // Returns the last stored bean price
