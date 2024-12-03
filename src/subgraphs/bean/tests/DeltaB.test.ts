@@ -31,6 +31,7 @@ import { loadBean } from "../src/entities/Bean";
 import { loadOrCreatePool } from "../src/entities/Pool";
 import { initL1Version } from "./entity-mocking/MockVersion";
 import { handleMetapoolOracle } from "../src/handlers/legacy/LegacyBeanstalkHandler";
+import { mockBeanSeasons } from "./entity-mocking/MockSeason";
 
 const timestamp1 = BigInt.fromU32(1712793374);
 const hour1 = hourFromTimestamp(timestamp1).toString();
@@ -46,6 +47,7 @@ describe("DeltaB", () => {
   });
   beforeEach(() => {
     initL1Version();
+    mockBeanSeasons();
   });
   afterEach(() => {
     clearStore();

@@ -5,7 +5,7 @@ import { checkPoolCross } from "./Cross";
 import { DeltaBAndPrice } from "./price/Types";
 import { loadOrCreatePool, loadOrCreatePoolDailySnapshot, loadOrCreatePoolHourlySnapshot } from "../entities/Pool";
 import { toAddress } from "../../../../core/utils/Bytes";
-import { loadOrCreateSeason } from "../entities/Season";
+import { getSeason } from "../entities/Season";
 
 export function updatePoolValues(
   poolAddress: Address,
@@ -76,7 +76,8 @@ export function updatePoolSeason(poolAddress: Address, season: i32, block: ether
   let poolHourly = loadOrCreatePoolHourlySnapshot(poolAddress, block);
   let poolDaily = loadOrCreatePoolDailySnapshot(poolAddress, block);
 
-  pool.lastSeason = loadOrCreateSeason(season).id;
+  pool.lastSeason = getSeason(season).id;
+  // TODO: only attach season if there is actually a season for this timestamp.
   poolHourly.season = pool.lastSeason;
   poolDaily.season = pool.lastSeason;
 

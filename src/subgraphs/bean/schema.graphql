@@ -31,6 +31,8 @@ type Season @entity {
   id: ID!
   "Season number (int)"
   season: Int!
+  "Timestamp of the start of this season"
+  timestamp: BigInt!
 
   # Snapshots
   beanHourlySnapshots: BeanHourlySnapshot! @derivedFrom(field: "season")

@@ -4,9 +4,12 @@ import { mockBlock } from "../../../core/tests/event-mocking/Block";
 import { BEAN_ERC20 } from "../../../core/constants/raw/BeanstalkEthConstants";
 import { BEAN_INITIAL_VALUES } from "../cache-builder/results/B3Migration_arb";
 import { initL1Version } from "./entity-mocking/MockVersion";
+import { mockBeanSeasons, mockSeason } from "./entity-mocking/MockSeason";
 
 describe("Beanstalk 3 Migration", () => {
   beforeEach(() => {
+    mockSeason(BEAN_INITIAL_VALUES.lastSeason);
+    mockBeanSeasons();
     // NOTE: it may be more appropriate to init l2 version, but this shouldnt affect the tests
     // (aside from having to use L1 addresses in this test)
     initL1Version();

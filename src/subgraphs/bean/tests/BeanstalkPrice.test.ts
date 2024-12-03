@@ -26,6 +26,7 @@ import { BeanstalkPrice_try_price, getPoolPrice } from "../src/utils/price/Beans
 import { loadBean } from "../src/entities/Bean";
 import { handleDewhitelistToken } from "../src/handlers/BeanstalkHandler";
 import { initL1Version } from "./entity-mocking/MockVersion";
+import { mockBeanSeasons } from "./entity-mocking/MockSeason";
 
 const curvePrice = BigInt.fromU32(1012000);
 const beanEthPrice = BigInt.fromU32(1025000);
@@ -83,6 +84,7 @@ describe("BeanstalkPrice", () => {
 
   beforeEach(() => {
     initL1Version();
+    mockBeanSeasons();
 
     let bean = loadBean(BEAN_ERC20);
     bean.pools = [BEAN_3CRV, BEAN_WETH_CP2_WELL];
