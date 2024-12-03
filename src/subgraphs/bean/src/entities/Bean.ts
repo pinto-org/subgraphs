@@ -4,7 +4,7 @@ import { dayFromTimestamp } from "../../../../core/utils/Dates";
 import { ZERO_BD, ZERO_BI } from "../../../../core/utils/Decimals";
 import { Bean, BeanDailySnapshot, BeanHourlySnapshot } from "../../generated/schema";
 import { getV1Crosses } from "../utils/Cross";
-import { loadOrCreateSeason } from "./Season";
+import { getSeason } from "./Season";
 
 export function loadBean(token: Address): Bean {
   let bean = Bean.load(token);
@@ -17,10 +17,10 @@ export function loadBean(token: Address): Bean {
     bean.volume = ZERO_BI;
     bean.volumeUSD = ZERO_BD;
     bean.liquidityUSD = ZERO_BD;
-    bean.price = BigDecimal.fromString("1.072");
+    bean.price = BigDecimal.fromString(token == BEAN_ERC20 ? "1.072" : "1.0");
     bean.crosses = token == BEAN_ERC20 ? getV1Crosses() : 0;
     bean.lastCross = ZERO_BI;
-    bean.lastSeason = loadOrCreateSeason(token == BEAN_ERC20 ? 6074 : 1).id;
+    bean.lastSeason = getSeason(token == BEAN_ERC20 ? 6074 : 1).id;
     bean.pools = [];
     bean.dewhitelistedPools = [];
     bean.save();

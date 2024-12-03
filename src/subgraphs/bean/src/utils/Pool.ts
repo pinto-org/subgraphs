@@ -5,7 +5,7 @@ import { checkPoolCross } from "./Cross";
 import { DeltaBAndPrice } from "./price/Types";
 import { loadOrCreatePool, loadOrCreatePoolDailySnapshot, loadOrCreatePoolHourlySnapshot } from "../entities/Pool";
 import { toAddress } from "../../../../core/utils/Bytes";
-import { loadOrCreateSeason } from "../entities/Season";
+import { getSeason } from "../entities/Season";
 
 export function updatePoolValues(
   poolAddress: Address,
@@ -73,16 +73,11 @@ export function incrementPoolCross(poolAddress: Address, block: ethereum.Block):
 
 export function updatePoolSeason(poolAddress: Address, season: i32, block: ethereum.Block): void {
   let pool = loadOrCreatePool(poolAddress, block.number);
-  let poolHourly = loadOrCreatePoolHourlySnapshot(poolAddress, block);
-  let poolDaily = loadOrCreatePoolDailySnapshot(poolAddress, block);
-
-  pool.lastSeason = loadOrCreateSeason(season).id;
-  poolHourly.season = pool.lastSeason;
-  poolDaily.season = pool.lastSeason;
-
+  pool.lastSeason = getSeason(season).id;
   pool.save();
-  poolHourly.save();
-  poolDaily.save();
+
+  loadOrCreatePoolHourlySnapshot(poolAddress, block);
+  loadOrCreatePoolDailySnapshot(poolAddress, block);
 }
 
 export function updatePoolPrice(

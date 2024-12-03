@@ -31,10 +31,12 @@ type Season @entity {
   id: ID!
   "Season number (int)"
   season: Int!
+  "Timestamp of the start of this season"
+  timestamp: BigInt!
 
   # Snapshots
-  beanHourlySnapshots: BeanHourlySnapshot! @derivedFrom(field: "season")
-  beanDailySnapshots: BeanDailySnapshot! @derivedFrom(field: "season")
+  beanHourlySnapshot: BeanHourlySnapshot! @derivedFrom(field: "season")
+  beanDailySnapshot: BeanDailySnapshot! @derivedFrom(field: "season")
   poolHourlySnapshots: [PoolHourlySnapshot!]! @derivedFrom(field: "season")
   poolDailySnapshots: [PoolDailySnapshot!]! @derivedFrom(field: "season")
 }

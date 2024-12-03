@@ -172,7 +172,7 @@ const tokens: Token[] = [
   // base
   {
     address: PintoBase.BEAN_ERC20,
-    info: { name: "BEAN", decimals: BigInt.fromU32(6) }
+    info: { name: "PINTO", decimals: BigInt.fromU32(6) }
   },
   {
     address: PintoBase.WETH,

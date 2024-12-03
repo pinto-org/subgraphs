@@ -24,6 +24,7 @@ import { handleBlock } from "../src/handlers/CrossHandler";
 import { loadBean } from "../src/entities/Bean";
 import { initL1Version } from "./entity-mocking/MockVersion";
 import { handleBlock_v1 } from "../src/handlers/legacy/LegacyCrossHandler";
+import { mockBeanSeasons } from "./entity-mocking/MockSeason";
 
 const wellCrossId = (n: u32): string => {
   return BEAN_WETH_CP2_WELL.toHexString() + "-" + n.toString();
@@ -43,6 +44,7 @@ const WELL_CROSS_BLOCK = BigInt.fromU32(18965881);
 describe("Peg Crosses", () => {
   beforeEach(() => {
     initL1Version();
+    mockBeanSeasons();
 
     // Bean price is init at 1.07, set to 0 so it is consistent will pool starting price
     let bean = loadBean(BEAN_ERC20);

@@ -9,10 +9,12 @@ import { createDewhitelistTokenEvent } from "./event-mocking/Beanstalk";
 import { setWhitelistedPools } from "./entity-mocking/MockBean";
 import { handleDewhitelistToken } from "../src/handlers/BeanstalkHandler";
 import { initL1Version } from "./entity-mocking/MockVersion";
+import { mockBeanSeasons } from "./entity-mocking/MockSeason";
 
 describe("Whitelisting", () => {
   beforeEach(() => {
     initL1Version();
+    mockBeanSeasons();
   });
   afterEach(() => {
     // log.debug("clearing the store", []);

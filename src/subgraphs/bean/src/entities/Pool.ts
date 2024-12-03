@@ -42,20 +42,20 @@ export function loadOrCreatePool(poolAddress: Address, blockNumber: BigInt): Poo
 }
 
 export function loadOrCreatePoolHourlySnapshot(pool: Address, block: ethereum.Block): PoolHourlySnapshot {
-  let hour = hourFromTimestamp(block.timestamp).toString();
-  let id = pool.toHexString() + "-" + hour;
+  const poolEntity = loadOrCreatePool(pool, block.number);
+  let beanAddress = toAddress(poolEntity.bean);
+  let id = pool.toHexString() + "-" + loadBean(beanAddress).lastSeason;
   let snapshot = PoolHourlySnapshot.load(id);
   if (snapshot == null) {
-    let currentPool = loadOrCreatePool(pool, block.number);
     snapshot = new PoolHourlySnapshot(id);
     snapshot.pool = pool;
-    snapshot.reserves = currentPool.reserves;
-    snapshot.lastPrice = currentPool.lastPrice;
+    snapshot.reserves = poolEntity.reserves;
+    snapshot.lastPrice = poolEntity.lastPrice;
     snapshot.twaPrice = ZERO_BD;
-    snapshot.volume = currentPool.volume;
-    snapshot.volumeUSD = currentPool.volumeUSD;
-    snapshot.liquidityUSD = currentPool.liquidityUSD;
-    snapshot.crosses = currentPool.crosses;
+    snapshot.volume = poolEntity.volume;
+    snapshot.volumeUSD = poolEntity.volumeUSD;
+    snapshot.liquidityUSD = poolEntity.liquidityUSD;
+    snapshot.crosses = poolEntity.crosses;
     snapshot.utilization = ZERO_BD;
     snapshot.deltaBeans = ZERO_BI;
     snapshot.twaDeltaBeans = ZERO_BI;
@@ -64,7 +64,7 @@ export function loadOrCreatePoolHourlySnapshot(pool: Address, block: ethereum.Bl
     snapshot.deltaVolumeUSD = ZERO_BD;
     snapshot.deltaLiquidityUSD = ZERO_BD;
     snapshot.deltaCrosses = 0;
-    snapshot.season = currentPool.lastSeason;
+    snapshot.season = poolEntity.lastSeason;
     snapshot.createdAt = block.timestamp;
     snapshot.updatedAt = block.timestamp;
     snapshot.save();
@@ -78,16 +78,16 @@ export function loadOrCreatePoolDailySnapshot(pool: Address, block: ethereum.Blo
   let id = pool.toHexString() + "-" + day;
   let snapshot = PoolDailySnapshot.load(id);
   if (snapshot == null) {
-    let currentPool = loadOrCreatePool(pool, block.number);
+    let poolEntity = loadOrCreatePool(pool, block.number);
     snapshot = new PoolDailySnapshot(id);
     snapshot.pool = pool;
-    snapshot.reserves = currentPool.reserves;
-    snapshot.lastPrice = currentPool.lastPrice;
+    snapshot.reserves = poolEntity.reserves;
+    snapshot.lastPrice = poolEntity.lastPrice;
     snapshot.twaPrice = ZERO_BD;
-    snapshot.volume = currentPool.volume;
-    snapshot.volumeUSD = currentPool.volumeUSD;
-    snapshot.liquidityUSD = currentPool.liquidityUSD;
-    snapshot.crosses = currentPool.crosses;
+    snapshot.volume = poolEntity.volume;
+    snapshot.volumeUSD = poolEntity.volumeUSD;
+    snapshot.liquidityUSD = poolEntity.liquidityUSD;
+    snapshot.crosses = poolEntity.crosses;
     snapshot.utilization = ZERO_BD;
     snapshot.deltaBeans = ZERO_BI;
     snapshot.twaDeltaBeans = ZERO_BI;
@@ -96,7 +96,7 @@ export function loadOrCreatePoolDailySnapshot(pool: Address, block: ethereum.Blo
     snapshot.deltaVolumeUSD = ZERO_BD;
     snapshot.deltaLiquidityUSD = ZERO_BD;
     snapshot.deltaCrosses = 0;
-    snapshot.season = currentPool.lastSeason;
+    snapshot.season = poolEntity.lastSeason;
     snapshot.createdAt = block.timestamp;
     snapshot.updatedAt = block.timestamp;
     snapshot.save();

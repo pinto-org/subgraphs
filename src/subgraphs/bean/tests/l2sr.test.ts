@@ -29,6 +29,7 @@ import { handleChop, handleConvert } from "../src/handlers/BeanstalkHandler";
 import { createConvertEvent } from "./event-mocking/Beanstalk";
 import { initL1Version } from "./entity-mocking/MockVersion";
 import { ADDRESS_ZERO } from "../../../core/utils/Bytes";
+import { mockBeanSeasons } from "./entity-mocking/MockSeason";
 
 const mockReserves = Bytes.fromHexString("0xabcdef");
 const mockReservesTime = BigInt.fromString("123456");
@@ -43,6 +44,7 @@ const mockTwaOracle = (): TwaOracle => {
 describe("L2SR", () => {
   beforeEach(() => {
     initL1Version();
+    mockBeanSeasons();
   });
   afterEach(() => {
     mockSeedGaugeLockedBeansReverts(mockReserves, mockReservesTime);

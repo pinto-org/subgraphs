@@ -5,8 +5,11 @@ import { updatePoolSeason } from "../Pool";
 import { toAddress } from "../../../../../core/utils/Bytes";
 import { getProtocolToken } from "../../../../../core/constants/RuntimeConstants";
 import { v } from "../constants/Version";
+import { createNewSeason } from "../../entities/Season";
 
 export function updateSeason(season: u32, block: ethereum.Block): void {
+  createNewSeason(season, block);
+
   let bean = loadBean(getProtocolToken(v(), block.number));
   updateBeanSeason(bean, season, block);
 

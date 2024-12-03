@@ -12,7 +12,7 @@ import { updateBeanSupplyPegPercent_v1 } from "./legacy/Bean";
 import { toAddress } from "../../../../core/utils/Bytes";
 import { getProtocolToken } from "../../../../core/constants/RuntimeConstants";
 import { v } from "./constants/Version";
-import { loadOrCreateSeason } from "../entities/Season";
+import { getSeason } from "../entities/Season";
 
 export function adjustSupply(beanToken: Address, amount: BigInt): void {
   let bean = loadBean(beanToken);
@@ -70,15 +70,11 @@ export function updateBeanValues(
 }
 
 export function updateBeanSeason(bean: Bean, season: u32, block: ethereum.Block): void {
-  bean.lastSeason = loadOrCreateSeason(season).id;
+  bean.lastSeason = getSeason(season).id;
   bean.save();
 
-  let beanHourly = loadOrCreateBeanHourlySnapshot(bean, block);
-  let beanDaily = loadOrCreateBeanDailySnapshot(bean, block);
-  beanHourly.season = bean.lastSeason;
-  beanDaily.season = bean.lastSeason;
-  beanHourly.save();
-  beanDaily.save();
+  loadOrCreateBeanHourlySnapshot(bean, block);
+  loadOrCreateBeanDailySnapshot(bean, block);
 }
 
 // Returns the last stored bean price

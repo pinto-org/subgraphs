@@ -11,10 +11,12 @@ import { BigInt, Address } from "@graphprotocol/graph-ts";
 import { loadOrCreatePool } from "../src/entities/Pool";
 import { toAddress } from "../../../core/utils/Bytes";
 import { initL1Version } from "./entity-mocking/MockVersion";
+import { mockBeanSeasons } from "./entity-mocking/MockSeason";
 
 describe("Token", () => {
   beforeEach(() => {
     initL1Version();
+    mockBeanSeasons();
   });
   afterEach(() => {
     clearStore();
