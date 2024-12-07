@@ -111,6 +111,7 @@ export function podListingCreated(params: PodListingCreatedParams): void {
   listing.pricingFunction = params.pricingFunction;
 
   listing.originalIndex = params.index;
+  listing.originalPlaceInLine = params.index.plus(params.start).minus(getHarvestableIndex());
   listing.originalAmount = params.amount;
 
   listing.amount = params.amount;
@@ -143,7 +144,7 @@ export function podListingCreated(params: PodListingCreatedParams): void {
   rawEvent.logIndex = params.event.logIndex.toI32();
   rawEvent.historyID = listing.historyID;
   rawEvent.account = params.account;
-  rawEvent.placeInLine = params.index.plus(params.start).minus(getHarvestableIndex());
+  rawEvent.placeInLine = listing.originalPlaceInLine;
   rawEvent.index = params.index;
   rawEvent.start = params.start;
   rawEvent.amount = params.amount;
@@ -180,16 +181,15 @@ export function podListingFilled(params: MarketFillParams): void {
   } else {
     listing.status = "FILLED_PARTIAL";
 
-    let remainingListing = loadPodListing(
-      toAddress(listing.farmer),
-      listing.index.plus(params.amount).plus(listing.start)
-    );
+    const remainingIndex = listing.index.plus(params.amount).plus(listing.start);
+    let remainingListing = loadPodListing(toAddress(listing.farmer), remainingIndex);
     remainingListing.historyID =
       remainingListing.id + "-" + params.event.block.timestamp.toString() + "-" + params.event.logIndex.toString();
-    remainingListing.plot = listing.index.plus(params.amount).plus(listing.start).toString();
+    remainingListing.plot = remainingIndex.toString();
     remainingListing.createdAt = listing.createdAt;
     remainingListing.updatedAt = params.event.block.timestamp;
     remainingListing.originalIndex = listing.originalIndex;
+    remainingListing.originalPlaceInLine = listing.originalPlaceInLine;
     remainingListing.start = ZERO_BI;
     remainingListing.amount = listing.remainingAmount;
     remainingListing.originalAmount = listing.originalAmount;

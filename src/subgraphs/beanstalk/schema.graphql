@@ -990,6 +990,9 @@ type PodListing @entity {
   """
   originalIndex: BigInt!
 
+  "The place of this plot in the pod line at the time it was listed"
+  originalPlaceInLine: BigInt!
+
   """
   The total number of Pods listed during the first emission of PodListingCreated.
   """
