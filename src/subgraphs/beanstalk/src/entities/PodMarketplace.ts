@@ -63,6 +63,7 @@ export function loadPodListing(account: Address, index: BigInt): PodListing {
     listing.minFillAmount = ZERO_BI;
     listing.pricePerPod = 0;
     listing.originalIndex = index;
+    listing.originalPlaceInLine = ZERO_BI;
     listing.originalAmount = ZERO_BI;
     listing.filled = ZERO_BI;
     listing.amount = ZERO_BI;
@@ -96,6 +97,7 @@ export function createHistoricalPodListing(listing: PodListing): void {
       newListing.minFillAmount = listing.minFillAmount;
       newListing.pricePerPod = listing.pricePerPod;
       newListing.originalIndex = listing.originalIndex;
+      newListing.originalPlaceInLine = listing.originalPlaceInLine;
       newListing.originalAmount = listing.originalAmount;
       newListing.filled = listing.filled;
       newListing.amount = listing.amount;

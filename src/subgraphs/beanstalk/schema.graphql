@@ -743,6 +743,10 @@ type Plot @entity {
   harvestedPods: BigInt!
   "Flag for if plot is fully harvested"
   fullyHarvested: Boolean!
+  "Timestamp of plot harvest, if it has harvested"
+  harvestAt: BigInt
+  "Transaction hash of plot harvest"
+  harvestHash: Bytes
 }
 
 type PodMarketplace @entity {
@@ -990,6 +994,9 @@ type PodListing @entity {
   """
   originalIndex: BigInt!
 
+  "The place of this plot in the pod line at the time it was listed"
+  originalPlaceInLine: BigInt!
+
   """
   The total number of Pods listed during the first emission of PodListingCreated.
   """
@@ -1181,7 +1188,7 @@ type PodFill @entity {
   "Associated order, if any"
   order: PodOrder
   "Account that is sending pods"
-  fromFarmer: Bytes! # These are already referenced via the listing and order entities.
+  fromFarmer: Farmer!
   "Account that is receiving pods"
   toFarmer: Farmer!
   "Number of pods filled"

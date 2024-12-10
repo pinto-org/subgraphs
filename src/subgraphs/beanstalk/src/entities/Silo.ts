@@ -48,7 +48,7 @@ export function loadSiloAsset(account: Address, token: Address): SiloAsset {
 
   if (asset == null) {
     asset = new SiloAsset(id);
-    asset.silo = account;
+    asset.silo = loadSilo(account).id;
     asset.token = token;
     asset.depositedBDV = ZERO_BI;
     asset.depositedAmount = ZERO_BI;
