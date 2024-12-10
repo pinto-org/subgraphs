@@ -743,6 +743,10 @@ type Plot @entity {
   harvestedPods: BigInt!
   "Flag for if plot is fully harvested"
   fullyHarvested: Boolean!
+  "Timestamp of plot harvest, if it has harvested"
+  harvestAt: BigInt
+  "Transaction hash of plot harvest"
+  harvestHash: Bytes
 }
 
 type PodMarketplace @entity {

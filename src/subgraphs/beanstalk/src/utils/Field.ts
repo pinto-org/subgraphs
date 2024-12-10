@@ -108,6 +108,8 @@ export function harvest(params: HarvestParams): void {
 
       plot.harvestedPods = plot.pods;
       plot.fullyHarvested = true;
+      plot.harvestAt = params.event.block.timestamp;
+      plot.harvestHash = params.event.transaction.hash;
       plot.save();
     } else {
       // Plot partially harvests
@@ -143,6 +145,8 @@ export function harvest(params: HarvestParams): void {
       plot.harvestedPods = harvestablePods;
       plot.pods = harvestablePods;
       plot.fullyHarvested = true;
+      plot.harvestAt = params.event.block.timestamp;
+      plot.harvestHash = params.event.transaction.hash;
       plot.save();
     }
   }
