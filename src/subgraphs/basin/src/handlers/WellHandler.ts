@@ -39,7 +39,7 @@ export function handleAddLiquidity(event: AddLiquidity): void {
 
   updateWellTokenUSDPrices(event.address, event.block.number);
 
-  updateWellVolumesAfterLiquidity(
+  const volume = updateWellVolumesAfterLiquidity(
     event.address,
     well.tokens.map<Address>((b) => toAddress(b)),
     event.params.tokenAmountsIn,
@@ -49,7 +49,7 @@ export function handleAddLiquidity(event: AddLiquidity): void {
 
   incrementWellDeposit(event.address);
 
-  recordAddLiquidityEvent(event);
+  recordAddLiquidityEvent(event, volume);
 }
 
 export function handleSync(event: Sync): void {
@@ -65,7 +65,7 @@ export function handleSync(event: Sync): void {
 
   updateWellTokenUSDPrices(event.address, event.block.number);
 
-  updateWellVolumesAfterLiquidity(
+  const volume = updateWellVolumesAfterLiquidity(
     event.address,
     well.tokens.map<Address>((b) => toAddress(b)),
     deltaReserves,
@@ -75,7 +75,7 @@ export function handleSync(event: Sync): void {
 
   incrementWellDeposit(event.address);
 
-  recordSyncEvent(event, deltaReserves);
+  recordSyncEvent(event, deltaReserves, volume);
 }
 
 export function handleRemoveLiquidity(event: RemoveLiquidity): void {
@@ -95,7 +95,7 @@ export function handleRemoveLiquidity(event: RemoveLiquidity): void {
 
   updateWellTokenUSDPrices(event.address, event.block.number);
 
-  updateWellVolumesAfterLiquidity(
+  const volume = updateWellVolumesAfterLiquidity(
     event.address,
     well.tokens.map<Address>((b) => toAddress(b)),
     subBigIntArray([ZERO_BI, ZERO_BI], event.params.tokenAmountsOut),
@@ -105,7 +105,7 @@ export function handleRemoveLiquidity(event: RemoveLiquidity): void {
 
   incrementWellWithdraw(event.address);
 
-  recordRemoveLiquidityEvent(event);
+  recordRemoveLiquidityEvent(event, volume);
 }
 
 export function handleRemoveLiquidityOneToken(event: RemoveLiquidityOneToken): void {
@@ -128,7 +128,7 @@ export function handleRemoveLiquidityOneToken(event: RemoveLiquidityOneToken): v
 
   updateWellTokenUSDPrices(event.address, event.block.number);
 
-  updateWellVolumesAfterLiquidity(
+  const volume = updateWellVolumesAfterLiquidity(
     event.address,
     [event.params.tokenOut],
     [event.params.tokenAmountOut.neg()],
@@ -138,7 +138,7 @@ export function handleRemoveLiquidityOneToken(event: RemoveLiquidityOneToken): v
 
   incrementWellWithdraw(event.address);
 
-  recordRemoveLiquidityOneEvent(event, withdrawnBalances);
+  recordRemoveLiquidityOneEvent(event, withdrawnBalances, volume);
 }
 
 export function handleSwap(event: Swap): void {
@@ -154,7 +154,7 @@ export function handleSwap(event: Swap): void {
 
   updateWellTokenUSDPrices(event.address, event.block.number);
 
-  updateWellVolumesAfterSwap(
+  const volume = updateWellVolumesAfterSwap(
     event.address,
     event.params.fromToken,
     event.params.amountIn,
@@ -165,7 +165,7 @@ export function handleSwap(event: Swap): void {
 
   incrementWellSwap(event.address);
 
-  recordSwapEvent(event);
+  recordSwapEvent(event, volume);
 }
 
 export function handleShift(event: Shift): void {
@@ -185,7 +185,7 @@ export function handleShift(event: Shift): void {
 
   updateWellTokenUSDPrices(event.address, event.block.number);
 
-  updateWellVolumesAfterSwap(
+  const volume = updateWellVolumesAfterSwap(
     event.address,
     fromToken,
     amountIn,
@@ -196,5 +196,5 @@ export function handleShift(event: Shift): void {
 
   incrementWellSwap(event.address);
 
-  recordShiftEvent(event, fromToken, amountIn);
+  recordShiftEvent(event, fromToken, amountIn, volume);
 }

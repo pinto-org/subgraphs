@@ -1,12 +1,5 @@
 import { Address, BigDecimal, BigInt, Bytes, ethereum } from "@graphprotocol/graph-ts";
-import {
-  Well,
-  WellDailySnapshot,
-  WellHourlySnapshot,
-  WellUpgradeHistory,
-  WellUpgradeHistory,
-  WellUpgradeHistory
-} from "../../generated/schema";
+import { Well, WellDailySnapshot, WellHourlySnapshot, WellUpgradeHistory } from "../../generated/schema";
 import { ERC20 } from "../../generated/Basin-ABIs/ERC20";
 import {
   subBigDecimalArray,

@@ -4,23 +4,17 @@ import { AddLiquidity, RemoveLiquidity, RemoveLiquidityOneToken, Sync } from "..
 import { getBigDecimalArrayTotal } from "../../../../../core/utils/Decimals";
 import { getCalculatedReserveUSDValues, getTokenPrices } from "../../utils/Well";
 import { loadWell } from "../Well";
+import { EventVolume } from "../../utils/Volume";
 
-export function recordAddLiquidityEvent(event: AddLiquidity): void {
+export function recordAddLiquidityEvent(event: AddLiquidity, volume: EventVolume): void {
   let id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
   let deposit = new Deposit(id);
-  let receipt = event.receipt;
   let well = loadWell(event.address);
   well.tokenPrice = getTokenPrices(well);
   well.save();
 
   deposit.hash = event.transaction.hash;
-  deposit.nonce = event.transaction.nonce;
   deposit.logIndex = event.logIndex.toI32();
-  deposit.gasLimit = event.transaction.gasLimit;
-  if (receipt !== null) {
-    deposit.gasUsed = receipt.gasUsed;
-  }
-  deposit.gasPrice = event.transaction.gasPrice;
   deposit.eventType = "ADD_LIQUIDITY";
   deposit.account = event.transaction.from;
   deposit.well = event.address;
@@ -34,22 +28,15 @@ export function recordAddLiquidityEvent(event: AddLiquidity): void {
   deposit.save();
 }
 
-export function recordSyncEvent(event: Sync, deltaReserves: BigInt[]): void {
+export function recordSyncEvent(event: Sync, deltaReserves: BigInt[], volume: EventVolume): void {
   let id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
   let deposit = new Deposit(id);
-  let receipt = event.receipt;
   let well = loadWell(event.address);
   well.tokenPrice = getTokenPrices(well);
   well.save();
 
   deposit.hash = event.transaction.hash;
-  deposit.nonce = event.transaction.nonce;
   deposit.logIndex = event.logIndex.toI32();
-  deposit.gasLimit = event.transaction.gasLimit;
-  if (receipt !== null) {
-    deposit.gasUsed = receipt.gasUsed;
-  }
-  deposit.gasPrice = event.transaction.gasPrice;
   deposit.eventType = "SYNC";
   deposit.account = event.transaction.from;
   deposit.well = event.address;
@@ -63,22 +50,15 @@ export function recordSyncEvent(event: Sync, deltaReserves: BigInt[]): void {
   deposit.save();
 }
 
-export function recordRemoveLiquidityEvent(event: RemoveLiquidity): void {
+export function recordRemoveLiquidityEvent(event: RemoveLiquidity, volume: EventVolume): void {
   let id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
   let withdraw = new Withdraw(id);
-  let receipt = event.receipt;
   let well = loadWell(event.address);
   well.tokenPrice = getTokenPrices(well);
   well.save();
 
   withdraw.hash = event.transaction.hash;
-  withdraw.nonce = event.transaction.nonce;
   withdraw.logIndex = event.logIndex.toI32();
-  withdraw.gasLimit = event.transaction.gasLimit;
-  if (receipt !== null) {
-    withdraw.gasUsed = receipt.gasUsed;
-  }
-  withdraw.gasPrice = event.transaction.gasPrice;
   withdraw.eventType = "REMOVE_LIQUIDITY";
   withdraw.account = event.transaction.from;
   withdraw.well = event.address;
@@ -94,22 +74,19 @@ export function recordRemoveLiquidityEvent(event: RemoveLiquidity): void {
   withdraw.save();
 }
 
-export function recordRemoveLiquidityOneEvent(event: RemoveLiquidityOneToken, tokenAmounts: BigInt[]): void {
+export function recordRemoveLiquidityOneEvent(
+  event: RemoveLiquidityOneToken,
+  tokenAmounts: BigInt[],
+  volume: EventVolume
+): void {
   let id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
   let withdraw = new Withdraw(id);
-  let receipt = event.receipt;
   let well = loadWell(event.address);
   well.tokenPrice = getTokenPrices(well);
   well.save();
 
   withdraw.hash = event.transaction.hash;
-  withdraw.nonce = event.transaction.nonce;
   withdraw.logIndex = event.logIndex.toI32();
-  withdraw.gasLimit = event.transaction.gasLimit;
-  if (receipt !== null) {
-    withdraw.gasUsed = receipt.gasUsed;
-  }
-  withdraw.gasPrice = event.transaction.gasPrice;
   withdraw.eventType = "REMOVE_LIQUIDITY_ONE_TOKEN";
   withdraw.account = event.transaction.from;
   withdraw.well = event.address;

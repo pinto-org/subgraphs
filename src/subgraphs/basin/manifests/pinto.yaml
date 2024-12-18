@@ -91,6 +91,26 @@ dataSources:
             kind: polling
             every: 30 # 1 minute on base
       file: ../src/handlers/HourlySnapshotHandler.ts
+  - kind: ethereum/contract
+    name: BeanstalkEvents
+    network: base
+    source:
+      address: "0xD1A0D188E861ed9d15773a2F3574a2e94134bA8f"
+      abi: PintoLaunch
+      startBlock: 22622961 # Pintostalk Deployment
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - ConvertCandidate
+      abis:
+        - name: PintoLaunch
+          file: ../../../core/abis/Beanstalk/Pinto-Launch.json
+      eventHandlers:
+        - event: Convert
+          handler: handleConvert
+      file: ../src/handlers/BeanstalkHandler.ts
 templates:
   - kind: ethereum/contract
     name: Well

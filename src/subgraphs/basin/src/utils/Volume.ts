@@ -1,5 +1,12 @@
-import { Address, BigInt, ethereum, log } from "@graphprotocol/graph-ts";
-import { emptyBigIntArray, toDecimal, ZERO_BD, ZERO_BI, subBigIntArray } from "../../../../core/utils/Decimals";
+import { Address, BigDecimal, BigInt, ethereum, log } from "@graphprotocol/graph-ts";
+import {
+  emptyBigIntArray,
+  toDecimal,
+  ZERO_BD,
+  ZERO_BI,
+  subBigIntArray,
+  emptyBigDecimalArray
+} from "../../../../core/utils/Decimals";
 import { Well } from "../../generated/schema";
 import { loadWell } from "../entities/Well";
 import { loadToken } from "../entities/Token";
@@ -7,7 +14,15 @@ import { WellFunction } from "../../generated/Basin-ABIs/WellFunction";
 import { toAddress } from "../../../../core/utils/Bytes";
 import { loadOrCreateWellFunction } from "../entities/WellComponents";
 
-// Constant product volume calculations
+export class EventVolume {
+  tradeVolumeReserves: BigInt[];
+  tradeVolumeReservesUSD: BigDecimal[];
+  tradeVolumeUSD: BigDecimal;
+  biTradeVolumeReserves: BigInt[];
+  transferVolumeReserves: BigInt[];
+  transferVolumeReservesUSD: BigDecimal[];
+  transferVolumeUSD: BigDecimal;
+}
 
 export function updateWellVolumesAfterSwap(
   wellAddress: Address,
@@ -16,7 +31,7 @@ export function updateWellVolumesAfterSwap(
   toToken: Address,
   amountOut: BigInt,
   block: ethereum.Block
-): void {
+): EventVolume {
   let well = loadWell(wellAddress);
 
   const deltaTradeVolumeReserves = emptyBigIntArray(well.tokens.length);
@@ -29,12 +44,13 @@ export function updateWellVolumesAfterSwap(
   deltaTransferVolumeReserves[well.tokens.indexOf(fromToken)] = amountIn;
   deltaTransferVolumeReserves[well.tokens.indexOf(toToken)] = amountOut;
 
-  updateVolumeStats(well, deltaTradeVolumeReserves, deltaTransferVolumeReserves);
+  const transactionVolume = updateVolumeStats(well, deltaTradeVolumeReserves, deltaTransferVolumeReserves);
 
   well.lastUpdateTimestamp = block.timestamp;
   well.lastUpdateBlockNumber = block.number;
-
   well.save();
+
+  return transactionVolume;
 }
 
 // The current implementation of USD volumes may be incorrect for wells that have more than 2 tokens.
@@ -44,7 +60,7 @@ export function updateWellVolumesAfterLiquidity(
   amounts: BigInt[],
   deltaLpSupply: BigInt,
   block: ethereum.Block
-): void {
+): EventVolume {
   let well = loadWell(wellAddress);
   const wellTokens = well.tokens.map<Address>((t) => toAddress(t));
 
@@ -52,12 +68,13 @@ export function updateWellVolumesAfterLiquidity(
   const tradeAmount = calcLiquidityVolume(well, padTokenAmounts(wellTokens, tokens, amounts), deltaLpSupply);
   const deltaTransferVolumeReserves = padTokenAmounts(wellTokens, tokens, amounts);
 
-  updateVolumeStats(well, tradeAmount, deltaTransferVolumeReserves);
+  const transactionVolume = updateVolumeStats(well, tradeAmount, deltaTransferVolumeReserves);
 
   well.lastUpdateTimestamp = block.timestamp;
   well.lastUpdateBlockNumber = block.number;
-
   well.save();
+
+  return transactionVolume;
 }
 
 /**
@@ -104,7 +121,17 @@ function updateVolumeStats(
   well: Well,
   deltaTradeVolumeReserves: BigInt[],
   deltaTransferVolumeReserves: BigInt[]
-): void {
+): EventVolume {
+  let retval: EventVolume = {
+    tradeVolumeReserves: emptyBigIntArray(deltaTradeVolumeReserves.length),
+    tradeVolumeReservesUSD: emptyBigDecimalArray(deltaTradeVolumeReserves.length),
+    tradeVolumeUSD: ZERO_BD,
+    biTradeVolumeReserves: emptyBigIntArray(deltaTradeVolumeReserves.length),
+    transferVolumeReserves: emptyBigIntArray(deltaTradeVolumeReserves.length),
+    transferVolumeReservesUSD: emptyBigDecimalArray(deltaTradeVolumeReserves.length),
+    transferVolumeUSD: ZERO_BD
+  };
+
   let tradeVolumeReserves = well.cumulativeTradeVolumeReserves;
   let tradeVolumeReservesUSD = well.cumulativeTradeVolumeReservesUSD;
   let biTradeVolumeReserves = well.cumulativeBiTradeVolumeReserves;
@@ -128,17 +155,20 @@ function updateVolumeStats(
     const tokenInfo = loadToken(toAddress(well.tokens[i]));
     let usdTradeAmount = ZERO_BD;
     if (deltaTradeVolumeReserves[i] > ZERO_BI) {
+      retval.tradeVolumeReserves[i] = deltaTradeVolumeReserves[i];
       tradeVolumeReserves[i] = tradeVolumeReserves[i].plus(deltaTradeVolumeReserves[i]);
       rollingDailyTradeVolumeReserves[i] = rollingDailyTradeVolumeReserves[i].plus(deltaTradeVolumeReserves[i]);
       rollingWeeklyTradeVolumeReserves[i] = rollingWeeklyTradeVolumeReserves[i].plus(deltaTradeVolumeReserves[i]);
       usdTradeAmount = toDecimal(deltaTradeVolumeReserves[i], tokenInfo.decimals).times(tokenInfo.lastPriceUSD);
     }
+    retval.biTradeVolumeReserves[i] = deltaTradeVolumeReserves[i].abs();
     biTradeVolumeReserves[i] = biTradeVolumeReserves[i].plus(deltaTradeVolumeReserves[i].abs());
     rollingDailyBiTradeVolumeReserves[i] = rollingDailyBiTradeVolumeReserves[i].plus(deltaTradeVolumeReserves[i].abs());
     rollingWeeklyBiTradeVolumeReserves[i] = rollingWeeklyBiTradeVolumeReserves[i].plus(
       deltaTradeVolumeReserves[i].abs()
     );
 
+    retval.transferVolumeReserves[i] = deltaTransferVolumeReserves[i].abs();
     transferVolumeReserves[i] = transferVolumeReserves[i].plus(deltaTransferVolumeReserves[i].abs());
     rollingDailyTransferVolumeReserves[i] = rollingDailyTransferVolumeReserves[i].plus(
       deltaTransferVolumeReserves[i].abs()
@@ -150,10 +180,12 @@ function updateVolumeStats(
       tokenInfo.lastPriceUSD
     );
 
+    retval.tradeVolumeReservesUSD[i] = usdTradeAmount;
     tradeVolumeReservesUSD[i] = tradeVolumeReservesUSD[i].plus(usdTradeAmount).truncate(2);
     rollingDailyTradeVolumeReservesUSD[i] = rollingDailyTradeVolumeReservesUSD[i].plus(usdTradeAmount).truncate(2);
     rollingWeeklyTradeVolumeReservesUSD[i] = rollingWeeklyTradeVolumeReservesUSD[i].plus(usdTradeAmount).truncate(2);
 
+    retval.transferVolumeReservesUSD[i] = usdTransferAmount;
     transferVolumeReservesUSD[i] = transferVolumeReservesUSD[i].plus(usdTransferAmount).truncate(2);
     rollingDailyTransferVolumeReservesUSD[i] = rollingDailyTransferVolumeReservesUSD[i]
       .plus(usdTransferAmount)
@@ -168,11 +200,13 @@ function updateVolumeStats(
 
   well.cumulativeTradeVolumeReserves = tradeVolumeReserves;
   well.cumulativeTradeVolumeReservesUSD = tradeVolumeReservesUSD;
+  retval.tradeVolumeUSD = totalTradeUSD;
   well.cumulativeTradeVolumeUSD = well.cumulativeTradeVolumeUSD.plus(totalTradeUSD);
   well.cumulativeBiTradeVolumeReserves = biTradeVolumeReserves;
 
   well.cumulativeTransferVolumeReserves = transferVolumeReserves;
   well.cumulativeTransferVolumeReservesUSD = transferVolumeReservesUSD;
+  retval.transferVolumeUSD = totalTransferUSD;
   well.cumulativeTransferVolumeUSD = well.cumulativeTransferVolumeUSD.plus(totalTransferUSD);
 
   // Rolling daily/weekly amounts are added immediately, and at at the top of the hour, the oldest
@@ -193,6 +227,8 @@ function updateVolumeStats(
   well.rollingWeeklyTransferVolumeReserves = rollingWeeklyTransferVolumeReserves;
   well.rollingWeeklyTransferVolumeReservesUSD = rollingWeeklyTransferVolumeReservesUSD;
   well.rollingWeeklyTransferVolumeUSD = well.rollingWeeklyTransferVolumeUSD.plus(totalTransferUSD).truncate(2);
+
+  return retval;
 }
 
 // Returns the provided token amounts in their appropriate position with respect to well reserve tokens
