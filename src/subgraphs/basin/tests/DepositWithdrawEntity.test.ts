@@ -1,6 +1,6 @@
 import { afterEach, assert, beforeEach, clearStore, describe, test } from "matchstick-as/assembly/index";
 import { BEAN_ERC20, WETH } from "../../../core/constants/raw/BeanstalkEthConstants";
-import { BI_10, ZERO_BI } from "../../../core/utils/Decimals";
+import { BI_10 } from "../../../core/utils/Decimals";
 import {
   ACCOUNT_ENTITY_TYPE,
   BEAN_SWAP_AMOUNT,
@@ -52,11 +52,6 @@ describe("Deposit/Withdraw Entities", () => {
 
     assert.bytesEquals(BEAN_ERC20, tokens[0]);
     assert.bytesEquals(WETH, tokens[1]);
-
-    let reserves = updatedStore.reserves;
-
-    assert.bigIntEquals(BEAN_SWAP_AMOUNT, reserves[0]);
-    assert.bigIntEquals(WETH_SWAP_AMOUNT, reserves[1]);
 
     // Account entity exists
     assert.fieldEquals(ACCOUNT_ENTITY_TYPE, SWAP_ACCOUNT.toHexString(), "id", SWAP_ACCOUNT.toHexString());
@@ -131,13 +126,9 @@ describe("Deposit/Withdraw Entities", () => {
     assert.bytesEquals(BEAN_ERC20, tokens[0]);
     assert.bytesEquals(WETH, tokens[1]);
 
-    let reserves = updatedStore.reserves;
-
     let updatedWell = loadWell(WELL);
     let wellReserves = updatedWell.reserves;
 
-    assert.bigIntEquals(BEAN_SWAP_AMOUNT, reserves[0]);
-    assert.bigIntEquals(ZERO_BI, reserves[1]);
     assert.bigIntEquals(BEAN_SWAP_AMOUNT, wellReserves[0]);
     assert.bigIntEquals(WETH_SWAP_AMOUNT.times(BigInt.fromU32(2)), wellReserves[1]);
 

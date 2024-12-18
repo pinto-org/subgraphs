@@ -463,7 +463,7 @@ type Account @entity {
 
 " This maps to the AddLiquidity and Sync events "
 type Deposit @entity(immutable: true) {
-  " {Transaction hash}-{Well}-{LP token amount}(-{log index})? | The ID is constructed in this fashion to allow a subsequent Convert event to identify this entity. (Adds log index if necessary to prevent collision)"
+  " {Transaction hash}-{Well}-{LP token amount}(-{log index})? | The ID is constructed in this fashion to allow any subsequent event in the same transaction to identify this entity. (Adds log index if necessary to prevent collision)"
   id: ID!
 
   " Transaction hash of the transaction that emitted this event "
@@ -496,6 +496,9 @@ type Deposit @entity(immutable: true) {
   " The current amount of each token needed to exchange for one of the other token, after this event. "
   tokenPrice: [BigInt!]!
 
+  " Boolean indicating whether this liquidity addition is a Beanstalk convert. "
+  isConvert: Boolean!
+
   " Trade volume for each token, in native amount, as a result of this liquidity addition. The ordering should be the same as the well's `tokens` field. "
   tradeVolumeReserves: [BigInt!]!
 
@@ -526,7 +529,7 @@ type Deposit @entity(immutable: true) {
 
 " This maps to RemoveLiquidity and RemoveLiquidityOneToken events "
 type Withdraw @entity(immutable: true) {
-  " {Transaction hash}-{Well}-{LP token amount}(-{log index})? | The ID is constructed in this fashion to allow a subsequent Convert event to identify this entity. (Adds log index if necessary to prevent collision)"
+  " {Transaction hash}-{Well}-{LP token amount}(-{log index})? | The ID is constructed in this fashion to allow any subsequent event in the same transaction to identify this entity. (Adds log index if necessary to prevent collision)"
   id: ID!
 
   " Transaction hash of the transaction that emitted this event "
@@ -559,6 +562,9 @@ type Withdraw @entity(immutable: true) {
   " The current amount of each token needed to exchange for one of the other token, after this event. "
   tokenPrice: [BigInt!]!
 
+  " Boolean indicating whether this liquidity removal is a Beanstalk convert. "
+  isConvert: Boolean!
+
   " Trade volume for each token, in native amount, as a result of this liquidity removal. The ordering should be the same as the well's `tokens` field. "
   tradeVolumeReserves: [BigInt!]!
 
@@ -588,7 +594,7 @@ type Withdraw @entity(immutable: true) {
 }
 
 type Swap @entity(immutable: true) {
-  " Transaction hash-log index"
+  " {Transaction hash}-{Well}-{Out token amount}(-{log index})? | The ID is constructed in this fashion to allow any subsequent event in the same transaction to identify this entity. (Adds log index if necessary to prevent collision)"
   id: ID!
 
   " Transaction hash of the event "

@@ -1,12 +1,20 @@
 import { Shift, Swap } from "../../../generated/Basin-ABIs/Well";
 import { Swap as SwapEvent } from "../../../generated/schema";
-import { Address, BigInt } from "@graphprotocol/graph-ts";
+import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import { loadWell } from "../Well";
 import { getTokenPrices } from "../../utils/Well";
 import { EventVolume } from "../../utils/Volume";
 
+export function getSwapEntityId(event: ethereum.Event, outTokenAmount: BigInt): string {
+  let id = `${event.transaction.hash.toHexString()}-${event.address}-${outTokenAmount.toString()}`;
+  if (SwapEvent.loadInBlock(id)) {
+    id = `${id}-${event.logIndex.toI32()}`;
+  }
+  return id;
+}
+
 export function recordSwapEvent(event: Swap, volume: EventVolume): void {
-  let swap = new SwapEvent(event.transaction.hash.toHexString() + "-" + event.logIndex.toString());
+  let swap = new SwapEvent(getSwapEntityId(event, event.params.amountOut));
   let well = loadWell(event.address);
   well.tokenPrice = getTokenPrices(well);
   well.save();
@@ -23,11 +31,18 @@ export function recordSwapEvent(event: Swap, volume: EventVolume): void {
   swap.toToken = event.params.toToken;
   swap.amountOut = event.params.amountOut;
   swap.tokenPrice = well.tokenPrice;
+  swap.tradeVolumeReserves = volume.tradeVolumeReserves;
+  swap.tradeVolumeReservesUSD = volume.tradeVolumeReservesUSD;
+  swap.tradeVolumeUSD = volume.tradeVolumeUSD;
+  swap.biTradeVolumeReserves = volume.biTradeVolumeReserves;
+  swap.transferVolumeReserves = volume.transferVolumeReserves;
+  swap.transferVolumeReservesUSD = volume.transferVolumeReservesUSD;
+  swap.transferVolumeUSD = volume.transferVolumeUSD;
   swap.save();
 }
 
 export function recordShiftEvent(event: Shift, fromToken: Address, amountIn: BigInt, volume: EventVolume): void {
-  let swap = new SwapEvent(event.transaction.hash.toHexString() + "-" + event.logIndex.toString());
+  let swap = new SwapEvent(getSwapEntityId(event, event.params.amountOut));
   let well = loadWell(event.address);
   well.tokenPrice = getTokenPrices(well);
   well.save();
@@ -44,5 +59,12 @@ export function recordShiftEvent(event: Shift, fromToken: Address, amountIn: Big
   swap.toToken = event.params.toToken;
   swap.amountOut = event.params.amountOut;
   swap.tokenPrice = well.tokenPrice;
+  swap.tradeVolumeReserves = volume.tradeVolumeReserves;
+  swap.tradeVolumeReservesUSD = volume.tradeVolumeReservesUSD;
+  swap.tradeVolumeUSD = volume.tradeVolumeUSD;
+  swap.biTradeVolumeReserves = volume.biTradeVolumeReserves;
+  swap.transferVolumeReserves = volume.transferVolumeReserves;
+  swap.transferVolumeReservesUSD = volume.transferVolumeReservesUSD;
+  swap.transferVolumeUSD = volume.transferVolumeUSD;
   swap.save();
 }

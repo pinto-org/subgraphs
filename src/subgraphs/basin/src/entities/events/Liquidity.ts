@@ -1,4 +1,4 @@
-import { BigInt } from "@graphprotocol/graph-ts";
+import { ethereum, BigInt } from "@graphprotocol/graph-ts";
 import { Deposit, Withdraw } from "../../../generated/schema";
 import { AddLiquidity, RemoveLiquidity, RemoveLiquidityOneToken, Sync } from "../../../generated/Basin-ABIs/Well";
 import { getBigDecimalArrayTotal } from "../../../../../core/utils/Decimals";
@@ -6,9 +6,24 @@ import { getCalculatedReserveUSDValues, getTokenPrices } from "../../utils/Well"
 import { loadWell } from "../Well";
 import { EventVolume } from "../../utils/Volume";
 
+export function getDepositEntityId(event: ethereum.Event, lpTokenAmount: BigInt): string {
+  let id = `${event.transaction.hash.toHexString()}-${event.address}-${lpTokenAmount.toString()}`;
+  if (Deposit.loadInBlock(id)) {
+    id = `${id}-${event.logIndex.toI32()}`;
+  }
+  return id;
+}
+
+export function getWithdrawEntityId(event: ethereum.Event, lpTokenAmount: BigInt): string {
+  let id = `${event.transaction.hash.toHexString()}-${event.address}-${lpTokenAmount.toString()}`;
+  if (Withdraw.loadInBlock(id)) {
+    id = `${id}-${event.logIndex.toI32()}`;
+  }
+  return id;
+}
+
 export function recordAddLiquidityEvent(event: AddLiquidity, volume: EventVolume): void {
-  let id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
-  let deposit = new Deposit(id);
+  let deposit = new Deposit(getDepositEntityId(event, event.params.lpAmountOut));
   let well = loadWell(event.address);
   well.tokenPrice = getTokenPrices(well);
   well.save();
@@ -25,12 +40,19 @@ export function recordAddLiquidityEvent(event: AddLiquidity, volume: EventVolume
   deposit.reserves = event.params.tokenAmountsIn;
   deposit.amountUSD = getBigDecimalArrayTotal(getCalculatedReserveUSDValues(well.tokens, event.params.tokenAmountsIn));
   deposit.tokenPrice = well.tokenPrice;
+  deposit.isConvert = false;
+  deposit.tradeVolumeReserves = volume.tradeVolumeReserves;
+  deposit.tradeVolumeReservesUSD = volume.tradeVolumeReservesUSD;
+  deposit.tradeVolumeUSD = volume.tradeVolumeUSD;
+  deposit.biTradeVolumeReserves = volume.biTradeVolumeReserves;
+  deposit.transferVolumeReserves = volume.transferVolumeReserves;
+  deposit.transferVolumeReservesUSD = volume.transferVolumeReservesUSD;
+  deposit.transferVolumeUSD = volume.transferVolumeUSD;
   deposit.save();
 }
 
 export function recordSyncEvent(event: Sync, deltaReserves: BigInt[], volume: EventVolume): void {
-  let id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
-  let deposit = new Deposit(id);
+  let deposit = new Deposit(getDepositEntityId(event, event.params.lpAmountOut));
   let well = loadWell(event.address);
   well.tokenPrice = getTokenPrices(well);
   well.save();
@@ -47,12 +69,19 @@ export function recordSyncEvent(event: Sync, deltaReserves: BigInt[], volume: Ev
   deposit.reserves = deltaReserves;
   deposit.amountUSD = getBigDecimalArrayTotal(getCalculatedReserveUSDValues(well.tokens, deltaReserves));
   deposit.tokenPrice = well.tokenPrice;
+  deposit.isConvert = false;
+  deposit.tradeVolumeReserves = volume.tradeVolumeReserves;
+  deposit.tradeVolumeReservesUSD = volume.tradeVolumeReservesUSD;
+  deposit.tradeVolumeUSD = volume.tradeVolumeUSD;
+  deposit.biTradeVolumeReserves = volume.biTradeVolumeReserves;
+  deposit.transferVolumeReserves = volume.transferVolumeReserves;
+  deposit.transferVolumeReservesUSD = volume.transferVolumeReservesUSD;
+  deposit.transferVolumeUSD = volume.transferVolumeUSD;
   deposit.save();
 }
 
 export function recordRemoveLiquidityEvent(event: RemoveLiquidity, volume: EventVolume): void {
-  let id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
-  let withdraw = new Withdraw(id);
+  let withdraw = new Withdraw(getWithdrawEntityId(event, event.params.lpAmountIn));
   let well = loadWell(event.address);
   well.tokenPrice = getTokenPrices(well);
   well.save();
@@ -70,7 +99,15 @@ export function recordRemoveLiquidityEvent(event: RemoveLiquidity, volume: Event
   withdraw.amountUSD = getBigDecimalArrayTotal(
     getCalculatedReserveUSDValues(well.tokens, event.params.tokenAmountsOut)
   );
+  withdraw.isConvert = false;
   withdraw.tokenPrice = well.tokenPrice;
+  withdraw.tradeVolumeReserves = volume.tradeVolumeReserves;
+  withdraw.tradeVolumeReservesUSD = volume.tradeVolumeReservesUSD;
+  withdraw.tradeVolumeUSD = volume.tradeVolumeUSD;
+  withdraw.biTradeVolumeReserves = volume.biTradeVolumeReserves;
+  withdraw.transferVolumeReserves = volume.transferVolumeReserves;
+  withdraw.transferVolumeReservesUSD = volume.transferVolumeReservesUSD;
+  withdraw.transferVolumeUSD = volume.transferVolumeUSD;
   withdraw.save();
 }
 
@@ -79,8 +116,7 @@ export function recordRemoveLiquidityOneEvent(
   tokenAmounts: BigInt[],
   volume: EventVolume
 ): void {
-  let id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
-  let withdraw = new Withdraw(id);
+  let withdraw = new Withdraw(getWithdrawEntityId(event, event.params.lpAmountIn));
   let well = loadWell(event.address);
   well.tokenPrice = getTokenPrices(well);
   well.save();
@@ -97,5 +133,13 @@ export function recordRemoveLiquidityOneEvent(
   withdraw.reserves = tokenAmounts;
   withdraw.amountUSD = getBigDecimalArrayTotal(getCalculatedReserveUSDValues(well.tokens, tokenAmounts));
   withdraw.tokenPrice = well.tokenPrice;
+  withdraw.isConvert = false;
+  withdraw.tradeVolumeReserves = volume.tradeVolumeReserves;
+  withdraw.tradeVolumeReservesUSD = volume.tradeVolumeReservesUSD;
+  withdraw.tradeVolumeUSD = volume.tradeVolumeUSD;
+  withdraw.biTradeVolumeReserves = volume.biTradeVolumeReserves;
+  withdraw.transferVolumeReserves = volume.transferVolumeReserves;
+  withdraw.transferVolumeReservesUSD = volume.transferVolumeReservesUSD;
+  withdraw.transferVolumeUSD = volume.transferVolumeUSD;
   withdraw.save();
 }

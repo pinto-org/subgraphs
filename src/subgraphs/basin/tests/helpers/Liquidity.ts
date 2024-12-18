@@ -19,6 +19,7 @@ import { BI_10, subBigIntArray, ONE_BD, ZERO_BI, addBigIntArray } from "../../..
 import { mockWellLpTokenUnderlying } from "../../../../core/tests/event-mocking/Tokens";
 import { loadWell } from "../../src/entities/Well";
 import { toAddress } from "../../../../core/utils/Bytes";
+import { getDepositEntityId, getWithdrawEntityId } from "../../src/entities/events/Liquidity";
 
 export function mockAddLiquidity(
   tokenAmounts: BigInt[] = [BEAN_SWAP_AMOUNT, WETH_SWAP_AMOUNT],
@@ -30,7 +31,7 @@ export function mockAddLiquidity(
   let newEvent = createAddLiquidityEvent(WELL, SWAP_ACCOUNT, lpAmount, tokenAmounts);
   newEvent.block.number = BASIN_BLOCK;
   handleAddLiquidity(newEvent);
-  return newEvent.transaction.hash.toHexString() + "-" + newEvent.logIndex.toString();
+  return getDepositEntityId(newEvent, lpAmount);
 }
 
 export function mockSync(
@@ -43,7 +44,7 @@ export function mockSync(
   let newSyncEvent = createSyncEvent(WELL, SWAP_ACCOUNT, newReserves, lpAmount);
   newSyncEvent.block.number = BASIN_BLOCK;
   handleSync(newSyncEvent);
-  return newSyncEvent.transaction.hash.toHexString() + "-" + newSyncEvent.logIndex.toString();
+  return getDepositEntityId(newSyncEvent, lpAmount);
 }
 
 export function mockRemoveLiquidity(
@@ -55,7 +56,7 @@ export function mockRemoveLiquidity(
   let newEvent = createRemoveLiquidityEvent(WELL, SWAP_ACCOUNT, lpAmount, tokenAmounts);
   newEvent.block.number = BASIN_BLOCK;
   handleRemoveLiquidity(newEvent);
-  return newEvent.transaction.hash.toHexString() + "-" + newEvent.logIndex.toString();
+  return getWithdrawEntityId(newEvent, lpAmount);
 }
 
 export function mockRemoveLiquidityOneBean(lpAmount: BigInt = WELL_LP_AMOUNT): string {
@@ -64,7 +65,7 @@ export function mockRemoveLiquidityOneBean(lpAmount: BigInt = WELL_LP_AMOUNT): s
   let newEvent = createRemoveLiquidityOneTokenEvent(WELL, SWAP_ACCOUNT, lpAmount, BEAN_ERC20, BEAN_SWAP_AMOUNT);
   newEvent.block.number = BASIN_BLOCK;
   handleRemoveLiquidityOneToken(newEvent);
-  return newEvent.transaction.hash.toHexString() + "-" + newEvent.logIndex.toString();
+  return getWithdrawEntityId(newEvent, lpAmount);
 }
 
 export function mockRemoveLiquidityOneWeth(
@@ -76,7 +77,7 @@ export function mockRemoveLiquidityOneWeth(
   let newEvent = createRemoveLiquidityOneTokenEvent(WELL, SWAP_ACCOUNT, lpAmount, WETH, WETH_SWAP_AMOUNT);
   newEvent.block.number = BASIN_BLOCK;
   handleRemoveLiquidityOneToken(newEvent);
-  return newEvent.transaction.hash.toHexString() + "-" + newEvent.logIndex.toString();
+  return getWithdrawEntityId(newEvent, lpAmount);
 }
 
 // Proxy to the mockWellLpTokenUnderlying method, adds base well amounts to reserves/lp delta

@@ -5,13 +5,14 @@ import { BEAN_SWAP_AMOUNT, SWAP_ACCOUNT, WELL, WETH_SWAP_AMOUNT } from "./Consta
 import { createContractCallMocks } from "./Functions";
 import { createShiftEvent, createSwapEvent } from "./Well";
 import { ONE_BD } from "../../../../core/utils/Decimals";
+import { getSwapEntityId } from "../../src/entities/events/Swap";
 
 export function mockSwap(beanPriceMultiple: BigDecimal = ONE_BD): string {
   createContractCallMocks(beanPriceMultiple);
   let newSwapEvent = createSwapEvent(WELL, SWAP_ACCOUNT, BEAN_ERC20, WETH, BEAN_SWAP_AMOUNT, WETH_SWAP_AMOUNT);
   newSwapEvent.block.number = BASIN_BLOCK;
   handleSwap(newSwapEvent);
-  return newSwapEvent.transaction.hash.toHexString() + "-" + newSwapEvent.logIndex.toString();
+  return getSwapEntityId(newSwapEvent, WETH_SWAP_AMOUNT);
 }
 
 export function mockShift(
@@ -24,5 +25,5 @@ export function mockShift(
   let newShiftEvent = createShiftEvent(WELL, SWAP_ACCOUNT, newReserves, toToken, amountOut);
   newShiftEvent.block.number = BASIN_BLOCK;
   handleShift(newShiftEvent);
-  return newShiftEvent.transaction.hash.toHexString() + "-" + newShiftEvent.logIndex.toString();
+  return getSwapEntityId(newShiftEvent, amountOut);
 }
