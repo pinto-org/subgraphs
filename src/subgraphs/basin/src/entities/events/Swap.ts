@@ -5,9 +5,9 @@ import { loadWell } from "../Well";
 import { getTokenPrices } from "../../utils/Well";
 import { EventVolume } from "../../utils/Volume";
 
-export function getSwapEntityId(event: ethereum.Event, outTokenAmount: BigInt, generateNew: boolean = true): string {
+export function getSwapEntityId(event: ethereum.Event, outTokenAmount: BigInt, readonly: boolean = false): string {
   let id = `${event.transaction.hash.toHexString()}-${event.address.toHexString()}-${outTokenAmount.toString()}`;
-  if (generateNew && SwapEvent.load(id)) {
+  if (!readonly && SwapEvent.load(id)) {
     id = `${id}-${event.logIndex.toI32()}`;
   }
   return id;

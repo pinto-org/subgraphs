@@ -40,7 +40,7 @@ describe("Deposit/Withdraw Entities", () => {
   test("AddLiquidity event", () => {
     const deltaLiquidity = [BEAN_SWAP_AMOUNT, WETH_SWAP_AMOUNT];
     const processedEvent = mockAddLiquidity(deltaLiquidity);
-    const id = getDepositEntityId(processedEvent, WELL_LP_AMOUNT, false);
+    const id = getDepositEntityId(processedEvent, WELL_LP_AMOUNT, true);
     assert.fieldEquals(DEPOSIT_ENTITY_TYPE, id, "id", id);
     assert.fieldEquals(DEPOSIT_ENTITY_TYPE, id, "well", WELL.toHexString());
     assert.fieldEquals(DEPOSIT_ENTITY_TYPE, id, "liquidity", WELL_LP_AMOUNT.toString());
@@ -69,7 +69,7 @@ describe("Deposit/Withdraw Entities", () => {
     const deltaLiquidity = [syncdReserves[0].minus(initialReserves[0]), syncdReserves[1].minus(initialReserves[1])];
     const lpAmount = BI_10;
     const processedEvent = mockSync(syncdReserves, lpAmount);
-    const id = getDepositEntityId(processedEvent, BI_10, false);
+    const id = getDepositEntityId(processedEvent, BI_10, true);
 
     assert.fieldEquals(DEPOSIT_ENTITY_TYPE, id, "id", id);
     assert.fieldEquals(DEPOSIT_ENTITY_TYPE, id, "well", WELL.toHexString());
@@ -90,7 +90,7 @@ describe("Deposit/Withdraw Entities", () => {
     mockAddLiquidity(deltaLiquidity);
     mockAddLiquidity(deltaLiquidity);
     const processedEvent = mockRemoveLiquidity(deltaLiquidity);
-    const id = getWithdrawEntityId(processedEvent, WELL_LP_AMOUNT, false);
+    const id = getWithdrawEntityId(processedEvent, WELL_LP_AMOUNT, true);
     assert.fieldEquals(WITHDRAW_ENTITY_TYPE, id, "id", id);
     assert.fieldEquals(WITHDRAW_ENTITY_TYPE, id, "well", WELL.toHexString());
     assert.fieldEquals(WITHDRAW_ENTITY_TYPE, id, "liquidity", WELL_LP_AMOUNT.toString());
@@ -121,7 +121,7 @@ describe("Deposit/Withdraw Entities", () => {
     mockAddLiquidity(deltaLiquidity);
     mockAddLiquidity(deltaLiquidity);
     const processedEvent = mockRemoveLiquidityOneBean();
-    const id = getWithdrawEntityId(processedEvent, WELL_LP_AMOUNT, false);
+    const id = getWithdrawEntityId(processedEvent, WELL_LP_AMOUNT, true);
     assert.fieldEquals(WITHDRAW_ENTITY_TYPE, id, "id", id);
     assert.fieldEquals(WITHDRAW_ENTITY_TYPE, id, "well", WELL.toHexString());
     assert.fieldEquals(WITHDRAW_ENTITY_TYPE, id, "liquidity", WELL_LP_AMOUNT.toString());
@@ -145,7 +145,7 @@ describe("Deposit/Withdraw Entities", () => {
 
   test("Deposit entity id is assigned properly", () => {
     const processedEvent = mockAddLiquidity();
-    const id = getDepositEntityId(processedEvent, WELL_LP_AMOUNT, false);
+    const id = getDepositEntityId(processedEvent, WELL_LP_AMOUNT, true);
     assert.entityCount("Deposit", 1);
     assert.assertNull(Deposit.load(`${id}-${processedEvent.logIndex.toI32()}`));
 
@@ -159,7 +159,7 @@ describe("Deposit/Withdraw Entities", () => {
     mockAddLiquidity();
 
     const processedEvent = mockRemoveLiquidity();
-    const id = getWithdrawEntityId(processedEvent, WELL_LP_AMOUNT, false);
+    const id = getWithdrawEntityId(processedEvent, WELL_LP_AMOUNT, true);
     assert.entityCount("Withdraw", 1);
     assert.assertNull(Withdraw.load(`${id}-${processedEvent.logIndex.toI32()}`));
 

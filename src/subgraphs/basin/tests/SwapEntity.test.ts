@@ -30,7 +30,7 @@ describe("Swap Entity", () => {
 
   test("Swap event", () => {
     const processedEvent = mockSwap();
-    const id = getSwapEntityId(processedEvent, WETH_SWAP_AMOUNT, false);
+    const id = getSwapEntityId(processedEvent, WETH_SWAP_AMOUNT, true);
     assert.fieldEquals(SWAP_ENTITY_TYPE, id, "id", id);
     assert.fieldEquals(SWAP_ENTITY_TYPE, id, "well", WELL.toHexString());
     assert.fieldEquals(SWAP_ENTITY_TYPE, id, "fromToken", BEAN_ERC20.toHexString());
@@ -50,7 +50,7 @@ describe("Swap Entity", () => {
     const amountIn = shiftedReserves[0].minus(initialReserves[0]);
     const amountOut = initialReserves[1].minus(shiftedReserves[1]);
     const processedEvent = mockShift(shiftedReserves, WETH, amountOut);
-    const id = getSwapEntityId(processedEvent, amountOut, false);
+    const id = getSwapEntityId(processedEvent, amountOut, true);
 
     assert.fieldEquals(SWAP_ENTITY_TYPE, id, "id", id);
     assert.fieldEquals(SWAP_ENTITY_TYPE, id, "well", WELL.toHexString());
@@ -65,7 +65,7 @@ describe("Swap Entity", () => {
 
   test("Entity id is assigned properly", () => {
     const processedEvent = mockSwap();
-    const id = getSwapEntityId(processedEvent, WETH_SWAP_AMOUNT, false);
+    const id = getSwapEntityId(processedEvent, WETH_SWAP_AMOUNT, true);
     assert.entityCount("Swap", 1);
     assert.assertNull(Swap.load(`${id}-${processedEvent.logIndex.toI32()}`));
 
