@@ -9,7 +9,7 @@ import { getDepositEntityId, getWithdrawEntityId } from "../src/entities/events/
 import { Deposit, Withdraw } from "../generated/schema";
 import * as PintoBase from "../../../core/constants/raw/PintoBaseConstants";
 import { mockPintoTokenPrices } from "./entity-mocking/MockToken";
-import { BigInt } from "@graphprotocol/graph-ts";
+import { BigInt, Bytes } from "@graphprotocol/graph-ts";
 
 describe("Convert Tests", () => {
   beforeEach(() => {
@@ -106,9 +106,19 @@ describe("Convert Tests", () => {
   });
 
   test("Convert ignores related events from other transactions", () => {
-    const liquidityEvent = mockAddLiquidity([BEAN_SWAP_AMOUNT, ZERO_BI], WELL_LP_AMOUNT, ONE_BD, PintoBase.PINTO_CBBTC);
+    const transaction1 = mockTransaction();
+    const liquidityEvent = mockAddLiquidity(
+      [BEAN_SWAP_AMOUNT, ZERO_BI],
+      WELL_LP_AMOUNT,
+      ONE_BD,
+      PintoBase.PINTO_CBBTC,
+      transaction1
+    );
     const depositId = getDepositEntityId(liquidityEvent, WELL_LP_AMOUNT, true);
-    mockConvert(PintoBase.BEAN_ERC20, PintoBase.PINTO_CBBTC, BEAN_SWAP_AMOUNT, WELL_LP_AMOUNT);
+
+    const transaction2 = mockTransaction();
+    transaction2.hash = Bytes.fromHexString("0xd0a947cdaf4b351da76a7bf051fe15560a4b3f2725a6db2d8b8663c27a11fbe5");
+    mockConvert(PintoBase.BEAN_ERC20, PintoBase.PINTO_CBBTC, BEAN_SWAP_AMOUNT, WELL_LP_AMOUNT, transaction2);
     const depositedUpdated = Deposit.load(depositId)!;
     assert.assertTrue(!depositedUpdated.isConvert);
   });
@@ -118,6 +128,13 @@ describe("Convert Tests", () => {
     const liquidityEvent = mockRemoveLiquidityOneBean(WELL_LP_AMOUNT, PintoBase.PINTO_CBBTC, transaction);
     const withdrawId = getWithdrawEntityId(liquidityEvent, WELL_LP_AMOUNT, true);
     mockConvert(PintoBase.PINTO_CBETH, PintoBase.BEAN_ERC20, WELL_LP_AMOUNT, BEAN_SWAP_AMOUNT, transaction);
+    mockConvert(
+      PintoBase.PINTO_CBBTC,
+      PintoBase.BEAN_ERC20,
+      WELL_LP_AMOUNT.div(BigInt.fromString("2")),
+      BEAN_SWAP_AMOUNT,
+      transaction
+    );
     const withdrawUpdated = Withdraw.load(withdrawId)!;
     assert.assertTrue(!withdrawUpdated.isConvert);
   });
