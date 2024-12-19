@@ -6,17 +6,17 @@ import { getCalculatedReserveUSDValues, getTokenPrices } from "../../utils/Well"
 import { loadWell } from "../Well";
 import { EventVolume } from "../../utils/Volume";
 
-export function getDepositEntityId(event: ethereum.Event, lpTokenAmount: BigInt): string {
-  let id = `${event.transaction.hash.toHexString()}-${event.address}-${lpTokenAmount.toString()}`;
-  if (Deposit.loadInBlock(id)) {
+export function getDepositEntityId(event: ethereum.Event, lpTokenAmount: BigInt, generateNew: boolean = true): string {
+  let id = `${event.transaction.hash.toHexString()}-${event.address.toHexString()}-${lpTokenAmount.toString()}`;
+  if (generateNew && Deposit.load(id)) {
     id = `${id}-${event.logIndex.toI32()}`;
   }
   return id;
 }
 
-export function getWithdrawEntityId(event: ethereum.Event, lpTokenAmount: BigInt): string {
-  let id = `${event.transaction.hash.toHexString()}-${event.address}-${lpTokenAmount.toString()}`;
-  if (Withdraw.loadInBlock(id)) {
+export function getWithdrawEntityId(event: ethereum.Event, lpTokenAmount: BigInt, generateNew: boolean = true): string {
+  let id = `${event.transaction.hash.toHexString()}-${event.address.toHexString()}-${lpTokenAmount.toString()}`;
+  if (generateNew && Withdraw.load(id)) {
     id = `${id}-${event.logIndex.toI32()}`;
   }
   return id;

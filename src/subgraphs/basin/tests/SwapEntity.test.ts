@@ -14,6 +14,9 @@ import { mockAddLiquidity } from "./helpers/Liquidity";
 import { BigInt } from "@graphprotocol/graph-ts";
 import { BI_10 } from "../../../core/utils/Decimals";
 import { initL1Version } from "./entity-mocking/MockVersion";
+import { getSwapEntityId } from "../src/entities/events/Swap";
+import { Swap } from "../generated/schema";
+import { handleSwap } from "../src/handlers/WellHandler";
 
 describe("Swap Entity", () => {
   beforeEach(() => {
@@ -26,7 +29,8 @@ describe("Swap Entity", () => {
   });
 
   test("Swap event", () => {
-    const id = mockSwap();
+    const processedEvent = mockSwap();
+    const id = getSwapEntityId(processedEvent, WETH_SWAP_AMOUNT, false);
     assert.fieldEquals(SWAP_ENTITY_TYPE, id, "id", id);
     assert.fieldEquals(SWAP_ENTITY_TYPE, id, "well", WELL.toHexString());
     assert.fieldEquals(SWAP_ENTITY_TYPE, id, "fromToken", BEAN_ERC20.toHexString());
@@ -45,7 +49,8 @@ describe("Swap Entity", () => {
 
     const amountIn = shiftedReserves[0].minus(initialReserves[0]);
     const amountOut = initialReserves[1].minus(shiftedReserves[1]);
-    const id = mockShift(shiftedReserves, WETH, amountOut);
+    const processedEvent = mockShift(shiftedReserves, WETH, amountOut);
+    const id = getSwapEntityId(processedEvent, amountOut, false);
 
     assert.fieldEquals(SWAP_ENTITY_TYPE, id, "id", id);
     assert.fieldEquals(SWAP_ENTITY_TYPE, id, "well", WELL.toHexString());
@@ -56,5 +61,16 @@ describe("Swap Entity", () => {
 
     // Account entity exists
     assert.fieldEquals(ACCOUNT_ENTITY_TYPE, SWAP_ACCOUNT.toHexString(), "id", SWAP_ACCOUNT.toHexString());
+  });
+
+  test("Entity id is assigned properly", () => {
+    const processedEvent = mockSwap();
+    const id = getSwapEntityId(processedEvent, WETH_SWAP_AMOUNT, false);
+    assert.entityCount("Swap", 1);
+    assert.assertNull(Swap.load(`${id}-${processedEvent.logIndex.toI32()}`));
+
+    handleSwap(processedEvent);
+    assert.entityCount("Swap", 2);
+    assert.assertNotNull(Swap.load(`${id}-${processedEvent.logIndex.toI32()}`));
   });
 });
