@@ -1,6 +1,6 @@
 import { Address, BigDecimal, BigInt, Bytes, ethereum } from "@graphprotocol/graph-ts";
 import { Deposit, Withdraw } from "../../generated/schema";
-import { BASIN_BLOCK, BEAN_ERC20, WETH } from "../../../../core/constants/raw/BeanstalkEthConstants";
+import { BASIN_BLOCK } from "../../../../core/constants/raw/BeanstalkEthConstants";
 import {
   handleAddLiquidity,
   handleRemoveLiquidity,
@@ -15,11 +15,13 @@ import {
   createRemoveLiquidityOneTokenEvent,
   createSyncEvent
 } from "./Well";
-import { BI_10, subBigIntArray, ONE_BD, addBigIntArray } from "../../../../core/utils/Decimals";
+import { BI_10, subBigIntArray, ONE_BD, addBigIntArray, ZERO_BI, BI_MAX } from "../../../../core/utils/Decimals";
 import { mockWellLpTokenUnderlying } from "../../../../core/tests/event-mocking/Tokens";
 import { loadWell } from "../../src/entities/Well";
 import { toAddress } from "../../../../core/utils/Bytes";
 import { AddLiquidity, RemoveLiquidity, RemoveLiquidityOneToken, Sync } from "../../generated/Basin-ABIs/Well";
+import { getProtocolToken } from "../../../../core/constants/RuntimeConstants";
+import { v } from "../../src/utils/constants/Version";
 
 export function mockAddLiquidity(
   tokenAmounts: BigInt[] = [BEAN_SWAP_AMOUNT, WETH_SWAP_AMOUNT],
@@ -81,7 +83,13 @@ export function mockRemoveLiquidityOneBean(
 ): RemoveLiquidityOneToken {
   createContractCallMocks();
   mockCalcLPTokenUnderlying_RemoveLiq(well, lpAmount.neg());
-  const event = createRemoveLiquidityOneTokenEvent(well, SWAP_ACCOUNT, lpAmount, BEAN_ERC20, BEAN_SWAP_AMOUNT);
+  const event = createRemoveLiquidityOneTokenEvent(
+    well,
+    SWAP_ACCOUNT,
+    lpAmount,
+    getProtocolToken(v(), BI_MAX),
+    BEAN_SWAP_AMOUNT
+  );
   event.block.number = BASIN_BLOCK;
   if (transaction != null) {
     event.transaction = transaction;
@@ -90,7 +98,8 @@ export function mockRemoveLiquidityOneBean(
   return event;
 }
 
-export function mockRemoveLiquidityOneWeth(
+export function mockRemoveLiquidityOneNonBean(
+  tokenAddress: Address,
   lpAmount: BigInt = WELL_LP_AMOUNT,
   beanPriceMultiple: BigDecimal = ONE_BD,
   well: Address = WELL,
@@ -98,7 +107,7 @@ export function mockRemoveLiquidityOneWeth(
 ): RemoveLiquidityOneToken {
   createContractCallMocks(beanPriceMultiple);
   mockCalcLPTokenUnderlying_RemoveLiq(well, lpAmount.neg());
-  const event = createRemoveLiquidityOneTokenEvent(well, SWAP_ACCOUNT, lpAmount, WETH, WETH_SWAP_AMOUNT);
+  const event = createRemoveLiquidityOneTokenEvent(well, SWAP_ACCOUNT, lpAmount, tokenAddress, WETH_SWAP_AMOUNT);
   event.block.number = BASIN_BLOCK;
   if (transaction != null) {
     event.transaction = transaction;

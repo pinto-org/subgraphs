@@ -15,7 +15,7 @@ import {
   mockAddLiquidity,
   mockRemoveLiquidity,
   mockRemoveLiquidityOneBean,
-  mockRemoveLiquidityOneWeth,
+  mockRemoveLiquidityOneNonBean,
   mockSync
 } from "./helpers/Liquidity";
 import { initL1Version } from "./entity-mocking/MockVersion";
@@ -26,6 +26,7 @@ import { mockWellLpTokenUnderlying } from "../../../core/tests/event-mocking/Tok
 import { deprecated_calcLiquidityVolume } from "../src/utils/legacy/CP2";
 import { loadOrCreateWellFunction } from "../src/entities/WellComponents";
 import { assertBDClose } from "../../../core/tests/Assert";
+import { WETH } from "../../../core/constants/raw/BeanstalkEthConstants";
 
 const BI_2 = BigInt.fromU32(2);
 const BI_3 = BigInt.fromU32(3);
@@ -285,7 +286,7 @@ describe("Well Entity: Liquidity Event Tests", () => {
     beforeEach(() => {
       mockAddLiquidity();
       mockAddLiquidity();
-      mockRemoveLiquidityOneWeth(WELL_LP_AMOUNT, BigDecimal.fromString("0.5"));
+      mockRemoveLiquidityOneNonBean(WETH, WELL_LP_AMOUNT, BigDecimal.fromString("0.5"));
     });
     test("Withdraw counter incremented", () => {
       assert.fieldEquals(WELL_ENTITY_TYPE, WELL.toHexString(), "cumulativeWithdrawCount", "1");
