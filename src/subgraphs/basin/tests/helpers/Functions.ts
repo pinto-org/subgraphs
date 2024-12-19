@@ -10,11 +10,12 @@ import {
 } from "../../../../core/constants/raw/BeanstalkEthConstants";
 import { BEAN_USD_PRICE, WELL } from "./Constants";
 import { setMockBeanPrice } from "../../../../core/tests/event-mocking/Price";
-import { BI_10, ONE_BD, ZERO_BD } from "../../../../core/utils/Decimals";
+import { ONE_BD, ZERO_BD } from "../../../../core/utils/Decimals";
 import { ADDRESS_ZERO } from "../../../../core/utils/Bytes";
+import * as PintoBase from "../../../../core/constants/raw/PintoBaseConstants";
 
 let prevPriceMocked = ZERO_BD;
-let prevWellMocked = ADDRESS_ZERO;
+let mockedERC20s: Address[] = [];
 
 export function createContractCallMocks(
   priceMultiple: BigDecimal = ONE_BD,
@@ -58,39 +59,112 @@ export function createContractCallMocks(
     });
   }
 
-  if (prevWellMocked != well) {
+  if (!mockedERC20s.includes(well)) {
     createMockedFunction(well, "name", "name():(string)")
       .withArgs([])
       .returns([ethereum.Value.fromString("Well LP")]);
-    createMockedFunction(tokens[0], "name", "name():(string)")
-      .withArgs([])
-      .returns([ethereum.Value.fromString("Bean")]);
-    createMockedFunction(tokens[1], "name", "name():(string)")
-      .withArgs([])
-      .returns([ethereum.Value.fromString("WETH")]);
-
     createMockedFunction(well, "symbol", "symbol():(string)")
       .withArgs([])
       .returns([ethereum.Value.fromString("BEAN-WETH-wCP2")]);
-    createMockedFunction(tokens[0], "symbol", "symbol():(string)")
-      .withArgs([])
-      .returns([ethereum.Value.fromString("BEAN")]);
-    createMockedFunction(tokens[1], "symbol", "symbol():(string)")
-      .withArgs([])
-      .returns([ethereum.Value.fromString("WETH")]);
-
     createMockedFunction(well, "decimals", "decimals():(uint8)")
       .withArgs([])
       .returns([ethereum.Value.fromI32(12)]);
-    createMockedFunction(tokens[0], "decimals", "decimals():(uint8)")
-      .withArgs([])
-      .returns([ethereum.Value.fromI32(6)]);
-    createMockedFunction(tokens[1], "decimals", "decimals():(uint8)")
-      .withArgs([])
-      .returns([ethereum.Value.fromI32(18)]);
+    mockedERC20s.push(well);
 
     createMockedFunction(BEANSTALK_ETH, "getTokenUsdPrice", "getTokenUsdPrice(address):(uint256)")
       .withArgs([ethereum.Value.fromAddress(WETH)])
       .reverts();
   }
+
+  if (!mockedERC20s.includes(tokens[0])) {
+    createMockedFunction(tokens[0], "name", "name():(string)")
+      .withArgs([])
+      .returns([ethereum.Value.fromString("Bean")]);
+    createMockedFunction(tokens[0], "symbol", "symbol():(string)")
+      .withArgs([])
+      .returns([ethereum.Value.fromString("BEAN")]);
+    createMockedFunction(tokens[0], "decimals", "decimals():(uint8)")
+      .withArgs([])
+      .returns([ethereum.Value.fromI32(6)]);
+    mockedERC20s.push(tokens[0]);
+  }
+
+  if (!mockedERC20s.includes(tokens[1])) {
+    createMockedFunction(tokens[1], "name", "name():(string)")
+      .withArgs([])
+      .returns([ethereum.Value.fromString("WETH")]);
+    createMockedFunction(tokens[1], "symbol", "symbol():(string)")
+      .withArgs([])
+      .returns([ethereum.Value.fromString("WETH")]);
+    createMockedFunction(tokens[1], "decimals", "decimals():(uint8)")
+      .withArgs([])
+      .returns([ethereum.Value.fromI32(18)]);
+    mockedERC20s.push(tokens[1]);
+  }
+}
+
+export function mockAllPintoTokens(): void {
+  createMockedFunction(PintoBase.BEAN_ERC20, "name", "name():(string)")
+    .withArgs([])
+    .returns([ethereum.Value.fromString("PINTO")]);
+  createMockedFunction(PintoBase.WETH, "name", "name():(string)")
+    .withArgs([])
+    .returns([ethereum.Value.fromString("WETH")]);
+  createMockedFunction(PintoBase.CBETH, "name", "name():(string)")
+    .withArgs([])
+    .returns([ethereum.Value.fromString("cbETH")]);
+  createMockedFunction(PintoBase.CBBTC, "name", "name():(string)")
+    .withArgs([])
+    .returns([ethereum.Value.fromString("cbBTC")]);
+  createMockedFunction(PintoBase.WSOL, "name", "name():(string)")
+    .withArgs([])
+    .returns([ethereum.Value.fromString("WSOL")]);
+  createMockedFunction(PintoBase.USDC, "name", "name():(string)")
+    .withArgs([])
+    .returns([ethereum.Value.fromString("USDC")]);
+
+  createMockedFunction(PintoBase.BEAN_ERC20, "symbol", "symbol():(string)")
+    .withArgs([])
+    .returns([ethereum.Value.fromString("PINTO")]);
+  createMockedFunction(PintoBase.WETH, "symbol", "symbol():(string)")
+    .withArgs([])
+    .returns([ethereum.Value.fromString("WETH")]);
+  createMockedFunction(PintoBase.CBETH, "symbol", "symbol():(string)")
+    .withArgs([])
+    .returns([ethereum.Value.fromString("cbETH")]);
+  createMockedFunction(PintoBase.CBBTC, "symbol", "symbol():(string)")
+    .withArgs([])
+    .returns([ethereum.Value.fromString("cbBTC")]);
+  createMockedFunction(PintoBase.WSOL, "symbol", "symbol():(string)")
+    .withArgs([])
+    .returns([ethereum.Value.fromString("WSOL")]);
+  createMockedFunction(PintoBase.USDC, "symbol", "symbol():(string)")
+    .withArgs([])
+    .returns([ethereum.Value.fromString("USDC")]);
+
+  createMockedFunction(PintoBase.BEAN_ERC20, "decimals", "decimals():(uint8)")
+    .withArgs([])
+    .returns([ethereum.Value.fromI32(6)]);
+  createMockedFunction(PintoBase.WETH, "decimals", "decimals():(uint8)")
+    .withArgs([])
+    .returns([ethereum.Value.fromI32(18)]);
+  createMockedFunction(PintoBase.CBETH, "decimals", "decimals():(uint8)")
+    .withArgs([])
+    .returns([ethereum.Value.fromI32(18)]);
+  createMockedFunction(PintoBase.CBBTC, "decimals", "decimals():(uint8)")
+    .withArgs([])
+    .returns([ethereum.Value.fromI32(8)]);
+  createMockedFunction(PintoBase.WSOL, "decimals", "decimals():(uint8)")
+    .withArgs([])
+    .returns([ethereum.Value.fromI32(9)]);
+  createMockedFunction(PintoBase.USDC, "decimals", "decimals():(uint8)")
+    .withArgs([])
+    .returns([ethereum.Value.fromI32(6)]);
+
+  mockedERC20s.push(PintoBase.BEAN_ERC20);
+  mockedERC20s.push(PintoBase.WETH);
+  mockedERC20s.push(PintoBase.CBETH);
+  mockedERC20s.push(PintoBase.CBBTC);
+  mockedERC20s.push(PintoBase.WSOL);
+  mockedERC20s.push(PintoBase.USDC);
 }

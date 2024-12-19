@@ -1,4 +1,4 @@
-import { Address, BigDecimal, BigInt, Bytes, ethereum } from "@graphprotocol/graph-ts";
+import { Address, BigDecimal, BigInt, Bytes, ethereum, log } from "@graphprotocol/graph-ts";
 import { dayFromTimestamp, hourFromTimestamp } from "../../../../core/utils/Dates";
 import {
   allNonzero_BI,
