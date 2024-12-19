@@ -22,6 +22,9 @@ import { toAddress } from "../../../../core/utils/Bytes";
 import { AddLiquidity, RemoveLiquidity, RemoveLiquidityOneToken, Sync } from "../../generated/Basin-ABIs/Well";
 import { getProtocolToken } from "../../../../core/constants/RuntimeConstants";
 import { v } from "../../src/utils/constants/Version";
+import { createConvertEvent } from "./Beanstalk";
+import { Convert } from "../../generated/Basin-ABIs/PintoLaunch";
+import { handleConvert } from "../../src/handlers/BeanstalkHandler";
 
 export function mockAddLiquidity(
   tokenAmounts: BigInt[] = [BEAN_SWAP_AMOUNT, WETH_SWAP_AMOUNT],
@@ -113,6 +116,21 @@ export function mockRemoveLiquidityOneNonBean(
     event.transaction = transaction;
   }
   handleRemoveLiquidityOneToken(event);
+  return event;
+}
+
+export function mockConvert(
+  fromToken: Address,
+  toToken: Address,
+  fromAmount: BigInt,
+  toAmount: BigInt,
+  transaction: ethereum.Transaction | null = null
+): Convert {
+  const event = createConvertEvent(SWAP_ACCOUNT, fromToken, toToken, fromAmount, toAmount);
+  if (transaction != null) {
+    event.transaction = transaction;
+  }
+  handleConvert(event);
   return event;
 }
 
