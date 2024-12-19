@@ -189,6 +189,9 @@ export function beanDecimals(): i32 {
 /// BASIN ///
 
 export function wellFnSupportsRate(v: VersionDto, wellFnAddress: Address): boolean {
+  if (v.versionNumber == "TESTING") {
+    return false;
+  }
   if (v.chain == "ethereum" && v.protocolAddress == ConstantsEth.BEANSTALK) {
     return BeanstalkEth.wellFnSupportsRate(wellFnAddress);
   } else if (v.chain == "arbitrum" && v.protocolAddress == ConstantsArb.BEANSTALK) {

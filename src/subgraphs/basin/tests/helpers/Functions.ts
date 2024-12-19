@@ -10,9 +10,10 @@ import {
 } from "../../../../core/constants/raw/BeanstalkEthConstants";
 import { BEAN_USD_PRICE, WELL } from "./Constants";
 import { setMockBeanPrice } from "../../../../core/tests/event-mocking/Price";
-import { ONE_BD, ZERO_BD } from "../../../../core/utils/Decimals";
-import { ADDRESS_ZERO } from "../../../../core/utils/Bytes";
+import { BI_MAX, ONE_BD, ZERO_BD, ZERO_BI } from "../../../../core/utils/Decimals";
 import * as PintoBase from "../../../../core/constants/raw/PintoBaseConstants";
+import { getBeanstalkPriceAddress } from "../../../../core/constants/RuntimeConstants";
+import { v } from "../../src/utils/constants/Version";
 
 let prevPriceMocked = ZERO_BD;
 let mockedERC20s: Address[] = [];
@@ -26,37 +27,40 @@ export function createContractCallMocks(
     prevPriceMocked = priceMultiple;
     const price = BigInt.fromString(new BigDecimal(BEAN_USD_PRICE).times(priceMultiple).truncate(0).toString());
 
-    setMockBeanPrice({
-      price: price,
-      liquidity: BigInt.fromString("26025239751318").times(BigInt.fromU32(2)),
-      deltaB: BigInt.fromString("-866349934591").times(BigInt.fromU32(2)),
-      ps: [
-        {
-          contract: BEAN_3CRV,
-          tokens: [BEAN_ERC20, CRV3_TOKEN],
-          balances: [BigInt.fromString("14306013160240"), BigInt.fromString("12306817594155799426763734")],
-          price: price,
-          liquidity: BigInt.fromString("26025239751318"),
-          beanLiquidity: BigInt.fromString("13012619875659"),
-          nonBeanLiquidity: BigInt.fromString("13012619875659"),
-          deltaB: BigInt.fromString("-866349934591"),
-          lpUsd: BigInt.fromString("969328"),
-          lpBdv: BigInt.fromString("1032515")
-        },
-        {
-          contract: BEAN_WETH_CP2_WELL,
-          tokens: [BEAN_ERC20, WETH],
-          balances: [BigInt.fromString("2000000000"), BigInt.fromString("1500000000000000000")],
-          price: price,
-          liquidity: BigInt.fromString("26025239751318"),
-          beanLiquidity: BigInt.fromString("13012619875659"),
-          nonBeanLiquidity: BigInt.fromString("13012619875659"),
-          deltaB: BigInt.fromString("-866349934591"),
-          lpUsd: BigInt.fromString("969328"),
-          lpBdv: BigInt.fromString("1032515")
-        }
-      ]
-    });
+    setMockBeanPrice(
+      {
+        price: price,
+        liquidity: BigInt.fromString("26025239751318").times(BigInt.fromU32(2)),
+        deltaB: BigInt.fromString("-866349934591").times(BigInt.fromU32(2)),
+        ps: [
+          {
+            contract: BEAN_3CRV,
+            tokens: [BEAN_ERC20, CRV3_TOKEN],
+            balances: [BigInt.fromString("14306013160240"), BigInt.fromString("12306817594155799426763734")],
+            price: price,
+            liquidity: BigInt.fromString("26025239751318"),
+            beanLiquidity: BigInt.fromString("13012619875659"),
+            nonBeanLiquidity: BigInt.fromString("13012619875659"),
+            deltaB: BigInt.fromString("-866349934591"),
+            lpUsd: BigInt.fromString("969328"),
+            lpBdv: BigInt.fromString("1032515")
+          },
+          {
+            contract: BEAN_WETH_CP2_WELL,
+            tokens: [BEAN_ERC20, WETH],
+            balances: [BigInt.fromString("2000000000"), BigInt.fromString("1500000000000000000")],
+            price: price,
+            liquidity: BigInt.fromString("26025239751318"),
+            beanLiquidity: BigInt.fromString("13012619875659"),
+            nonBeanLiquidity: BigInt.fromString("13012619875659"),
+            deltaB: BigInt.fromString("-866349934591"),
+            lpUsd: BigInt.fromString("969328"),
+            lpBdv: BigInt.fromString("1032515")
+          }
+        ]
+      },
+      getBeanstalkPriceAddress(v(), ZERO_BI)
+    );
   }
 
   if (!mockedERC20s.includes(well)) {
@@ -71,7 +75,7 @@ export function createContractCallMocks(
       .returns([ethereum.Value.fromI32(12)]);
     mockedERC20s.push(well);
 
-    createMockedFunction(BEANSTALK_ETH, "getTokenUsdPrice", "getTokenUsdPrice(address):(uint256)")
+    createMockedFunction(v().protocolAddress, "getTokenUsdPrice", "getTokenUsdPrice(address):(uint256)")
       .withArgs([ethereum.Value.fromAddress(WETH)])
       .reverts();
   }
@@ -87,6 +91,10 @@ export function createContractCallMocks(
       .withArgs([])
       .returns([ethereum.Value.fromI32(6)]);
     mockedERC20s.push(tokens[0]);
+
+    createMockedFunction(v().protocolAddress, "getTokenUsdPrice", "getTokenUsdPrice(address):(uint256)")
+      .withArgs([ethereum.Value.fromAddress(tokens[0])])
+      .reverts();
   }
 
   if (!mockedERC20s.includes(tokens[1])) {
@@ -100,6 +108,10 @@ export function createContractCallMocks(
       .withArgs([])
       .returns([ethereum.Value.fromI32(18)]);
     mockedERC20s.push(tokens[1]);
+
+    createMockedFunction(v().protocolAddress, "getTokenUsdPrice", "getTokenUsdPrice(address):(uint256)")
+      .withArgs([ethereum.Value.fromAddress(tokens[1])])
+      .reverts();
   }
 }
 
@@ -160,6 +172,25 @@ export function mockAllPintoTokens(): void {
   createMockedFunction(PintoBase.USDC, "decimals", "decimals():(uint8)")
     .withArgs([])
     .returns([ethereum.Value.fromI32(6)]);
+
+  createMockedFunction(v().protocolAddress, "getTokenUsdPrice", "getTokenUsdPrice(address):(uint256)")
+    .withArgs([ethereum.Value.fromAddress(PintoBase.BEAN_ERC20)])
+    .reverts();
+  createMockedFunction(v().protocolAddress, "getTokenUsdPrice", "getTokenUsdPrice(address):(uint256)")
+    .withArgs([ethereum.Value.fromAddress(PintoBase.WETH)])
+    .reverts();
+  createMockedFunction(v().protocolAddress, "getTokenUsdPrice", "getTokenUsdPrice(address):(uint256)")
+    .withArgs([ethereum.Value.fromAddress(PintoBase.CBETH)])
+    .reverts();
+  createMockedFunction(v().protocolAddress, "getTokenUsdPrice", "getTokenUsdPrice(address):(uint256)")
+    .withArgs([ethereum.Value.fromAddress(PintoBase.CBBTC)])
+    .reverts();
+  createMockedFunction(v().protocolAddress, "getTokenUsdPrice", "getTokenUsdPrice(address):(uint256)")
+    .withArgs([ethereum.Value.fromAddress(PintoBase.WSOL)])
+    .reverts();
+  createMockedFunction(v().protocolAddress, "getTokenUsdPrice", "getTokenUsdPrice(address):(uint256)")
+    .withArgs([ethereum.Value.fromAddress(PintoBase.USDC)])
+    .reverts();
 
   mockedERC20s.push(PintoBase.BEAN_ERC20);
   mockedERC20s.push(PintoBase.WETH);
