@@ -65,8 +65,9 @@ export function updateWellVolumesAfterLiquidity(
   const wellTokens = well.tokens.map<Address>((t) => toAddress(t));
 
   // Determines which tokens were bough/sold and how much
-  const tradeAmount = calcLiquidityVolume(well, padTokenAmounts(wellTokens, tokens, amounts), deltaLpSupply);
-  const deltaTransferVolumeReserves = padTokenAmounts(wellTokens, tokens, amounts);
+  const paddedAmounts = padTokenAmounts(wellTokens, tokens, amounts);
+  const tradeAmount = calcLiquidityVolume(well, paddedAmounts, deltaLpSupply);
+  const deltaTransferVolumeReserves = paddedAmounts;
 
   const transactionVolume = updateVolumeStats(well, tradeAmount, deltaTransferVolumeReserves);
 

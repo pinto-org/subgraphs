@@ -9,6 +9,7 @@ import { getDepositEntityId, getWithdrawEntityId } from "../src/entities/events/
 import { Deposit, Withdraw } from "../generated/schema";
 import * as PintoBase from "../../../core/constants/raw/PintoBaseConstants";
 import { mockPintoTokenPrices } from "./entity-mocking/MockToken";
+import { BigInt } from "@graphprotocol/graph-ts";
 
 describe("Convert Tests", () => {
   beforeEach(() => {
@@ -43,26 +44,45 @@ describe("Convert Tests", () => {
   });
   describe("With starting liquidity", () => {
     beforeEach(() => {
-      mockAddLiquidity([BEAN_SWAP_AMOUNT, WETH_SWAP_AMOUNT], WELL_LP_AMOUNT, ONE_BD, PintoBase.PINTO_CBBTC);
+      mockAddLiquidity(
+        [BEAN_SWAP_AMOUNT, WETH_SWAP_AMOUNT],
+        WELL_LP_AMOUNT.times(BigInt.fromString("5")),
+        ONE_BD,
+        PintoBase.PINTO_CBBTC
+      );
     });
     test("Identifies LP -> Pinto convert", () => {
       const transaction = mockTransaction();
       const liquidityEvent = mockRemoveLiquidityOneBean(WELL_LP_AMOUNT, PintoBase.PINTO_CBBTC, transaction);
       const withdrawId = getWithdrawEntityId(liquidityEvent, WELL_LP_AMOUNT, true);
       const withdrawInitial = Withdraw.load(withdrawId)!;
-      // assert.assertTrue(withdrawInitial.tradeVolumeReserves[0].gt(ZERO_BI)); //FIXME
+      assert.assertTrue(withdrawInitial.tradeVolumeReserves[0].gt(ZERO_BI));
       assert.assertTrue(withdrawInitial.tradeVolumeReserves[1] == ZERO_BI);
-      // assert.assertTrue(withdrawInitial.tradeVolumeUSD.gt(ZERO_BD)); //FIXME
+      assert.assertTrue(withdrawInitial.tradeVolumeUSD.gt(ZERO_BD));
       assert.assertTrue(!withdrawInitial.isConvert);
       assert.entityCount("Deposit", 1);
       assert.entityCount("Withdraw", 1);
       // TODO: convert event
     });
     test("Identifies LP -> LP convert", () => {
-      //
+      const transaction = mockTransaction();
+      const firstEvent = mockRemoveLiquidityOneBean(WELL_LP_AMOUNT, PintoBase.PINTO_CBBTC, transaction);
+      const secondEvent = mockAddLiquidity(
+        [BEAN_SWAP_AMOUNT, ZERO_BI],
+        WELL_LP_AMOUNT,
+        ONE_BD,
+        PintoBase.PINTO_WETH,
+        transaction
+      );
+      const withdrawId = getWithdrawEntityId(firstEvent, WELL_LP_AMOUNT, true);
+      const depositId = getDepositEntityId(secondEvent, WELL_LP_AMOUNT, true);
+      const withdrawInitial = Withdraw.load(withdrawId)!;
+      const depositInitial = Deposit.load(depositId)!;
+      assert.assertTrue(!withdrawInitial.isConvert);
+      assert.assertTrue(!depositInitial.isConvert);
+      assert.entityCount("Deposit", 2);
+      assert.entityCount("Withdraw", 1);
+      // TODO: convert event
     });
-  });
-  test("Doesn't identify regular LP actions as converts", () => {
-    //
   });
 });
