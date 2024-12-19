@@ -1,4 +1,4 @@
-import { BigDecimal, BigInt, Bytes, log } from "@graphprotocol/graph-ts";
+import { BigDecimal, BigInt, Bytes, ethereum } from "@graphprotocol/graph-ts";
 import { Deposit, Withdraw } from "../../generated/schema";
 import { BASIN_BLOCK, BEAN_ERC20, WETH } from "../../../../core/constants/raw/BeanstalkEthConstants";
 import {
@@ -24,12 +24,16 @@ import { AddLiquidity, RemoveLiquidity, RemoveLiquidityOneToken, Sync } from "..
 export function mockAddLiquidity(
   tokenAmounts: BigInt[] = [BEAN_SWAP_AMOUNT, WETH_SWAP_AMOUNT],
   lpAmount: BigInt = WELL_LP_AMOUNT,
-  beanPriceMultiple: BigDecimal = ONE_BD
+  beanPriceMultiple: BigDecimal = ONE_BD,
+  transaction: ethereum.Transaction | null = null
 ): AddLiquidity {
   createContractCallMocks(beanPriceMultiple);
   mockCalcLPTokenUnderlying_AddLiq(tokenAmounts, lpAmount);
   const event = createAddLiquidityEvent(WELL, SWAP_ACCOUNT, lpAmount, tokenAmounts);
   event.block.number = BASIN_BLOCK;
+  if (transaction != null) {
+    event.transaction = transaction;
+  }
   handleAddLiquidity(event);
   return event;
 }
@@ -37,45 +41,63 @@ export function mockAddLiquidity(
 export function mockSync(
   newReserves: BigInt[],
   lpAmount: BigInt = WELL_LP_AMOUNT,
-  beanPriceMultiple: BigDecimal = ONE_BD
+  beanPriceMultiple: BigDecimal = ONE_BD,
+  transaction: ethereum.Transaction | null = null
 ): Sync {
   createContractCallMocks(beanPriceMultiple);
   mockCalcLPTokenUnderlying_AddLiq(subBigIntArray(newReserves, loadWell(WELL).reserves), lpAmount);
   const event = createSyncEvent(WELL, SWAP_ACCOUNT, newReserves, lpAmount);
   event.block.number = BASIN_BLOCK;
+  if (transaction != null) {
+    event.transaction = transaction;
+  }
   handleSync(event);
   return event;
 }
 
 export function mockRemoveLiquidity(
   tokenAmounts: BigInt[] = [BEAN_SWAP_AMOUNT, WETH_SWAP_AMOUNT],
-  lpAmount: BigInt = WELL_LP_AMOUNT
+  lpAmount: BigInt = WELL_LP_AMOUNT,
+  transaction: ethereum.Transaction | null = null
 ): RemoveLiquidity {
   createContractCallMocks();
   mockCalcLPTokenUnderlying_RemoveLiq(lpAmount.neg());
   const event = createRemoveLiquidityEvent(WELL, SWAP_ACCOUNT, lpAmount, tokenAmounts);
   event.block.number = BASIN_BLOCK;
+  if (transaction != null) {
+    event.transaction = transaction;
+  }
   handleRemoveLiquidity(event);
   return event;
 }
 
-export function mockRemoveLiquidityOneBean(lpAmount: BigInt = WELL_LP_AMOUNT): RemoveLiquidityOneToken {
+export function mockRemoveLiquidityOneBean(
+  lpAmount: BigInt = WELL_LP_AMOUNT,
+  transaction: ethereum.Transaction | null = null
+): RemoveLiquidityOneToken {
   createContractCallMocks();
   mockCalcLPTokenUnderlying_RemoveLiq(lpAmount.neg());
   const event = createRemoveLiquidityOneTokenEvent(WELL, SWAP_ACCOUNT, lpAmount, BEAN_ERC20, BEAN_SWAP_AMOUNT);
   event.block.number = BASIN_BLOCK;
+  if (transaction != null) {
+    event.transaction = transaction;
+  }
   handleRemoveLiquidityOneToken(event);
   return event;
 }
 
 export function mockRemoveLiquidityOneWeth(
   lpAmount: BigInt = WELL_LP_AMOUNT,
-  beanPriceMultiple: BigDecimal = ONE_BD
+  beanPriceMultiple: BigDecimal = ONE_BD,
+  transaction: ethereum.Transaction | null = null
 ): RemoveLiquidityOneToken {
   createContractCallMocks(beanPriceMultiple);
   mockCalcLPTokenUnderlying_RemoveLiq(lpAmount.neg());
   const event = createRemoveLiquidityOneTokenEvent(WELL, SWAP_ACCOUNT, lpAmount, WETH, WETH_SWAP_AMOUNT);
   event.block.number = BASIN_BLOCK;
+  if (transaction != null) {
+    event.transaction = transaction;
+  }
   handleRemoveLiquidityOneToken(event);
   return event;
 }
