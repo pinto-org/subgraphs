@@ -1,5 +1,18 @@
-import { Convert } from "../../generated/Basin-ABIs/PintoLaunch";
+import { Convert, Sunrise } from "../../generated/Basin-ABIs/PintoLaunch";
 import { Deposit, Withdraw } from "../../generated/schema";
+import { checkForSnapshot } from "../utils/Well";
+import { toAddress } from "../../../../core/utils/Bytes";
+import { v } from "../utils/constants/Version";
+import { getWhitelistedWells } from "../../../../core/constants/RuntimeConstants";
+
+// Takes snapshots of beanstalk wells only. This is to guarantee a snapshot of each Beanstalk well is
+// always available at the top of the season.
+export function handleBeanstalkSunrise(event: Sunrise): void {
+  const wells = getWhitelistedWells(v());
+  for (let i = 0; i < wells.length; i++) {
+    checkForSnapshot(toAddress(wells[i]), event.block);
+  }
+}
 
 export function handleConvert(event: Convert): void {
   // Find any corresponding deposit/withdraw entities and indicate them as converts.
