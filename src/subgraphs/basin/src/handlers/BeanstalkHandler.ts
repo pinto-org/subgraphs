@@ -4,10 +4,15 @@ import { checkForSnapshot } from "../utils/Well";
 import { toAddress } from "../../../../core/utils/Bytes";
 import { v } from "../utils/constants/Version";
 import { getWhitelistedWells } from "../../../../core/constants/RuntimeConstants";
+import { createNewSeason, loadBeanstalk } from "../entities/Beanstalk";
 
-// Takes snapshots of beanstalk wells only. This is to guarantee a snapshot of each Beanstalk well is
-// always available at the top of the season.
+// Takes snapshots of beanstalk wells only and update beanstalk stats
 export function handleBeanstalkSunrise(event: Sunrise): void {
+  createNewSeason(event.params.season.toU32(), event.block);
+  const beanstalk = loadBeanstalk();
+  beanstalk.lastSeason = event.params.season.toString();
+  beanstalk.save();
+
   const wells = getWhitelistedWells(v());
   for (let i = 0; i < wells.length; i++) {
     checkForSnapshot(toAddress(wells[i]), event.block);
