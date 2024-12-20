@@ -28,6 +28,31 @@ dataSources:
             kind: once
       file: ../src/utils/constants/Version.ts
   - kind: ethereum/contract
+    name: InitInit
+    network: base
+    source:
+      address: "0xBA51AA60B3b8d9A36cc748a62Aa56801060183f8"
+      abi: Aquifer
+      startBlock: 22622966
+      endBlock: 22622966
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Version
+      abis:
+        - name: Aquifer
+          file: ../../../core/abis/Aquifer.json
+      blockHandlers:
+        - handler: init
+          filter:
+            kind: once
+      file: ../src/utils/init/PintoInit.ts
+  ###
+  # BASIN
+  ###
+  - kind: ethereum/contract
     name: Aquifer
     network: base
     source:

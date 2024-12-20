@@ -109,9 +109,12 @@ type Season @entity {
 }
 
 # Contains cumulative stats across all of the Beanstalk wells.
-type BeanstalkWells @entity {
+type Beanstalk @entity {
   "= 'beanstalk'"
   id: ID!
+
+  "Last season seen from Beanstalk"
+  lastSeason: Season!
 
   "Beanstalk Wells"
   wells: [Well!]!
@@ -159,7 +162,7 @@ type BeanstalkWells @entity {
   lastUpdateBlockNumber: BigInt!
 }
 
-type BeanstalkWellsHourlySnapshot @entity {
+type BeanstalkHourlySnapshot @entity {
   "Season number (string)"
   id: ID!
 
@@ -211,7 +214,7 @@ type BeanstalkWellsHourlySnapshot @entity {
   lastUpdateBlockNumber: BigInt!
 }
 
-type BeanstalkWellsDailySnapshot @entity {
+type BeanstalkDailySnapshot @entity {
   "Unix day (string)"
   id: ID!
 
