@@ -69,28 +69,28 @@ dataSources:
         - event: Sunrise(indexed uint256)
           handler: handleBeanstalkSunrise
       file: ../src/handlers/HourlySnapshotHandler.ts
-  - kind: ethereum/contract
-    name: HourlySnapshotPolling
-    network: base
-    source:
-      address: "0xBA51AA60B3b8d9A36cc748a62Aa56801060183f8"
-      abi: Aquifer
-      startBlock: 22623515 # Initial liquidity added + 1
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.7
-      language: wasm/assemblyscript
-      entities:
-        - Well
-      abis:
-        - name: Aquifer
-          file: ../../../core/abis/Aquifer.json
-      blockHandlers:
-        - handler: handleBlock
-          filter:
-            kind: polling
-            every: 30 # 1 minute on base
-      file: ../src/handlers/HourlySnapshotHandler.ts
+  # - kind: ethereum/contract
+  #   name: HourlySnapshotPolling
+  #   network: base
+  #   source:
+  #     address: "0xBA51AA60B3b8d9A36cc748a62Aa56801060183f8"
+  #     abi: Aquifer
+  #     startBlock: 22623515 # Initial liquidity added + 1
+  #   mapping:
+  #     kind: ethereum/events
+  #     apiVersion: 0.0.7
+  #     language: wasm/assemblyscript
+  #     entities:
+  #       - Well
+  #     abis:
+  #       - name: Aquifer
+  #         file: ../../../core/abis/Aquifer.json
+  #     blockHandlers:
+  #       - handler: handleBlock
+  #         filter:
+  #           kind: polling
+  #           every: 30 # 1 minute on base
+  #     file: ../src/handlers/HourlySnapshotHandler.ts
   - kind: ethereum/contract
     name: BeanstalkEvents
     network: base
