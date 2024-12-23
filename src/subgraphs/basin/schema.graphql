@@ -129,6 +129,20 @@ type Beanstalk @entity {
   "Rolling 7d of cumulativeTradeVolumeUSD"
   rollingWeeklyTradeVolumeUSD: BigDecimal!
 
+  "All pinto buying volume, including converts."
+  cumulativeBuyVolumeUSD: BigDecimal!
+  "Rolling 24h of cumulativeBuyVolumeUSD"
+  rollingDailyBuyVolumeUSD: BigDecimal!
+  "Rolling 7d of cumulativeBuyVolumeUSD"
+  rollingWeeklyBuyVolumeUSD: BigDecimal!
+
+  "All pinto selling volume, including converts."
+  cumulativeSellVolumeUSD: BigDecimal!
+  "Rolling 24h of cumulativeSellVolumeUSD"
+  rollingDailySellVolumeUSD: BigDecimal!
+  "Rolling 7d of cumulativeSellVolumeUSD"
+  rollingWeeklySellVolumeUSD: BigDecimal!
+
   "All transfer volume occurred, in USD. This includes the full value of tokens transferred in add/remove liquidity."
   cumulativeTransferVolumeUSD: BigDecimal!
   "Rolling 24h of cumulativeTransferVolumeUSD"
@@ -143,14 +157,14 @@ type Beanstalk @entity {
   "Rolling 7d of cumulativeConvertVolumeUSD"
   rollingWeeklyConvertVolumeUSD: BigDecimal!
 
-  "All upconvert convert volume, in USD."
+  "All upconvert convert volume, in USD. Subset of cumulativeBuyVolumeUSD."
   cumulativeConvertUpVolumeUSD: BigDecimal!
   "Rolling 24h of cumulativeConvertUpVolumeUSD"
   rollingDailyConvertUpVolumeUSD: BigDecimal!
   "Rolling 7d of cumulativeConvertUpVolumeUSD"
   rollingWeeklyConvertUpVolumeUSD: BigDecimal!
 
-  "All downconvert convert volume, in USD."
+  "All downconvert convert volume, in USD. Subset of cumulativeSellVolumeUSD."
   cumulativeConvertDownVolumeUSD: BigDecimal!
   "Rolling 24h of cumulativeConvertDownVolumeUSD"
   rollingDailyConvertDownVolumeUSD: BigDecimal!
@@ -186,6 +200,16 @@ type BeanstalkHourlySnapshot @entity {
   cumulativeTradeVolumeUSD: BigDecimal!
   "Delta of cumulativeTradeVolumeUSD"
   deltaTradeVolumeUSD: BigDecimal!
+
+  "All pinto buying volume, including converts."
+  cumulativeBuyVolumeUSD: BigDecimal!
+  "Delta of cumulativeBuyVolumeUSD"
+  deltaBuyVolumeUSD: BigDecimal!
+
+  "All pinto selling volume, including converts."
+  cumulativeSellVolumeUSD: BigDecimal!
+  "Delta of cumulativeSellVolumeUSD"
+  deltaSellVolumeUSD: BigDecimal!
 
   "All transfer volume occurred, in USD. This includes the full value of tokens transferred in add/remove liquidity."
   cumulativeTransferVolumeUSD: BigDecimal!
@@ -233,6 +257,16 @@ type BeanstalkDailySnapshot @entity {
   cumulativeTradeVolumeUSD: BigDecimal!
   "Delta of cumulativeTradeVolumeUSD"
   deltaTradeVolumeUSD: BigDecimal!
+
+  "All pinto buying volume, including converts."
+  cumulativeBuyVolumeUSD: BigDecimal!
+  "Delta of cumulativeBuyVolumeUSD"
+  deltaBuyVolumeUSD: BigDecimal!
+
+  "All pinto selling volume, including converts."
+  cumulativeSellVolumeUSD: BigDecimal!
+  "Delta of cumulativeSellVolumeUSD"
+  deltaSellVolumeUSD: BigDecimal!
 
   "All transfer volume occurred, in USD. This includes the full value of tokens transferred in add/remove liquidity."
   cumulativeTransferVolumeUSD: BigDecimal!
