@@ -124,9 +124,38 @@ type Beanstalk @entity {
 
   "All trade volume occurred, in USD. This includes any net trading activity as a result of add/remove liquidity."
   cumulativeTradeVolumeUSD: BigDecimal!
+  "Rolling 24h of cumulativeTradeVolumeUSD"
+  rollingDailyTradeVolumeUSD: BigDecimal!
+  "Rolling 7d of cumulativeTradeVolumeUSD"
+  rollingWeeklyTradeVolumeUSD: BigDecimal!
 
   "All transfer volume occurred, in USD. This includes the full value of tokens transferred in add/remove liquidity."
   cumulativeTransferVolumeUSD: BigDecimal!
+  "Rolling 24h of cumulativeTransferVolumeUSD"
+  rollingDailyTransferVolumeUSD: BigDecimal!
+  "Rolling 7d of cumulativeTransferVolumeUSD"
+  rollingWeeklyTransferVolumeUSD: BigDecimal!
+
+  "All bidirectional convert volume, in USD. Includes LP->LP converts which are neither up nor down."
+  cumulativeConvertVolumeUSD: BigDecimal!
+  "Rolling 24h of cumulativeConvertVolumeUSD"
+  rollingDailyConvertVolumeUSD: BigDecimal!
+  "Rolling 7d of cumulativeConvertVolumeUSD"
+  rollingWeeklyConvertVolumeUSD: BigDecimal!
+
+  "All upconvert convert volume, in USD."
+  cumulativeConvertUpVolumeUSD: BigDecimal!
+  "Rolling 24h of cumulativeConvertUpVolumeUSD"
+  rollingDailyConvertUpVolumeUSD: BigDecimal!
+  "Rolling 7d of cumulativeConvertUpVolumeUSD"
+  rollingWeeklyConvertUpVolumeUSD: BigDecimal!
+
+  "All downconvert convert volume, in USD."
+  cumulativeConvertDownVolumeUSD: BigDecimal!
+  "Rolling 24h of cumulativeConvertDownVolumeUSD"
+  rollingDailyConvertDownVolumeUSD: BigDecimal!
+  "Rolling 7d of cumulativeConvertDownVolumeUSD"
+  rollingWeeklyConvertDownVolumeUSD: BigDecimal!
 
   "Total number of deposit events (add liquidity) "
   cumulativeDepositCount: Int!
@@ -136,18 +165,6 @@ type Beanstalk @entity {
 
   "Total number of trades (swaps) "
   cumulativeSwapCount: Int!
-
-  "Current rolling 24h trade volume in USD"
-  rollingDailyTradeVolumeUSD: BigDecimal!
-
-  "Current rolling 24h transfer volume in USD"
-  rollingDailyTransferVolumeUSD: BigDecimal!
-
-  "Current rolling weekly trade volume in USD"
-  rollingWeeklyTradeVolumeUSD: BigDecimal!
-
-  "Current rolling weekly transfer volume in USD"
-  rollingWeeklyTransferVolumeUSD: BigDecimal!
 
   "Day ID of the most recent daily snapshot"
   lastSnapshotDayID: Int!
@@ -171,39 +188,46 @@ type BeanstalkHourlySnapshot @entity {
 
   "The sum of all liquidity in USD all wells."
   totalLiquidityUSD: BigDecimal!
-
-  "All trade volume occurred, in USD. This includes any net trading activity as a result of add/remove liquidity."
-  cumulativeTradeVolumeUSD: BigDecimal!
-
-  "All transfer volume occurred, in USD. This includes the full value of tokens transferred in add/remove liquidity."
-  cumulativeTransferVolumeUSD: BigDecimal!
-
-  "Total number of deposit events (add liquidity) "
-  cumulativeDepositCount: Int!
-
-  "Total number of withdrawal events (remove liquidity) "
-  cumulativeWithdrawCount: Int!
-
-  "Total number of trades (swaps) "
-  cumulativeSwapCount: Int!
-
-  ##### Delta Amounts #####
-
   "Delta of totalLiquidityUSD"
   deltaLiquidityUSD: BigDecimal!
 
+  "All trade volume occurred, in USD. This includes any net trading activity as a result of add/remove liquidity."
+  cumulativeTradeVolumeUSD: BigDecimal!
   "Delta of cumulativeTradeVolumeUSD"
   deltaTradeVolumeUSD: BigDecimal!
 
+  "All transfer volume occurred, in USD. This includes the full value of tokens transferred in add/remove liquidity."
+  cumulativeTransferVolumeUSD: BigDecimal!
   "Delta of cumulativeTransferVolumeUSD"
   deltaTransferVolumeUSD: BigDecimal!
 
+  "All bidirectional convert volume, in USD. Includes LP->LP converts which are neither up nor down."
+  cumulativeConvertVolumeUSD: BigDecimal!
+  "Delta of cumulativeConvertVolumeUSD"
+  deltaConvertVolumeUSD: BigDecimal!
+
+  "All upconvert convert volume, in USD."
+  cumulativeConvertUpVolumeUSD: BigDecimal!
+  "Delta of cumulativeConvertUpVolumeUSD"
+  deltaConvertUpVolumeUSD: BigDecimal!
+
+  "All downconvert convert volume, in USD."
+  cumulativeConvertDownVolumeUSD: BigDecimal!
+  "Delta of cumulativeConvertDownVolumeUSD"
+  deltaConvertUpVolumeUSD: BigDecimal!
+
+  "Total number of deposit events (add liquidity) "
+  cumulativeDepositCount: Int!
   "Delta of cumulativeDepositCount"
   deltaDepositCount: Int!
 
+  "Total number of withdrawal events (remove liquidity) "
+  cumulativeWithdrawCount: Int!
   "Delta of cumulativeDepositCount"
   deltaWithdrawCount: Int!
 
+  "Total number of trades (swaps) "
+  cumulativeSwapCount: Int!
   "Delta of cumulativeDepositCount"
   deltaSwapCount: Int!
 
@@ -226,39 +250,46 @@ type BeanstalkDailySnapshot @entity {
 
   "The sum of all liquidity in USD all wells."
   totalLiquidityUSD: BigDecimal!
-
-  "All trade volume occurred, in USD. This includes any net trading activity as a result of add/remove liquidity."
-  cumulativeTradeVolumeUSD: BigDecimal!
-
-  "All transfer volume occurred, in USD. This includes the full value of tokens transferred in add/remove liquidity."
-  cumulativeTransferVolumeUSD: BigDecimal!
-
-  "Total number of deposit events (add liquidity) "
-  cumulativeDepositCount: Int!
-
-  "Total number of withdrawal events (remove liquidity) "
-  cumulativeWithdrawCount: Int!
-
-  "Total number of trades (swaps) "
-  cumulativeSwapCount: Int!
-
-  ##### Delta Amounts #####
-
   "Delta of totalLiquidityUSD"
   deltaLiquidityUSD: BigDecimal!
 
+  "All trade volume occurred, in USD. This includes any net trading activity as a result of add/remove liquidity."
+  cumulativeTradeVolumeUSD: BigDecimal!
   "Delta of cumulativeTradeVolumeUSD"
   deltaTradeVolumeUSD: BigDecimal!
 
+  "All transfer volume occurred, in USD. This includes the full value of tokens transferred in add/remove liquidity."
+  cumulativeTransferVolumeUSD: BigDecimal!
   "Delta of cumulativeTransferVolumeUSD"
   deltaTransferVolumeUSD: BigDecimal!
 
+  "All bidirectional convert volume, in USD. Includes LP->LP converts which are neither up nor down."
+  cumulativeConvertVolumeUSD: BigDecimal!
+  "Delta of cumulativeConvertVolumeUSD"
+  deltaConvertVolumeUSD: BigDecimal!
+
+  "All upconvert convert volume, in USD."
+  cumulativeConvertUpVolumeUSD: BigDecimal!
+  "Delta of cumulativeConvertUpVolumeUSD"
+  deltaConvertUpVolumeUSD: BigDecimal!
+
+  "All downconvert convert volume, in USD."
+  cumulativeConvertDownVolumeUSD: BigDecimal!
+  "Delta of cumulativeConvertDownVolumeUSD"
+  deltaConvertUpVolumeUSD: BigDecimal!
+
+  "Total number of deposit events (add liquidity) "
+  cumulativeDepositCount: Int!
   "Delta of cumulativeDepositCount"
   deltaDepositCount: Int!
 
+  "Total number of withdrawal events (remove liquidity) "
+  cumulativeWithdrawCount: Int!
   "Delta of cumulativeDepositCount"
   deltaWithdrawCount: Int!
 
+  "Total number of trades (swaps) "
+  cumulativeSwapCount: Int!
   "Delta of cumulativeDepositCount"
   deltaSwapCount: Int!
 
@@ -334,33 +365,73 @@ type Well @entity {
 
   "All trade volume occurred for a specific token, in native amount. Volume for an individual token is defined as a purchase of that token. This includes any net trading activity as a result of add/remove liquidity. The ordering should be the same as the well's `tokens` field."
   cumulativeTradeVolumeReserves: [BigInt!]!
+  "Rolling 24h of cumulativeTradeVolumeReserves"
+  rollingDailyTradeVolumeReserves: [BigInt!]!
+  "Rolling 7d of cumulativeTradeVolumeReserves"
+  rollingWeeklyTradeVolumeReserves: [BigInt!]!
 
   "All trade volume occurred for a specific token, in USD. Volume for an individual token is defined as a purchase of that token. This includes any net trading activity as a result of add/remove liquidity. The ordering should be the same as the well's `tokens` field."
   cumulativeTradeVolumeReservesUSD: [BigDecimal!]!
+  "Rolling 24h of cumulativeTradeVolumeReservesUSD"
+  rollingDailyTradeVolumeReservesUSD: [BigDecimal!]!
+  "Rolling 7d of cumulativeTradeVolumeReservesUSD"
+  rollingWeeklyTradeVolumeReservesUSD: [BigDecimal!]!
 
   "All trade volume occurred in this well, in USD. This includes any net trading activity as a result of add/remove liquidity. Should be equal to the sum of all entries in cumulativeTradeVolumeReservesUSD"
   cumulativeTradeVolumeUSD: BigDecimal!
+  "Rolling 24h of cumulativeTradeVolumeUSD"
+  rollingDailyTradeVolumeUSD: BigDecimal!
+  "Rolling 7d of cumulativeTradeVolumeUSD"
+  rollingWeeklyTradeVolumeUSD: BigDecimal!
 
   "All trade volume occurred for a specific token, in native amount. This includes absolute tokens on both sides of the trade unlike cumulativeTradeVolumeReserves. This includes any net trading activity as a result of add/remove liquidity. The ordering should be the same as the well's `tokens` field."
   cumulativeBiTradeVolumeReserves: [BigInt!]!
+  "Rolling 24h of cumulativeBiTradeVolumeReserves"
+  rollingDailyBiTradeVolumeReserves: [BigInt!]!
+  "Rolling 7d of cumulativeBiTradeVolumeReserves"
+  rollingWeeklyBiTradeVolumeReserves: [BigInt!]!
 
   "All transfer volume occurred for a specific token, in native amount. This includes the full amount of tokens transferred in add/remove liquidity. The ordering should be the same as the well's `tokens` field."
   cumulativeTransferVolumeReserves: [BigInt!]!
+  "Rolling 24h of cumulativeTransferVolumeReserves"
+  rollingDailyTransferVolumeReserves: [BigInt!]!
+  "Rolling 7d of cumulativeTransferVolumeReserves"
+  rollingWeeklyTransferVolumeReserves: [BigInt!]!
 
   "All transfer volume occurred for a specific token, in USD. This includes the full value of tokens transferred in add/remove liquidity. The ordering should be the same as the well's `tokens` field."
   cumulativeTransferVolumeReservesUSD: [BigDecimal!]!
+  "Rolling 24h of cumulativeTransferVolumeReservesUSD"
+  rollingDailyTransferVolumeReservesUSD: [BigDecimal!]!
+  "Rolling 7d of cumulativeTransferVolumeReservesUSD"
+  rollingWeeklyTransferVolumeReservesUSD: [BigDecimal!]!
 
   "All transfer volume occurred in this well, in USD. This includes the full value of tokens transferred in add/remove liquidity. Should be equal to the sum of all entries in cumulativeTransferVolumeReservesUSD"
   cumulativeTransferVolumeUSD: BigDecimal!
+  "Rolling 24h of cumulativeTransferVolumeUSD"
+  rollingDailyTransferVolumeUSD: BigDecimal!
+  "Rolling 7d of cumulativeTransferVolumeUSD"
+  rollingWeeklyTransferVolumeUSD: BigDecimal!
 
   "All Beanstalk convert volume occurring in this Well, by each token, in native amount. A subset of cumulativeTradeVolumeReserves"
   convertVolumeReserves: [BigInt!]!
+  "Rolling 24h of convertVolumeReserves"
+  rollingDailyConvertVolumeReserves: [BigInt!]!
+  "Rolling 7d of convertVolumeReserves"
+  rollingWeeklyConvertVolumeReserves: [BigInt!]!
 
   "All Beanstalk convert volume occurring in this Well, by each token, in USD.  A subset of cumulativeTradeVolumeReservesUSD"
   convertVolumeReservesUSD: [BigDecimal!]!
+  "Rolling 24h of convertVolumeReservesUSD"
+  rollingDailyConvertVolumeReservesUSD: [BigDecimal!]!
+  "Rolling 7d of convertVolumeReservesUSD"
+  rollingWeeklyConvertVolumeReservesUSD: [BigDecimal!]!
 
   "All Beanstalk convert volume occurring in this Well. A subset of cumulativeTradeVolumeUSD"
   convertVolumeUSD: BigDecimal!
+  "Rolling 24h of convertVolumeUSD"
+  rollingDailyConvertVolumeUSD: BigDecimal!
+  "Rolling 7d of convertVolumeUSD"
+  rollingWeeklyConvertVolumeUSD: BigDecimal!
 
   "Total number of deposit events (add liquidity) "
   cumulativeDepositCount: Int!
@@ -370,66 +441,6 @@ type Well @entity {
 
   "Total number of trades (swaps) "
   cumulativeSwapCount: Int!
-
-  "Current rolling 24h trade volume in token amounts"
-  rollingDailyTradeVolumeReserves: [BigInt!]!
-
-  "Current rolling 24h trade volume of each token in USD"
-  rollingDailyTradeVolumeReservesUSD: [BigDecimal!]!
-
-  "Current rolling 24h trade volume in USD"
-  rollingDailyTradeVolumeUSD: BigDecimal!
-
-  "Current rolling 24h trade volume in token amounts, including absolute tokens on both side of the trade unlike rollingDailyTradeVolumeReserves."
-  rollingDailyBiTradeVolumeReserves: [BigInt!]!
-
-  "Current rolling 24h transfer volume in token amounts"
-  rollingDailyTransferVolumeReserves: [BigInt!]!
-
-  "Current rolling 24h transfer volume of each token in USD"
-  rollingDailyTransferVolumeReservesUSD: [BigDecimal!]!
-
-  "Current rolling 24h transfer volume in USD"
-  rollingDailyTransferVolumeUSD: BigDecimal!
-
-  "Current rolling 24h convert volume in token amounts"
-  rollingDailyConvertVolumeReserves: [BigInt!]!
-
-  "Current rolling 24h convert volume of each token in USD"
-  rollingDailyConvertVolumeReservesUSD: [BigDecimal!]!
-
-  "Current rolling 24h convert volume in USD"
-  rollingDailyConvertVolumeUSD: BigDecimal!
-
-  "Current rolling weekly trade volume in token amounts"
-  rollingWeeklyTradeVolumeReserves: [BigInt!]!
-
-  "Current rolling weekly trade volume of each token in USD"
-  rollingWeeklyTradeVolumeReservesUSD: [BigDecimal!]!
-
-  "Current rolling weekly trade volume in USD"
-  rollingWeeklyTradeVolumeUSD: BigDecimal!
-
-  "Current rolling weekly trade volume in token amounts, including absolute tokens on both side of the trade unlike rollingWeeklyTradeVolumeReserves."
-  rollingWeeklyBiTradeVolumeReserves: [BigInt!]!
-
-  "Current rolling weekly transfer volume in token amounts"
-  rollingWeeklyTransferVolumeReserves: [BigInt!]!
-
-  "Current rolling weekly transfer volume of each token in USD"
-  rollingWeeklyTransferVolumeReservesUSD: [BigDecimal!]!
-
-  "Current rolling weekly transfer volume in USD"
-  rollingWeeklyTransferVolumeUSD: BigDecimal!
-
-  "Current rolling weekly convert volume in token amounts"
-  rollingWeeklyConvertVolumeReserves: [BigInt!]!
-
-  "Current rolling weekly convert volume of each token in USD"
-  rollingWeeklyConvertVolumeReservesUSD: [BigDecimal!]!
-
-  "Current rolling weekly convert volume in USD"
-  rollingWeeklyConvertVolumeUSD: BigDecimal!
 
   "Day ID of the most recent daily snapshot"
   lastSnapshotDayID: Int!
@@ -480,97 +491,80 @@ type WellHourlySnapshot @entity {
 
   "Total liquidity token supply for the well."
   lpTokenSupply: BigInt!
+  "Delta of lpTokenSupply"
+  deltaLpTokenSupply: BigInt!
 
   "The sum of all active and non-active liquidity in USD for this well."
   totalLiquidityUSD: BigDecimal!
+  "Delta of totalLiquidityUSD"
+  deltaLiquidityUSD: BigDecimal!
 
   "The current amount of each token needed to exchange for one of the other token."
   tokenPrice: [BigInt!]!
 
   "All trade volume occurred for a specific token, in native amount. Volume for an individual token is defined as a purchase of that token. This includes any net trading activity as a result of add/remove liquidity. The ordering should be the same as the well's `tokens` field."
   cumulativeTradeVolumeReserves: [BigInt!]!
-
-  "All trade volume occurred for a specific token, in USD. Volume for an individual token is defined as a purchase of that token. This includes any net trading activity as a result of add/remove liquidity. The ordering should be the same as the well's `tokens` field."
-  cumulativeTradeVolumeReservesUSD: [BigDecimal!]!
-
-  "All trade volume occurred in this well, in USD. This includes any net trading activity as a result of add/remove liquidity. Should be equal to the sum of all entries in cumulativeTradeVolumeReservesUSD"
-  cumulativeTradeVolumeUSD: BigDecimal!
-
-  "All trade volume occurred for a specific token, in native amount. This includes absolute tokens on both sides of the trade unlike cumulativeTradeVolumeReserves. This includes any net trading activity as a result of add/remove liquidity. The ordering should be the same as the well's `tokens` field."
-  cumulativeBiTradeVolumeReserves: [BigInt!]!
-
-  "All transfer volume occurred for a specific token, in native amount. This includes the full amount of tokens transferred in add/remove liquidity. The ordering should be the same as the well's `tokens` field."
-  cumulativeTransferVolumeReserves: [BigInt!]!
-
-  "All transfer volume occurred for a specific token, in USD. This includes the full value of tokens transferred in add/remove liquidity. The ordering should be the same as the well's `tokens` field."
-  cumulativeTransferVolumeReservesUSD: [BigDecimal!]!
-
-  "All transfer volume occurred in this well, in USD. This includes the full value of tokens transferred in add/remove liquidity. Should be equal to the sum of all entries in cumulativeTransferVolumeReservesUSD"
-  cumulativeTransferVolumeUSD: BigDecimal!
-
-  "All Beanstalk convert volume occurring in this Well, by each token, in native amount. A subset of cumulativeTradeVolumeReserves"
-  convertVolumeReserves: [BigInt!]!
-
-  "All Beanstalk convert volume occurring in this Well, by each token, in USD.  A subset of cumulativeTradeVolumeReservesUSD"
-  convertVolumeReservesUSD: [BigDecimal!]!
-
-  "All Beanstalk convert volume occurring in this Well. A subset of cumulativeTradeVolumeUSD"
-  convertVolumeUSD: BigDecimal!
-
-  "Total number of deposit events (add liquidity) "
-  cumulativeDepositCount: Int!
-
-  "Total number of withdrawal events (remove liquidity) "
-  cumulativeWithdrawCount: Int!
-
-  "Total number of trades (swaps) "
-  cumulativeSwapCount: Int!
-
-  ##### Delta Amounts #####
-
-  "Total liquidity token supply for the well."
-  deltalpTokenSupply: BigInt!
-
-  "The sum of all active and non-active liquidity in USD for this well."
-  deltaLiquidityUSD: BigDecimal!
-
   "Delta of cumulativeTradeVolumeReserves"
   deltaTradeVolumeReserves: [BigInt!]!
 
+  "All trade volume occurred for a specific token, in USD. Volume for an individual token is defined as a purchase of that token. This includes any net trading activity as a result of add/remove liquidity. The ordering should be the same as the well's `tokens` field."
+  cumulativeTradeVolumeReservesUSD: [BigDecimal!]!
   "Delta of cumulativeTradeVolumeReservesUSD"
   deltaTradeVolumeReservesUSD: [BigDecimal!]!
 
+  "All trade volume occurred in this well, in USD. This includes any net trading activity as a result of add/remove liquidity. Should be equal to the sum of all entries in cumulativeTradeVolumeReservesUSD"
+  cumulativeTradeVolumeUSD: BigDecimal!
   "Delta of cumulativeTradeVolumeUSD"
   deltaTradeVolumeUSD: BigDecimal!
 
+  "All trade volume occurred for a specific token, in native amount. This includes absolute tokens on both sides of the trade unlike cumulativeTradeVolumeReserves. This includes any net trading activity as a result of add/remove liquidity. The ordering should be the same as the well's `tokens` field."
+  cumulativeBiTradeVolumeReserves: [BigInt!]!
   "Delta of cumulativeBiTradeVolumeReserves"
   deltaBiTradeVolumeReserves: [BigInt!]!
 
+  "All transfer volume occurred for a specific token, in native amount. This includes the full amount of tokens transferred in add/remove liquidity. The ordering should be the same as the well's `tokens` field."
+  cumulativeTransferVolumeReserves: [BigInt!]!
   "Delta of cumulativeTransferVolumeReserves"
   deltaTransferVolumeReserves: [BigInt!]!
 
+  "All transfer volume occurred for a specific token, in USD. This includes the full value of tokens transferred in add/remove liquidity. The ordering should be the same as the well's `tokens` field."
+  cumulativeTransferVolumeReservesUSD: [BigDecimal!]!
   "Delta of cumulativeTransferVolumeReservesUSD"
   deltaTransferVolumeReservesUSD: [BigDecimal!]!
 
+  "All transfer volume occurred in this well, in USD. This includes the full value of tokens transferred in add/remove liquidity. Should be equal to the sum of all entries in cumulativeTransferVolumeReservesUSD"
+  cumulativeTransferVolumeUSD: BigDecimal!
   "Delta of cumulativeTransferVolumeUSD"
   deltaTransferVolumeUSD: BigDecimal!
 
+  "All Beanstalk convert volume occurring in this Well, by each token, in native amount. A subset of cumulativeTradeVolumeReserves"
+  convertVolumeReserves: [BigInt!]!
   "Delta of convertVolumeReserves"
   deltaConvertVolumeReserves: [BigInt!]!
 
+  "All Beanstalk convert volume occurring in this Well, by each token, in USD.  A subset of cumulativeTradeVolumeReservesUSD"
+  convertVolumeReservesUSD: [BigDecimal!]!
   "Delta of convertVolumeReservesUSD"
   deltaConvertVolumeReservesUSD: [BigDecimal!]!
 
+  "All Beanstalk convert volume occurring in this Well. A subset of cumulativeTradeVolumeUSD"
+  convertVolumeUSD: BigDecimal!
   "Delta of convertVolumeUSD"
   deltaConvertVolumeUSD: BigDecimal!
 
-  "Total number of deposit events (add liquidity) "
+  "Total number of deposit events (add liquidity)"
+  cumulativeDepositCount: Int!
+  "Delta of cumulativeDepositCount"
   deltaDepositCount: Int!
 
-  "Total number of withdrawal events (remove liquidity) "
+  "Total number of withdrawal events (remove liquidity)"
+  cumulativeWithdrawCount: Int!
+  "Delta of cumulativeWithdrawCount"
   deltaWithdrawCount: Int!
 
   "Total number of trades (swaps) "
+  cumulativeSwapCount: Int!
+  "Delta of cumulativeSwapCount"
   deltaSwapCount: Int!
 
   "Timestamp of the last time this entity was updated"
@@ -597,97 +591,80 @@ type WellDailySnapshot @entity {
 
   "Total liquidity token supply for the well."
   lpTokenSupply: BigInt!
+  "Delta of lpTokenSupply"
+  deltaLpTokenSupply: BigInt!
 
   "The sum of all active and non-active liquidity in USD for this well."
   totalLiquidityUSD: BigDecimal!
+  "Delta of totalLiquidityUSD"
+  deltaLiquidityUSD: BigDecimal!
 
   "The current amount of each token needed to exchange for one of the other token."
   tokenPrice: [BigInt!]!
 
   "All trade volume occurred for a specific token, in native amount. Volume for an individual token is defined as a purchase of that token. This includes any net trading activity as a result of add/remove liquidity. The ordering should be the same as the well's `tokens` field."
   cumulativeTradeVolumeReserves: [BigInt!]!
-
-  "All trade volume occurred for a specific token, in USD. Volume for an individual token is defined as a purchase of that token. This includes any net trading activity as a result of add/remove liquidity. The ordering should be the same as the well's `tokens` field."
-  cumulativeTradeVolumeReservesUSD: [BigDecimal!]!
-
-  "All trade volume occurred in this well, in USD. This includes any net trading activity as a result of add/remove liquidity. Should be equal to the sum of all entries in cumulativeTradeVolumeReservesUSD"
-  cumulativeTradeVolumeUSD: BigDecimal!
-
-  "All trade volume occurred for a specific token, in native amount. This includes absolute tokens on both sides of the trade unlike cumulativeTradeVolumeReserves. This includes any net trading activity as a result of add/remove liquidity. The ordering should be the same as the well's `tokens` field."
-  cumulativeBiTradeVolumeReserves: [BigInt!]!
-
-  "All transfer volume occurred for a specific token, in native amount. This includes the full amount of tokens transferred in add/remove liquidity. The ordering should be the same as the well's `tokens` field."
-  cumulativeTransferVolumeReserves: [BigInt!]!
-
-  "All transfer volume occurred for a specific token, in USD. This includes the full value of tokens transferred in add/remove liquidity. The ordering should be the same as the well's `tokens` field."
-  cumulativeTransferVolumeReservesUSD: [BigDecimal!]!
-
-  "All transfer volume occurred in this well, in USD. This includes the full value of tokens transferred in add/remove liquidity. Should be equal to the sum of all entries in cumulativeTransferVolumeReservesUSD"
-  cumulativeTransferVolumeUSD: BigDecimal!
-
-  "All Beanstalk convert volume occurring in this Well, by each token, in native amount. A subset of cumulativeTradeVolumeReserves"
-  convertVolumeReserves: [BigInt!]!
-
-  "All Beanstalk convert volume occurring in this Well, by each token, in USD.  A subset of cumulativeTradeVolumeReservesUSD"
-  convertVolumeReservesUSD: [BigDecimal!]!
-
-  "All Beanstalk convert volume occurring in this Well. A subset of cumulativeTradeVolumeUSD"
-  convertVolumeUSD: BigDecimal!
-
-  "Total number of deposit events (add liquidity) "
-  cumulativeDepositCount: Int!
-
-  "Total number of withdrawal events (remove liquidity) "
-  cumulativeWithdrawCount: Int!
-
-  "Total number of trades (swaps) "
-  cumulativeSwapCount: Int!
-
-  ##### Delta Amounts #####
-
-  "Total liquidity token supply for the well."
-  deltalpTokenSupply: BigInt!
-
-  "The sum of all active and non-active liquidity in USD for this well."
-  deltaLiquidityUSD: BigDecimal!
-
   "Delta of cumulativeTradeVolumeReserves"
   deltaTradeVolumeReserves: [BigInt!]!
 
+  "All trade volume occurred for a specific token, in USD. Volume for an individual token is defined as a purchase of that token. This includes any net trading activity as a result of add/remove liquidity. The ordering should be the same as the well's `tokens` field."
+  cumulativeTradeVolumeReservesUSD: [BigDecimal!]!
   "Delta of cumulativeTradeVolumeReservesUSD"
   deltaTradeVolumeReservesUSD: [BigDecimal!]!
 
+  "All trade volume occurred in this well, in USD. This includes any net trading activity as a result of add/remove liquidity. Should be equal to the sum of all entries in cumulativeTradeVolumeReservesUSD"
+  cumulativeTradeVolumeUSD: BigDecimal!
   "Delta of cumulativeTradeVolumeUSD"
   deltaTradeVolumeUSD: BigDecimal!
 
+  "All trade volume occurred for a specific token, in native amount. This includes absolute tokens on both sides of the trade unlike cumulativeTradeVolumeReserves. This includes any net trading activity as a result of add/remove liquidity. The ordering should be the same as the well's `tokens` field."
+  cumulativeBiTradeVolumeReserves: [BigInt!]!
   "Delta of cumulativeBiTradeVolumeReserves"
   deltaBiTradeVolumeReserves: [BigInt!]!
 
+  "All transfer volume occurred for a specific token, in native amount. This includes the full amount of tokens transferred in add/remove liquidity. The ordering should be the same as the well's `tokens` field."
+  cumulativeTransferVolumeReserves: [BigInt!]!
   "Delta of cumulativeTransferVolumeReserves"
   deltaTransferVolumeReserves: [BigInt!]!
 
+  "All transfer volume occurred for a specific token, in USD. This includes the full value of tokens transferred in add/remove liquidity. The ordering should be the same as the well's `tokens` field."
+  cumulativeTransferVolumeReservesUSD: [BigDecimal!]!
   "Delta of cumulativeTransferVolumeReservesUSD"
   deltaTransferVolumeReservesUSD: [BigDecimal!]!
 
+  "All transfer volume occurred in this well, in USD. This includes the full value of tokens transferred in add/remove liquidity. Should be equal to the sum of all entries in cumulativeTransferVolumeReservesUSD"
+  cumulativeTransferVolumeUSD: BigDecimal!
   "Delta of cumulativeTransferVolumeUSD"
   deltaTransferVolumeUSD: BigDecimal!
 
+  "All Beanstalk convert volume occurring in this Well, by each token, in native amount. A subset of cumulativeTradeVolumeReserves"
+  convertVolumeReserves: [BigInt!]!
   "Delta of convertVolumeReserves"
   deltaConvertVolumeReserves: [BigInt!]!
 
+  "All Beanstalk convert volume occurring in this Well, by each token, in USD.  A subset of cumulativeTradeVolumeReservesUSD"
+  convertVolumeReservesUSD: [BigDecimal!]!
   "Delta of convertVolumeReservesUSD"
   deltaConvertVolumeReservesUSD: [BigDecimal!]!
 
+  "All Beanstalk convert volume occurring in this Well. A subset of cumulativeTradeVolumeUSD"
+  convertVolumeUSD: BigDecimal!
   "Delta of convertVolumeUSD"
   deltaConvertVolumeUSD: BigDecimal!
 
-  "Total number of deposit events (add liquidity) "
+  "Total number of deposit events (add liquidity)"
+  cumulativeDepositCount: Int!
+  "Delta of cumulativeDepositCount"
   deltaDepositCount: Int!
 
-  "Total number of withdrawal events (remove liquidity) "
+  "Total number of withdrawal events (remove liquidity)"
+  cumulativeWithdrawCount: Int!
+  "Delta of cumulativeWithdrawCount"
   deltaWithdrawCount: Int!
 
-  "Total number of trades (swaps) "
+  "Total number of trades (swaps)"
+  cumulativeSwapCount: Int!
+  "Delta of cumulativeSwapCount"
   deltaSwapCount: Int!
 
   "Timestamp of the last time this entity was updated"
