@@ -21,9 +21,6 @@ export function loadBeanstalk(): Beanstalk {
     beanstalk.wells = [];
     beanstalk.totalLiquidityUSD = ZERO_BD;
     beanstalk.cumulativeTradeVolumeUSD = ZERO_BD;
-    beanstalk.cumulativeDepositCount = 0;
-    beanstalk.cumulativeWithdrawCount = 0;
-    beanstalk.cumulativeSwapCount = 0;
     beanstalk.rollingDailyTradeVolumeUSD = ZERO_BD;
     beanstalk.rollingDailyTransferVolumeUSD = ZERO_BD;
     beanstalk.rollingWeeklyTradeVolumeUSD = ZERO_BD;

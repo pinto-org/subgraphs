@@ -8,14 +8,7 @@ import {
   Sync
 } from "../../generated/Basin-ABIs/Well";
 import { subBigIntArray, emptyBigIntArray, ZERO_BI } from "../../../../core/utils/Decimals";
-import {
-  incrementWellDeposit,
-  incrementWellSwap,
-  incrementWellWithdraw,
-  loadWell,
-  updateWellLiquidityTokenBalance,
-  updateWellReserves
-} from "../entities/Well";
+import { loadWell, updateWellLiquidityTokenBalance, updateWellReserves } from "../entities/Well";
 import { loadOrCreateAccount } from "../entities/Account";
 import { checkForSnapshot, updateWellTokenUSDPrices } from "../utils/Well";
 import { updateWellVolumesAfterLiquidity, updateWellVolumesAfterSwap } from "../utils/Volume";
@@ -47,8 +40,6 @@ export function handleAddLiquidity(event: AddLiquidity): void {
     event.block
   );
 
-  incrementWellDeposit(event.address);
-
   recordAddLiquidityEvent(event, volume);
 }
 
@@ -72,8 +63,6 @@ export function handleSync(event: Sync): void {
     event.params.lpAmountOut,
     event.block
   );
-
-  incrementWellDeposit(event.address);
 
   recordSyncEvent(event, deltaReserves, volume);
 }
@@ -102,8 +91,6 @@ export function handleRemoveLiquidity(event: RemoveLiquidity): void {
     event.params.lpAmountIn.neg(),
     event.block
   );
-
-  incrementWellWithdraw(event.address);
 
   recordRemoveLiquidityEvent(event, volume);
 }
@@ -136,8 +123,6 @@ export function handleRemoveLiquidityOneToken(event: RemoveLiquidityOneToken): v
     event.block
   );
 
-  incrementWellWithdraw(event.address);
-
   recordRemoveLiquidityOneEvent(event, withdrawnBalances, volume);
 }
 
@@ -162,8 +147,6 @@ export function handleSwap(event: Swap): void {
     event.params.amountOut,
     event.block
   );
-
-  incrementWellSwap(event.address);
 
   recordSwapEvent(event, volume);
 }
@@ -193,8 +176,6 @@ export function handleShift(event: Shift): void {
     event.params.amountOut,
     event.block
   );
-
-  incrementWellSwap(event.address);
 
   recordShiftEvent(event, fromToken, amountIn, volume);
 }

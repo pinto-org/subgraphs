@@ -47,9 +47,6 @@ describe("Well Entity: Liquidity Event Tests", () => {
     beforeEach(() => {
       mockAddLiquidity();
     });
-    test("Deposit counter incremented", () => {
-      assert.fieldEquals(WELL_ENTITY_TYPE, WELL.toHexString(), "cumulativeDepositCount", "1");
-    });
     test("Token Balances updated", () => {
       let updatedStore = loadWell(WELL);
       let endingBalances = updatedStore.reserves;
@@ -88,9 +85,6 @@ describe("Well Entity: Liquidity Event Tests", () => {
     beforeEach(() => {
       mockAddLiquidity();
       mockAddLiquidity([BEAN_SWAP_AMOUNT, ZERO_BI], WELL_LP_AMOUNT, BigDecimal.fromString("0.5"));
-    });
-    test("Deposit counter incremented", () => {
-      assert.fieldEquals(WELL_ENTITY_TYPE, WELL.toHexString(), "cumulativeDepositCount", "2");
     });
     test("Token Balances updated", () => {
       let updatedStore = loadWell(WELL);
@@ -132,9 +126,6 @@ describe("Well Entity: Liquidity Event Tests", () => {
       mockAddLiquidity([BEAN_SWAP_AMOUNT.div(BI_2), WETH_SWAP_AMOUNT.div(BI_2)]);
       mockSync([BEAN_SWAP_AMOUNT, WETH_SWAP_AMOUNT], BI_10);
     });
-    test("Deposit counter incremented", () => {
-      assert.fieldEquals(WELL_ENTITY_TYPE, WELL.toHexString(), "cumulativeDepositCount", "2");
-    });
     test("Token Balances updated", () => {
       let updatedStore = loadWell(WELL);
       let endingBalances = updatedStore.reserves;
@@ -174,9 +165,6 @@ describe("Well Entity: Liquidity Event Tests", () => {
       mockAddLiquidity([BEAN_SWAP_AMOUNT.div(BI_2), WETH_SWAP_AMOUNT.div(BI_2)]);
       // WETH is doubled so the bean price is also doubled
       mockSync([BEAN_SWAP_AMOUNT.div(BI_2), WETH_SWAP_AMOUNT], BI_10, BigDecimal.fromString("2"));
-    });
-    test("Deposit counter incremented", () => {
-      assert.fieldEquals(WELL_ENTITY_TYPE, WELL.toHexString(), "cumulativeDepositCount", "2");
     });
     test("Token Balances updated", () => {
       let updatedStore = loadWell(WELL);
@@ -218,9 +206,6 @@ describe("Well Entity: Liquidity Event Tests", () => {
       mockAddLiquidity();
       mockRemoveLiquidity();
     });
-    test("Withdraw counter incremented", () => {
-      assert.fieldEquals(WELL_ENTITY_TYPE, WELL.toHexString(), "cumulativeWithdrawCount", "1");
-    });
     test("Token Balances updated", () => {
       let updatedStore = loadWell(WELL);
       let endingBalances = updatedStore.reserves;
@@ -253,9 +238,6 @@ describe("Well Entity: Liquidity Event Tests", () => {
       mockAddLiquidity();
       mockRemoveLiquidityOneBean();
     });
-    test("Withdraw counter incremented", () => {
-      assert.fieldEquals(WELL_ENTITY_TYPE, WELL.toHexString(), "cumulativeWithdrawCount", "1");
-    });
     test("Token Balances updated", () => {
       let updatedStore = loadWell(WELL);
       let endingBalances = updatedStore.reserves;
@@ -287,9 +269,6 @@ describe("Well Entity: Liquidity Event Tests", () => {
       mockAddLiquidity();
       mockAddLiquidity();
       mockRemoveLiquidityOneNonBean(WETH, WELL_LP_AMOUNT, BigDecimal.fromString("0.5"));
-    });
-    test("Withdraw counter incremented", () => {
-      assert.fieldEquals(WELL_ENTITY_TYPE, WELL.toHexString(), "cumulativeWithdrawCount", "1");
     });
     test("Token Balances updated", () => {
       let updatedStore = loadWell(WELL);

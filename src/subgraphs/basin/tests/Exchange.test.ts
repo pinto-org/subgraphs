@@ -7,7 +7,6 @@ import {
   CURRENT_BLOCK_TIMESTAMP,
   WELL,
   WELL_DAILY_ENTITY_TYPE,
-  WELL_ENTITY_TYPE,
   WELL_HOURLY_ENTITY_TYPE,
   WETH_SWAP_AMOUNT,
   WETH_USD_AMOUNT
@@ -32,10 +31,6 @@ describe("Well Entity: Exchange Tests", () => {
   });
 
   describe("Swap", () => {
-    test("Swap counter incremented", () => {
-      mockSwap();
-      assert.fieldEquals(WELL_ENTITY_TYPE, WELL.toHexString(), "cumulativeSwapCount", "1");
-    });
     test("Token Balances updated", () => {
       mockSwap();
 
@@ -101,9 +96,6 @@ describe("Well Entity: Exchange Tests", () => {
         BEAN_SWAP_AMOUNT,
         BigDecimal.fromString("1.5")
       );
-    });
-    test("Swap counter incremented", () => {
-      assert.fieldEquals(WELL_ENTITY_TYPE, WELL.toHexString(), "cumulativeSwapCount", "1");
     });
     test("Token Balances updated", () => {
       let updatedStore = loadWell(WELL);

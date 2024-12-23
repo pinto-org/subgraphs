@@ -157,15 +157,6 @@ type Beanstalk @entity {
   "Rolling 7d of cumulativeConvertDownVolumeUSD"
   rollingWeeklyConvertDownVolumeUSD: BigDecimal!
 
-  "Total number of deposit events (add liquidity) "
-  cumulativeDepositCount: Int!
-
-  "Total number of withdrawal events (remove liquidity) "
-  cumulativeWithdrawCount: Int!
-
-  "Total number of trades (swaps) "
-  cumulativeSwapCount: Int!
-
   "Day ID of the most recent daily snapshot"
   lastSnapshotDayID: Int!
 
@@ -216,21 +207,6 @@ type BeanstalkHourlySnapshot @entity {
   "Delta of cumulativeConvertDownVolumeUSD"
   deltaConvertUpVolumeUSD: BigDecimal!
 
-  "Total number of deposit events (add liquidity) "
-  cumulativeDepositCount: Int!
-  "Delta of cumulativeDepositCount"
-  deltaDepositCount: Int!
-
-  "Total number of withdrawal events (remove liquidity) "
-  cumulativeWithdrawCount: Int!
-  "Delta of cumulativeDepositCount"
-  deltaWithdrawCount: Int!
-
-  "Total number of trades (swaps) "
-  cumulativeSwapCount: Int!
-  "Delta of cumulativeDepositCount"
-  deltaSwapCount: Int!
-
   "Timestamp of the last time this entity was updated"
   lastUpdateTimestamp: BigInt!
 
@@ -277,21 +253,6 @@ type BeanstalkDailySnapshot @entity {
   cumulativeConvertDownVolumeUSD: BigDecimal!
   "Delta of cumulativeConvertDownVolumeUSD"
   deltaConvertUpVolumeUSD: BigDecimal!
-
-  "Total number of deposit events (add liquidity) "
-  cumulativeDepositCount: Int!
-  "Delta of cumulativeDepositCount"
-  deltaDepositCount: Int!
-
-  "Total number of withdrawal events (remove liquidity) "
-  cumulativeWithdrawCount: Int!
-  "Delta of cumulativeDepositCount"
-  deltaWithdrawCount: Int!
-
-  "Total number of trades (swaps) "
-  cumulativeSwapCount: Int!
-  "Delta of cumulativeDepositCount"
-  deltaSwapCount: Int!
 
   "Timestamp of the last time this entity was updated"
   lastUpdateTimestamp: BigInt!
@@ -433,15 +394,6 @@ type Well @entity {
   "Rolling 7d of convertVolumeUSD"
   rollingWeeklyConvertVolumeUSD: BigDecimal!
 
-  "Total number of deposit events (add liquidity) "
-  cumulativeDepositCount: Int!
-
-  "Total number of withdrawal events (remove liquidity) "
-  cumulativeWithdrawCount: Int!
-
-  "Total number of trades (swaps) "
-  cumulativeSwapCount: Int!
-
   "Day ID of the most recent daily snapshot"
   lastSnapshotDayID: Int!
 
@@ -552,21 +504,6 @@ type WellHourlySnapshot @entity {
   "Delta of convertVolumeUSD"
   deltaConvertVolumeUSD: BigDecimal!
 
-  "Total number of deposit events (add liquidity)"
-  cumulativeDepositCount: Int!
-  "Delta of cumulativeDepositCount"
-  deltaDepositCount: Int!
-
-  "Total number of withdrawal events (remove liquidity)"
-  cumulativeWithdrawCount: Int!
-  "Delta of cumulativeWithdrawCount"
-  deltaWithdrawCount: Int!
-
-  "Total number of trades (swaps) "
-  cumulativeSwapCount: Int!
-  "Delta of cumulativeSwapCount"
-  deltaSwapCount: Int!
-
   "Timestamp of the last time this entity was updated"
   lastUpdateTimestamp: BigInt!
 
@@ -651,21 +588,6 @@ type WellDailySnapshot @entity {
   convertVolumeUSD: BigDecimal!
   "Delta of convertVolumeUSD"
   deltaConvertVolumeUSD: BigDecimal!
-
-  "Total number of deposit events (add liquidity)"
-  cumulativeDepositCount: Int!
-  "Delta of cumulativeDepositCount"
-  deltaDepositCount: Int!
-
-  "Total number of withdrawal events (remove liquidity)"
-  cumulativeWithdrawCount: Int!
-  "Delta of cumulativeWithdrawCount"
-  deltaWithdrawCount: Int!
-
-  "Total number of trades (swaps)"
-  cumulativeSwapCount: Int!
-  "Delta of cumulativeSwapCount"
-  deltaSwapCount: Int!
 
   "Timestamp of the last time this entity was updated"
   lastUpdateTimestamp: BigInt!

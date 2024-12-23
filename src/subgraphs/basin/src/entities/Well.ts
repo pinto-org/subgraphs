@@ -57,9 +57,6 @@ export function loadOrCreateWell(wellAddress: Address, inputTokens: Address[], b
   well.cumulativeTransferVolumeReserves = emptyBigIntArray(inputTokens.length);
   well.cumulativeTransferVolumeReservesUSD = emptyBigDecimalArray(inputTokens.length);
   well.cumulativeTransferVolumeUSD = ZERO_BD;
-  well.cumulativeDepositCount = 0;
-  well.cumulativeWithdrawCount = 0;
-  well.cumulativeSwapCount = 0;
   well.rollingDailyTradeVolumeReserves = emptyBigIntArray(inputTokens.length);
   well.rollingDailyTradeVolumeReservesUSD = emptyBigDecimalArray(inputTokens.length);
   well.rollingDailyTradeVolumeUSD = ZERO_BD;
@@ -125,9 +122,6 @@ export function loadOrCreateWellDailySnapshot(
     snapshot.cumulativeTransferVolumeReserves = well.cumulativeTransferVolumeReserves;
     snapshot.cumulativeTransferVolumeReservesUSD = well.cumulativeTransferVolumeReservesUSD;
     snapshot.cumulativeTransferVolumeUSD = well.cumulativeTransferVolumeUSD;
-    snapshot.cumulativeDepositCount = well.cumulativeDepositCount;
-    snapshot.cumulativeWithdrawCount = well.cumulativeWithdrawCount;
-    snapshot.cumulativeSwapCount = well.cumulativeSwapCount;
     snapshot.deltalpTokenSupply = ZERO_BI;
     snapshot.deltaLiquidityUSD = ZERO_BD;
     snapshot.deltaTradeVolumeReserves = emptyBigIntArray(well.tokens.length);
@@ -137,9 +131,6 @@ export function loadOrCreateWellDailySnapshot(
     snapshot.deltaTransferVolumeReserves = emptyBigIntArray(well.tokens.length);
     snapshot.deltaTransferVolumeReservesUSD = emptyBigDecimalArray(well.tokens.length);
     snapshot.deltaTransferVolumeUSD = ZERO_BD;
-    snapshot.deltaDepositCount = 0;
-    snapshot.deltaWithdrawCount = 0;
-    snapshot.deltaSwapCount = 0;
     snapshot.lastUpdateTimestamp = block.timestamp;
     snapshot.lastUpdateBlockNumber = block.number;
     snapshot.save();
@@ -168,9 +159,6 @@ export function loadOrCreateWellHourlySnapshot(
     snapshot.cumulativeTransferVolumeReserves = well.cumulativeTransferVolumeReserves;
     snapshot.cumulativeTransferVolumeReservesUSD = well.cumulativeTransferVolumeReservesUSD;
     snapshot.cumulativeTransferVolumeUSD = well.cumulativeTransferVolumeUSD;
-    snapshot.cumulativeDepositCount = well.cumulativeDepositCount;
-    snapshot.cumulativeWithdrawCount = well.cumulativeWithdrawCount;
-    snapshot.cumulativeSwapCount = well.cumulativeSwapCount;
     snapshot.deltalpTokenSupply = ZERO_BI;
     snapshot.deltaLiquidityUSD = ZERO_BD;
     snapshot.deltaTradeVolumeReserves = emptyBigIntArray(well.tokens.length);
@@ -180,9 +168,6 @@ export function loadOrCreateWellHourlySnapshot(
     snapshot.deltaTransferVolumeReserves = emptyBigIntArray(well.tokens.length);
     snapshot.deltaTransferVolumeReservesUSD = emptyBigDecimalArray(well.tokens.length);
     snapshot.deltaTransferVolumeUSD = ZERO_BD;
-    snapshot.deltaDepositCount = 0;
-    snapshot.deltaWithdrawCount = 0;
-    snapshot.deltaSwapCount = 0;
     snapshot.lastUpdateTimestamp = block.timestamp;
     snapshot.lastUpdateBlockNumber = block.timestamp;
     snapshot.save();
@@ -213,24 +198,6 @@ export function updateWellLiquidityTokenBalance(
   well.lpTokenSupply = well.lpTokenSupply.plus(deltaAmount);
   well.lastUpdateTimestamp = block.timestamp;
   well.lastUpdateBlockNumber = block.number;
-  well.save();
-}
-
-export function incrementWellSwap(wellAddress: Address): void {
-  let well = loadWell(wellAddress);
-  well.cumulativeSwapCount += 1;
-  well.save();
-}
-
-export function incrementWellDeposit(wellAddress: Address): void {
-  let well = loadWell(wellAddress);
-  well.cumulativeDepositCount += 1;
-  well.save();
-}
-
-export function incrementWellWithdraw(wellAddress: Address): void {
-  let well = loadWell(wellAddress);
-  well.cumulativeWithdrawCount += 1;
   well.save();
 }
 
@@ -281,9 +248,6 @@ export function takeWellDailySnapshot(wellAddress: Address, dayID: i32, block: e
     .minus(priorSnapshot.cumulativeTransferVolumeUSD)
     .truncate(2);
 
-  newSnapshot.deltaDepositCount = newSnapshot.cumulativeDepositCount - priorSnapshot.cumulativeDepositCount;
-  newSnapshot.deltaWithdrawCount = newSnapshot.cumulativeWithdrawCount - priorSnapshot.cumulativeWithdrawCount;
-  newSnapshot.deltaSwapCount = newSnapshot.cumulativeSwapCount - priorSnapshot.cumulativeSwapCount;
   newSnapshot.lastUpdateTimestamp = block.timestamp;
   newSnapshot.lastUpdateBlockNumber = block.number;
   newSnapshot.save();
@@ -328,9 +292,6 @@ export function takeWellHourlySnapshot(wellAddress: Address, hourID: i32, block:
     .minus(priorSnapshot.cumulativeTransferVolumeUSD)
     .truncate(2);
 
-  newSnapshot.deltaDepositCount = newSnapshot.cumulativeDepositCount - priorSnapshot.cumulativeDepositCount;
-  newSnapshot.deltaWithdrawCount = newSnapshot.cumulativeWithdrawCount - priorSnapshot.cumulativeWithdrawCount;
-  newSnapshot.deltaSwapCount = newSnapshot.cumulativeSwapCount - priorSnapshot.cumulativeSwapCount;
   newSnapshot.lastUpdateTimestamp = block.timestamp;
   newSnapshot.lastUpdateBlockNumber = block.number;
   newSnapshot.save();
