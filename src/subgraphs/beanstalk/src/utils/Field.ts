@@ -218,6 +218,8 @@ export function plotTransfer(params: PlotTransferParams): void {
     // Sending full plot
     const isMarket = sourcePlot.source == "MARKET" && sourcePlot.sourceHash == params.event.transaction.hash;
     if (!isMarket) {
+      sourcePlot.preTransferSource = sourcePlot.source;
+      sourcePlot.preTransferOwner = sourcePlot.farmer;
       sourcePlot.source = "TRANSFER";
       sourcePlot.sourceHash = params.event.transaction.hash;
       sourcePlot.beansPerPod = sourcePlot.beansPerPod;
@@ -240,6 +242,8 @@ export function plotTransfer(params: PlotTransferParams): void {
       remainderPlot.sourceHash = sourcePlot.sourceHash;
       remainderPlot.beansPerPod = sourcePlot.beansPerPod;
 
+      sourcePlot.preTransferSource = sourcePlot.source;
+      sourcePlot.preTransferOwner = sourcePlot.farmer;
       sourcePlot.source = "TRANSFER";
       sourcePlot.sourceHash = params.event.transaction.hash;
       sourcePlot.beansPerPod = sourcePlot.beansPerPod;
@@ -275,6 +279,8 @@ export function plotTransfer(params: PlotTransferParams): void {
 
     const isMarket = toPlot.source == "MARKET" && toPlot.sourceHash == params.event.transaction.hash;
     if (!isMarket) {
+      toPlot.preTransferSource = sourcePlot.source;
+      toPlot.preTransferOwner = sourcePlot.farmer;
       toPlot.source = "TRANSFER";
       toPlot.sourceHash = params.event.transaction.hash;
       toPlot.beansPerPod = sourcePlot.beansPerPod;
@@ -306,6 +312,8 @@ export function plotTransfer(params: PlotTransferParams): void {
 
     const isMarket = toPlot.source == "MARKET" && toPlot.sourceHash == params.event.transaction.hash;
     if (!isMarket) {
+      toPlot.preTransferSource = sourcePlot.source;
+      toPlot.preTransferOwner = sourcePlot.farmer;
       toPlot.source = "TRANSFER";
       toPlot.sourceHash = params.event.transaction.hash;
       toPlot.beansPerPod = sourcePlot.beansPerPod;

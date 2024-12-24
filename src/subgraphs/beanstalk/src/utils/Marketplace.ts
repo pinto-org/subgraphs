@@ -482,6 +482,9 @@ function setBeansPerPodAfterFill(
   // Load the plot that is being sent. It may or may not have been created already, depending
   // on whether the PlotTransfer event has already been processed (sometims its emitted after the market transfer).
   let fillPlot = loadPlot(event.address, plotIndex.plus(start));
+  // If PlotTransfer event already processed, these would have been set as it was interpreted as a Transfer.
+  fillPlot.preTransferSource = null;
+  fillPlot.preTransferOwner = null;
 
   if (start == ZERO_BI && length < fillPlot.pods) {
     // When sending the start of a plot via market, these cannot be set in any subsequent transfer,
