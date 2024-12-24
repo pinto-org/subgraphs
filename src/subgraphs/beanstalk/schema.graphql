@@ -719,6 +719,10 @@ type Plot @entity {
   source: PlotSource!
   "Transaction hash corresponding to source"
   sourceHash: Bytes!
+  "If `source === 'TRANSFER'`: Source SOW/MARKET of the farmer who aquired the plot. Cannot be TRANSFER."
+  preTransferSource: PlotSource
+  "If `source === 'TRANSFER'`: Farmer who acquired this plot in the Field or Market, and spent `beansPerPod` for each pod in the plot."
+  preTransferOwner: Farmer
   "Associated plot listing"
   listing: PodListing
   "Season when created"

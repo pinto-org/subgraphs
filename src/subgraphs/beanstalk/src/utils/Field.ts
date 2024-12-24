@@ -85,8 +85,11 @@ export function harvest(params: HarvestParams): void {
 
   let remainingIndex = ZERO_BI;
   for (let i = 0; i < params.plots.length; i++) {
-    // Plot should exist
     let plot = loadPlot(protocol, params.plots[i]);
+    plot.fullyHarvested = true;
+    plot.updatedAt = params.event.block.timestamp;
+    plot.harvestAt = params.event.block.timestamp;
+    plot.harvestHash = params.event.transaction.hash;
 
     expirePodListingIfExists(toAddress(plot.farmer), plot.index, params.event.block);
 
@@ -107,9 +110,6 @@ export function harvest(params: HarvestParams): void {
       );
 
       plot.harvestedPods = plot.pods;
-      plot.fullyHarvested = true;
-      plot.harvestAt = params.event.block.timestamp;
-      plot.harvestHash = params.event.transaction.hash;
       plot.save();
     } else {
       // Plot partially harvests
@@ -144,9 +144,6 @@ export function harvest(params: HarvestParams): void {
 
       plot.harvestedPods = harvestablePods;
       plot.pods = harvestablePods;
-      plot.fullyHarvested = true;
-      plot.harvestAt = params.event.block.timestamp;
-      plot.harvestHash = params.event.transaction.hash;
       plot.save();
     }
   }
