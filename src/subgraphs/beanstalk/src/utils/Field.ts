@@ -132,6 +132,8 @@ export function harvest(params: HarvestParams): void {
       remainingPlot.farmer = plot.farmer;
       remainingPlot.source = plot.source;
       remainingPlot.sourceHash = plot.sourceHash;
+      remainingPlot.preTransferSource = plot.preTransferSource;
+      remainingPlot.preTransferOwner = plot.preTransferOwner;
       remainingPlot.season = beanstalk.lastSeason;
       remainingPlot.creationHash = params.event.transaction.hash;
       remainingPlot.createdAt = params.event.block.timestamp;
@@ -291,8 +293,8 @@ export function plotTransfer(params: PlotTransferParams): void {
       toPlot.beansPerPod = sourcePlot.beansPerPod;
       // Passthrough if possible, otherwise init
       toPlot.preTransferSource =
-        sourcePlot.preTransferSource != null ? sourcePlot.preTransferSource : sourcePlot.source;
-      toPlot.preTransferOwner = sourcePlot.preTransferOwner != null ? sourcePlot.preTransferOwner : sourcePlot.farmer;
+        sourcePlot.preTransferSource !== null ? sourcePlot.preTransferSource : sourcePlot.source;
+      toPlot.preTransferOwner = sourcePlot.preTransferOwner !== null ? sourcePlot.preTransferOwner : sourcePlot.farmer;
     }
     toPlot.farmer = params.to;
     toPlot.season = field.season;
@@ -326,8 +328,8 @@ export function plotTransfer(params: PlotTransferParams): void {
       toPlot.beansPerPod = sourcePlot.beansPerPod;
       // Passthrough if possible, otherwise init
       toPlot.preTransferSource =
-        sourcePlot.preTransferSource != null ? sourcePlot.preTransferSource : sourcePlot.source;
-      toPlot.preTransferOwner = sourcePlot.preTransferOwner != null ? sourcePlot.preTransferOwner : sourcePlot.farmer;
+        sourcePlot.preTransferSource !== null ? sourcePlot.preTransferSource : sourcePlot.source;
+      toPlot.preTransferOwner = sourcePlot.preTransferOwner !== null ? sourcePlot.preTransferOwner : sourcePlot.farmer;
     }
     toPlot.farmer = params.to;
     toPlot.season = field.season;
