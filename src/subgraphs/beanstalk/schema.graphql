@@ -123,8 +123,10 @@ type Silo @entity {
   unmigratedL1DepositedBdv: BigInt
   "Current stalk balance"
   stalk: BigInt!
-  "Current plantable stalk for bean seigniorage not yet claimed"
+  "Current plantable stalk for bean seigniorage not yet claimed (only set on protocol-level Silo)"
   plantableStalk: BigInt!
+  "Cumulative total of beans that have been Planted"
+  plantedBeans: BigInt!
   "Value emitted by UpdateAverageStalkPerBdvPerSeason event"
   avgGrownStalkPerBdvPerSeason: BigInt!
   """
@@ -139,7 +141,7 @@ type Silo @entity {
   germinatingStalk: BigInt!
   "[Seed Gauge] Current target ratio of Bean to LP deposits"
   beanToMaxLpGpPerBdvRatio: BigInt
-  "Cumulative total for bean mints sent to the silo"
+  "Cumulative total for bean mints sent to the silo (only set on protocol-level Silo)"
   beanMints: BigInt!
   "Current number of active farmers deposited in the silo"
   activeFarmers: Int!
@@ -164,8 +166,10 @@ type SiloHourlySnapshot @entity {
   depositedBDV: BigInt!
   "Point in time current stalk balance"
   stalk: BigInt!
-  "Point in time current plantable stalk for bean seigniorage not yet claimed"
+  "Point in time current plantable stalk for bean seigniorage not yet claimed (only set on protocol-level Silo)"
   plantableStalk: BigInt!
+  "Point in time total of beans that have been Planted"
+  plantedBeans: BigInt!
   "Point in time average grown stalk per bdv per season"
   avgGrownStalkPerBdvPerSeason: BigInt!
   "Point in time grown stalk per season"
@@ -184,6 +188,7 @@ type SiloHourlySnapshot @entity {
   deltaDepositedBDV: BigInt!
   deltaStalk: BigInt!
   deltaPlantableStalk: BigInt!
+  deltaPlantedBeans: BigInt!
   deltaAvgGrownStalkPerBdvPerSeason: BigInt!
   deltaGrownStalkPerSeason: BigInt!
   deltaRoots: BigInt!
@@ -212,8 +217,10 @@ type SiloDailySnapshot @entity {
   depositedBDV: BigInt!
   "Point in time current stalk balance"
   stalk: BigInt!
-  "Point in time current plantable stalk for bean seigniorage not yet claimed"
+  "Point in time current plantable stalk for bean seigniorage not yet claimed (only set on protocol-level Silo)"
   plantableStalk: BigInt!
+  "Point in time total of beans that have been Planted"
+  plantedBeans: BigInt!
   "Point in time average grown stalk per bdv per season"
   avgGrownStalkPerBdvPerSeason: BigInt!
   "Point in time grown stalk per season"
@@ -232,6 +239,7 @@ type SiloDailySnapshot @entity {
   deltaDepositedBDV: BigInt!
   deltaStalk: BigInt!
   deltaPlantableStalk: BigInt!
+  deltaPlantedBeans: BigInt!
   deltaAvgGrownStalkPerBdvPerSeason: BigInt!
   deltaGrownStalkPerSeason: BigInt!
   deltaRoots: BigInt!
