@@ -1,4 +1,4 @@
-import { ZERO_BI } from "../../../../../core/utils/Decimals";
+import { BI_10, ZERO_BI } from "../../../../../core/utils/Decimals";
 import {
   WeatherChange,
   SupplyIncrease,
@@ -12,8 +12,10 @@ import {
   Sow as Sow_v1,
   TemperatureChange as TemperatureChange_v1
 } from "../../../generated/Beanstalk-ABIs/SeedGauge";
+import { TemperatureChange as TemperatureChange_v2 } from "../../../generated/Beanstalk-ABIs/PintoLaunch";
 import { harvest, plotTransfer, sow, temperatureChanged, updateFieldTotals } from "../../utils/Field";
 import { legacySowAmount } from "../../utils/legacy/LegacyField";
+import { BigInt } from "@graphprotocol/graph-ts";
 
 // PreReplant -> SeedGauge
 export function handleWeatherChange(event: WeatherChange): void {
@@ -128,6 +130,16 @@ export function handleTemperatureChange_v1(event: TemperatureChange_v1): void {
     event,
     season: event.params.season,
     caseId: event.params.caseId,
-    absChange: event.params.absChange
+    absChange: BigInt.fromI32(event.params.absChange).times(BI_10.pow(6))
+  });
+}
+
+// PintoLaunch -> PintoPI5
+export function handleTemperatureChange_v2(event: TemperatureChange_v2): void {
+  temperatureChanged({
+    event,
+    season: event.params.season,
+    caseId: event.params.caseId,
+    absChange: BigInt.fromI32(event.params.absChange).times(BI_10.pow(6))
   });
 }

@@ -484,8 +484,8 @@ type Field @entity {
   farmer: Farmer
   "Current season number"
   season: Int!
-  "Current temperature"
-  temperature: Int!
+  "Current temperature, in percent (i.e. 50.5 = 50.5% temperature)"
+  temperature: BigDecimal!
   "Rate of return: Temperature / Bean Price"
   realRateOfReturn: BigDecimal!
   "Cumulative number of unique sowers"
@@ -530,7 +530,7 @@ type FieldHourlySnapshot @entity {
   "Season"
   season: Int!
   "Point in time temperature"
-  temperature: Int!
+  temperature: BigDecimal!
   "Point in time rate of return: Temperature / Bean Price"
   realRateOfReturn: BigDecimal!
   "Point in time cumulative number of unique sowers"
@@ -556,7 +556,7 @@ type FieldHourlySnapshot @entity {
   "Point in time pod rate: Total unharvestable pods / bean supply"
   podRate: BigDecimal!
 
-  deltaTemperature: Int!
+  deltaTemperature: BigDecimal!
   deltaRealRateOfReturn: BigDecimal!
   deltaNumberOfSowers: Int!
   deltaNumberOfSows: Int!
@@ -594,7 +594,7 @@ type FieldDailySnapshot @entity {
   "Last season in the snapshot"
   season: Int!
   "Point in time temperature"
-  temperature: Int!
+  temperature: BigDecimal!
   "Point in time rate of return: Temperature / Bean Price"
   realRateOfReturn: BigDecimal!
   "Point in time cumulative number of unique sowers"
@@ -620,7 +620,7 @@ type FieldDailySnapshot @entity {
   "Point in time pod rate: Total unharvestable pods / bean supply"
   podRate: BigDecimal!
 
-  deltaTemperature: Int!
+  deltaTemperature: BigDecimal!
   deltaRealRateOfReturn: BigDecimal!
   deltaNumberOfSowers: Int!
   deltaNumberOfSows: Int!

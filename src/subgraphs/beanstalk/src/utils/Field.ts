@@ -37,7 +37,7 @@ class TemperatureChangedParams {
   event: ethereum.Event;
   season: BigInt;
   caseId: BigInt;
-  absChange: i32;
+  absChange: BigInt;
 }
 
 export function sow(params: SowParams): void {
@@ -218,8 +218,10 @@ export function plotTransfer(params: PlotTransferParams): void {
     // Sending full plot
     const isMarket = sourcePlot.source == "MARKET" && sourcePlot.sourceHash == params.event.transaction.hash;
     if (!isMarket) {
-      sourcePlot.preTransferSource = sourcePlot.source;
-      sourcePlot.preTransferOwner = sourcePlot.farmer;
+      if (sourcePlot.preTransferSource == null) {
+        sourcePlot.preTransferSource = sourcePlot.source;
+        sourcePlot.preTransferOwner = sourcePlot.farmer;
+      }
       sourcePlot.source = "TRANSFER";
       sourcePlot.sourceHash = params.event.transaction.hash;
       sourcePlot.beansPerPod = sourcePlot.beansPerPod;
@@ -238,12 +240,17 @@ export function plotTransfer(params: PlotTransferParams): void {
     const isMarket = sourcePlot.source == "MARKET" && sourcePlot.sourceHash == params.event.transaction.hash;
     if (!isMarket) {
       // When sending the start of the plot via market, these cannot be derived from sourcePlot.
+      // If market, all of these will be set in `setBeansPerPodAfterFill`
       remainderPlot.source = sourcePlot.source;
       remainderPlot.sourceHash = sourcePlot.sourceHash;
       remainderPlot.beansPerPod = sourcePlot.beansPerPod;
+      remainderPlot.preTransferSource = sourcePlot.preTransferSource;
+      remainderPlot.preTransferOwner = sourcePlot.preTransferOwner;
 
-      sourcePlot.preTransferSource = sourcePlot.source;
-      sourcePlot.preTransferOwner = sourcePlot.farmer;
+      if (sourcePlot.preTransferSource == null) {
+        sourcePlot.preTransferSource = sourcePlot.source;
+        sourcePlot.preTransferOwner = sourcePlot.farmer;
+      }
       sourcePlot.source = "TRANSFER";
       sourcePlot.sourceHash = params.event.transaction.hash;
       sourcePlot.beansPerPod = sourcePlot.beansPerPod;
@@ -279,11 +286,13 @@ export function plotTransfer(params: PlotTransferParams): void {
 
     const isMarket = toPlot.source == "MARKET" && toPlot.sourceHash == params.event.transaction.hash;
     if (!isMarket) {
-      toPlot.preTransferSource = sourcePlot.source;
-      toPlot.preTransferOwner = sourcePlot.farmer;
       toPlot.source = "TRANSFER";
       toPlot.sourceHash = params.event.transaction.hash;
       toPlot.beansPerPod = sourcePlot.beansPerPod;
+      // Passthrough if possible, otherwise init
+      toPlot.preTransferSource =
+        sourcePlot.preTransferSource != null ? sourcePlot.preTransferSource : sourcePlot.source;
+      toPlot.preTransferOwner = sourcePlot.preTransferOwner != null ? sourcePlot.preTransferOwner : sourcePlot.farmer;
     }
     toPlot.farmer = params.to;
     toPlot.season = field.season;
@@ -312,11 +321,13 @@ export function plotTransfer(params: PlotTransferParams): void {
 
     const isMarket = toPlot.source == "MARKET" && toPlot.sourceHash == params.event.transaction.hash;
     if (!isMarket) {
-      toPlot.preTransferSource = sourcePlot.source;
-      toPlot.preTransferOwner = sourcePlot.farmer;
       toPlot.source = "TRANSFER";
       toPlot.sourceHash = params.event.transaction.hash;
       toPlot.beansPerPod = sourcePlot.beansPerPod;
+      // Passthrough if possible, otherwise init
+      toPlot.preTransferSource =
+        sourcePlot.preTransferSource != null ? sourcePlot.preTransferSource : sourcePlot.source;
+      toPlot.preTransferOwner = sourcePlot.preTransferOwner != null ? sourcePlot.preTransferOwner : sourcePlot.farmer;
     }
     toPlot.farmer = params.to;
     toPlot.season = field.season;
@@ -331,6 +342,8 @@ export function plotTransfer(params: PlotTransferParams): void {
 
     remainderPlot.farmer = params.from;
     remainderPlot.source = sourcePlot.source;
+    remainderPlot.preTransferSource = sourcePlot.preTransferSource;
+    remainderPlot.preTransferOwner = sourcePlot.preTransferOwner;
     remainderPlot.sourceHash = sourcePlot.sourceHash;
     remainderPlot.season = field.season;
     remainderPlot.creationHash = params.event.transaction.hash;
@@ -380,7 +393,7 @@ export function plotTransfer(params: PlotTransferParams): void {
 export function temperatureChanged(params: TemperatureChangedParams): void {
   const protocol = params.event.address;
   let field = loadField(protocol);
-  field.temperature += params.absChange;
+  field.temperature += toDecimal(params.absChange, 6);
 
   let seasonEntity = loadSeason(params.season);
   let currentPrice = ZERO_BD;
@@ -390,7 +403,7 @@ export function temperatureChanged(params: TemperatureChangedParams): void {
     currentPrice = toDecimal(BeanstalkPrice_priceOnly(params.event.block.number));
   }
 
-  field.realRateOfReturn = ONE_BD.plus(BigDecimal.fromString((field.temperature / 100).toString())).div(currentPrice);
+  field.realRateOfReturn = ONE_BD.plus(field.temperature.div(BigDecimal.fromString("100"))).div(currentPrice);
 
   takeFieldSnapshots(field, params.event.block);
   field.save();

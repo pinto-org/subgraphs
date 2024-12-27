@@ -159,6 +159,7 @@ dataSources:
           handler: handleHarvest
         - event: PlotTransfer(indexed address,indexed address,uint256,indexed uint256,uint256)
           handler: handlePlotTransfer
+        # TODO: move to legacy and add new signature
         - event: TemperatureChange(indexed uint256,uint256,int8,uint256)
           handler: handleTemperatureChange
       file: ../src/handlers/FieldHandler.ts

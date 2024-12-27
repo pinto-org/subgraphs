@@ -1,6 +1,6 @@
 import { Address, BigInt } from "@graphprotocol/graph-ts";
 import { Field, Plot } from "../../generated/schema";
-import { ZERO_BD, ZERO_BI } from "../../../../core/utils/Decimals";
+import { ONE_BD, ZERO_BD, ZERO_BI } from "../../../../core/utils/Decimals";
 import { ADDRESS_ZERO } from "../../../../core/utils/Bytes";
 import { v } from "../utils/constants/Version";
 
@@ -13,7 +13,7 @@ export function loadField(account: Address): Field {
       field.farmer = account;
     }
     field.season = 1;
-    field.temperature = 1;
+    field.temperature = ONE_BD;
     field.realRateOfReturn = ZERO_BD;
     field.numberOfSowers = 0;
     field.numberOfSows = 0;
