@@ -10,7 +10,7 @@ import { BI_10, toDecimal, ZERO_BD, ZERO_BI } from "../../../../core/utils/Decim
 import { loadField } from "../entities/Field";
 import { setBdv, takeWhitelistTokenSettingSnapshots } from "../entities/snapshots/WhitelistTokenSetting";
 import { WhitelistTokenSetting } from "../../generated/schema";
-import { PintoLaunch } from "../../generated/Beanstalk-ABIs/PintoLaunch";
+import { PintoPI5 } from "../../generated/Beanstalk-ABIs/PintoPI5";
 import { updateUnripeStats } from "./Barn";
 import { beanDecimals, getProtocolToken, isUnripe, stalkDecimals } from "../../../../core/constants/RuntimeConstants";
 import { v } from "./constants/Version";
@@ -95,7 +95,7 @@ export function siloReceipt(amount: BigInt, block: ethereum.Block): void {
 
 function setTokenBdv(token: Address, protocol: Address, whitelistTokenSetting: WhitelistTokenSetting): void {
   // Get bdv if the bdv function is available onchain (not available prior to BIP-16)
-  const beanstalk_call = PintoLaunch.bind(protocol);
+  const beanstalk_call = PintoPI5.bind(protocol);
   const bdvResult = beanstalk_call.try_bdv(token, BI_10.pow(<u8>whitelistTokenSetting.decimals));
   if (bdvResult.reverted) {
     return;

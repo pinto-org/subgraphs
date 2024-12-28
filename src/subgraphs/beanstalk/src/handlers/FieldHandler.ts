@@ -1,7 +1,8 @@
 import { harvest, plotTransfer, sow, temperatureChanged } from "../utils/Field";
-import { Sow, Harvest, PlotTransfer, TemperatureChange } from "../../generated/Beanstalk-ABIs/PintoLaunch";
+import { Sow, Harvest, PlotTransfer, TemperatureChange } from "../../generated/Beanstalk-ABIs/PintoPI5";
 import { legacySowAmount } from "../utils/legacy/LegacyField";
 import { ZERO_BI } from "../../../../core/utils/Decimals";
+import { BigInt } from "@graphprotocol/graph-ts";
 
 export function handleSow(event: Sow): void {
   if (event.params.fieldId !== ZERO_BI) {
@@ -45,7 +46,6 @@ export function handlePlotTransfer(event: PlotTransfer): void {
   });
 }
 
-// TODO: Import new PintoPI5
 export function handleTemperatureChange(event: TemperatureChange): void {
   if (event.params.fieldId !== ZERO_BI) {
     return;
@@ -54,6 +54,6 @@ export function handleTemperatureChange(event: TemperatureChange): void {
     event,
     season: event.params.season,
     caseId: event.params.caseId,
-    absChange: event.params.absChange
+    absChange: BigInt.fromI32(event.params.absChange)
   });
 }

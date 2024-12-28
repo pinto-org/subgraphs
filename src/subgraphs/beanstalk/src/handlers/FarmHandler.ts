@@ -1,4 +1,4 @@
-import { InternalBalanceChanged } from "../../generated/Beanstalk-ABIs/PintoLaunch";
+import { InternalBalanceChanged } from "../../generated/Beanstalk-ABIs/PintoPI5";
 import { loadFarmer } from "../entities/Beanstalk";
 import { updateFarmTotals } from "../utils/Farm";
 

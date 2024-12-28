@@ -1,5 +1,5 @@
 import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
-import { Incentivization } from "../../generated/Beanstalk-ABIs/PintoLaunch";
+import { Incentivization } from "../../generated/Beanstalk-ABIs/PintoPI5";
 import { mockBeanstalkEvent } from "../../../../core/tests/event-mocking/Util";
 
 export function createSunriseEvent(season: BigInt): void {}

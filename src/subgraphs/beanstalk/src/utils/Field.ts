@@ -395,7 +395,7 @@ export function plotTransfer(params: PlotTransferParams): void {
 export function temperatureChanged(params: TemperatureChangedParams): void {
   const protocol = params.event.address;
   let field = loadField(protocol);
-  field.temperature += toDecimal(params.absChange, 6);
+  field.temperature = field.temperature.plus(toDecimal(params.absChange, 6));
 
   let seasonEntity = loadSeason(params.season);
   let currentPrice = ZERO_BD;

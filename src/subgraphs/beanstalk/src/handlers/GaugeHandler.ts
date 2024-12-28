@@ -5,8 +5,9 @@ import {
   FarmerGerminatingStalkBalanceChanged,
   TotalGerminatingBalanceChanged,
   TotalGerminatingStalkChanged,
-  TotalStalkChangedFromGermination
-} from "../../generated/Beanstalk-ABIs/PintoLaunch";
+  TotalStalkChangedFromGermination,
+  UpdatedOptimalPercentDepositedBdvForToken
+} from "../../generated/Beanstalk-ABIs/PintoPI5";
 import {
   deleteGerminating,
   germinationEnumCategory,
@@ -20,7 +21,6 @@ import { loadSilo, loadWhitelistTokenSetting } from "../entities/Silo";
 import { takeWhitelistTokenSettingSnapshots } from "../entities/snapshots/WhitelistTokenSetting";
 import { getCurrentSeason } from "../entities/Beanstalk";
 import { updateStalkBalances } from "../utils/Silo";
-import { UpdatedOptimalPercentDepositedBdvForToken } from "../../generated/Beanstalk-ABIs/PintoLaunch";
 import { beanDecimals } from "../../../../core/constants/RuntimeConstants";
 import { handleBeanToMaxLpGpPerBdvRatioChange_bugged } from "./legacy/LegacyGaugeHandler";
 import { PI_1_BLOCK } from "../../../../core/constants/raw/PintoBaseConstants";

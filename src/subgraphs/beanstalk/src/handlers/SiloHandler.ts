@@ -20,7 +20,7 @@ import {
   UpdatedStalkPerBdvPerSeason,
   UpdateWhitelistStatus,
   ClaimPlenty
-} from "../../generated/Beanstalk-ABIs/PintoLaunch";
+} from "../../generated/Beanstalk-ABIs/PintoPI5";
 import { unripeChopped } from "../utils/Barn";
 import { beanDecimals, getProtocolToken, isUnripe, stalkDecimals } from "../../../../core/constants/RuntimeConstants";
 import { v } from "../utils/constants/Version";
