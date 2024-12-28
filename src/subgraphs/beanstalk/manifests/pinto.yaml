@@ -169,7 +169,7 @@ dataSources:
       address: "0xD1A0D188E861ed9d15773a2F3574a2e94134bA8f"
       abi: PintoLaunch
       startBlock: 22622961 # Pintostalk Deployment
-      #endBlock: tbd # TODO: in version after v1.3.0
+      #endBlock: tbd (TODO: update after PI5 deployment)
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -252,11 +252,32 @@ dataSources:
           handler: handleSoil
         - event: SeasonOfPlentyField(uint256)
           handler: handlePlentyField
-        - event: SeasonOfPlentyWell(indexed uint256,address,address,uint256)
+        - event: SeasonOfPlentyWell(indexed uint256,address,address,uint256,uint256)
           handler: handlePlentyWell
         - event: Incentivization(indexed address,uint256)
           handler: handleIncentive
       file: ../src/handlers/SeasonHandler.ts
+  - kind: ethereum/contract
+    name: LegacySeason-PintoLaunch-PintoPI5
+    network: base
+    source:
+      address: "0xD1A0D188E861ed9d15773a2F3574a2e94134bA8f"
+      abi: PintoLaunch
+      startBlock: 22622961 # Pintostalk Deployment
+      #endBlock: tbd (TODO: update after PI5 deployment)
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Season
+      abis:
+        - name: PintoLaunch
+          file: ../../../core/abis/Beanstalk/Pinto-Launch.json
+      eventHandlers:
+        - event: SeasonOfPlentyWell(indexed uint256,address,address,uint256)
+          handler: handlePlentyWell_v1
+      file: ../src/handlers/legacy/LegacySeasonHandler.ts
   ###
   # BEAN ERC20
   ###

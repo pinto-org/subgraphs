@@ -23,7 +23,7 @@ export function handleWeatherChange(event: WeatherChange): void {
     event,
     season: event.params.season,
     caseId: event.params.caseId,
-    absChange: event.params.change
+    absChange: BigInt.fromI32(event.params.change)
   });
 }
 
