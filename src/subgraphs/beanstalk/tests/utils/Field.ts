@@ -5,20 +5,20 @@ import { createIncentivizationEvent } from "../event-mocking/Season";
 import { handleIncentive } from "../../src/handlers/SeasonHandler";
 import { ZERO_BI } from "../../../../core/utils/Decimals";
 import { BEANSTALK } from "../../../../core/constants/raw/BeanstalkEthConstants";
-import { handleHarvest_v1, handlePlotTransfer_v1, handleSow_v1 } from "../../src/handlers/legacy/LegacyFieldHandler";
+import { handleHarvest, handlePlotTransfer, handleSow } from "../../src/handlers/FieldHandler";
 
 const account = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266".toLowerCase();
 
 export function sow(account: string, index: BigInt, beans: BigInt, pods: BigInt): void {
-  handleSow_v1(createSowEvent(account, index, beans, pods));
+  handleSow(createSowEvent(account, index, beans, pods));
 }
 
 export function harvest(account: string, plotIndexex: BigInt[], beans: BigInt): void {
-  handleHarvest_v1(createHarvestEvent(account, plotIndexex, beans));
+  handleHarvest(createHarvestEvent(account, plotIndexex, beans));
 }
 
 export function transferPlot(from: string, to: string, id: BigInt, amount: BigInt): void {
-  handlePlotTransfer_v1(createPlotTransferEvent(from, to, id, amount));
+  handlePlotTransfer(createPlotTransferEvent(from, to, id, amount));
 }
 
 export function setHarvestable(harvestableIndex: BigInt): BigInt {
