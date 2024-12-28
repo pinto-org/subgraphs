@@ -17,7 +17,7 @@ import {
 } from "../utils/Marketplace";
 
 export function handlePodListingCreated(event: PodListingCreated): void {
-  if (event.params.fieldId !== ZERO_BI) {
+  if (event.params.fieldId != ZERO_BI) {
     return;
   }
   podListingCreated({
@@ -36,7 +36,7 @@ export function handlePodListingCreated(event: PodListingCreated): void {
 }
 
 export function handlePodListingFilled(event: PodListingFilled): void {
-  if (event.params.fieldId !== ZERO_BI) {
+  if (event.params.fieldId != ZERO_BI) {
     return;
   }
   podListingFilled({
@@ -52,7 +52,7 @@ export function handlePodListingFilled(event: PodListingFilled): void {
 }
 
 export function handlePodOrderCreated(event: PodOrderCreated): void {
-  if (event.params.fieldId !== ZERO_BI) {
+  if (event.params.fieldId != ZERO_BI) {
     return;
   }
   podOrderCreated({
@@ -69,7 +69,7 @@ export function handlePodOrderCreated(event: PodOrderCreated): void {
 }
 
 export function handlePodOrderFilled(event: PodOrderFilled): void {
-  if (event.params.fieldId !== ZERO_BI) {
+  if (event.params.fieldId != ZERO_BI) {
     return;
   }
   podOrderFilled({
@@ -85,7 +85,7 @@ export function handlePodOrderFilled(event: PodOrderFilled): void {
 }
 
 export function handlePodListingCancelled(event: PodListingCancelled): void {
-  if (event.params.fieldId !== ZERO_BI) {
+  if (event.params.fieldId != ZERO_BI) {
     return;
   }
   podListingCancelled({

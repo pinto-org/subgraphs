@@ -5,7 +5,7 @@ import { ZERO_BI } from "../../../../core/utils/Decimals";
 import { BigInt } from "@graphprotocol/graph-ts";
 
 export function handleSow(event: Sow): void {
-  if (event.params.fieldId !== ZERO_BI) {
+  if (event.params.fieldId != ZERO_BI) {
     return;
   }
   let sownOverride = legacySowAmount(event.address, event.params.account);
@@ -20,7 +20,7 @@ export function handleSow(event: Sow): void {
 }
 
 export function handleHarvest(event: Harvest): void {
-  if (event.params.fieldId !== ZERO_BI) {
+  if (event.params.fieldId != ZERO_BI) {
     return;
   }
   harvest({
@@ -33,7 +33,7 @@ export function handleHarvest(event: Harvest): void {
 }
 
 export function handlePlotTransfer(event: PlotTransfer): void {
-  if (event.params.fieldId !== ZERO_BI) {
+  if (event.params.fieldId != ZERO_BI) {
     return;
   }
   plotTransfer({
@@ -47,7 +47,7 @@ export function handlePlotTransfer(event: PlotTransfer): void {
 }
 
 export function handleTemperatureChange(event: TemperatureChange): void {
-  if (event.params.fieldId !== ZERO_BI) {
+  if (event.params.fieldId != ZERO_BI) {
     return;
   }
   temperatureChanged({
