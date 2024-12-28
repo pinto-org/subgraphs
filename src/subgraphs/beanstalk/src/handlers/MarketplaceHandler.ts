@@ -1,3 +1,4 @@
+import { ZERO_BI } from "../../../../core/utils/Decimals";
 import {
   PodListingCreated,
   PodListingFilled,
@@ -5,7 +6,7 @@ import {
   PodOrderFilled,
   PodListingCancelled,
   PodOrderCancelled
-} from "../../generated/Beanstalk-ABIs/PintoLaunch";
+} from "../../generated/Beanstalk-ABIs/PintoPI5";
 import {
   podListingCancelled,
   podListingCreated,
@@ -16,6 +17,9 @@ import {
 } from "../utils/Marketplace";
 
 export function handlePodListingCreated(event: PodListingCreated): void {
+  if (event.params.fieldId != ZERO_BI) {
+    return;
+  }
   podListingCreated({
     event: event,
     account: event.params.lister,
@@ -32,6 +36,9 @@ export function handlePodListingCreated(event: PodListingCreated): void {
 }
 
 export function handlePodListingFilled(event: PodListingFilled): void {
+  if (event.params.fieldId != ZERO_BI) {
+    return;
+  }
   podListingFilled({
     event: event,
     from: event.params.lister,
@@ -45,6 +52,9 @@ export function handlePodListingFilled(event: PodListingFilled): void {
 }
 
 export function handlePodOrderCreated(event: PodOrderCreated): void {
+  if (event.params.fieldId != ZERO_BI) {
+    return;
+  }
   podOrderCreated({
     event: event,
     account: event.params.orderer,
@@ -59,6 +69,9 @@ export function handlePodOrderCreated(event: PodOrderCreated): void {
 }
 
 export function handlePodOrderFilled(event: PodOrderFilled): void {
+  if (event.params.fieldId != ZERO_BI) {
+    return;
+  }
   podOrderFilled({
     event: event,
     from: event.params.filler,
@@ -72,6 +85,9 @@ export function handlePodOrderFilled(event: PodOrderFilled): void {
 }
 
 export function handlePodListingCancelled(event: PodListingCancelled): void {
+  if (event.params.fieldId != ZERO_BI) {
+    return;
+  }
   podListingCancelled({
     event,
     account: event.params.lister,

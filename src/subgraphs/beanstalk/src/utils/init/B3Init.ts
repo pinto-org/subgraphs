@@ -1,4 +1,4 @@
-import { BigInt, ethereum } from "@graphprotocol/graph-ts";
+import { BigDecimal, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import { v } from "../constants/Version";
 import { loadField } from "../../entities/Field";
 import {
@@ -45,7 +45,7 @@ export function init(block: ethereum.Block): void {
   let field = loadField(v().protocolAddress);
   field.podIndex = FIELD_INITIAL_VALUES.podIndex;
   field.harvestableIndex = FIELD_INITIAL_VALUES.harvestableIndex;
-  field.temperature = FIELD_INITIAL_VALUES.temperature;
+  field.temperature = BigDecimal.fromString(FIELD_INITIAL_VALUES.temperature.toString());
   field.unmigratedL1Pods = UNMIGRATED_PODS;
   field.save();
 

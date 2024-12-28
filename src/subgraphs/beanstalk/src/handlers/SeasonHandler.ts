@@ -8,7 +8,7 @@ import {
   Shipped,
   SeasonOfPlentyField,
   SeasonOfPlentyWell
-} from "../../generated/Beanstalk-ABIs/PintoLaunch";
+} from "../../generated/Beanstalk-ABIs/PintoPI5";
 import { toDecimal, ZERO_BD, ZERO_BI } from "../../../../core/utils/Decimals";
 import { getCurrentSeason, loadBeanstalk, loadSeason } from "../entities/Beanstalk";
 import { getBeanstalkPrice } from "../utils/contracts/BeanstalkPrice";
@@ -17,11 +17,10 @@ import { loadField } from "../entities/Field";
 import { updateBeanEMA } from "../utils/Yield";
 import { updateExpiredPlots } from "../utils/Marketplace";
 import { updateHarvestablePlots } from "../utils/Field";
-import { siloReceipt, sunrise } from "../utils/Season";
+import { plentyWell, siloReceipt, sunrise } from "../utils/Season";
 import { isGaugeDeployed, isReplanted } from "../../../../core/constants/RuntimeConstants";
 import { v } from "../utils/constants/Version";
 import { Beanstalk_harvestableIndex, Beanstalk_isRaining } from "../utils/contracts/Beanstalk";
-import { loadWellPlenty } from "../entities/Silo";
 
 export function handleSunrise(event: Sunrise): void {
   sunrise(event.address, event.params.season, event.block);
@@ -73,16 +72,7 @@ export function handlePlentyField(event: SeasonOfPlentyField): void {
 }
 
 export function handlePlentyWell(event: SeasonOfPlentyWell): void {
-  const systemPlenty = loadWellPlenty(v().protocolAddress, event.params.token);
-  systemPlenty.unclaimedAmount = systemPlenty.unclaimedAmount.plus(event.params.amount);
-  systemPlenty.save();
-
-  // Order of mints during the sunrise are field plenty, silo plenty, twa deltaB mint, and incentivization.
-  // In all cases, the actual token mint event is before the Plenty event.
-  // Silo flood amount must be inferred based on this.
-  const season = loadSeason(BigInt.fromU32(getCurrentSeason()));
-  season.floodSiloBeans = season.deltaBeans.minus(season.floodFieldBeans);
-  season.save();
+  plentyWell(event.params.token, event.params.amount);
 }
 
 // This is the final function to be called during sunrise both pre and post replant

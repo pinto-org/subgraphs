@@ -487,16 +487,24 @@ function setBeansPerPodAfterFill(
     // When sending the start of a plot via market, these cannot be set in any subsequent transfer,
     // since the start plot has already been modified.
     let remainderPlot = loadPlot(event.address, plotIndex.plus(length));
-    remainderPlot.sourceHash = fillPlot.sourceHash;
-    remainderPlot.beansPerPod = fillPlot.beansPerPod;
-    remainderPlot.source = fillPlot.source;
-    remainderPlot.save();
+    // If the transfer event came prior to the market event, no need to assign these again
+    const transferEvtWasFirst = fillPlot.source == "TRANSFER" && fillPlot.sourceHash == event.transaction.hash;
+    if (!transferEvtWasFirst) {
+      remainderPlot.source = fillPlot.source;
+      remainderPlot.sourceHash = fillPlot.sourceHash;
+      remainderPlot.beansPerPod = fillPlot.beansPerPod;
+      remainderPlot.preTransferSource = fillPlot.preTransferSource;
+      remainderPlot.preTransferOwner = fillPlot.preTransferOwner;
+      remainderPlot.save();
+    }
   }
 
-  // Update source/cost per pod of the sold plot
+  // Update values on the sold plot
   fillPlot.beansPerPod = costInBeans.times(BI_10.pow(6)).div(length);
   fillPlot.source = "MARKET";
   fillPlot.sourceHash = event.transaction.hash;
+  fillPlot.preTransferSource = null;
+  fillPlot.preTransferOwner = null;
   fillPlot.save();
 }
 

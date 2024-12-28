@@ -15,7 +15,7 @@ import {
   PodListingCancelled as PodListingCancelled_v2
 } from "../../generated/Beanstalk-ABIs/SeedGauge";
 import { mockBeanstalkEvent } from "../../../../core/tests/event-mocking/Util";
-import { PodOrderCancelled } from "../../generated/Beanstalk-ABIs/PintoLaunch";
+import { PodOrderCancelled } from "../../generated/Beanstalk-ABIs/PintoPI5";
 
 /** ===== Marketplace V1 Events ===== */
 export function createPodListingCreatedEvent(

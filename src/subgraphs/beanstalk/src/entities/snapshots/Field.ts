@@ -45,7 +45,7 @@ export function takeFieldSnapshots(field: Field, block: ethereum.Block): void {
 
   // Set deltas
   if (baseHourly !== null) {
-    hourly.deltaTemperature = hourly.temperature - baseHourly.temperature;
+    hourly.deltaTemperature = hourly.temperature.minus(baseHourly.temperature);
     hourly.deltaRealRateOfReturn = hourly.realRateOfReturn.minus(baseHourly.realRateOfReturn);
     hourly.deltaNumberOfSowers = hourly.numberOfSowers - baseHourly.numberOfSowers;
     hourly.deltaNumberOfSows = hourly.numberOfSows - baseHourly.numberOfSows;
@@ -61,7 +61,7 @@ export function takeFieldSnapshots(field: Field, block: ethereum.Block): void {
 
     if (hourly.id == baseHourly.id) {
       // Add existing deltas
-      hourly.deltaTemperature = hourly.deltaTemperature + baseHourly.deltaTemperature;
+      hourly.deltaTemperature = hourly.deltaTemperature.plus(baseHourly.deltaTemperature);
       hourly.deltaRealRateOfReturn = hourly.deltaRealRateOfReturn.plus(baseHourly.deltaRealRateOfReturn);
       hourly.deltaNumberOfSowers = hourly.deltaNumberOfSowers + baseHourly.deltaNumberOfSowers;
       hourly.deltaNumberOfSows = hourly.deltaNumberOfSows + baseHourly.deltaNumberOfSows;
@@ -138,7 +138,7 @@ export function takeFieldSnapshots(field: Field, block: ethereum.Block): void {
   daily.harvestableIndex = field.harvestableIndex;
   daily.podRate = field.podRate;
   if (baseDaily !== null) {
-    daily.deltaTemperature = daily.temperature - baseDaily.temperature;
+    daily.deltaTemperature = daily.temperature.minus(baseDaily.temperature);
     daily.deltaRealRateOfReturn = daily.realRateOfReturn.minus(baseDaily.realRateOfReturn);
     daily.deltaNumberOfSowers = daily.numberOfSowers - baseDaily.numberOfSowers;
     daily.deltaNumberOfSows = daily.numberOfSows - baseDaily.numberOfSows;
@@ -154,7 +154,7 @@ export function takeFieldSnapshots(field: Field, block: ethereum.Block): void {
 
     if (daily.id == baseDaily.id) {
       // Add existing deltas
-      daily.deltaTemperature = daily.deltaTemperature + baseDaily.deltaTemperature;
+      daily.deltaTemperature = daily.deltaTemperature.plus(baseDaily.deltaTemperature);
       daily.deltaRealRateOfReturn = daily.deltaRealRateOfReturn.plus(baseDaily.deltaRealRateOfReturn);
       daily.deltaNumberOfSowers = daily.deltaNumberOfSowers + baseDaily.deltaNumberOfSowers;
       daily.deltaNumberOfSows = daily.deltaNumberOfSows + baseDaily.deltaNumberOfSows;
@@ -212,7 +212,7 @@ export function clearFieldDeltas(field: Field, block: ethereum.Block): void {
   const hourly = FieldHourlySnapshot.load(field.id.toHexString() + "-" + currentSeason.toString());
   const daily = FieldDailySnapshot.load(field.id.toHexString() + "-" + day.toString());
   if (hourly != null) {
-    hourly.deltaTemperature = 0;
+    hourly.deltaTemperature = ZERO_BD;
     hourly.deltaRealRateOfReturn = ZERO_BD;
     hourly.deltaNumberOfSowers = 0;
     hourly.deltaNumberOfSows = 0;
@@ -228,7 +228,7 @@ export function clearFieldDeltas(field: Field, block: ethereum.Block): void {
     hourly.save();
   }
   if (daily != null) {
-    daily.deltaTemperature = 0;
+    daily.deltaTemperature = ZERO_BD;
     daily.deltaRealRateOfReturn = ZERO_BD;
     daily.deltaNumberOfSowers = 0;
     daily.deltaNumberOfSows = 0;

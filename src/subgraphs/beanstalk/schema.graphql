@@ -123,8 +123,10 @@ type Silo @entity {
   unmigratedL1DepositedBdv: BigInt
   "Current stalk balance"
   stalk: BigInt!
-  "Current plantable stalk for bean seigniorage not yet claimed"
+  "Current plantable stalk for bean seigniorage not yet claimed (only set on protocol-level Silo)"
   plantableStalk: BigInt!
+  "Cumulative total of beans that have been Planted"
+  plantedBeans: BigInt!
   "Value emitted by UpdateAverageStalkPerBdvPerSeason event"
   avgGrownStalkPerBdvPerSeason: BigInt!
   """
@@ -139,7 +141,7 @@ type Silo @entity {
   germinatingStalk: BigInt!
   "[Seed Gauge] Current target ratio of Bean to LP deposits"
   beanToMaxLpGpPerBdvRatio: BigInt
-  "Cumulative total for bean mints sent to the silo"
+  "Cumulative total for bean mints sent to the silo (only set on protocol-level Silo)"
   beanMints: BigInt!
   "Current number of active farmers deposited in the silo"
   activeFarmers: Int!
@@ -164,8 +166,10 @@ type SiloHourlySnapshot @entity {
   depositedBDV: BigInt!
   "Point in time current stalk balance"
   stalk: BigInt!
-  "Point in time current plantable stalk for bean seigniorage not yet claimed"
+  "Point in time current plantable stalk for bean seigniorage not yet claimed (only set on protocol-level Silo)"
   plantableStalk: BigInt!
+  "Point in time total of beans that have been Planted"
+  plantedBeans: BigInt!
   "Point in time average grown stalk per bdv per season"
   avgGrownStalkPerBdvPerSeason: BigInt!
   "Point in time grown stalk per season"
@@ -184,6 +188,7 @@ type SiloHourlySnapshot @entity {
   deltaDepositedBDV: BigInt!
   deltaStalk: BigInt!
   deltaPlantableStalk: BigInt!
+  deltaPlantedBeans: BigInt!
   deltaAvgGrownStalkPerBdvPerSeason: BigInt!
   deltaGrownStalkPerSeason: BigInt!
   deltaRoots: BigInt!
@@ -212,8 +217,10 @@ type SiloDailySnapshot @entity {
   depositedBDV: BigInt!
   "Point in time current stalk balance"
   stalk: BigInt!
-  "Point in time current plantable stalk for bean seigniorage not yet claimed"
+  "Point in time current plantable stalk for bean seigniorage not yet claimed (only set on protocol-level Silo)"
   plantableStalk: BigInt!
+  "Point in time total of beans that have been Planted"
+  plantedBeans: BigInt!
   "Point in time average grown stalk per bdv per season"
   avgGrownStalkPerBdvPerSeason: BigInt!
   "Point in time grown stalk per season"
@@ -232,6 +239,7 @@ type SiloDailySnapshot @entity {
   deltaDepositedBDV: BigInt!
   deltaStalk: BigInt!
   deltaPlantableStalk: BigInt!
+  deltaPlantedBeans: BigInt!
   deltaAvgGrownStalkPerBdvPerSeason: BigInt!
   deltaGrownStalkPerSeason: BigInt!
   deltaRoots: BigInt!
@@ -484,8 +492,8 @@ type Field @entity {
   farmer: Farmer
   "Current season number"
   season: Int!
-  "Current temperature"
-  temperature: Int!
+  "Current temperature, in percent (i.e. 50.5 = 50.5% temperature)"
+  temperature: BigDecimal!
   "Rate of return: Temperature / Bean Price"
   realRateOfReturn: BigDecimal!
   "Cumulative number of unique sowers"
@@ -530,7 +538,7 @@ type FieldHourlySnapshot @entity {
   "Season"
   season: Int!
   "Point in time temperature"
-  temperature: Int!
+  temperature: BigDecimal!
   "Point in time rate of return: Temperature / Bean Price"
   realRateOfReturn: BigDecimal!
   "Point in time cumulative number of unique sowers"
@@ -556,7 +564,7 @@ type FieldHourlySnapshot @entity {
   "Point in time pod rate: Total unharvestable pods / bean supply"
   podRate: BigDecimal!
 
-  deltaTemperature: Int!
+  deltaTemperature: BigDecimal!
   deltaRealRateOfReturn: BigDecimal!
   deltaNumberOfSowers: Int!
   deltaNumberOfSows: Int!
@@ -594,7 +602,7 @@ type FieldDailySnapshot @entity {
   "Last season in the snapshot"
   season: Int!
   "Point in time temperature"
-  temperature: Int!
+  temperature: BigDecimal!
   "Point in time rate of return: Temperature / Bean Price"
   realRateOfReturn: BigDecimal!
   "Point in time cumulative number of unique sowers"
@@ -620,7 +628,7 @@ type FieldDailySnapshot @entity {
   "Point in time pod rate: Total unharvestable pods / bean supply"
   podRate: BigDecimal!
 
-  deltaTemperature: Int!
+  deltaTemperature: BigDecimal!
   deltaRealRateOfReturn: BigDecimal!
   deltaNumberOfSowers: Int!
   deltaNumberOfSows: Int!
@@ -719,6 +727,10 @@ type Plot @entity {
   source: PlotSource!
   "Transaction hash corresponding to source"
   sourceHash: Bytes!
+  "If `source === 'TRANSFER'`: Source SOW/MARKET of the farmer who aquired the plot. Cannot be TRANSFER."
+  preTransferSource: PlotSource
+  "If `source === 'TRANSFER'`: Farmer who acquired this plot in the Field or Market, and spent `beansPerPod` for each pod in the plot."
+  preTransferOwner: Farmer
   "Associated plot listing"
   listing: PodListing
   "Season when created"

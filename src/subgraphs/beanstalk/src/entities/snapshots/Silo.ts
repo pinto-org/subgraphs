@@ -30,6 +30,7 @@ export function takeSiloSnapshots(silo: Silo, block: ethereum.Block): void {
   hourly.depositedBDV = silo.depositedBDV;
   hourly.stalk = silo.stalk;
   hourly.plantableStalk = silo.plantableStalk;
+  hourly.plantedBeans = silo.plantedBeans;
   hourly.avgGrownStalkPerBdvPerSeason = silo.avgGrownStalkPerBdvPerSeason;
   hourly.grownStalkPerSeason = silo.grownStalkPerSeason;
   hourly.roots = silo.roots;
@@ -43,6 +44,7 @@ export function takeSiloSnapshots(silo: Silo, block: ethereum.Block): void {
     hourly.deltaDepositedBDV = hourly.depositedBDV.minus(baseHourly.depositedBDV);
     hourly.deltaStalk = hourly.stalk.minus(baseHourly.stalk);
     hourly.deltaPlantableStalk = hourly.plantableStalk.minus(baseHourly.plantableStalk);
+    hourly.deltaPlantedBeans = hourly.plantedBeans.minus(baseHourly.plantedBeans);
     hourly.deltaAvgGrownStalkPerBdvPerSeason = hourly.avgGrownStalkPerBdvPerSeason.minus(
       baseHourly.avgGrownStalkPerBdvPerSeason
     );
@@ -57,6 +59,7 @@ export function takeSiloSnapshots(silo: Silo, block: ethereum.Block): void {
       hourly.deltaDepositedBDV = hourly.deltaDepositedBDV.plus(baseHourly.deltaDepositedBDV);
       hourly.deltaStalk = hourly.deltaStalk.plus(baseHourly.deltaStalk);
       hourly.deltaPlantableStalk = hourly.deltaPlantableStalk.plus(baseHourly.deltaPlantableStalk);
+      hourly.deltaPlantedBeans = hourly.deltaPlantedBeans.plus(baseHourly.deltaPlantedBeans);
       hourly.deltaAvgGrownStalkPerBdvPerSeason = hourly.deltaAvgGrownStalkPerBdvPerSeason.plus(
         baseHourly.deltaAvgGrownStalkPerBdvPerSeason
       );
@@ -73,6 +76,7 @@ export function takeSiloSnapshots(silo: Silo, block: ethereum.Block): void {
     hourly.deltaDepositedBDV = hourly.depositedBDV;
     hourly.deltaStalk = hourly.stalk;
     hourly.deltaPlantableStalk = hourly.plantableStalk;
+    hourly.deltaPlantedBeans = hourly.plantedBeans;
     hourly.deltaAvgGrownStalkPerBdvPerSeason = hourly.avgGrownStalkPerBdvPerSeason;
     hourly.deltaGrownStalkPerSeason = hourly.grownStalkPerSeason;
     hourly.deltaRoots = hourly.roots;
@@ -93,6 +97,7 @@ export function takeSiloSnapshots(silo: Silo, block: ethereum.Block): void {
   daily.depositedBDV = silo.depositedBDV;
   daily.stalk = silo.stalk;
   daily.plantableStalk = silo.plantableStalk;
+  daily.plantedBeans = silo.plantedBeans;
   daily.avgGrownStalkPerBdvPerSeason = silo.avgGrownStalkPerBdvPerSeason;
   daily.grownStalkPerSeason = silo.grownStalkPerSeason;
   daily.roots = silo.roots;
@@ -104,6 +109,7 @@ export function takeSiloSnapshots(silo: Silo, block: ethereum.Block): void {
     daily.deltaDepositedBDV = daily.depositedBDV.minus(baseDaily.depositedBDV);
     daily.deltaStalk = daily.stalk.minus(baseDaily.stalk);
     daily.deltaPlantableStalk = daily.plantableStalk.minus(baseDaily.plantableStalk);
+    daily.deltaPlantedBeans = daily.plantedBeans.minus(baseDaily.plantedBeans);
     daily.deltaAvgGrownStalkPerBdvPerSeason = daily.avgGrownStalkPerBdvPerSeason.minus(
       baseDaily.avgGrownStalkPerBdvPerSeason
     );
@@ -118,6 +124,7 @@ export function takeSiloSnapshots(silo: Silo, block: ethereum.Block): void {
       daily.deltaDepositedBDV = daily.deltaDepositedBDV.plus(baseDaily.deltaDepositedBDV);
       daily.deltaStalk = daily.deltaStalk.plus(baseDaily.deltaStalk);
       daily.deltaPlantableStalk = daily.deltaPlantableStalk.plus(baseDaily.deltaPlantableStalk);
+      daily.deltaPlantedBeans = daily.deltaPlantedBeans.plus(baseDaily.deltaPlantedBeans);
       daily.deltaAvgGrownStalkPerBdvPerSeason = daily.deltaAvgGrownStalkPerBdvPerSeason.plus(
         baseDaily.deltaAvgGrownStalkPerBdvPerSeason
       );
@@ -132,6 +139,7 @@ export function takeSiloSnapshots(silo: Silo, block: ethereum.Block): void {
     daily.deltaDepositedBDV = daily.depositedBDV;
     daily.deltaStalk = daily.stalk;
     daily.deltaPlantableStalk = daily.plantableStalk;
+    daily.deltaPlantedBeans = daily.plantedBeans;
     daily.deltaAvgGrownStalkPerBdvPerSeason = daily.avgGrownStalkPerBdvPerSeason;
     daily.deltaGrownStalkPerSeason = daily.grownStalkPerSeason;
     daily.deltaRoots = daily.roots;
@@ -157,6 +165,7 @@ export function clearSiloDeltas(silo: Silo, block: ethereum.Block): void {
     hourly.deltaDepositedBDV = ZERO_BI;
     hourly.deltaStalk = ZERO_BI;
     hourly.deltaPlantableStalk = ZERO_BI;
+    hourly.deltaPlantedBeans = ZERO_BI;
     hourly.deltaGrownStalkPerSeason = ZERO_BI;
     hourly.deltaRoots = ZERO_BI;
     hourly.deltaGerminatingStalk = ZERO_BI;
@@ -168,6 +177,7 @@ export function clearSiloDeltas(silo: Silo, block: ethereum.Block): void {
     daily.deltaDepositedBDV = ZERO_BI;
     daily.deltaStalk = ZERO_BI;
     daily.deltaPlantableStalk = ZERO_BI;
+    daily.deltaPlantedBeans = ZERO_BI;
     daily.deltaGrownStalkPerSeason = ZERO_BI;
     daily.deltaRoots = ZERO_BI;
     daily.deltaGerminatingStalk = ZERO_BI;

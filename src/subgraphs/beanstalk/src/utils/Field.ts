@@ -37,7 +37,7 @@ class TemperatureChangedParams {
   event: ethereum.Event;
   season: BigInt;
   caseId: BigInt;
-  absChange: i32;
+  absChange: BigInt;
 }
 
 export function sow(params: SowParams): void {
@@ -85,8 +85,11 @@ export function harvest(params: HarvestParams): void {
 
   let remainingIndex = ZERO_BI;
   for (let i = 0; i < params.plots.length; i++) {
-    // Plot should exist
     let plot = loadPlot(protocol, params.plots[i]);
+    plot.fullyHarvested = true;
+    plot.updatedAt = params.event.block.timestamp;
+    plot.harvestAt = params.event.block.timestamp;
+    plot.harvestHash = params.event.transaction.hash;
 
     expirePodListingIfExists(toAddress(plot.farmer), plot.index, params.event.block);
 
@@ -107,9 +110,6 @@ export function harvest(params: HarvestParams): void {
       );
 
       plot.harvestedPods = plot.pods;
-      plot.fullyHarvested = true;
-      plot.harvestAt = params.event.block.timestamp;
-      plot.harvestHash = params.event.transaction.hash;
       plot.save();
     } else {
       // Plot partially harvests
@@ -132,6 +132,8 @@ export function harvest(params: HarvestParams): void {
       remainingPlot.farmer = plot.farmer;
       remainingPlot.source = plot.source;
       remainingPlot.sourceHash = plot.sourceHash;
+      remainingPlot.preTransferSource = plot.preTransferSource;
+      remainingPlot.preTransferOwner = plot.preTransferOwner;
       remainingPlot.season = beanstalk.lastSeason;
       remainingPlot.creationHash = params.event.transaction.hash;
       remainingPlot.createdAt = params.event.block.timestamp;
@@ -144,9 +146,6 @@ export function harvest(params: HarvestParams): void {
 
       plot.harvestedPods = harvestablePods;
       plot.pods = harvestablePods;
-      plot.fullyHarvested = true;
-      plot.harvestAt = params.event.block.timestamp;
-      plot.harvestHash = params.event.transaction.hash;
       plot.save();
     }
   }
@@ -221,6 +220,10 @@ export function plotTransfer(params: PlotTransferParams): void {
     // Sending full plot
     const isMarket = sourcePlot.source == "MARKET" && sourcePlot.sourceHash == params.event.transaction.hash;
     if (!isMarket) {
+      if (sourcePlot.preTransferSource == null) {
+        sourcePlot.preTransferSource = sourcePlot.source;
+        sourcePlot.preTransferOwner = sourcePlot.farmer;
+      }
       sourcePlot.source = "TRANSFER";
       sourcePlot.sourceHash = params.event.transaction.hash;
       sourcePlot.beansPerPod = sourcePlot.beansPerPod;
@@ -239,10 +242,17 @@ export function plotTransfer(params: PlotTransferParams): void {
     const isMarket = sourcePlot.source == "MARKET" && sourcePlot.sourceHash == params.event.transaction.hash;
     if (!isMarket) {
       // When sending the start of the plot via market, these cannot be derived from sourcePlot.
+      // If market, all of these will be set in `setBeansPerPodAfterFill`
       remainderPlot.source = sourcePlot.source;
       remainderPlot.sourceHash = sourcePlot.sourceHash;
       remainderPlot.beansPerPod = sourcePlot.beansPerPod;
+      remainderPlot.preTransferSource = sourcePlot.preTransferSource;
+      remainderPlot.preTransferOwner = sourcePlot.preTransferOwner;
 
+      if (sourcePlot.preTransferSource == null) {
+        sourcePlot.preTransferSource = sourcePlot.source;
+        sourcePlot.preTransferOwner = sourcePlot.farmer;
+      }
       sourcePlot.source = "TRANSFER";
       sourcePlot.sourceHash = params.event.transaction.hash;
       sourcePlot.beansPerPod = sourcePlot.beansPerPod;
@@ -281,6 +291,10 @@ export function plotTransfer(params: PlotTransferParams): void {
       toPlot.source = "TRANSFER";
       toPlot.sourceHash = params.event.transaction.hash;
       toPlot.beansPerPod = sourcePlot.beansPerPod;
+      // Passthrough if possible, otherwise init
+      toPlot.preTransferSource =
+        sourcePlot.preTransferSource !== null ? sourcePlot.preTransferSource : sourcePlot.source;
+      toPlot.preTransferOwner = sourcePlot.preTransferOwner !== null ? sourcePlot.preTransferOwner : sourcePlot.farmer;
     }
     toPlot.farmer = params.to;
     toPlot.season = field.season;
@@ -312,6 +326,10 @@ export function plotTransfer(params: PlotTransferParams): void {
       toPlot.source = "TRANSFER";
       toPlot.sourceHash = params.event.transaction.hash;
       toPlot.beansPerPod = sourcePlot.beansPerPod;
+      // Passthrough if possible, otherwise init
+      toPlot.preTransferSource =
+        sourcePlot.preTransferSource !== null ? sourcePlot.preTransferSource : sourcePlot.source;
+      toPlot.preTransferOwner = sourcePlot.preTransferOwner !== null ? sourcePlot.preTransferOwner : sourcePlot.farmer;
     }
     toPlot.farmer = params.to;
     toPlot.season = field.season;
@@ -326,6 +344,8 @@ export function plotTransfer(params: PlotTransferParams): void {
 
     remainderPlot.farmer = params.from;
     remainderPlot.source = sourcePlot.source;
+    remainderPlot.preTransferSource = sourcePlot.preTransferSource;
+    remainderPlot.preTransferOwner = sourcePlot.preTransferOwner;
     remainderPlot.sourceHash = sourcePlot.sourceHash;
     remainderPlot.season = field.season;
     remainderPlot.creationHash = params.event.transaction.hash;
@@ -375,7 +395,7 @@ export function plotTransfer(params: PlotTransferParams): void {
 export function temperatureChanged(params: TemperatureChangedParams): void {
   const protocol = params.event.address;
   let field = loadField(protocol);
-  field.temperature += params.absChange;
+  field.temperature = field.temperature.plus(toDecimal(params.absChange, 6));
 
   let seasonEntity = loadSeason(params.season);
   let currentPrice = ZERO_BD;
@@ -385,7 +405,7 @@ export function temperatureChanged(params: TemperatureChangedParams): void {
     currentPrice = toDecimal(BeanstalkPrice_priceOnly(params.event.block.number));
   }
 
-  field.realRateOfReturn = ONE_BD.plus(BigDecimal.fromString((field.temperature / 100).toString())).div(currentPrice);
+  field.realRateOfReturn = ONE_BD.plus(field.temperature.div(BigDecimal.fromString("100"))).div(currentPrice);
 
   takeFieldSnapshots(field, params.event.block);
   field.save();

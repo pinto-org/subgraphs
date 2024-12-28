@@ -6,8 +6,9 @@ import { MetapoolOracle, Sunrise as Sunrise_Replanted } from "../../../generated
 import { BeanstalkPrice_priceOnly } from "../../utils/contracts/BeanstalkPrice";
 import { loadSeason } from "../../entities/Beanstalk";
 import { updateStalkWithCalls } from "../../utils/legacy/LegacySilo";
-import { siloReceipt, sunrise } from "../../utils/Season";
+import { plentyWell, siloReceipt, sunrise } from "../../utils/Season";
 import { Reward } from "../../../generated/Beanstalk-ABIs/SeedGauge";
+import { SeasonOfPlentyWell } from "../../../generated/Beanstalk-ABIs/PintoLaunch";
 
 // PreReplant -> Replanted
 export function handleSunrise_v1(event: Sunrise_PreReplant): void {
@@ -56,4 +57,9 @@ export function handleReward(event: Reward): void {
   season.save();
 
   siloReceipt(event.params.toSilo, event.block);
+}
+
+// PintoLaunch -> PintoPI5
+export function handlePlentyWell_v1(event: SeasonOfPlentyWell): void {
+  plentyWell(event.params.token, event.params.amount);
 }

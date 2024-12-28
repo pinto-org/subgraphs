@@ -4,7 +4,7 @@ import { WhitelistToken as WhitelistToken_V2 } from "../../generated/Beanstalk-A
 import { WhitelistToken as WhitelistToken_V3 } from "../../generated/Beanstalk-ABIs/SiloV3";
 import { WhitelistToken as WhitelistToken_V4 } from "../../generated/Beanstalk-ABIs/SeedGauge";
 import { mockBeanstalkEvent } from "../../../../core/tests/event-mocking/Util";
-import { DewhitelistToken } from "../../generated/Beanstalk-ABIs/PintoLaunch";
+import { DewhitelistToken } from "../../generated/Beanstalk-ABIs/PintoPI5";
 
 export function createWhitelistTokenV2Event(
   token: string,
