@@ -20,7 +20,7 @@ import {
   UpdatedStalkPerBdvPerSeason,
   UpdateWhitelistStatus,
   ClaimPlenty
-} from "../../generated/Beanstalk-ABIs/PintoLaunch";
+} from "../../generated/Beanstalk-ABIs/PintoPI5";
 import { unripeChopped } from "../utils/Barn";
 import { beanDecimals, getProtocolToken, isUnripe, stalkDecimals } from "../../../../core/constants/RuntimeConstants";
 import { v } from "../utils/constants/Version";
@@ -98,7 +98,7 @@ export function handlePlant(event: Plant): void {
   silo.stalk = silo.stalk.minus(newPlantableStalk);
   silo.plantableStalk = silo.plantableStalk.minus(newPlantableStalk);
   silo.depositedBDV = silo.depositedBDV.minus(event.params.beans);
-
+  silo.plantedBeans = silo.plantedBeans.plus(event.params.beans);
   takeSiloSnapshots(silo, event.block);
   silo.save();
 
@@ -112,6 +112,12 @@ export function handlePlant(event: Plant): void {
     event.params.beans.neg(),
     event.block
   );
+
+  // Add to user cumulative plant amount
+  let farmerSilo = loadSilo(event.params.account);
+  farmerSilo.plantedBeans = farmerSilo.plantedBeans.plus(event.params.beans);
+  takeSiloSnapshots(farmerSilo, event.block);
+  farmerSilo.save();
 }
 
 export function handleWhitelistToken(event: WhitelistToken): void {

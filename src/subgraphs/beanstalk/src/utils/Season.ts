@@ -1,16 +1,16 @@
 import { Address, BigInt, ethereum, log } from "@graphprotocol/graph-ts";
-import { loadSeason } from "../entities/Beanstalk";
+import { getCurrentSeason, loadSeason } from "../entities/Beanstalk";
 import { loadPodMarketplace } from "../entities/PodMarketplace";
 import { takeMarketSnapshots } from "../entities/snapshots/Marketplace";
 import { takeSiloSnapshots } from "../entities/snapshots/Silo";
-import { loadSilo, loadSiloAsset, loadWhitelistTokenSetting } from "../entities/Silo";
+import { loadSilo, loadSiloAsset, loadWellPlenty, loadWhitelistTokenSetting } from "../entities/Silo";
 import { takeSiloAssetSnapshots } from "../entities/snapshots/SiloAsset";
 import { takeFieldSnapshots } from "../entities/snapshots/Field";
 import { BI_10, toDecimal, ZERO_BD, ZERO_BI } from "../../../../core/utils/Decimals";
 import { loadField } from "../entities/Field";
 import { setBdv, takeWhitelistTokenSettingSnapshots } from "../entities/snapshots/WhitelistTokenSetting";
 import { WhitelistTokenSetting } from "../../generated/schema";
-import { PintoLaunch } from "../../generated/Beanstalk-ABIs/PintoLaunch";
+import { PintoPI5 } from "../../generated/Beanstalk-ABIs/PintoPI5";
 import { updateUnripeStats } from "./Barn";
 import { beanDecimals, getProtocolToken, isUnripe, stalkDecimals } from "../../../../core/constants/RuntimeConstants";
 import { v } from "./constants/Version";
@@ -95,10 +95,23 @@ export function siloReceipt(amount: BigInt, block: ethereum.Block): void {
 
 function setTokenBdv(token: Address, protocol: Address, whitelistTokenSetting: WhitelistTokenSetting): void {
   // Get bdv if the bdv function is available onchain (not available prior to BIP-16)
-  const beanstalk_call = PintoLaunch.bind(protocol);
+  const beanstalk_call = PintoPI5.bind(protocol);
   const bdvResult = beanstalk_call.try_bdv(token, BI_10.pow(<u8>whitelistTokenSetting.decimals));
   if (bdvResult.reverted) {
     return;
   }
   setBdv(bdvResult.value, whitelistTokenSetting);
+}
+
+export function plentyWell(token: Address, amount: BigInt): void {
+  const systemPlenty = loadWellPlenty(v().protocolAddress, token);
+  systemPlenty.unclaimedAmount = systemPlenty.unclaimedAmount.plus(amount);
+  systemPlenty.save();
+
+  // Order of mints during the sunrise are field plenty, silo plenty, twa deltaB mint, and incentivization.
+  // In all cases, the actual token mint event is before the Plenty event.
+  // Silo flood amount must be inferred based on this.
+  const season = loadSeason(BigInt.fromU32(getCurrentSeason()));
+  season.floodSiloBeans = season.deltaBeans.minus(season.floodFieldBeans);
+  season.save();
 }
