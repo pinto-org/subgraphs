@@ -157,19 +157,26 @@ type Beanstalk @entity {
   "Rolling 7d of cumulativeConvertVolumeUSD"
   rollingWeeklyConvertVolumeUSD: BigDecimal!
 
-  "All upconvert convert volume, in USD. Subset of cumulativeBuyVolumeUSD."
+  "All upconvert convert volume, in USD. Subset of cumulativeConvertVolumeUSD."
   cumulativeConvertUpVolumeUSD: BigDecimal!
   "Rolling 24h of cumulativeConvertUpVolumeUSD"
   rollingDailyConvertUpVolumeUSD: BigDecimal!
   "Rolling 7d of cumulativeConvertUpVolumeUSD"
   rollingWeeklyConvertUpVolumeUSD: BigDecimal!
 
-  "All downconvert convert volume, in USD. Subset of cumulativeSellVolumeUSD."
+  "All downconvert convert volume, in USD. Subset of cumulativeConvertVolumeUSD."
   cumulativeConvertDownVolumeUSD: BigDecimal!
   "Rolling 24h of cumulativeConvertDownVolumeUSD"
   rollingDailyConvertDownVolumeUSD: BigDecimal!
   "Rolling 7d of cumulativeConvertDownVolumeUSD"
   rollingWeeklyConvertDownVolumeUSD: BigDecimal!
+
+  "All LP->LP convert volume, in USD. Does not double-count values from both actions. A LP->LP convert is defined as a remove liquidity in one Well and add liquidity in another Well. Does not include L2L or AL2L converts which have no Well trading activity. Subset of cumulativeConvertVolumeUSD."
+  cumulativeConvertNeutralVolumeUSD: BigDecimal!
+  "Rolling 24h of cumulativeConvertNeutralVolumeUSD"
+  rollingDailyConvertNeutralVolumeUSD: BigDecimal!
+  "Rolling 7d of cumulativeConvertNeutralVolumeUSD"
+  rollingWeeklyConvertNeutralVolumeUSD: BigDecimal!
 
   "Day ID of the most recent daily snapshot"
   lastSnapshotDayID: Int!
