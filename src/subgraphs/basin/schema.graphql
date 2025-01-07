@@ -347,6 +347,9 @@ type Well @entity {
   "History of upgrades (for upgradeable wells). All wells will have at least one entry here."
   upgradeHistory: [WellUpgradeHistory!]! @derivedFrom(field: "well")
 
+  "True if this is a Beanstalk well"
+  isBeanstalk: Boolean!
+
   ##### Quantitative Data #####
 
   "Total liquidity token supply for the well."
@@ -493,6 +496,8 @@ type WellHourlySnapshot @entity {
 
   "The current amount of each token needed to exchange for one of the other token."
   tokenPrice: [BigInt!]!
+  "Delta of tokenPrice"
+  deltaTokenPrice: [BigInt!]!
 
   "All trade volume occurred for a specific token, in native amount. Volume for an individual token is defined as a purchase of that token. This includes any net trading activity as a result of add/remove liquidity. The ordering should be the same as the well's `tokens` field."
   cumulativeTradeVolumeReserves: [BigInt!]!
@@ -578,6 +583,8 @@ type WellDailySnapshot @entity {
 
   "The current amount of each token needed to exchange for one of the other token."
   tokenPrice: [BigInt!]!
+  "Delta of tokenPrice"
+  deltaTokenPrice: [BigInt!]!
 
   "All trade volume occurred for a specific token, in native amount. Volume for an individual token is defined as a purchase of that token. This includes any net trading activity as a result of add/remove liquidity. The ordering should be the same as the well's `tokens` field."
   cumulativeTradeVolumeReserves: [BigInt!]!

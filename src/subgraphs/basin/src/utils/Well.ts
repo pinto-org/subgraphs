@@ -5,12 +5,11 @@ import {
   BI_10,
   emptyBigDecimalArray,
   emptyBigIntArray,
-  getBigDecimalArrayTotal,
   ONE_BI,
   toDecimal,
   ZERO_BI
 } from "../../../../core/utils/Decimals";
-import { loadWell } from "../entities/Well";
+import { loadWell, updateWellLiquidityUSD } from "../entities/Well";
 import { getTokenDecimals, updateTokenUSD } from "./Token";
 import { getProtocolToken, isStable2WellFn, wellFnSupportsRate } from "../../../../core/constants/RuntimeConstants";
 import { v } from "./constants/Version";
@@ -60,9 +59,7 @@ export function updateWellTokenUSDPrices(wellAddress: Address, blockNumber: BigI
       );
     }
   }
-
-  well.reservesUSD = getCalculatedReserveUSDValues(well.tokens, well.reserves).map<BigDecimal>((bd) => bd.truncate(2));
-  well.totalLiquidityUSD = getBigDecimalArrayTotal(well.reservesUSD).truncate(2);
+  updateWellLiquidityUSD(well);
   well.save();
 }
 

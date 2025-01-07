@@ -1,7 +1,15 @@
-import { Address, BigInt, Bytes, ethereum } from "@graphprotocol/graph-ts";
+import { Address, BigDecimal, BigInt, Bytes, ethereum } from "@graphprotocol/graph-ts";
 import { Well, WellUpgradeHistory } from "../../generated/schema";
 import { ERC20 } from "../../generated/Basin-ABIs/ERC20";
-import { emptyBigDecimalArray, emptyBigIntArray, ZERO_BD, ZERO_BI } from "../../../../core/utils/Decimals";
+import {
+  emptyBigDecimalArray,
+  emptyBigIntArray,
+  getBigDecimalArrayTotal,
+  ZERO_BD,
+  ZERO_BI
+} from "../../../../core/utils/Decimals";
+import { getCalculatedReserveUSDValues } from "../utils/Well";
+import { loadBeanstalk } from "./Beanstalk";
 
 export function loadOrCreateWell(wellAddress: Address, inputTokens: Address[], block: ethereum.Block): Well {
   let well = Well.load(wellAddress);
@@ -137,4 +145,18 @@ export function updateWellLiquidityTokenBalance(
   well.lastUpdateTimestamp = block.timestamp;
   well.lastUpdateBlockNumber = block.number;
   well.save();
+}
+
+// Updates Well reserve/liquidity values, and the same for Beanstalk
+export function updateWellLiquidityUSD(well: Well) {
+  well.reservesUSD = getCalculatedReserveUSDValues(well.tokens, well.reserves).map<BigDecimal>((bd) => bd.truncate(2));
+
+  const deltaLiquidityUSD = getBigDecimalArrayTotal(well.reservesUSD).truncate(2).minus(well.totalLiquidityUSD);
+  well.totalLiquidityUSD = well.totalLiquidityUSD.plus(deltaLiquidityUSD);
+
+  if (well.isBeanstalk) {
+    const beanstalk = loadBeanstalk();
+    beanstalk.totalLiquidityUSD = beanstalk.totalLiquidityUSD.plus(deltaLiquidityUSD);
+    beanstalk.save();
+  }
 }
