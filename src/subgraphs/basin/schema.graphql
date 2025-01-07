@@ -129,14 +129,14 @@ type Beanstalk @entity {
   "Rolling 7d of cumulativeTradeVolumeUSD"
   rollingWeeklyTradeVolumeUSD: BigDecimal!
 
-  "All pinto buying volume, including converts."
+  "All bean buying volume, including converts. Subset of cumulativeTradeVolumeUSD."
   cumulativeBuyVolumeUSD: BigDecimal!
   "Rolling 24h of cumulativeBuyVolumeUSD"
   rollingDailyBuyVolumeUSD: BigDecimal!
   "Rolling 7d of cumulativeBuyVolumeUSD"
   rollingWeeklyBuyVolumeUSD: BigDecimal!
 
-  "All pinto selling volume, including converts."
+  "All bean selling volume, including converts. Subset of cumulativeTradeVolumeUSD."
   cumulativeSellVolumeUSD: BigDecimal!
   "Rolling 24h of cumulativeSellVolumeUSD"
   rollingDailySellVolumeUSD: BigDecimal!
@@ -204,12 +204,12 @@ type BeanstalkHourlySnapshot @entity {
   "Delta of cumulativeTradeVolumeUSD"
   deltaTradeVolumeUSD: BigDecimal!
 
-  "All pinto buying volume, including converts."
+  "All bean buying volume, including converts."
   cumulativeBuyVolumeUSD: BigDecimal!
   "Delta of cumulativeBuyVolumeUSD"
   deltaBuyVolumeUSD: BigDecimal!
 
-  "All pinto selling volume, including converts."
+  "All bean selling volume, including converts."
   cumulativeSellVolumeUSD: BigDecimal!
   "Delta of cumulativeSellVolumeUSD"
   deltaSellVolumeUSD: BigDecimal!
@@ -264,12 +264,12 @@ type BeanstalkDailySnapshot @entity {
   "Delta of cumulativeTradeVolumeUSD"
   deltaTradeVolumeUSD: BigDecimal!
 
-  "All pinto buying volume, including converts."
+  "All bean buying volume, including converts."
   cumulativeBuyVolumeUSD: BigDecimal!
   "Delta of cumulativeBuyVolumeUSD"
   deltaBuyVolumeUSD: BigDecimal!
 
-  "All pinto selling volume, including converts."
+  "All bean selling volume, including converts."
   cumulativeSellVolumeUSD: BigDecimal!
   "Delta of cumulativeSellVolumeUSD"
   deltaSellVolumeUSD: BigDecimal!

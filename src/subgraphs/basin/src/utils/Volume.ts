@@ -5,7 +5,8 @@ import {
   ZERO_BD,
   ZERO_BI,
   subBigIntArray,
-  emptyBigDecimalArray
+  emptyBigDecimalArray,
+  BI_MAX
 } from "../../../../core/utils/Decimals";
 import { Well } from "../../generated/schema";
 import { loadWell } from "../entities/Well";
@@ -13,6 +14,9 @@ import { loadToken } from "../entities/Token";
 import { WellFunction } from "../../generated/Basin-ABIs/WellFunction";
 import { toAddress } from "../../../../core/utils/Bytes";
 import { loadOrCreateWellFunction } from "../entities/WellComponents";
+import { loadBeanstalk } from "../entities/Beanstalk";
+import { getProtocolToken } from "../../../../core/constants/RuntimeConstants";
+import { v } from "./constants/Version";
 
 export class EventVolume {
   tradeVolumeReserves: BigInt[];
@@ -37,7 +41,7 @@ export function updateWellVolumesAfterSwap(
   const deltaTradeVolumeReserves = emptyBigIntArray(well.tokens.length);
   const deltaTransferVolumeReserves = emptyBigIntArray(well.tokens.length);
 
-  // Trade volume is will ignore the selling end (negative)
+  // Trade volume will ignore the selling end (negative)
   deltaTradeVolumeReserves[well.tokens.indexOf(fromToken)] = amountIn.neg();
   deltaTradeVolumeReserves[well.tokens.indexOf(toToken)] = amountOut;
   // Transfer volume is considered on both ends of the trade
@@ -229,7 +233,28 @@ function updateVolumeStats(
   well.rollingWeeklyTransferVolumeReservesUSD = rollingWeeklyTransferVolumeReservesUSD;
   well.rollingWeeklyTransferVolumeUSD = well.rollingWeeklyTransferVolumeUSD.plus(totalTransferUSD).truncate(2);
 
+  if (well.isBeanstalk) {
+    const boughtToken = toAddress(retval.tradeVolumeReservesUSD[0].gt(ZERO_BD) ? well.tokens[0] : well.tokens[1]);
+    updateBeanstalkVolumeStats(boughtToken, totalTradeUSD, totalTransferUSD);
+  }
+
   return retval;
+}
+
+function updateBeanstalkVolumeStats(
+  boughtToken: Address,
+  totalTradeUSD: BigDecimal,
+  totalTransferUSD: BigDecimal
+): void {
+  const beanstalk = loadBeanstalk();
+  beanstalk.cumulativeTradeVolumeUSD = beanstalk.cumulativeTradeVolumeUSD.plus(totalTradeUSD);
+  if (boughtToken == getProtocolToken(v(), BI_MAX)) {
+    beanstalk.cumulativeBuyVolumeUSD = beanstalk.cumulativeBuyVolumeUSD.plus(totalTradeUSD);
+  } else {
+    beanstalk.cumulativeSellVolumeUSD = beanstalk.cumulativeSellVolumeUSD.plus(totalTradeUSD);
+  }
+  beanstalk.cumulativeTransferVolumeUSD = beanstalk.cumulativeTransferVolumeUSD.plus(totalTransferUSD);
+  beanstalk.save();
 }
 
 // Returns the provided token amounts in their appropriate position with respect to well reserve tokens
