@@ -10,6 +10,9 @@ import {
   loadOrCreateWellFunction
 } from "../entities/WellComponents";
 import { createWellUpgradeHistoryEntry, loadOrCreateWell } from "../entities/Well";
+import { getWhitelistedWells } from "../../../../core/constants/RuntimeConstants";
+import { v } from "../utils/constants/Version";
+import { loadBeanstalk } from "../entities/Beanstalk";
 
 export function handleBoreWell(event: BoreWell): void {
   // Accounts for well proxies here
@@ -50,4 +53,15 @@ export function handleBoreWell(event: BoreWell): void {
 
   // Add to well history
   createWellUpgradeHistoryEntry(well, event.block);
+
+  // Add to Beanstalk entity if this is a beanstalk well
+  if (getWhitelistedWells(v()).includes(actualAddress)) {
+    const beanstalk = loadBeanstalk();
+    const beanstalkWells = beanstalk.wells;
+    if (!beanstalkWells.includes(well.id)) {
+      beanstalkWells.push(well.id);
+      beanstalk.wells = beanstalkWells;
+      beanstalk.save();
+    }
+  }
 }

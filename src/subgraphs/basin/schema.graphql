@@ -191,6 +191,9 @@ type BeanstalkHourlySnapshot @entity {
   "Season"
   season: Season!
 
+  "Beanstalk Wells"
+  wells: [Well!]!
+
   "The sum of all liquidity in USD all wells."
   totalLiquidityUSD: BigDecimal!
   "Delta of totalLiquidityUSD"
@@ -229,7 +232,7 @@ type BeanstalkHourlySnapshot @entity {
   "All downconvert convert volume, in USD."
   cumulativeConvertDownVolumeUSD: BigDecimal!
   "Delta of cumulativeConvertDownVolumeUSD"
-  deltaConvertUpVolumeUSD: BigDecimal!
+  deltaConvertDownVolumeUSD: BigDecimal!
 
   "Timestamp of the last time this entity was updated"
   lastUpdateTimestamp: BigInt!
@@ -248,6 +251,9 @@ type BeanstalkDailySnapshot @entity {
   "Season"
   season: Season!
 
+  "Beanstalk Wells"
+  wells: [Well!]!
+
   "The sum of all liquidity in USD all wells."
   totalLiquidityUSD: BigDecimal!
   "Delta of totalLiquidityUSD"
@@ -286,7 +292,7 @@ type BeanstalkDailySnapshot @entity {
   "All downconvert convert volume, in USD."
   cumulativeConvertDownVolumeUSD: BigDecimal!
   "Delta of cumulativeConvertDownVolumeUSD"
-  deltaConvertUpVolumeUSD: BigDecimal!
+  deltaConvertDownVolumeUSD: BigDecimal!
 
   "Timestamp of the last time this entity was updated"
   lastUpdateTimestamp: BigInt!

@@ -113,6 +113,7 @@ export function checkForSnapshot(wellAddress: Address, block: ethereum.Block): v
   if (dayID > well.lastSnapshotDayID) {
     takeWellDailySnapshot(wellAddress, dayID, block);
   }
+  // TODO: if this is a Beanstalk well, it should only be able to do this if the season has advanced.
   if (hourID > well.lastSnapshotHourID) {
     takeWellHourlySnapshot(wellAddress, hourID, block);
   }
