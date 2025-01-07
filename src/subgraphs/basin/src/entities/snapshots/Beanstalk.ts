@@ -1,0 +1,1 @@
+// takeBeanstalkSnapshots(beanstalk, block)

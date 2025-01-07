@@ -10,7 +10,7 @@ import {
   toDecimal,
   ZERO_BI
 } from "../../../../core/utils/Decimals";
-import { loadWell, takeWellDailySnapshot, takeWellHourlySnapshot } from "../entities/Well";
+import { loadWell } from "../entities/Well";
 import { getTokenDecimals, updateTokenUSD } from "./Token";
 import { getProtocolToken, isStable2WellFn, wellFnSupportsRate } from "../../../../core/constants/RuntimeConstants";
 import { v } from "./constants/Version";
@@ -20,6 +20,7 @@ import { WellFunction } from "../../generated/Basin-ABIs/WellFunction";
 import { toAddress } from "../../../../core/utils/Bytes";
 import { calcRates } from "./legacy/CP2";
 import { loadOrCreateWellFunction } from "../entities/WellComponents";
+import { takeWellDailySnapshot, takeWellHourlySnapshot } from "../entities/snapshots/Well";
 
 export function getCalculatedReserveUSDValues(tokens: Bytes[], reserves: BigInt[]): BigDecimal[] {
   let results = emptyBigDecimalArray(tokens.length);
