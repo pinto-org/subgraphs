@@ -14,6 +14,12 @@ class ConvertParams {
   toAmount: BigInt;
 }
 
+enum ConvertDirection {
+  UP,
+  DOWN,
+  NEUTRAL
+}
+
 export function convert(params: ConvertParams): void {
   // Find any corresponding deposit/withdraw entities and indicate them as converts.
   // Both can exist in the case of LP->LP converts.
@@ -24,12 +30,7 @@ export function convert(params: ConvertParams): void {
   if (depositEntity != null) {
     depositEntity.isConvert = true;
     depositEntity.save();
-    addConvertStats(
-      toAddress(depositEntity.well),
-      depositEntity.tradeVolumeReserves,
-      depositEntity.tradeVolumeReservesUSD,
-      depositEntity.tradeVolumeUSD
-    );
+    ++count;
   }
 
   const withdrawId = `${params.event.transaction.hash.toHexString()}-${params.fromToken.toHexString()}-${params.fromAmount.toString()}`;
@@ -37,20 +38,34 @@ export function convert(params: ConvertParams): void {
   if (withdrawEntity != null) {
     withdrawEntity.isConvert = true;
     withdrawEntity.save();
-    addConvertStats(
+    ++count;
+  }
+
+  if (depositEntity != null) {
+    addWellConvertStats(
+      toAddress(depositEntity.well),
+      depositEntity.tradeVolumeReserves,
+      depositEntity.tradeVolumeReservesUSD,
+      depositEntity.tradeVolumeUSD,
+      count == 1 ? ConvertDirection.DOWN : ConvertDirection.NEUTRAL
+    );
+  } else if (withdrawEntity != null) {
+    addWellConvertStats(
       toAddress(withdrawEntity.well),
       withdrawEntity.tradeVolumeReserves,
       withdrawEntity.tradeVolumeReservesUSD,
-      withdrawEntity.tradeVolumeUSD
+      withdrawEntity.tradeVolumeUSD,
+      count == 1 ? ConvertDirection.UP : ConvertDirection.NEUTRAL
     );
   }
 }
 
-function addConvertStats(
+function addWellConvertStats(
   wellAddress: Address,
   tradeVolumeReserves: BigInt[],
   tradeVolumeReservesUSD: BigDecimal[],
-  tradeVolumeUSD: BigDecimal
+  tradeVolumeUSD: BigDecimal,
+  direction: ConvertDirection
 ) {
   const well = loadWell(wellAddress);
   well.convertVolumeReserves = addBigIntArray(well.convertVolumeReserves, tradeVolumeReserves);
@@ -58,8 +73,19 @@ function addConvertStats(
   well.convertVolumeUSD = well.convertVolumeUSD.plus(tradeVolumeUSD);
   well.save();
 
-  // Must be a Beanstalk Well also
   const beanstalk = loadBeanstalk();
-  beanstalk.cumulativeConvertVolumeUSD = beanstalk.cumulativeConvertVolumeUSD.plus(tradeVolumeUSD);
-  // TODO: If LP convert its neither up nor down.
+  if (direction == ConvertDirection.NEUTRAL) {
+    // LP->LP converts will invoke this method once per Well. Avoid double-counting the same usd value
+    const halfVolume = tradeVolumeUSD.div(BigDecimal.fromString("2"));
+    beanstalk.cumulativeConvertVolumeUSD = beanstalk.cumulativeConvertVolumeUSD.plus(halfVolume);
+    beanstalk.cumulativeConvertNeutralVolumeUSD = beanstalk.cumulativeConvertNeutralVolumeUSD.plus(halfVolume);
+  } else {
+    beanstalk.cumulativeConvertVolumeUSD = beanstalk.cumulativeConvertVolumeUSD.plus(tradeVolumeUSD);
+    if (direction == ConvertDirection.UP) {
+      beanstalk.cumulativeConvertUpVolumeUSD = beanstalk.cumulativeConvertUpVolumeUSD.plus(tradeVolumeUSD);
+    } else if (direction == ConvertDirection.DOWN) {
+      beanstalk.cumulativeConvertDownVolumeUSD = beanstalk.cumulativeConvertDownVolumeUSD.plus(tradeVolumeUSD);
+    }
+  }
+  beanstalk.save();
 }
