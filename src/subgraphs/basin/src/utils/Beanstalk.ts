@@ -23,14 +23,14 @@ enum ConvertDirection {
 export function convert(params: ConvertParams): void {
   // Find any corresponding deposit/withdraw entities and indicate them as converts.
   // Both can exist in the case of LP->LP converts.
-  let count = 0;
+  let wellCount = 0;
 
   const depositId = `${params.event.transaction.hash.toHexString()}-${params.toToken.toHexString()}-${params.toAmount.toString()}`;
   const depositEntity = Deposit.load(depositId);
   if (depositEntity != null) {
     depositEntity.isConvert = true;
     depositEntity.save();
-    ++count;
+    ++wellCount;
   }
 
   const withdrawId = `${params.event.transaction.hash.toHexString()}-${params.fromToken.toHexString()}-${params.fromAmount.toString()}`;
@@ -38,16 +38,18 @@ export function convert(params: ConvertParams): void {
   if (withdrawEntity != null) {
     withdrawEntity.isConvert = true;
     withdrawEntity.save();
-    ++count;
+    ++wellCount;
   }
 
+  // Deposit/Withdraw can involve the non-bean token, however this would only occur in NEUTRAL convert type,
+  // thus assigning Deposit = DOWN/Withdraw = UP is correct for Converts involving a single Well.
   if (depositEntity != null) {
     addWellConvertStats(
       toAddress(depositEntity.well),
       depositEntity.tradeVolumeReserves,
       depositEntity.tradeVolumeReservesUSD,
       depositEntity.tradeVolumeUSD,
-      count == 1 ? ConvertDirection.DOWN : ConvertDirection.NEUTRAL
+      wellCount == 1 ? ConvertDirection.DOWN : ConvertDirection.NEUTRAL
     );
   }
 
@@ -57,7 +59,7 @@ export function convert(params: ConvertParams): void {
       withdrawEntity.tradeVolumeReserves,
       withdrawEntity.tradeVolumeReservesUSD,
       withdrawEntity.tradeVolumeUSD,
-      count == 1 ? ConvertDirection.UP : ConvertDirection.NEUTRAL
+      wellCount == 1 ? ConvertDirection.UP : ConvertDirection.NEUTRAL
     );
   }
 }
