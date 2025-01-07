@@ -178,15 +178,15 @@ type Beanstalk @entity {
   "Rolling 7d of cumulativeConvertNeutralVolumeUSD"
   rollingWeeklyConvertNeutralVolumeUSD: BigDecimal!
 
-  "Day ID of the most recent daily snapshot"
-  lastSnapshotDayID: Int!
+  "Season when the previous hourly snapshot was taken/updated"
+  lastHourlySnapshotSeason: Int
+  "Day of when the previous daily snapshot was taken/updated"
+  lastDailySnapshotDay: BigInt
 
-  "Hour ID of the most recent hourly snapshot"
-  lastSnapshotHourID: Int!
-
+  "Timestamp of entity creation"
+  createdTimestamp: BigInt!
   "Timestamp of the last time this entity was updated"
   lastUpdateTimestamp: BigInt!
-
   "Block number of the last time this entity was updated"
   lastUpdateBlockNumber: BigInt!
 }
@@ -241,9 +241,15 @@ type BeanstalkHourlySnapshot @entity {
   "Delta of cumulativeConvertDownVolumeUSD"
   deltaConvertDownVolumeUSD: BigDecimal!
 
+  "All LP->LP convert volume, in USD. Does not double-count values from both actions. A LP->LP convert is defined as a remove liquidity in one Well and add liquidity in another Well. Does not include L2L or AL2L converts which have no Well trading activity."
+  cumulativeConvertNeutralVolumeUSD: BigDecimal!
+  "Delta of cumulativeConvertNeutralVolumeUSD"
+  deltaConvertNeutralVolumeUSD: BigDecimal!
+
+  "Timestamp of entity creation"
+  createdTimestamp: BigInt!
   "Timestamp of the last time this entity was updated"
   lastUpdateTimestamp: BigInt!
-
   "Block number of the last time this entity was updated"
   lastUpdateBlockNumber: BigInt!
 }
@@ -301,9 +307,15 @@ type BeanstalkDailySnapshot @entity {
   "Delta of cumulativeConvertDownVolumeUSD"
   deltaConvertDownVolumeUSD: BigDecimal!
 
+  "All LP->LP convert volume, in USD. Does not double-count values from both actions. A LP->LP convert is defined as a remove liquidity in one Well and add liquidity in another Well. Does not include L2L or AL2L converts which have no Well trading activity."
+  cumulativeConvertNeutralVolumeUSD: BigDecimal!
+  "Delta of cumulativeConvertNeutralVolumeUSD"
+  deltaConvertNeutralVolumeUSD: BigDecimal!
+
+  "Timestamp of entity creation"
+  createdTimestamp: BigInt!
   "Timestamp of the last time this entity was updated"
   lastUpdateTimestamp: BigInt!
-
   "Block number of the last time this entity was updated"
   lastUpdateBlockNumber: BigInt!
 }
@@ -444,15 +456,15 @@ type Well @entity {
   "Rolling 7d of convertVolumeUSD"
   rollingWeeklyConvertVolumeUSD: BigDecimal!
 
-  "Day ID of the most recent daily snapshot"
-  lastSnapshotDayID: Int!
+  "Hour when the previous hourly snapshot was taken/updated"
+  lastHourlySnapshotHour: Int
+  "Day of when the previous daily snapshot was taken/updated"
+  lastDailySnapshotDay: BigInt
 
-  "Hour ID of the most recent hourly snapshot"
-  lastSnapshotHourID: Int!
-
+  "Timestamp of entity creation"
+  createdTimestamp: BigInt!
   "Timestamp of the last time this entity was updated"
   lastUpdateTimestamp: BigInt!
-
   "Block number of the last time this entity was updated"
   lastUpdateBlockNumber: BigInt!
 
@@ -556,9 +568,10 @@ type WellHourlySnapshot @entity {
   "Delta of convertVolumeUSD"
   deltaConvertVolumeUSD: BigDecimal!
 
+  "Timestamp of entity creation"
+  createdTimestamp: BigInt!
   "Timestamp of the last time this entity was updated"
   lastUpdateTimestamp: BigInt!
-
   "Block number of the last time this entity was updated"
   lastUpdateBlockNumber: BigInt!
 }
@@ -643,9 +656,10 @@ type WellDailySnapshot @entity {
   "Delta of convertVolumeUSD"
   deltaConvertVolumeUSD: BigDecimal!
 
+  "Timestamp of entity creation"
+  createdTimestamp: BigInt!
   "Timestamp of the last time this entity was updated"
   lastUpdateTimestamp: BigInt!
-
   "Block number of the last time this entity was updated"
   lastUpdateBlockNumber: BigInt!
 }
