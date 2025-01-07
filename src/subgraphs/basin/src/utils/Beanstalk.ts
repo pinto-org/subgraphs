@@ -49,7 +49,9 @@ export function convert(params: ConvertParams): void {
       depositEntity.tradeVolumeUSD,
       count == 1 ? ConvertDirection.DOWN : ConvertDirection.NEUTRAL
     );
-  } else if (withdrawEntity != null) {
+  }
+
+  if (withdrawEntity != null) {
     addWellConvertStats(
       toAddress(withdrawEntity.well),
       withdrawEntity.tradeVolumeReserves,
