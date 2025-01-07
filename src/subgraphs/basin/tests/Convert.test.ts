@@ -10,6 +10,8 @@ import { Deposit, Withdraw } from "../generated/schema";
 import * as PintoBase from "../../../core/constants/raw/PintoBaseConstants";
 import { mockPintoTokenPrices } from "./entity-mocking/MockToken";
 import { BigInt, Bytes } from "@graphprotocol/graph-ts";
+import { loadWell } from "../src/entities/Well";
+import { loadBeanstalk } from "../src/entities/Beanstalk";
 
 describe("Convert Tests", () => {
   beforeEach(() => {
@@ -21,8 +23,6 @@ describe("Convert Tests", () => {
   afterEach(() => {
     clearStore();
   });
-
-  // TODO: add/check global convert stats also
 
   test("Identifies Pinto -> LP convert", () => {
     const transaction = mockTransaction();
@@ -46,6 +46,19 @@ describe("Convert Tests", () => {
     mockConvert(PintoBase.BEAN_ERC20, PintoBase.PINTO_CBBTC, BEAN_SWAP_AMOUNT, WELL_LP_AMOUNT, transaction);
     const depositedUpdated = Deposit.load(depositId)!;
     assert.assertTrue(depositedUpdated.isConvert);
+
+    const well = loadWell(PintoBase.PINTO_CBBTC);
+    assert.assertTrue(well.convertVolumeReserves[0] == ZERO_BI);
+    assert.assertTrue(well.convertVolumeReserves[1].gt(ZERO_BI));
+    assert.assertTrue(well.convertVolumeReservesUSD[0] == ZERO_BD);
+    assert.assertTrue(well.convertVolumeReservesUSD[1].gt(ZERO_BD));
+    assert.assertTrue(well.convertVolumeUSD.gt(ZERO_BD));
+
+    const beanstalk = loadBeanstalk();
+    assert.assertTrue(beanstalk.cumulativeConvertVolumeUSD.gt(ZERO_BD));
+    assert.assertTrue(beanstalk.cumulativeConvertUpVolumeUSD == ZERO_BD);
+    assert.assertTrue(beanstalk.cumulativeConvertDownVolumeUSD.gt(ZERO_BD));
+    assert.assertTrue(beanstalk.cumulativeConvertNeutralVolumeUSD == ZERO_BD);
   });
   describe("With starting liquidity", () => {
     beforeEach(() => {
@@ -71,6 +84,19 @@ describe("Convert Tests", () => {
       mockConvert(PintoBase.PINTO_CBBTC, PintoBase.BEAN_ERC20, WELL_LP_AMOUNT, BEAN_SWAP_AMOUNT, transaction);
       const withdrawUpdated = Withdraw.load(withdrawId)!;
       assert.assertTrue(withdrawUpdated.isConvert);
+
+      const well = loadWell(PintoBase.PINTO_CBBTC);
+      assert.assertTrue(well.convertVolumeReserves[0].gt(ZERO_BI));
+      assert.assertTrue(well.convertVolumeReserves[1] == ZERO_BI);
+      assert.assertTrue(well.convertVolumeReservesUSD[0].gt(ZERO_BD));
+      assert.assertTrue(well.convertVolumeReservesUSD[1] == ZERO_BD);
+      assert.assertTrue(well.convertVolumeUSD.gt(ZERO_BD));
+
+      const beanstalk = loadBeanstalk();
+      assert.assertTrue(beanstalk.cumulativeConvertVolumeUSD.gt(ZERO_BD));
+      assert.assertTrue(beanstalk.cumulativeConvertUpVolumeUSD.gt(ZERO_BD));
+      assert.assertTrue(beanstalk.cumulativeConvertDownVolumeUSD == ZERO_BD);
+      assert.assertTrue(beanstalk.cumulativeConvertNeutralVolumeUSD == ZERO_BD);
     });
     test("Identifies LP -> LP convert", () => {
       const transaction = mockTransaction();
@@ -102,6 +128,26 @@ describe("Convert Tests", () => {
       const withdrawUpdated = Withdraw.load(withdrawId)!;
       assert.assertTrue(depositedUpdated.isConvert);
       assert.assertTrue(withdrawUpdated.isConvert);
+
+      const wellUp = loadWell(PintoBase.PINTO_CBBTC);
+      assert.assertTrue(wellUp.convertVolumeReserves[0].gt(ZERO_BI));
+      assert.assertTrue(wellUp.convertVolumeReserves[1] == ZERO_BI);
+      assert.assertTrue(wellUp.convertVolumeReservesUSD[0].gt(ZERO_BD));
+      assert.assertTrue(wellUp.convertVolumeReservesUSD[1] == ZERO_BD);
+      assert.assertTrue(wellUp.convertVolumeUSD.gt(ZERO_BD));
+
+      const wellDown = loadWell(PintoBase.PINTO_WETH);
+      assert.assertTrue(wellDown.convertVolumeReserves[0] == ZERO_BI);
+      assert.assertTrue(wellDown.convertVolumeReserves[1].gt(ZERO_BI));
+      assert.assertTrue(wellDown.convertVolumeReservesUSD[0] == ZERO_BD);
+      assert.assertTrue(wellDown.convertVolumeReservesUSD[1].gt(ZERO_BD));
+      assert.assertTrue(wellDown.convertVolumeUSD.gt(ZERO_BD));
+
+      const beanstalk = loadBeanstalk();
+      assert.assertTrue(beanstalk.cumulativeConvertVolumeUSD.gt(ZERO_BD));
+      assert.assertTrue(beanstalk.cumulativeConvertUpVolumeUSD == ZERO_BD);
+      assert.assertTrue(beanstalk.cumulativeConvertDownVolumeUSD == ZERO_BD);
+      assert.assertTrue(beanstalk.cumulativeConvertNeutralVolumeUSD.gt(ZERO_BD));
     });
   });
 

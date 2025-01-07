@@ -48,6 +48,10 @@ export function loadBeanstalk(): Beanstalk {
     beanstalk.cumulativeConvertDownVolumeUSD = ZERO_BD;
     beanstalk.rollingDailyConvertDownVolumeUSD = ZERO_BD;
     beanstalk.rollingWeeklyConvertDownVolumeUSD = ZERO_BD;
+
+    beanstalk.cumulativeConvertNeutralVolumeUSD = ZERO_BD;
+    beanstalk.rollingDailyConvertNeutralVolumeUSD = ZERO_BD;
+    beanstalk.rollingWeeklyConvertNeutralVolumeUSD = ZERO_BD;
     // TODO: these might not be necessary if using beanstalk convention snapshots
     beanstalk.lastSnapshotDayID = 0;
     beanstalk.lastSnapshotHourID = 0;

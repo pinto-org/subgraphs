@@ -44,6 +44,7 @@ export function loadOrCreateWell(wellAddress: Address, inputTokens: Address[], b
   well.wellFunctionData = Bytes.empty();
   well.tokens = [];
   well.tokenOrder = [];
+  well.isBeanstalk = false;
   well.createdTimestamp = block.timestamp;
   well.createdBlockNumber = block.number;
   well.lpTokenSupply = ZERO_BI;
@@ -148,7 +149,7 @@ export function updateWellLiquidityTokenBalance(
 }
 
 // Updates Well reserve/liquidity values, and the same for Beanstalk
-export function updateWellLiquidityUSD(well: Well) {
+export function updateWellLiquidityUSD(well: Well): void {
   const deltaLiquidityUSD = getBigDecimalArrayTotal(well.reservesUSD).truncate(2).minus(well.totalLiquidityUSD);
   well.totalLiquidityUSD = well.totalLiquidityUSD.plus(deltaLiquidityUSD);
   well.reservesUSD = getCalculatedReserveUSDValues(well.tokens, well.reserves).map<BigDecimal>((bd) => bd.truncate(2));

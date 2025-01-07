@@ -70,7 +70,7 @@ function addWellConvertStats(
   tradeVolumeReservesUSD: BigDecimal[],
   tradeVolumeUSD: BigDecimal,
   direction: ConvertDirection
-) {
+): void {
   const well = loadWell(wellAddress);
   well.convertVolumeReserves = addBigIntArray(well.convertVolumeReserves, tradeVolumeReserves);
   well.convertVolumeReservesUSD = addBigDecimalArray(well.convertVolumeReservesUSD, tradeVolumeReservesUSD);
