@@ -248,12 +248,23 @@ function updateBeanstalkVolumeStats(
 ): void {
   const beanstalk = loadBeanstalk();
   beanstalk.cumulativeTradeVolumeUSD = beanstalk.cumulativeTradeVolumeUSD.plus(totalTradeUSD).truncate(2);
+  beanstalk.rollingDailyTradeVolumeUSD = beanstalk.rollingDailyTradeVolumeUSD.plus(totalTradeUSD).truncate(2);
+  beanstalk.rollingWeeklyTradeVolumeUSD = beanstalk.rollingWeeklyTradeVolumeUSD.plus(totalTradeUSD).truncate(2);
+
   if (boughtToken == getProtocolToken(v(), BI_MAX)) {
     beanstalk.cumulativeBuyVolumeUSD = beanstalk.cumulativeBuyVolumeUSD.plus(totalTradeUSD).truncate(2);
+    beanstalk.rollingDailyBuyVolumeUSD = beanstalk.rollingDailyBuyVolumeUSD.plus(totalTradeUSD).truncate(2);
+    beanstalk.rollingWeeklyBuyVolumeUSD = beanstalk.rollingWeeklyBuyVolumeUSD.plus(totalTradeUSD).truncate(2);
   } else {
     beanstalk.cumulativeSellVolumeUSD = beanstalk.cumulativeSellVolumeUSD.plus(totalTradeUSD).truncate(2);
+    beanstalk.rollingDailySellVolumeUSD = beanstalk.rollingDailySellVolumeUSD.plus(totalTradeUSD).truncate(2);
+    beanstalk.rollingWeeklySellVolumeUSD = beanstalk.rollingWeeklySellVolumeUSD.plus(totalTradeUSD).truncate(2);
   }
   beanstalk.cumulativeTransferVolumeUSD = beanstalk.cumulativeTransferVolumeUSD.plus(totalTransferUSD).truncate(2);
+  beanstalk.rollingDailyTransferVolumeUSD = beanstalk.rollingDailyTransferVolumeUSD.plus(totalTransferUSD).truncate(2);
+  beanstalk.rollingWeeklyTransferVolumeUSD = beanstalk.rollingWeeklyTransferVolumeUSD
+    .plus(totalTransferUSD)
+    .truncate(2);
   beanstalk.save();
 }
 

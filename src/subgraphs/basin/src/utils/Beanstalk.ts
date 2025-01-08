@@ -73,11 +73,28 @@ function addWellConvertStats(
 ): void {
   const well = loadWell(wellAddress);
   well.convertVolumeReserves = addBigIntArray(well.convertVolumeReserves, tradeVolumeReserves);
+  well.rollingDailyConvertVolumeReserves = addBigIntArray(well.rollingDailyConvertVolumeReserves, tradeVolumeReserves);
+  well.rollingWeeklyConvertVolumeReserves = addBigIntArray(
+    well.rollingWeeklyConvertVolumeReserves,
+    tradeVolumeReserves
+  );
+
   well.convertVolumeReservesUSD = addBigDecimalArray(
     well.convertVolumeReservesUSD,
     tradeVolumeReservesUSD
   ).map<BigDecimal>((bd) => bd.truncate(2));
+  well.rollingDailyConvertVolumeReservesUSD = addBigDecimalArray(
+    well.rollingDailyConvertVolumeReservesUSD,
+    tradeVolumeReservesUSD
+  ).map<BigDecimal>((bd) => bd.truncate(2));
+  well.rollingWeeklyConvertVolumeReservesUSD = addBigDecimalArray(
+    well.rollingWeeklyConvertVolumeReservesUSD,
+    tradeVolumeReservesUSD
+  ).map<BigDecimal>((bd) => bd.truncate(2));
+
   well.convertVolumeUSD = well.convertVolumeUSD.plus(tradeVolumeUSD).truncate(2);
+  well.rollingDailyConvertVolumeUSD = well.rollingDailyConvertVolumeUSD.plus(tradeVolumeUSD).truncate(2);
+  well.rollingWeeklyConvertVolumeUSD = well.rollingWeeklyConvertVolumeUSD.plus(tradeVolumeUSD).truncate(2);
   well.save();
 
   const beanstalk = loadBeanstalk();
@@ -85,15 +102,39 @@ function addWellConvertStats(
     // LP->LP converts will invoke this method once per Well. Avoid double-counting the same usd value
     const halfVolume = tradeVolumeUSD.div(BigDecimal.fromString("2"));
     beanstalk.cumulativeConvertVolumeUSD = beanstalk.cumulativeConvertVolumeUSD.plus(halfVolume).truncate(2);
+    beanstalk.rollingDailyConvertVolumeUSD = beanstalk.rollingDailyConvertVolumeUSD.plus(halfVolume).truncate(2);
+    beanstalk.rollingWeeklyConvertVolumeUSD = beanstalk.rollingWeeklyConvertVolumeUSD.plus(halfVolume).truncate(2);
+
     beanstalk.cumulativeConvertNeutralVolumeUSD = beanstalk.cumulativeConvertNeutralVolumeUSD
+      .plus(halfVolume)
+      .truncate(2);
+    beanstalk.rollingDailyConvertNeutralVolumeUSD = beanstalk.rollingDailyConvertNeutralVolumeUSD
+      .plus(halfVolume)
+      .truncate(2);
+    beanstalk.rollingWeeklyConvertNeutralVolumeUSD = beanstalk.rollingWeeklyConvertNeutralVolumeUSD
       .plus(halfVolume)
       .truncate(2);
   } else {
     beanstalk.cumulativeConvertVolumeUSD = beanstalk.cumulativeConvertVolumeUSD.plus(tradeVolumeUSD).truncate(2);
+    beanstalk.rollingDailyConvertVolumeUSD = beanstalk.rollingDailyConvertVolumeUSD.plus(tradeVolumeUSD).truncate(2);
+    beanstalk.rollingWeeklyConvertVolumeUSD = beanstalk.rollingWeeklyConvertVolumeUSD.plus(tradeVolumeUSD).truncate(2);
+
     if (direction == ConvertDirection.UP) {
       beanstalk.cumulativeConvertUpVolumeUSD = beanstalk.cumulativeConvertUpVolumeUSD.plus(tradeVolumeUSD).truncate(2);
+      beanstalk.rollingDailyConvertUpVolumeUSD = beanstalk.rollingDailyConvertUpVolumeUSD
+        .plus(tradeVolumeUSD)
+        .truncate(2);
+      beanstalk.rollingWeeklyConvertUpVolumeUSD = beanstalk.rollingWeeklyConvertUpVolumeUSD
+        .plus(tradeVolumeUSD)
+        .truncate(2);
     } else if (direction == ConvertDirection.DOWN) {
       beanstalk.cumulativeConvertDownVolumeUSD = beanstalk.cumulativeConvertDownVolumeUSD
+        .plus(tradeVolumeUSD)
+        .truncate(2);
+      beanstalk.rollingDailyConvertDownVolumeUSD = beanstalk.rollingDailyConvertDownVolumeUSD
+        .plus(tradeVolumeUSD)
+        .truncate(2);
+      beanstalk.rollingWeeklyConvertDownVolumeUSD = beanstalk.rollingWeeklyConvertDownVolumeUSD
         .plus(tradeVolumeUSD)
         .truncate(2);
     }
