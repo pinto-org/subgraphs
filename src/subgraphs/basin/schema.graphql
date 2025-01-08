@@ -192,7 +192,7 @@ type Beanstalk @entity {
 }
 
 type BeanstalkHourlySnapshot @entity {
-  "Season number (string)"
+  "{Beanstalk ID}-{Season number}"
   id: ID!
 
   "Season"
@@ -255,7 +255,7 @@ type BeanstalkHourlySnapshot @entity {
 }
 
 type BeanstalkDailySnapshot @entity {
-  "Unix day (string)"
+  "{Beanstalk ID}-{Unix day}"
   id: ID!
 
   "Unix day (int)"
@@ -489,13 +489,13 @@ type Well @entity {
 }
 
 type WellHourlySnapshot @entity {
-  "{Smart contract address of the well}-{Season number} "
-  id: Bytes!
+  "{Smart contract address of the well}-{Unix hour} "
+  id: ID!
 
   "Season"
   season: Season!
 
-  "Number of hours since Unix epoch time"
+  "Unix hour"
   hour: Int!
 
   "The well this snapshot belongs to"
@@ -577,13 +577,13 @@ type WellHourlySnapshot @entity {
 }
 
 type WellDailySnapshot @entity {
-  "{Smart contract address of the well}-{ # of days since Unix epoch time } "
-  id: Bytes!
+  "{Smart contract address of the well}-{Unix day}"
+  id: ID!
 
   "Season"
   season: Season!
 
-  "Number of days since Unix epoch time"
+  "Unix day"
   day: Int!
 
   "The well this snapshot belongs to"

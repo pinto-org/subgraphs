@@ -1,7 +1,9 @@
-import { Address, BigDecimal, ethereum } from "@graphprotocol/graph-ts";
-import { WellDailySnapshot, WellHourlySnapshot } from "../../../generated/schema";
+import { Address, BigDecimal, BigInt, ethereum } from "@graphprotocol/graph-ts";
+import { Well, WellDailySnapshot, WellHourlySnapshot } from "../../../generated/schema";
 import { loadWell } from "../Well";
 import {
+  addBigDecimalArray,
+  addBigIntArray,
   emptyBigDecimalArray,
   emptyBigIntArray,
   subBigDecimalArray,
@@ -9,8 +11,261 @@ import {
   ZERO_BD,
   ZERO_BI
 } from "../../../../../core/utils/Decimals";
+import { dayFromTimestamp, hourFromTimestamp } from "../../../../../core/utils/Dates";
+import { loadBeanstalk } from "../Beanstalk";
 
-// TODO: takeWellSnapshots(well, block)
+// TODO: needs truncation on bd values
+export function takeWellSnapshots(well: Well, block: ethereum.Block): void {
+  const hour = BigInt.fromI32(hourFromTimestamp(block.timestamp));
+  const day = BigInt.fromI32(dayFromTimestamp(block.timestamp));
+
+  // Load the snapshot for this hour/day
+  const hourlyId = well.id.toHexString() + "-" + hour.toString();
+  const dailyId = well.id.toHexString() + "-" + day.toString();
+  let baseHourly = WellHourlySnapshot.load(hourlyId);
+  let baseDaily = WellDailySnapshot.load(dailyId);
+  if (baseHourly == null && well.lastHourlySnapshotHour !== 0) {
+    baseHourly = WellHourlySnapshot.load(well.id.toHexString() + "-" + well.lastHourlySnapshotHour.toString());
+  }
+  if (baseDaily == null && well.lastDailySnapshotDay !== null) {
+    baseDaily = WellDailySnapshot.load(well.id.toHexString() + "-" + well.lastDailySnapshotDay!.toString());
+  }
+  const hourly = new WellHourlySnapshot(hourlyId);
+  const daily = new WellDailySnapshot(dailyId);
+
+  // Set current values
+  if (well.isBeanstalk) {
+    hourly.season = loadBeanstalk().lastSeason;
+  }
+  hourly.hour = hour;
+  hourly.well = well.id;
+  hourly.lpTokenSupply = well.lpTokenSupply;
+  hourly.totalLiquidityUSD = well.totalLiquidityUSD;
+  hourly.tokenPrice = well.tokenPrice;
+  hourly.cumulativeTradeVolumeReserves = well.cumulativeTradeVolumeReserves;
+  hourly.cumulativeTradeVolumeReservesUSD = well.cumulativeTradeVolumeReservesUSD;
+  hourly.cumulativeTradeVolumeUSD = well.cumulativeTradeVolumeUSD;
+  hourly.cumulativeBiTradeVolumeReserves = well.cumulativeBiTradeVolumeReserves;
+  hourly.cumulativeTransferVolumeReserves = well.cumulativeTransferVolumeReserves;
+  hourly.cumulativeTransferVolumeReservesUSD = well.cumulativeTransferVolumeReservesUSD;
+  hourly.cumulativeTransferVolumeUSD = well.cumulativeTransferVolumeUSD;
+  hourly.convertVolumeReserves = well.convertVolumeReserves;
+  hourly.convertVolumeReservesUSD = well.convertVolumeReservesUSD;
+  hourly.convertVolumeUSD = well.convertVolumeUSD;
+
+  // Set deltas
+  if (baseHourly !== null) {
+    hourly.deltaLpTokenSupply = hourly.lpTokenSupply.minus(baseHourly.lpTokenSupply);
+    hourly.deltaLiquidityUSD = hourly.totalLiquidityUSD.minus(baseHourly.totalLiquidityUSD);
+    hourly.deltaTokenPrice = subBigIntArray(hourly.tokenPrice, baseHourly.tokenPrice);
+    hourly.deltaTradeVolumeReserves = subBigIntArray(
+      hourly.cumulativeTradeVolumeReserves,
+      baseHourly.cumulativeTradeVolumeReserves
+    );
+    hourly.deltaTradeVolumeReservesUSD = subBigDecimalArray(
+      hourly.cumulativeTradeVolumeReservesUSD,
+      baseHourly.cumulativeTradeVolumeReservesUSD
+    );
+    hourly.deltaTradeVolumeUSD = hourly.cumulativeTradeVolumeUSD.minus(baseHourly.cumulativeTradeVolumeUSD);
+    hourly.deltaBiTradeVolumeReserves = subBigIntArray(
+      hourly.cumulativeBiTradeVolumeReserves,
+      baseHourly.cumulativeBiTradeVolumeReserves
+    );
+    hourly.deltaTransferVolumeReserves = subBigIntArray(
+      hourly.cumulativeTransferVolumeReserves,
+      baseHourly.cumulativeTransferVolumeReserves
+    );
+    hourly.deltaTransferVolumeReservesUSD = subBigDecimalArray(
+      hourly.cumulativeTransferVolumeReservesUSD,
+      baseHourly.cumulativeTransferVolumeReservesUSD
+    );
+    hourly.deltaTransferVolumeUSD = hourly.cumulativeTransferVolumeUSD.minus(baseHourly.cumulativeTransferVolumeUSD);
+    hourly.deltaConvertVolumeReserves = subBigIntArray(hourly.convertVolumeReserves, baseHourly.convertVolumeReserves);
+    hourly.deltaConvertVolumeReservesUSD = subBigDecimalArray(
+      hourly.convertVolumeReservesUSD,
+      baseHourly.convertVolumeReservesUSD
+    );
+    hourly.deltaConvertVolumeUSD = hourly.convertVolumeUSD.minus(baseHourly.convertVolumeUSD);
+
+    if (hourly.id == baseHourly.id) {
+      // Add existing deltas
+      hourly.deltaLpTokenSupply = hourly.deltaLpTokenSupply.plus(baseHourly.deltaLpTokenSupply);
+      hourly.deltaLiquidityUSD = hourly.deltaLiquidityUSD.plus(baseHourly.deltaLiquidityUSD);
+      hourly.deltaTokenPrice = addBigIntArray(hourly.deltaTokenPrice, baseHourly.deltaTokenPrice);
+      hourly.deltaTradeVolumeReserves = addBigIntArray(
+        hourly.deltaTradeVolumeReserves,
+        baseHourly.deltaTradeVolumeReserves
+      );
+      hourly.deltaTradeVolumeReservesUSD = addBigDecimalArray(
+        hourly.deltaTradeVolumeReservesUSD,
+        baseHourly.deltaTradeVolumeReservesUSD
+      );
+      hourly.deltaTradeVolumeUSD = hourly.deltaTradeVolumeUSD.plus(baseHourly.deltaTradeVolumeUSD);
+      hourly.deltaBiTradeVolumeReserves = addBigIntArray(
+        hourly.deltaBiTradeVolumeReserves,
+        baseHourly.deltaBiTradeVolumeReserves
+      );
+      hourly.deltaTransferVolumeReserves = addBigIntArray(
+        hourly.deltaTransferVolumeReserves,
+        baseHourly.deltaTransferVolumeReserves
+      );
+      hourly.deltaTransferVolumeReservesUSD = addBigDecimalArray(
+        hourly.deltaTransferVolumeReservesUSD,
+        baseHourly.deltaTransferVolumeReservesUSD
+      );
+      hourly.deltaTransferVolumeUSD = hourly.deltaTransferVolumeUSD.plus(baseHourly.deltaTransferVolumeUSD);
+      hourly.deltaConvertVolumeReserves = addBigIntArray(
+        hourly.deltaConvertVolumeReserves,
+        baseHourly.deltaConvertVolumeReserves
+      );
+      hourly.deltaConvertVolumeReservesUSD = addBigDecimalArray(
+        hourly.deltaConvertVolumeReservesUSD,
+        baseHourly.deltaConvertVolumeReservesUSD
+      );
+      hourly.deltaConvertVolumeUSD = hourly.deltaConvertVolumeUSD.plus(baseHourly.deltaConvertVolumeUSD);
+    } else {
+      // *Hourly only functionality*
+      // This is the first time creating a snapshot for this hour, and past datapoints are available.
+      // Update the rolling 24h/7d values by removing the oldest value.
+      // Newer values for the latest hour were already added.
+      // TODO
+    }
+  } else {
+    hourly.deltaLpTokenSupply = hourly.lpTokenSupply;
+    hourly.deltaLiquidityUSD = hourly.totalLiquidityUSD;
+    hourly.deltaTokenPrice = hourly.tokenPrice;
+    hourly.deltaTradeVolumeReserves = hourly.cumulativeTradeVolumeReserves;
+    hourly.deltaTradeVolumeReservesUSD = hourly.cumulativeTradeVolumeReservesUSD;
+    hourly.deltaTradeVolumeUSD = hourly.cumulativeTradeVolumeUSD;
+    hourly.deltaBiTradeVolumeReserves = hourly.cumulativeBiTradeVolumeReserves;
+    hourly.deltaTransferVolumeReserves = hourly.cumulativeTransferVolumeReserves;
+    hourly.deltaTransferVolumeReservesUSD = hourly.cumulativeTransferVolumeReservesUSD;
+    hourly.deltaTransferVolumeUSD = hourly.cumulativeTransferVolumeUSD;
+    hourly.deltaConvertVolumeReserves = hourly.convertVolumeReserves;
+    hourly.deltaConvertVolumeReservesUSD = hourly.convertVolumeReservesUSD;
+    hourly.deltaConvertVolumeUSD = hourly.convertVolumeUSD;
+  }
+  hourly.createdTimestamp = hour.times(BigInt.fromU32(3600));
+  hourly.lastUpdateTimestamp = block.timestamp;
+  hourly.lastUpdateBlockNumber = block.number;
+  hourly.save();
+
+  // Repeat for daily snapshot.
+  // Duplicate code is preferred to type coercion, the codegen doesnt provide a common interface.
+
+  if (well.isBeanstalk) {
+    daily.season = loadBeanstalk().lastSeason;
+  }
+  daily.day = day;
+  daily.well = well.id;
+  daily.lpTokenSupply = well.lpTokenSupply;
+  daily.totalLiquidityUSD = well.totalLiquidityUSD;
+  daily.tokenPrice = well.tokenPrice;
+  daily.cumulativeTradeVolumeReserves = well.cumulativeTradeVolumeReserves;
+  daily.cumulativeTradeVolumeReservesUSD = well.cumulativeTradeVolumeReservesUSD;
+  daily.cumulativeTradeVolumeUSD = well.cumulativeTradeVolumeUSD;
+  daily.cumulativeBiTradeVolumeReserves = well.cumulativeBiTradeVolumeReserves;
+  daily.cumulativeTransferVolumeReserves = well.cumulativeTransferVolumeReserves;
+  daily.cumulativeTransferVolumeReservesUSD = well.cumulativeTransferVolumeReservesUSD;
+  daily.cumulativeTransferVolumeUSD = well.cumulativeTransferVolumeUSD;
+  daily.convertVolumeReserves = well.convertVolumeReserves;
+  daily.convertVolumeReservesUSD = well.convertVolumeReservesUSD;
+  daily.convertVolumeUSD = well.convertVolumeUSD;
+
+  // Set deltas
+  if (baseDaily !== null) {
+    daily.deltaLpTokenSupply = daily.lpTokenSupply.minus(baseDaily.lpTokenSupply);
+    daily.deltaLiquidityUSD = daily.totalLiquidityUSD.minus(baseDaily.totalLiquidityUSD);
+    daily.deltaTokenPrice = subBigIntArray(daily.tokenPrice, baseDaily.tokenPrice);
+    daily.deltaTradeVolumeReserves = subBigIntArray(
+      daily.cumulativeTradeVolumeReserves,
+      baseDaily.cumulativeTradeVolumeReserves
+    );
+    daily.deltaTradeVolumeReservesUSD = subBigDecimalArray(
+      daily.cumulativeTradeVolumeReservesUSD,
+      baseDaily.cumulativeTradeVolumeReservesUSD
+    );
+    daily.deltaTradeVolumeUSD = daily.cumulativeTradeVolumeUSD.minus(baseDaily.cumulativeTradeVolumeUSD);
+    daily.deltaBiTradeVolumeReserves = subBigIntArray(
+      daily.cumulativeBiTradeVolumeReserves,
+      baseDaily.cumulativeBiTradeVolumeReserves
+    );
+    daily.deltaTransferVolumeReserves = subBigIntArray(
+      daily.cumulativeTransferVolumeReserves,
+      baseDaily.cumulativeTransferVolumeReserves
+    );
+    daily.deltaTransferVolumeReservesUSD = subBigDecimalArray(
+      daily.cumulativeTransferVolumeReservesUSD,
+      baseDaily.cumulativeTransferVolumeReservesUSD
+    );
+    daily.deltaTransferVolumeUSD = daily.cumulativeTransferVolumeUSD.minus(baseDaily.cumulativeTransferVolumeUSD);
+    daily.deltaConvertVolumeReserves = subBigIntArray(daily.convertVolumeReserves, baseDaily.convertVolumeReserves);
+    daily.deltaConvertVolumeReservesUSD = subBigDecimalArray(
+      daily.convertVolumeReservesUSD,
+      baseDaily.convertVolumeReservesUSD
+    );
+    daily.deltaConvertVolumeUSD = daily.convertVolumeUSD.minus(baseDaily.convertVolumeUSD);
+
+    if (daily.id == baseDaily.id) {
+      // Add existing deltas
+      daily.deltaLpTokenSupply = daily.deltaLpTokenSupply.plus(baseDaily.deltaLpTokenSupply);
+      daily.deltaLiquidityUSD = daily.deltaLiquidityUSD.plus(baseDaily.deltaLiquidityUSD);
+      daily.deltaTokenPrice = addBigIntArray(daily.deltaTokenPrice, baseDaily.deltaTokenPrice);
+      daily.deltaTradeVolumeReserves = addBigIntArray(
+        daily.deltaTradeVolumeReserves,
+        baseDaily.deltaTradeVolumeReserves
+      );
+      daily.deltaTradeVolumeReservesUSD = addBigDecimalArray(
+        daily.deltaTradeVolumeReservesUSD,
+        baseDaily.deltaTradeVolumeReservesUSD
+      );
+      daily.deltaTradeVolumeUSD = daily.deltaTradeVolumeUSD.plus(baseDaily.deltaTradeVolumeUSD);
+      daily.deltaBiTradeVolumeReserves = addBigIntArray(
+        daily.deltaBiTradeVolumeReserves,
+        baseDaily.deltaBiTradeVolumeReserves
+      );
+      daily.deltaTransferVolumeReserves = addBigIntArray(
+        daily.deltaTransferVolumeReserves,
+        baseDaily.deltaTransferVolumeReserves
+      );
+      daily.deltaTransferVolumeReservesUSD = addBigDecimalArray(
+        daily.deltaTransferVolumeReservesUSD,
+        baseDaily.deltaTransferVolumeReservesUSD
+      );
+      daily.deltaTransferVolumeUSD = daily.deltaTransferVolumeUSD.plus(baseDaily.deltaTransferVolumeUSD);
+      daily.deltaConvertVolumeReserves = addBigIntArray(
+        daily.deltaConvertVolumeReserves,
+        baseDaily.deltaConvertVolumeReserves
+      );
+      daily.deltaConvertVolumeReservesUSD = addBigDecimalArray(
+        daily.deltaConvertVolumeReservesUSD,
+        baseDaily.deltaConvertVolumeReservesUSD
+      );
+      daily.deltaConvertVolumeUSD = daily.deltaConvertVolumeUSD.plus(baseDaily.deltaConvertVolumeUSD);
+    }
+  } else {
+    daily.deltaLpTokenSupply = daily.lpTokenSupply;
+    daily.deltaLiquidityUSD = daily.totalLiquidityUSD;
+    daily.deltaTokenPrice = daily.tokenPrice;
+    daily.deltaTradeVolumeReserves = daily.cumulativeTradeVolumeReserves;
+    daily.deltaTradeVolumeReservesUSD = daily.cumulativeTradeVolumeReservesUSD;
+    daily.deltaTradeVolumeUSD = daily.cumulativeTradeVolumeUSD;
+    daily.deltaBiTradeVolumeReserves = daily.cumulativeBiTradeVolumeReserves;
+    daily.deltaTransferVolumeReserves = daily.cumulativeTransferVolumeReserves;
+    daily.deltaTransferVolumeReservesUSD = daily.cumulativeTransferVolumeReservesUSD;
+    daily.deltaTransferVolumeUSD = daily.cumulativeTransferVolumeUSD;
+    daily.deltaConvertVolumeReserves = daily.convertVolumeReserves;
+    daily.deltaConvertVolumeReservesUSD = daily.convertVolumeReservesUSD;
+    daily.deltaConvertVolumeUSD = daily.convertVolumeUSD;
+  }
+  daily.createdTimestamp = day.times(BigInt.fromU32(86400));
+  daily.lastUpdateTimestamp = block.timestamp;
+  daily.lastUpdateBlockNumber = block.number;
+  daily.save();
+
+  well.lastHourlySnapshotHour = hour;
+  well.lastDailySnapshotDay = day;
+}
 
 export function loadOrCreateWellDailySnapshot(
   wellAddress: Address,

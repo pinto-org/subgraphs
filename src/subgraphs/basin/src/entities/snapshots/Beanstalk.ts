@@ -64,6 +64,12 @@ export function takeBeanstalkSnapshots(beanstalk: Beanstalk, block: ethereum.Blo
       hourly.deltaConvertNeutralVolumeUSD = hourly.deltaConvertNeutralVolumeUSD.plus(
         baseHourly.deltaConvertNeutralVolumeUSD
       );
+    } else {
+      // *Hourly only functionality*
+      // This is the first time creating a snapshot for this hour, and past datapoints are available.
+      // Update the rolling 24h/7d values by removing the oldest value.
+      // Newer values for the latest hour were already added.
+      // TODO
     }
   } else {
     hourly.deltaLiquidityUSD = hourly.totalLiquidityUSD;
