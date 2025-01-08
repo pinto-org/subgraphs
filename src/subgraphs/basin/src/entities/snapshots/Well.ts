@@ -35,7 +35,7 @@ export function takeWellSnapshots(well: Well, block: ethereum.Block): void {
       return;
     }
   }
-  hourly.hour = hour;
+  hourly.hour = hour.toI32();
   hourly.well = well.id;
   hourly.lpTokenSupply = well.lpTokenSupply;
   hourly.totalLiquidityUSD = well.totalLiquidityUSD;
@@ -161,7 +161,7 @@ export function takeWellSnapshots(well: Well, block: ethereum.Block): void {
   if (well.isBeanstalk) {
     daily.season = loadBeanstalk().lastSeason;
   }
-  daily.day = day;
+  daily.day = day.toI32();
   daily.well = well.id;
   daily.lpTokenSupply = well.lpTokenSupply;
   daily.totalLiquidityUSD = well.totalLiquidityUSD;
@@ -277,7 +277,7 @@ export function takeWellSnapshots(well: Well, block: ethereum.Block): void {
   daily.lastUpdateBlockNumber = block.number;
   daily.save();
 
-  well.lastHourlySnapshotHour = hour;
+  well.lastHourlySnapshotHour = hour.toI32();
   well.lastDailySnapshotDay = day;
   well.lastUpdateTimestamp = block.timestamp;
   well.lastUpdateBlockNumber = block.number;

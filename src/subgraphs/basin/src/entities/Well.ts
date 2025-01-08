@@ -47,8 +47,6 @@ export function loadOrCreateWell(wellAddress: Address, inputTokens: Address[], b
   well.tokens = [];
   well.tokenOrder = [];
   well.isBeanstalk = false;
-  well.createdTimestamp = block.timestamp;
-  well.createdBlockNumber = block.number;
   well.lpTokenSupply = ZERO_BI;
   well.totalLiquidityUSD = ZERO_BD;
   well.tokenPrice = [ZERO_BI, ZERO_BI];
@@ -95,10 +93,9 @@ export function loadOrCreateWell(wellAddress: Address, inputTokens: Address[], b
   well.rollingDailyConvertVolumeUSD = ZERO_BD;
   well.rollingWeeklyConvertVolumeUSD = ZERO_BD;
 
-  well.lastSnapshotDayID = 0;
-  well.lastSnapshotHourID = 0;
-  well.lastUpdateTimestamp = ZERO_BI;
-  well.lastUpdateBlockNumber = ZERO_BI;
+  well.createdTimestamp = block.timestamp;
+  well.lastUpdateTimestamp = block.timestamp;
+  well.lastUpdateBlockNumber = block.number;
   well.save();
 
   return well as Well;
@@ -164,7 +161,7 @@ export function updateWellLiquidityUSD(well: Well): void {
 }
 
 // Common functionality to process after specific event processing
-export function finalTradeProcessing(wellAddress: Address, block: ethereum.Block) {
+export function finalTradeProcessing(wellAddress: Address, block: ethereum.Block): void {
   const well = loadWell(wellAddress);
   well.tokenPrice = getTokenPrices(well);
   takeWellSnapshots(well, block);

@@ -67,7 +67,7 @@ export function takeBeanstalkSnapshots(beanstalk: Beanstalk, block: ethereum.Blo
     } else {
       // *Hourly only functionality*
       // This is the first time creating a snapshot for this hour, and past datapoints are available.
-      removeOldestRollingBeanstalkStats(beanstalk, parseInt(currentSeason));
+      removeOldestRollingBeanstalkStats(beanstalk, <i32>parseInt(currentSeason));
     }
   } else {
     hourly.deltaLiquidityUSD = hourly.totalLiquidityUSD;
@@ -168,7 +168,7 @@ export function takeBeanstalkSnapshots(beanstalk: Beanstalk, block: ethereum.Blo
   daily.lastUpdateBlockNumber = block.number;
   daily.save();
 
-  beanstalk.lastHourlySnapshotSeason = currentSeason;
+  beanstalk.lastHourlySnapshotSeason = <i32>parseInt(currentSeason);
   beanstalk.lastDailySnapshotDay = day;
   beanstalk.lastUpdateTimestamp = block.timestamp;
   beanstalk.lastUpdateBlockNumber = block.number;
