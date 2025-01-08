@@ -1,20 +1,14 @@
-import { Address, BigDecimal, BigInt, ethereum } from "@graphprotocol/graph-ts";
+import { BigDecimal, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import { Well, WellDailySnapshot, WellHourlySnapshot } from "../../../generated/schema";
-import { loadWell } from "../Well";
 import {
   addBigDecimalArray,
   addBigIntArray,
-  emptyBigDecimalArray,
-  emptyBigIntArray,
   subBigDecimalArray,
-  subBigIntArray,
-  ZERO_BD,
-  ZERO_BI
+  subBigIntArray
 } from "../../../../../core/utils/Decimals";
 import { dayFromTimestamp, hourFromTimestamp } from "../../../../../core/utils/Dates";
 import { loadBeanstalk } from "../Beanstalk";
 
-// TODO: needs truncation on bd values
 export function takeWellSnapshots(well: Well, block: ethereum.Block): void {
   const hour = BigInt.fromI32(hourFromTimestamp(block.timestamp));
   const day = BigInt.fromI32(dayFromTimestamp(block.timestamp));
@@ -40,22 +34,18 @@ export function takeWellSnapshots(well: Well, block: ethereum.Block): void {
   hourly.hour = hour;
   hourly.well = well.id;
   hourly.lpTokenSupply = well.lpTokenSupply;
-  hourly.totalLiquidityUSD = well.totalLiquidityUSD.truncate(2);
+  hourly.totalLiquidityUSD = well.totalLiquidityUSD;
   hourly.tokenPrice = well.tokenPrice;
   hourly.cumulativeTradeVolumeReserves = well.cumulativeTradeVolumeReserves;
-  hourly.cumulativeTradeVolumeReservesUSD = well.cumulativeTradeVolumeReservesUSD.map<BigDecimal>((bd) =>
-    bd.truncate(2)
-  );
-  hourly.cumulativeTradeVolumeUSD = well.cumulativeTradeVolumeUSD.truncate(2);
+  hourly.cumulativeTradeVolumeReservesUSD = well.cumulativeTradeVolumeReservesUSD;
+  hourly.cumulativeTradeVolumeUSD = well.cumulativeTradeVolumeUSD;
   hourly.cumulativeBiTradeVolumeReserves = well.cumulativeBiTradeVolumeReserves;
   hourly.cumulativeTransferVolumeReserves = well.cumulativeTransferVolumeReserves;
-  hourly.cumulativeTransferVolumeReservesUSD = well.cumulativeTransferVolumeReservesUSD.map<BigDecimal>((bd) =>
-    bd.truncate(2)
-  );
-  hourly.cumulativeTransferVolumeUSD = well.cumulativeTransferVolumeUSD.truncate(2);
+  hourly.cumulativeTransferVolumeReservesUSD = well.cumulativeTransferVolumeReservesUSD;
+  hourly.cumulativeTransferVolumeUSD = well.cumulativeTransferVolumeUSD;
   hourly.convertVolumeReserves = well.convertVolumeReserves;
-  hourly.convertVolumeReservesUSD = well.convertVolumeReservesUSD.map<BigDecimal>((bd) => bd.truncate(2));
-  hourly.convertVolumeUSD = well.convertVolumeUSD.truncate(2);
+  hourly.convertVolumeReservesUSD = well.convertVolumeReservesUSD;
+  hourly.convertVolumeUSD = well.convertVolumeUSD;
 
   // Set deltas
   if (baseHourly !== null) {
@@ -147,7 +137,7 @@ export function takeWellSnapshots(well: Well, block: ethereum.Block): void {
     hourly.deltaConvertVolumeReservesUSD = hourly.convertVolumeReservesUSD;
     hourly.deltaConvertVolumeUSD = hourly.convertVolumeUSD;
   }
-  // Set precision on BigDecimal deltas as
+  // Set precision on BigDecimal deltas
   hourly.deltaLiquidityUSD = hourly.deltaLiquidityUSD.truncate(2);
   hourly.deltaTradeVolumeReservesUSD = hourly.deltaTradeVolumeReservesUSD.map<BigDecimal>((bd) => bd.truncate(2));
   hourly.deltaTradeVolumeUSD = hourly.deltaTradeVolumeUSD.truncate(2);
@@ -170,22 +160,18 @@ export function takeWellSnapshots(well: Well, block: ethereum.Block): void {
   daily.day = day;
   daily.well = well.id;
   daily.lpTokenSupply = well.lpTokenSupply;
-  daily.totalLiquidityUSD = well.totalLiquidityUSD.truncate(2);
+  daily.totalLiquidityUSD = well.totalLiquidityUSD;
   daily.tokenPrice = well.tokenPrice;
   daily.cumulativeTradeVolumeReserves = well.cumulativeTradeVolumeReserves;
-  daily.cumulativeTradeVolumeReservesUSD = well.cumulativeTradeVolumeReservesUSD.map<BigDecimal>((bd) =>
-    bd.truncate(2)
-  );
-  daily.cumulativeTradeVolumeUSD = well.cumulativeTradeVolumeUSD.truncate(2);
+  daily.cumulativeTradeVolumeReservesUSD = well.cumulativeTradeVolumeReservesUSD;
+  daily.cumulativeTradeVolumeUSD = well.cumulativeTradeVolumeUSD;
   daily.cumulativeBiTradeVolumeReserves = well.cumulativeBiTradeVolumeReserves;
   daily.cumulativeTransferVolumeReserves = well.cumulativeTransferVolumeReserves;
-  daily.cumulativeTransferVolumeReservesUSD = well.cumulativeTransferVolumeReservesUSD.map<BigDecimal>((bd) =>
-    bd.truncate(2)
-  );
-  daily.cumulativeTransferVolumeUSD = well.cumulativeTransferVolumeUSD.truncate(2);
+  daily.cumulativeTransferVolumeReservesUSD = well.cumulativeTransferVolumeReservesUSD;
+  daily.cumulativeTransferVolumeUSD = well.cumulativeTransferVolumeUSD;
   daily.convertVolumeReserves = well.convertVolumeReserves;
-  daily.convertVolumeReservesUSD = well.convertVolumeReservesUSD.map<BigDecimal>((bd) => bd.truncate(2));
-  daily.convertVolumeUSD = well.convertVolumeUSD.truncate(2);
+  daily.convertVolumeReservesUSD = well.convertVolumeReservesUSD;
+  daily.convertVolumeUSD = well.convertVolumeUSD;
 
   // Set deltas
   if (baseDaily !== null) {
@@ -273,7 +259,7 @@ export function takeWellSnapshots(well: Well, block: ethereum.Block): void {
     daily.deltaConvertVolumeReservesUSD = daily.convertVolumeReservesUSD;
     daily.deltaConvertVolumeUSD = daily.convertVolumeUSD;
   }
-  // Set precision on BigDecimal deltas as
+  // Set precision on BigDecimal deltas
   daily.deltaLiquidityUSD = daily.deltaLiquidityUSD.truncate(2);
   daily.deltaTradeVolumeReservesUSD = daily.deltaTradeVolumeReservesUSD.map<BigDecimal>((bd) => bd.truncate(2));
   daily.deltaTradeVolumeUSD = daily.deltaTradeVolumeUSD.truncate(2);
@@ -293,11 +279,10 @@ export function takeWellSnapshots(well: Well, block: ethereum.Block): void {
   well.lastUpdateBlockNumber = block.number;
 }
 
-// Modifies the provided well entity by removing the oldest values from its rolling 7d/24h stats
+// Modifies the provided Well entity by removing the oldest values from its rolling 7d/24h stats
 // Newer values for the latest hour were already added.
 function removeOldestRollingWellStats(well: Well, hour: i32): void {
   let oldest24h = WellHourlySnapshot.load(well.id.toHexString() + "-" + (hour - 24).toString());
-  let oldest7d = WellHourlySnapshot.load(well.id.toHexString() + "-" + (hour - 168).toString());
   if (oldest24h != null) {
     well.rollingDailyTradeVolumeReserves = subBigIntArray(
       well.rollingDailyTradeVolumeReserves,
@@ -334,6 +319,8 @@ function removeOldestRollingWellStats(well: Well, hour: i32): void {
     well.rollingDailyConvertVolumeUSD = well.rollingDailyConvertVolumeUSD
       .minus(oldest24h.deltaConvertVolumeUSD)
       .truncate(2);
+
+    let oldest7d = WellHourlySnapshot.load(well.id.toHexString() + "-" + (hour - 168).toString());
     if (oldest7d != null) {
       well.rollingWeeklyTradeVolumeReserves = subBigIntArray(
         well.rollingWeeklyTradeVolumeReserves,

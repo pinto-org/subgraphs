@@ -247,13 +247,13 @@ function updateBeanstalkVolumeStats(
   totalTransferUSD: BigDecimal
 ): void {
   const beanstalk = loadBeanstalk();
-  beanstalk.cumulativeTradeVolumeUSD = beanstalk.cumulativeTradeVolumeUSD.plus(totalTradeUSD);
+  beanstalk.cumulativeTradeVolumeUSD = beanstalk.cumulativeTradeVolumeUSD.plus(totalTradeUSD).truncate(2);
   if (boughtToken == getProtocolToken(v(), BI_MAX)) {
-    beanstalk.cumulativeBuyVolumeUSD = beanstalk.cumulativeBuyVolumeUSD.plus(totalTradeUSD);
+    beanstalk.cumulativeBuyVolumeUSD = beanstalk.cumulativeBuyVolumeUSD.plus(totalTradeUSD).truncate(2);
   } else {
-    beanstalk.cumulativeSellVolumeUSD = beanstalk.cumulativeSellVolumeUSD.plus(totalTradeUSD);
+    beanstalk.cumulativeSellVolumeUSD = beanstalk.cumulativeSellVolumeUSD.plus(totalTradeUSD).truncate(2);
   }
-  beanstalk.cumulativeTransferVolumeUSD = beanstalk.cumulativeTransferVolumeUSD.plus(totalTransferUSD);
+  beanstalk.cumulativeTransferVolumeUSD = beanstalk.cumulativeTransferVolumeUSD.plus(totalTransferUSD).truncate(2);
   beanstalk.save();
 }
 

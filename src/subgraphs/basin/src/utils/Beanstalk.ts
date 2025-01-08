@@ -73,22 +73,29 @@ function addWellConvertStats(
 ): void {
   const well = loadWell(wellAddress);
   well.convertVolumeReserves = addBigIntArray(well.convertVolumeReserves, tradeVolumeReserves);
-  well.convertVolumeReservesUSD = addBigDecimalArray(well.convertVolumeReservesUSD, tradeVolumeReservesUSD);
-  well.convertVolumeUSD = well.convertVolumeUSD.plus(tradeVolumeUSD);
+  well.convertVolumeReservesUSD = addBigDecimalArray(
+    well.convertVolumeReservesUSD,
+    tradeVolumeReservesUSD
+  ).map<BigDecimal>((bd) => bd.truncate(2));
+  well.convertVolumeUSD = well.convertVolumeUSD.plus(tradeVolumeUSD).truncate(2);
   well.save();
 
   const beanstalk = loadBeanstalk();
   if (direction == ConvertDirection.NEUTRAL) {
     // LP->LP converts will invoke this method once per Well. Avoid double-counting the same usd value
     const halfVolume = tradeVolumeUSD.div(BigDecimal.fromString("2"));
-    beanstalk.cumulativeConvertVolumeUSD = beanstalk.cumulativeConvertVolumeUSD.plus(halfVolume);
-    beanstalk.cumulativeConvertNeutralVolumeUSD = beanstalk.cumulativeConvertNeutralVolumeUSD.plus(halfVolume);
+    beanstalk.cumulativeConvertVolumeUSD = beanstalk.cumulativeConvertVolumeUSD.plus(halfVolume).truncate(2);
+    beanstalk.cumulativeConvertNeutralVolumeUSD = beanstalk.cumulativeConvertNeutralVolumeUSD
+      .plus(halfVolume)
+      .truncate(2);
   } else {
-    beanstalk.cumulativeConvertVolumeUSD = beanstalk.cumulativeConvertVolumeUSD.plus(tradeVolumeUSD);
+    beanstalk.cumulativeConvertVolumeUSD = beanstalk.cumulativeConvertVolumeUSD.plus(tradeVolumeUSD).truncate(2);
     if (direction == ConvertDirection.UP) {
-      beanstalk.cumulativeConvertUpVolumeUSD = beanstalk.cumulativeConvertUpVolumeUSD.plus(tradeVolumeUSD);
+      beanstalk.cumulativeConvertUpVolumeUSD = beanstalk.cumulativeConvertUpVolumeUSD.plus(tradeVolumeUSD).truncate(2);
     } else if (direction == ConvertDirection.DOWN) {
-      beanstalk.cumulativeConvertDownVolumeUSD = beanstalk.cumulativeConvertDownVolumeUSD.plus(tradeVolumeUSD);
+      beanstalk.cumulativeConvertDownVolumeUSD = beanstalk.cumulativeConvertDownVolumeUSD
+        .plus(tradeVolumeUSD)
+        .truncate(2);
     }
   }
   beanstalk.save();

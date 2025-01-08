@@ -67,9 +67,7 @@ export function takeBeanstalkSnapshots(beanstalk: Beanstalk, block: ethereum.Blo
     } else {
       // *Hourly only functionality*
       // This is the first time creating a snapshot for this hour, and past datapoints are available.
-      // Update the rolling 24h/7d values by removing the oldest value.
-      // Newer values for the latest hour were already added.
-      // TODO
+      removeOldestRollingBeanstalkStats(beanstalk, parseInt(currentSeason));
     }
   } else {
     hourly.deltaLiquidityUSD = hourly.totalLiquidityUSD;
@@ -82,6 +80,17 @@ export function takeBeanstalkSnapshots(beanstalk: Beanstalk, block: ethereum.Blo
     hourly.deltaConvertDownVolumeUSD = hourly.cumulativeConvertDownVolumeUSD;
     hourly.deltaConvertNeutralVolumeUSD = hourly.cumulativeConvertNeutralVolumeUSD;
   }
+  // Set precision on BigDecimal deltas
+  hourly.deltaLiquidityUSD = hourly.deltaLiquidityUSD.truncate(2);
+  hourly.deltaTradeVolumeUSD = hourly.deltaTradeVolumeUSD.truncate(2);
+  hourly.deltaBuyVolumeUSD = hourly.deltaBuyVolumeUSD.truncate(2);
+  hourly.deltaSellVolumeUSD = hourly.deltaSellVolumeUSD.truncate(2);
+  hourly.deltaTransferVolumeUSD = hourly.deltaTransferVolumeUSD.truncate(2);
+  hourly.deltaConvertVolumeUSD = hourly.deltaConvertVolumeUSD.truncate(2);
+  hourly.deltaConvertUpVolumeUSD = hourly.deltaConvertUpVolumeUSD.truncate(2);
+  hourly.deltaConvertDownVolumeUSD = hourly.deltaConvertDownVolumeUSD.truncate(2);
+  hourly.deltaConvertNeutralVolumeUSD = hourly.deltaConvertNeutralVolumeUSD.truncate(2);
+
   hourly.createdTimestamp = hour.times(BigInt.fromU32(3600));
   hourly.lastUpdateTimestamp = block.timestamp;
   hourly.lastUpdateBlockNumber = block.number;
@@ -143,6 +152,17 @@ export function takeBeanstalkSnapshots(beanstalk: Beanstalk, block: ethereum.Blo
     daily.deltaConvertDownVolumeUSD = daily.cumulativeConvertDownVolumeUSD;
     daily.deltaConvertNeutralVolumeUSD = daily.cumulativeConvertNeutralVolumeUSD;
   }
+  // Set precision on BigDecimal deltas
+  daily.deltaLiquidityUSD = daily.deltaLiquidityUSD.truncate(2);
+  daily.deltaTradeVolumeUSD = daily.deltaTradeVolumeUSD.truncate(2);
+  daily.deltaBuyVolumeUSD = daily.deltaBuyVolumeUSD.truncate(2);
+  daily.deltaSellVolumeUSD = daily.deltaSellVolumeUSD.truncate(2);
+  daily.deltaTransferVolumeUSD = daily.deltaTransferVolumeUSD.truncate(2);
+  daily.deltaConvertVolumeUSD = daily.deltaConvertVolumeUSD.truncate(2);
+  daily.deltaConvertUpVolumeUSD = daily.deltaConvertUpVolumeUSD.truncate(2);
+  daily.deltaConvertDownVolumeUSD = daily.deltaConvertDownVolumeUSD.truncate(2);
+  daily.deltaConvertNeutralVolumeUSD = daily.deltaConvertNeutralVolumeUSD.truncate(2);
+
   daily.createdTimestamp = day.times(BigInt.fromU32(86400));
   daily.lastUpdateTimestamp = block.timestamp;
   daily.lastUpdateBlockNumber = block.number;
@@ -152,4 +172,64 @@ export function takeBeanstalkSnapshots(beanstalk: Beanstalk, block: ethereum.Blo
   beanstalk.lastDailySnapshotDay = day;
   beanstalk.lastUpdateTimestamp = block.timestamp;
   beanstalk.lastUpdateBlockNumber = block.number;
+}
+
+// Modifies the provided Beanstalk entity by removing the oldest values from its rolling 7d/24h stats
+// Newer values for the latest hour were already added.
+function removeOldestRollingBeanstalkStats(beanstalk: Beanstalk, season: i32): void {
+  let oldest24h = BeanstalkHourlySnapshot.load(beanstalk.id + "-" + (season - 24).toString());
+  if (oldest24h != null) {
+    beanstalk.rollingDailyTradeVolumeUSD = beanstalk.rollingDailyTradeVolumeUSD
+      .minus(oldest24h.deltaTradeVolumeUSD)
+      .truncate(2);
+    beanstalk.rollingDailyBuyVolumeUSD = beanstalk.rollingDailyBuyVolumeUSD
+      .minus(oldest24h.deltaBuyVolumeUSD)
+      .truncate(2);
+    beanstalk.rollingDailySellVolumeUSD = beanstalk.rollingDailySellVolumeUSD
+      .minus(oldest24h.deltaSellVolumeUSD)
+      .truncate(2);
+    beanstalk.rollingDailyTransferVolumeUSD = beanstalk.rollingDailyTransferVolumeUSD
+      .minus(oldest24h.deltaTransferVolumeUSD)
+      .truncate(2);
+    beanstalk.rollingDailyConvertVolumeUSD = beanstalk.rollingDailyConvertVolumeUSD
+      .minus(oldest24h.deltaConvertVolumeUSD)
+      .truncate(2);
+    beanstalk.rollingDailyConvertUpVolumeUSD = beanstalk.rollingDailyConvertUpVolumeUSD
+      .minus(oldest24h.deltaConvertUpVolumeUSD)
+      .truncate(2);
+    beanstalk.rollingDailyConvertDownVolumeUSD = beanstalk.rollingDailyConvertDownVolumeUSD
+      .minus(oldest24h.deltaConvertDownVolumeUSD)
+      .truncate(2);
+    beanstalk.rollingDailyConvertNeutralVolumeUSD = beanstalk.rollingDailyConvertNeutralVolumeUSD
+      .minus(oldest24h.deltaConvertNeutralVolumeUSD)
+      .truncate(2);
+
+    let oldest7d = BeanstalkHourlySnapshot.load(beanstalk.id + "-" + (season - 168).toString());
+    if (oldest7d != null) {
+      beanstalk.rollingWeeklyTradeVolumeUSD = beanstalk.rollingWeeklyTradeVolumeUSD
+        .minus(oldest7d.deltaTradeVolumeUSD)
+        .truncate(2);
+      beanstalk.rollingWeeklyBuyVolumeUSD = beanstalk.rollingWeeklyBuyVolumeUSD
+        .minus(oldest7d.deltaBuyVolumeUSD)
+        .truncate(2);
+      beanstalk.rollingWeeklySellVolumeUSD = beanstalk.rollingWeeklySellVolumeUSD
+        .minus(oldest7d.deltaSellVolumeUSD)
+        .truncate(2);
+      beanstalk.rollingWeeklyTransferVolumeUSD = beanstalk.rollingWeeklyTransferVolumeUSD
+        .minus(oldest7d.deltaTransferVolumeUSD)
+        .truncate(2);
+      beanstalk.rollingWeeklyConvertVolumeUSD = beanstalk.rollingWeeklyConvertVolumeUSD
+        .minus(oldest7d.deltaConvertVolumeUSD)
+        .truncate(2);
+      beanstalk.rollingWeeklyConvertUpVolumeUSD = beanstalk.rollingWeeklyConvertUpVolumeUSD
+        .minus(oldest7d.deltaConvertUpVolumeUSD)
+        .truncate(2);
+      beanstalk.rollingWeeklyConvertDownVolumeUSD = beanstalk.rollingWeeklyConvertDownVolumeUSD
+        .minus(oldest7d.deltaConvertDownVolumeUSD)
+        .truncate(2);
+      beanstalk.rollingWeeklyConvertNeutralVolumeUSD = beanstalk.rollingWeeklyConvertNeutralVolumeUSD
+        .minus(oldest7d.deltaConvertNeutralVolumeUSD)
+        .truncate(2);
+    }
+  }
 }
