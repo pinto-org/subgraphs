@@ -10,7 +10,8 @@ import {
 } from "../../../../core/constants/raw/BeanstalkEthConstants";
 import { BEAN_USD_PRICE, WELL } from "./Constants";
 import { setMockBeanPrice } from "../../../../core/tests/event-mocking/Price";
-import { BI_MAX, ONE_BD, ZERO_BD, ZERO_BI } from "../../../../core/utils/Decimals";
+import { ONE_BD, ZERO_BD, ZERO_BI } from "../../../../core/utils/Decimals";
+import * as BeanstalkEth from "../../../../core/constants/raw/BeanstalkEthConstants";
 import * as PintoBase from "../../../../core/constants/raw/PintoBaseConstants";
 import { getBeanstalkPriceAddress } from "../../../../core/constants/RuntimeConstants";
 import { v } from "../../src/utils/constants/Version";
@@ -113,6 +114,40 @@ export function createContractCallMocks(
       .withArgs([ethereum.Value.fromAddress(tokens[1])])
       .reverts();
   }
+}
+
+export function mockL1Tokens(): void {
+  createMockedFunction(BeanstalkEth.BEAN_ERC20, "name", "name():(string)")
+    .withArgs([])
+    .returns([ethereum.Value.fromString("BEAN")]);
+  createMockedFunction(BeanstalkEth.WETH, "name", "name():(string)")
+    .withArgs([])
+    .returns([ethereum.Value.fromString("WETH")]);
+
+  createMockedFunction(BeanstalkEth.BEAN_ERC20, "symbol", "symbol():(string)")
+    .withArgs([])
+    .returns([ethereum.Value.fromString("BEAN")]);
+  createMockedFunction(BeanstalkEth.WETH, "symbol", "symbol():(string)")
+    .withArgs([])
+    .returns([ethereum.Value.fromString("WETH")]);
+
+  createMockedFunction(BeanstalkEth.BEAN_ERC20, "decimals", "decimals():(uint8)")
+    .withArgs([])
+    .returns([ethereum.Value.fromI32(6)]);
+  createMockedFunction(BeanstalkEth.WETH, "decimals", "decimals():(uint8)")
+    .withArgs([])
+    .returns([ethereum.Value.fromI32(18)]);
+
+  // I dont think beanstalk actuallly had these functions, providing them here is simpler though
+  createMockedFunction(v().protocolAddress, "getTokenUsdPrice", "getTokenUsdPrice(address):(uint256)")
+    .withArgs([ethereum.Value.fromAddress(BeanstalkEth.BEAN_ERC20)])
+    .reverts();
+  createMockedFunction(v().protocolAddress, "getTokenUsdPrice", "getTokenUsdPrice(address):(uint256)")
+    .withArgs([ethereum.Value.fromAddress(BeanstalkEth.WETH)])
+    .reverts();
+
+  mockedERC20s.push(BeanstalkEth.BEAN_ERC20);
+  mockedERC20s.push(BeanstalkEth.WETH);
 }
 
 export function mockAllPintoTokens(): void {

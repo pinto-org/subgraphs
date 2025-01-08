@@ -1,6 +1,6 @@
 import { afterEach, assert, beforeEach, clearStore, describe, test } from "matchstick-as/assembly/index";
 import { BigDecimal, BigInt, log } from "@graphprotocol/graph-ts";
-import { BI_10, ONE_BI, subBigIntArray, ZERO_BI } from "../../../core/utils/Decimals";
+import { BI_10, ONE_BI, subBigIntArray, ZERO_BD, ZERO_BI } from "../../../core/utils/Decimals";
 import {
   BEAN_SWAP_AMOUNT,
   BEAN_USD_AMOUNT,
@@ -27,6 +27,8 @@ import { deprecated_calcLiquidityVolume } from "../src/utils/legacy/CP2";
 import { loadOrCreateWellFunction } from "../src/entities/WellComponents";
 import { assertBDClose } from "../../../core/tests/Assert";
 import { WETH } from "../../../core/constants/raw/BeanstalkEthConstants";
+import { loadBeanstalk } from "../src/entities/Beanstalk";
+import { mockL1TokenPrices } from "./entity-mocking/MockToken";
 
 const BI_2 = BigInt.fromU32(2);
 const BI_3 = BigInt.fromU32(3);
@@ -37,6 +39,7 @@ describe("Well Entity: Liquidity Event Tests", () => {
   beforeEach(() => {
     initL1Version();
     boreDefaultWell();
+    mockL1TokenPrices();
   });
 
   afterEach(() => {
@@ -48,15 +51,15 @@ describe("Well Entity: Liquidity Event Tests", () => {
       mockAddLiquidity();
     });
     test("Token Balances updated", () => {
-      let updatedStore = loadWell(WELL);
-      let endingBalances = updatedStore.reserves;
+      const updatedStore = loadWell(WELL);
+      const endingBalances = updatedStore.reserves;
 
       assert.bigIntEquals(BEAN_SWAP_AMOUNT, endingBalances[0]);
       assert.bigIntEquals(WETH_SWAP_AMOUNT, endingBalances[1]);
     });
     test("Token Balances USD updated", () => {
-      let updatedStore = loadWell(WELL);
-      let endingBalances = updatedStore.reservesUSD;
+      const updatedStore = loadWell(WELL);
+      const endingBalances = updatedStore.reservesUSD;
 
       assertBDClose(BEAN_USD_AMOUNT, endingBalances[0]);
       assertBDClose(WETH_USD_AMOUNT, endingBalances[1]);
@@ -66,11 +69,16 @@ describe("Well Entity: Liquidity Event Tests", () => {
       assert.fieldEquals(WELL_ENTITY_TYPE, WELL.toHexString(), "lpTokenSupply", WELL_LP_AMOUNT.toString());
     });
     test("Zero trading volume", () => {
-      let updatedStore = loadWell(WELL);
+      const updatedStore = loadWell(WELL);
       assert.assertTrue(updatedStore.cumulativeTradeVolumeUSD.toString() == "0");
+
+      const beanstalk = loadBeanstalk();
+      assert.assertTrue(beanstalk.cumulativeTradeVolumeUSD == ZERO_BD);
+      assert.assertTrue(beanstalk.cumulativeBuyVolumeUSD == ZERO_BD);
+      assert.assertTrue(beanstalk.cumulativeSellVolumeUSD == ZERO_BD);
     });
     test("Token volumes updated", () => {
-      let updatedStore = loadWell(WELL);
+      const updatedStore = loadWell(WELL);
       const transferReserves = updatedStore.cumulativeTransferVolumeReserves;
       const transferReservesUSD = updatedStore.cumulativeTransferVolumeReservesUSD;
 
@@ -78,6 +86,9 @@ describe("Well Entity: Liquidity Event Tests", () => {
       assert.bigIntEquals(WETH_SWAP_AMOUNT, transferReserves[1]);
       assertBDClose(BEAN_USD_AMOUNT, transferReservesUSD[0]);
       assertBDClose(WETH_USD_AMOUNT, transferReservesUSD[1]);
+
+      const beanstalk = loadBeanstalk();
+      assertBDClose(updatedStore.cumulativeTransferVolumeUSD, beanstalk.cumulativeTransferVolumeUSD);
     });
   });
 
@@ -87,15 +98,15 @@ describe("Well Entity: Liquidity Event Tests", () => {
       mockAddLiquidity([BEAN_SWAP_AMOUNT, ZERO_BI], WELL_LP_AMOUNT, BigDecimal.fromString("0.5"));
     });
     test("Token Balances updated", () => {
-      let updatedStore = loadWell(WELL);
-      let endingBalances = updatedStore.reserves;
+      const updatedStore = loadWell(WELL);
+      const endingBalances = updatedStore.reserves;
 
       assert.bigIntEquals(BEAN_SWAP_AMOUNT.times(BI_2), endingBalances[0]);
       assert.bigIntEquals(WETH_SWAP_AMOUNT, endingBalances[1]);
     });
     test("Token Balances USD updated", () => {
-      let updatedStore = loadWell(WELL);
-      let endingBalances = updatedStore.reservesUSD;
+      const updatedStore = loadWell(WELL);
+      const endingBalances = updatedStore.reservesUSD;
 
       // Bean balance is still only one unit of BEAN_USD_AMOUNT because the price was cut in half on the second deposit
       assertBDClose(BEAN_USD_AMOUNT, endingBalances[0]);
@@ -106,11 +117,16 @@ describe("Well Entity: Liquidity Event Tests", () => {
       assert.fieldEquals(WELL_ENTITY_TYPE, WELL.toHexString(), "lpTokenSupply", WELL_LP_AMOUNT.times(BI_2).toString());
     });
     test("Nonzero trading volume", () => {
-      let updatedStore = loadWell(WELL);
+      const updatedStore = loadWell(WELL);
       assert.assertTrue(updatedStore.cumulativeTradeVolumeUSD.toString() != "0");
+
+      const beanstalk = loadBeanstalk();
+      assert.assertTrue(beanstalk.cumulativeTradeVolumeUSD > ZERO_BD);
+      assert.assertTrue(beanstalk.cumulativeBuyVolumeUSD == ZERO_BD);
+      assert.assertTrue(beanstalk.cumulativeSellVolumeUSD > ZERO_BD);
     });
     test("Token volumes updated", () => {
-      let updatedStore = loadWell(WELL);
+      const updatedStore = loadWell(WELL);
       const transferReserves = updatedStore.cumulativeTransferVolumeReserves;
       const transferReservesUSD = updatedStore.cumulativeTransferVolumeReservesUSD;
 
@@ -118,6 +134,9 @@ describe("Well Entity: Liquidity Event Tests", () => {
       assert.bigIntEquals(WETH_SWAP_AMOUNT, transferReserves[1]);
       assertBDClose(BEAN_USD_AMOUNT.times(BigDecimal.fromString("1.5")), transferReservesUSD[0]);
       assertBDClose(WETH_USD_AMOUNT, transferReservesUSD[1]);
+
+      const beanstalk = loadBeanstalk();
+      assertBDClose(updatedStore.cumulativeTransferVolumeUSD, beanstalk.cumulativeTransferVolumeUSD);
     });
   });
 
@@ -127,15 +146,15 @@ describe("Well Entity: Liquidity Event Tests", () => {
       mockSync([BEAN_SWAP_AMOUNT, WETH_SWAP_AMOUNT], BI_10);
     });
     test("Token Balances updated", () => {
-      let updatedStore = loadWell(WELL);
-      let endingBalances = updatedStore.reserves;
+      const updatedStore = loadWell(WELL);
+      const endingBalances = updatedStore.reserves;
 
       assert.bigIntEquals(BEAN_SWAP_AMOUNT, endingBalances[0]);
       assert.bigIntEquals(WETH_SWAP_AMOUNT, endingBalances[1]);
     });
     test("Token Balances USD updated", () => {
-      let updatedStore = loadWell(WELL);
-      let endingBalances = updatedStore.reservesUSD;
+      const updatedStore = loadWell(WELL);
+      const endingBalances = updatedStore.reservesUSD;
 
       assertBDClose(BEAN_USD_AMOUNT, endingBalances[0]);
       assertBDClose(WETH_USD_AMOUNT, endingBalances[1]);
@@ -145,11 +164,16 @@ describe("Well Entity: Liquidity Event Tests", () => {
       assert.fieldEquals(WELL_ENTITY_TYPE, WELL.toHexString(), "lpTokenSupply", WELL_LP_AMOUNT.plus(BI_10).toString());
     });
     test("Zero trading volume", () => {
-      let updatedStore = loadWell(WELL);
+      const updatedStore = loadWell(WELL);
       assert.assertTrue(updatedStore.cumulativeTradeVolumeUSD.toString() == "0");
+
+      const beanstalk = loadBeanstalk();
+      assert.assertTrue(beanstalk.cumulativeTradeVolumeUSD == ZERO_BD);
+      assert.assertTrue(beanstalk.cumulativeBuyVolumeUSD == ZERO_BD);
+      assert.assertTrue(beanstalk.cumulativeSellVolumeUSD == ZERO_BD);
     });
     test("Token volumes updated", () => {
-      let updatedStore = loadWell(WELL);
+      const updatedStore = loadWell(WELL);
       const transferReserves = updatedStore.cumulativeTransferVolumeReserves;
       const transferReservesUSD = updatedStore.cumulativeTransferVolumeReservesUSD;
 
@@ -157,6 +181,9 @@ describe("Well Entity: Liquidity Event Tests", () => {
       assert.bigIntEquals(WETH_SWAP_AMOUNT, transferReserves[1]);
       assertBDClose(BEAN_USD_AMOUNT, transferReservesUSD[0]);
       assertBDClose(WETH_USD_AMOUNT, transferReservesUSD[1]);
+
+      const beanstalk = loadBeanstalk();
+      assertBDClose(updatedStore.cumulativeTransferVolumeUSD, beanstalk.cumulativeTransferVolumeUSD);
     });
   });
 
@@ -167,15 +194,15 @@ describe("Well Entity: Liquidity Event Tests", () => {
       mockSync([BEAN_SWAP_AMOUNT.div(BI_2), WETH_SWAP_AMOUNT], BI_10, BigDecimal.fromString("2"));
     });
     test("Token Balances updated", () => {
-      let updatedStore = loadWell(WELL);
-      let endingBalances = updatedStore.reserves;
+      const updatedStore = loadWell(WELL);
+      const endingBalances = updatedStore.reserves;
 
       assert.bigIntEquals(BEAN_SWAP_AMOUNT.div(BI_2), endingBalances[0]);
       assert.bigIntEquals(WETH_SWAP_AMOUNT, endingBalances[1]);
     });
     test("Token Balances USD updated", () => {
-      let updatedStore = loadWell(WELL);
-      let endingBalances = updatedStore.reservesUSD;
+      const updatedStore = loadWell(WELL);
+      const endingBalances = updatedStore.reservesUSD;
 
       // WETH was doubled from the initial, so the bean price has also doubled
       assertBDClose(BEAN_USD_AMOUNT, endingBalances[0]);
@@ -186,11 +213,16 @@ describe("Well Entity: Liquidity Event Tests", () => {
       assert.fieldEquals(WELL_ENTITY_TYPE, WELL.toHexString(), "lpTokenSupply", WELL_LP_AMOUNT.plus(BI_10).toString());
     });
     test("Nonzero trading volume", () => {
-      let updatedStore = loadWell(WELL);
+      const updatedStore = loadWell(WELL);
       assert.assertTrue(updatedStore.cumulativeTradeVolumeUSD.toString() != "0");
+
+      const beanstalk = loadBeanstalk();
+      assert.assertTrue(beanstalk.cumulativeTradeVolumeUSD > ZERO_BD);
+      assert.assertTrue(beanstalk.cumulativeBuyVolumeUSD > ZERO_BD);
+      assert.assertTrue(beanstalk.cumulativeSellVolumeUSD == ZERO_BD);
     });
     test("Token volumes updated", () => {
-      let updatedStore = loadWell(WELL);
+      const updatedStore = loadWell(WELL);
       const transferReserves = updatedStore.cumulativeTransferVolumeReserves;
       const transferReservesUSD = updatedStore.cumulativeTransferVolumeReservesUSD;
 
@@ -198,6 +230,9 @@ describe("Well Entity: Liquidity Event Tests", () => {
       assert.bigIntEquals(WETH_SWAP_AMOUNT, transferReserves[1]);
       assertBDClose(BEAN_USD_AMOUNT.div(BD_2), transferReservesUSD[0]);
       assertBDClose(WETH_USD_AMOUNT, transferReservesUSD[1]);
+
+      const beanstalk = loadBeanstalk();
+      assertBDClose(updatedStore.cumulativeTransferVolumeUSD, beanstalk.cumulativeTransferVolumeUSD);
     });
   });
 
@@ -207,8 +242,8 @@ describe("Well Entity: Liquidity Event Tests", () => {
       mockRemoveLiquidity();
     });
     test("Token Balances updated", () => {
-      let updatedStore = loadWell(WELL);
-      let endingBalances = updatedStore.reserves;
+      const updatedStore = loadWell(WELL);
+      const endingBalances = updatedStore.reserves;
 
       assert.bigIntEquals(ZERO_BI, endingBalances[0]);
       assert.bigIntEquals(ZERO_BI, endingBalances[1]);
@@ -217,11 +252,16 @@ describe("Well Entity: Liquidity Event Tests", () => {
       assert.fieldEquals(WELL_ENTITY_TYPE, WELL.toHexString(), "lpTokenSupply", "0");
     });
     test("Zero trading volume", () => {
-      let updatedStore = loadWell(WELL);
+      const updatedStore = loadWell(WELL);
       assert.assertTrue(updatedStore.cumulativeTradeVolumeUSD.toString() == "0");
+
+      const beanstalk = loadBeanstalk();
+      assert.assertTrue(beanstalk.cumulativeTradeVolumeUSD == ZERO_BD);
+      assert.assertTrue(beanstalk.cumulativeBuyVolumeUSD == ZERO_BD);
+      assert.assertTrue(beanstalk.cumulativeSellVolumeUSD == ZERO_BD);
     });
     test("Token volumes updated", () => {
-      let updatedStore = loadWell(WELL);
+      const updatedStore = loadWell(WELL);
       const transferReserves = updatedStore.cumulativeTransferVolumeReserves;
       const transferReservesUSD = updatedStore.cumulativeTransferVolumeReservesUSD;
 
@@ -229,6 +269,9 @@ describe("Well Entity: Liquidity Event Tests", () => {
       assert.bigIntEquals(WETH_SWAP_AMOUNT.times(BI_2), transferReserves[1]);
       assertBDClose(BEAN_USD_AMOUNT.times(BD_2), transferReservesUSD[0]);
       assertBDClose(WETH_USD_AMOUNT.times(BD_2), transferReservesUSD[1]);
+
+      const beanstalk = loadBeanstalk();
+      assertBDClose(updatedStore.cumulativeTransferVolumeUSD, beanstalk.cumulativeTransferVolumeUSD);
     });
   });
 
@@ -239,8 +282,8 @@ describe("Well Entity: Liquidity Event Tests", () => {
       mockRemoveLiquidityOneBean();
     });
     test("Token Balances updated", () => {
-      let updatedStore = loadWell(WELL);
-      let endingBalances = updatedStore.reserves;
+      const updatedStore = loadWell(WELL);
+      const endingBalances = updatedStore.reserves;
 
       assert.bigIntEquals(BEAN_SWAP_AMOUNT, endingBalances[0]);
       assert.bigIntEquals(WETH_SWAP_AMOUNT.times(BI_2), endingBalances[1]);
@@ -249,11 +292,16 @@ describe("Well Entity: Liquidity Event Tests", () => {
       assert.fieldEquals(WELL_ENTITY_TYPE, WELL.toHexString(), "lpTokenSupply", WELL_LP_AMOUNT.toString());
     });
     test("Nonzero trading volume", () => {
-      let updatedStore = loadWell(WELL);
+      const updatedStore = loadWell(WELL);
       assert.assertTrue(updatedStore.cumulativeTradeVolumeUSD.toString() != "0");
+
+      const beanstalk = loadBeanstalk();
+      assert.assertTrue(beanstalk.cumulativeTradeVolumeUSD > ZERO_BD);
+      assert.assertTrue(beanstalk.cumulativeBuyVolumeUSD > ZERO_BD);
+      assert.assertTrue(beanstalk.cumulativeSellVolumeUSD == ZERO_BD);
     });
     test("Token volumes updated", () => {
-      let updatedStore = loadWell(WELL);
+      const updatedStore = loadWell(WELL);
       const transferReserves = updatedStore.cumulativeTransferVolumeReserves;
       const transferReservesUSD = updatedStore.cumulativeTransferVolumeReservesUSD;
 
@@ -261,6 +309,9 @@ describe("Well Entity: Liquidity Event Tests", () => {
       assert.bigIntEquals(WETH_SWAP_AMOUNT.times(BI_2), transferReserves[1]);
       assertBDClose(BEAN_USD_AMOUNT.times(BD_3).truncate(2), transferReservesUSD[0]);
       assertBDClose(WETH_USD_AMOUNT.times(BD_2).truncate(2), transferReservesUSD[1]);
+
+      const beanstalk = loadBeanstalk();
+      assertBDClose(updatedStore.cumulativeTransferVolumeUSD, beanstalk.cumulativeTransferVolumeUSD);
     });
   });
 
@@ -271,8 +322,8 @@ describe("Well Entity: Liquidity Event Tests", () => {
       mockRemoveLiquidityOneNonBean(WETH, WELL_LP_AMOUNT, BigDecimal.fromString("0.5"));
     });
     test("Token Balances updated", () => {
-      let updatedStore = loadWell(WELL);
-      let endingBalances = updatedStore.reserves;
+      const updatedStore = loadWell(WELL);
+      const endingBalances = updatedStore.reserves;
 
       assert.bigIntEquals(BEAN_SWAP_AMOUNT.times(BI_2), endingBalances[0]);
       assert.bigIntEquals(WETH_SWAP_AMOUNT, endingBalances[1]);
@@ -281,11 +332,16 @@ describe("Well Entity: Liquidity Event Tests", () => {
       assert.fieldEquals(WELL_ENTITY_TYPE, WELL.toHexString(), "lpTokenSupply", WELL_LP_AMOUNT.toString());
     });
     test("Nonzero trading volume", () => {
-      let updatedStore = loadWell(WELL);
+      const updatedStore = loadWell(WELL);
       assert.assertTrue(updatedStore.cumulativeTradeVolumeUSD.toString() != "0");
+
+      const beanstalk = loadBeanstalk();
+      assert.assertTrue(beanstalk.cumulativeTradeVolumeUSD > ZERO_BD);
+      assert.assertTrue(beanstalk.cumulativeBuyVolumeUSD == ZERO_BD);
+      assert.assertTrue(beanstalk.cumulativeSellVolumeUSD > ZERO_BD);
     });
     test("Transfer volumes updated", () => {
-      let updatedStore = loadWell(WELL);
+      const updatedStore = loadWell(WELL);
       const transferReserves = updatedStore.cumulativeTransferVolumeReserves;
       const transferReservesUSD = updatedStore.cumulativeTransferVolumeReservesUSD;
 
@@ -293,6 +349,9 @@ describe("Well Entity: Liquidity Event Tests", () => {
       assert.bigIntEquals(WETH_SWAP_AMOUNT.times(BI_3), transferReserves[1]);
       assertBDClose(BEAN_USD_AMOUNT.times(BD_2), transferReservesUSD[0]);
       assertBDClose(WETH_USD_AMOUNT.times(BD_3), transferReservesUSD[1]);
+
+      const beanstalk = loadBeanstalk();
+      assertBDClose(updatedStore.cumulativeTransferVolumeUSD, beanstalk.cumulativeTransferVolumeUSD);
     });
   });
   test("Liquidity Volume Calculation", () => {

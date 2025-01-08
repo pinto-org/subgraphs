@@ -132,3 +132,7 @@ export function allNonzero_BI(a: BigInt[]): boolean {
   }
   return true;
 }
+
+export function BigDecimal_abs(a: BigDecimal): BigDecimal {
+  return a < ZERO_BD ? a.neg() : a;
+}

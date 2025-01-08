@@ -1,5 +1,5 @@
 import { afterEach, assert, beforeEach, clearStore, describe, test } from "matchstick-as/assembly/index";
-import { ZERO_BI } from "../../../core/utils/Decimals";
+import { ZERO_BD, ZERO_BI } from "../../../core/utils/Decimals";
 import { loadWell } from "../src/entities/Well";
 import {
   BEAN_SWAP_AMOUNT,
@@ -19,6 +19,7 @@ import { BigDecimal, BigInt } from "@graphprotocol/graph-ts";
 import { BEAN_ERC20 } from "../../../core/constants/raw/BeanstalkEthConstants";
 import { initL1Version } from "./entity-mocking/MockVersion";
 import { assertBDClose } from "../../../core/tests/Assert";
+import { loadBeanstalk } from "../src/entities/Beanstalk";
 
 describe("Well Entity: Exchange Tests", () => {
   beforeEach(() => {
@@ -70,6 +71,12 @@ describe("Well Entity: Exchange Tests", () => {
         BEAN_USD_AMOUNT.times(BigDecimal.fromString("2.5")).plus(WETH_USD_AMOUNT.times(BigDecimal.fromString("3.5"))),
         updatedStore.cumulativeTransferVolumeUSD
       );
+
+      const beanstalk = loadBeanstalk();
+      assertBDClose(updatedStore.cumulativeTradeVolumeUSD, beanstalk.cumulativeTradeVolumeUSD);
+      assertBDClose(ZERO_BD, beanstalk.cumulativeBuyVolumeUSD);
+      assertBDClose(WETH_USD_AMOUNT.times(BigDecimal.fromString("1.5")), beanstalk.cumulativeSellVolumeUSD);
+      assertBDClose(updatedStore.cumulativeTransferVolumeUSD, beanstalk.cumulativeTransferVolumeUSD);
     });
     test("Well Snapshot entity created", () => {
       mockSwap();
@@ -128,6 +135,12 @@ describe("Well Entity: Exchange Tests", () => {
         BEAN_USD_AMOUNT.times(BigDecimal.fromString("3.5")).plus(WETH_USD_AMOUNT.times(BigDecimal.fromString("2.5"))),
         updatedStore.cumulativeTransferVolumeUSD
       );
+
+      const beanstalk = loadBeanstalk();
+      assertBDClose(updatedStore.cumulativeTradeVolumeUSD, beanstalk.cumulativeTradeVolumeUSD);
+      assertBDClose(tradeAmounts[0], beanstalk.cumulativeBuyVolumeUSD);
+      assertBDClose(tradeAmounts[1], beanstalk.cumulativeSellVolumeUSD);
+      assertBDClose(updatedStore.cumulativeTransferVolumeUSD, beanstalk.cumulativeTransferVolumeUSD);
     });
   });
 });
