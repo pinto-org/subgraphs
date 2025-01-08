@@ -10,8 +10,8 @@ import { dayFromTimestamp, hourFromTimestamp } from "../../../../../core/utils/D
 import { loadBeanstalk } from "../Beanstalk";
 
 export function takeWellSnapshots(well: Well, block: ethereum.Block): void {
-  const hour = BigInt.fromI32(hourFromTimestamp(block.timestamp));
-  const day = BigInt.fromI32(dayFromTimestamp(block.timestamp, 8 * 60 * 60));
+  const hour = hourFromTimestamp(block.timestamp);
+  const day = dayFromTimestamp(block.timestamp, 8 * 60 * 60);
 
   // Load the snapshot for this hour/day
   const hourlyId = well.id.toHexString() + "-" + hour.toString();
@@ -21,8 +21,8 @@ export function takeWellSnapshots(well: Well, block: ethereum.Block): void {
   if (baseHourly == null && well.lastHourlySnapshotHour !== 0) {
     baseHourly = WellHourlySnapshot.load(well.id.toHexString() + "-" + well.lastHourlySnapshotHour.toString());
   }
-  if (baseDaily == null && well.lastDailySnapshotDay !== null) {
-    baseDaily = WellDailySnapshot.load(well.id.toHexString() + "-" + well.lastDailySnapshotDay!.toString());
+  if (baseDaily == null && well.lastDailySnapshotDay !== 0) {
+    baseDaily = WellDailySnapshot.load(well.id.toHexString() + "-" + well.lastDailySnapshotDay.toString());
   }
   const hourly = new WellHourlySnapshot(hourlyId);
   const daily = new WellDailySnapshot(dailyId);
@@ -35,7 +35,7 @@ export function takeWellSnapshots(well: Well, block: ethereum.Block): void {
       return;
     }
   }
-  hourly.hour = hour.toI32();
+  hourly.hour = hour;
   hourly.well = well.id;
   hourly.lpTokenSupply = well.lpTokenSupply;
   hourly.totalLiquidityUSD = well.totalLiquidityUSD;
@@ -124,7 +124,7 @@ export function takeWellSnapshots(well: Well, block: ethereum.Block): void {
     } else {
       // *Hourly only functionality*
       // This is the first time creating a snapshot for this hour, and past datapoints are available.
-      removeOldestRollingWellStats(well, hour.toI32());
+      removeOldestRollingWellStats(well, hour);
     }
   } else {
     hourly.deltaLpTokenSupply = hourly.lpTokenSupply;
@@ -150,7 +150,7 @@ export function takeWellSnapshots(well: Well, block: ethereum.Block): void {
   hourly.deltaConvertVolumeReservesUSD = hourly.deltaConvertVolumeReservesUSD.map<BigDecimal>((bd) => bd.truncate(2));
   hourly.deltaConvertVolumeUSD = hourly.deltaConvertVolumeUSD.truncate(2);
 
-  hourly.createdTimestamp = hour.times(BigInt.fromU32(3600));
+  hourly.createdTimestamp = BigInt.fromI32(hour).times(BigInt.fromU32(3600));
   hourly.lastUpdateTimestamp = block.timestamp;
   hourly.lastUpdateBlockNumber = block.number;
   hourly.save();
@@ -161,7 +161,7 @@ export function takeWellSnapshots(well: Well, block: ethereum.Block): void {
   if (well.isBeanstalk) {
     daily.season = loadBeanstalk().lastSeason;
   }
-  daily.day = day.toI32();
+  daily.day = day;
   daily.well = well.id;
   daily.lpTokenSupply = well.lpTokenSupply;
   daily.totalLiquidityUSD = well.totalLiquidityUSD;
@@ -272,12 +272,12 @@ export function takeWellSnapshots(well: Well, block: ethereum.Block): void {
   daily.deltaConvertVolumeReservesUSD = daily.deltaConvertVolumeReservesUSD.map<BigDecimal>((bd) => bd.truncate(2));
   daily.deltaConvertVolumeUSD = daily.deltaConvertVolumeUSD.truncate(2);
 
-  daily.createdTimestamp = day.times(BigInt.fromU32(86400));
+  daily.createdTimestamp = BigInt.fromI32(day).times(BigInt.fromU32(86400));
   daily.lastUpdateTimestamp = block.timestamp;
   daily.lastUpdateBlockNumber = block.number;
   daily.save();
 
-  well.lastHourlySnapshotHour = hour.toI32();
+  well.lastHourlySnapshotHour = hour;
   well.lastDailySnapshotDay = day;
   well.lastUpdateTimestamp = block.timestamp;
   well.lastUpdateBlockNumber = block.number;

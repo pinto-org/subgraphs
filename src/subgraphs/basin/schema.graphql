@@ -181,7 +181,7 @@ type Beanstalk @entity {
   "Season when the previous hourly snapshot was taken/updated"
   lastHourlySnapshotSeason: Int
   "Day of when the previous daily snapshot was taken/updated"
-  lastDailySnapshotDay: BigInt
+  lastDailySnapshotDay: Int
 
   "Timestamp of entity creation"
   createdTimestamp: BigInt!
@@ -453,7 +453,7 @@ type Well @entity {
   "Hour when the previous hourly snapshot was taken/updated"
   lastHourlySnapshotHour: Int
   "Day of when the previous daily snapshot was taken/updated"
-  lastDailySnapshotDay: BigInt
+  lastDailySnapshotDay: Int
 
   "Timestamp of entity creation"
   createdTimestamp: BigInt!
@@ -464,11 +464,8 @@ type Well @entity {
 
   ##### Snapshots #####
 
-  "Liquidity well daily snapshots"
-  dailySnapshots: [WellDailySnapshot!]! @derivedFrom(field: "well")
-
-  "Liquidity well hourly snapshots"
   hourlySnapshots: [WellHourlySnapshot!]! @derivedFrom(field: "well")
+  dailySnapshots: [WellDailySnapshot!]! @derivedFrom(field: "well")
 
   ##### Events #####
 
@@ -486,8 +483,8 @@ type WellHourlySnapshot @entity {
   "{Smart contract address of the well}-{Unix hour} "
   id: ID!
 
-  "Season"
-  season: Season!
+  "Beanstalk season (if this is a Beanstalk Well)"
+  season: Season
 
   "Unix hour"
   hour: Int!
@@ -574,11 +571,11 @@ type WellDailySnapshot @entity {
   "{Smart contract address of the well}-{Unix day}"
   id: ID!
 
-  "Season"
-  season: Season!
-
   "Unix day"
   day: Int!
+
+  "Beanstalk season (if this is a Beanstalk Well)"
+  season: Season
 
   "The well this snapshot belongs to"
   well: Well!

@@ -71,17 +71,17 @@ describe("Well Entity: Exchange Tests", () => {
         updatedStore.cumulativeTransferVolumeUSD
       );
     });
-    test("Previous day snapshot entity created", () => {
+    test("Well Snapshot entity created", () => {
       mockSwap();
 
-      let dayID = dayFromTimestamp(CURRENT_BLOCK_TIMESTAMP, 8 * 60 * 60) - 1;
-      let daySnapshotID = WELL.concatI32(dayID);
+      let hour = hourFromTimestamp(CURRENT_BLOCK_TIMESTAMP);
+      let hourSnapshotID = WELL.toHexString() + "-" + hour.toString();
 
-      let hourID = hourFromTimestamp(CURRENT_BLOCK_TIMESTAMP) - 1;
-      let hourSnapshotID = WELL.concatI32(hourID);
+      let day = dayFromTimestamp(CURRENT_BLOCK_TIMESTAMP, 8 * 60 * 60);
+      let daySnapshotID = WELL.toHexString() + "-" + day.toString();
 
-      assert.fieldEquals(WELL_DAILY_ENTITY_TYPE, daySnapshotID.toHexString(), "id", daySnapshotID.toHexString());
-      assert.fieldEquals(WELL_HOURLY_ENTITY_TYPE, hourSnapshotID.toHexString(), "id", hourSnapshotID.toHexString());
+      assert.fieldEquals(WELL_HOURLY_ENTITY_TYPE, hourSnapshotID, "hour", hour.toString());
+      assert.fieldEquals(WELL_DAILY_ENTITY_TYPE, daySnapshotID, "day", day.toString());
     });
   });
 

@@ -5,8 +5,8 @@ import { dayFromTimestamp, hourFromTimestamp } from "../../../../../core/utils/D
 export function takeBeanstalkSnapshots(beanstalk: Beanstalk, block: ethereum.Block): void {
   const currentSeason = beanstalk.lastSeason;
 
-  const hour = BigInt.fromI32(hourFromTimestamp(block.timestamp));
-  const day = BigInt.fromI32(dayFromTimestamp(block.timestamp, 8 * 60 * 60));
+  const hour = hourFromTimestamp(block.timestamp);
+  const day = dayFromTimestamp(block.timestamp, 8 * 60 * 60);
 
   // Load the snapshot for this season/day
   const hourlyId = beanstalk.id + "-" + currentSeason.toString();
@@ -16,8 +16,8 @@ export function takeBeanstalkSnapshots(beanstalk: Beanstalk, block: ethereum.Blo
   if (baseHourly == null && beanstalk.lastHourlySnapshotSeason !== 0) {
     baseHourly = BeanstalkHourlySnapshot.load(beanstalk.id + "-" + beanstalk.lastHourlySnapshotSeason.toString());
   }
-  if (baseDaily == null && beanstalk.lastDailySnapshotDay !== null) {
-    baseDaily = BeanstalkDailySnapshot.load(beanstalk.id + "-" + beanstalk.lastDailySnapshotDay!.toString());
+  if (baseDaily == null && beanstalk.lastDailySnapshotDay !== 0) {
+    baseDaily = BeanstalkDailySnapshot.load(beanstalk.id + "-" + beanstalk.lastDailySnapshotDay.toString());
   }
   const hourly = new BeanstalkHourlySnapshot(hourlyId);
   const daily = new BeanstalkDailySnapshot(dailyId);
@@ -91,7 +91,7 @@ export function takeBeanstalkSnapshots(beanstalk: Beanstalk, block: ethereum.Blo
   hourly.deltaConvertDownVolumeUSD = hourly.deltaConvertDownVolumeUSD.truncate(2);
   hourly.deltaConvertNeutralVolumeUSD = hourly.deltaConvertNeutralVolumeUSD.truncate(2);
 
-  hourly.createdTimestamp = hour.times(BigInt.fromU32(3600));
+  hourly.createdTimestamp = BigInt.fromI32(hour).times(BigInt.fromU32(3600));
   hourly.lastUpdateTimestamp = block.timestamp;
   hourly.lastUpdateBlockNumber = block.number;
   hourly.save();
@@ -99,6 +99,7 @@ export function takeBeanstalkSnapshots(beanstalk: Beanstalk, block: ethereum.Blo
   // Repeat for daily snapshot.
   // Duplicate code is preferred to type coercion, the codegen doesnt provide a common interface.
 
+  daily.day = day;
   daily.season = currentSeason;
   daily.wells = beanstalk.wells;
   daily.totalLiquidityUSD = beanstalk.totalLiquidityUSD;
@@ -163,7 +164,7 @@ export function takeBeanstalkSnapshots(beanstalk: Beanstalk, block: ethereum.Blo
   daily.deltaConvertDownVolumeUSD = daily.deltaConvertDownVolumeUSD.truncate(2);
   daily.deltaConvertNeutralVolumeUSD = daily.deltaConvertNeutralVolumeUSD.truncate(2);
 
-  daily.createdTimestamp = day.times(BigInt.fromU32(86400));
+  daily.createdTimestamp = BigInt.fromI32(day).times(BigInt.fromU32(86400));
   daily.lastUpdateTimestamp = block.timestamp;
   daily.lastUpdateBlockNumber = block.number;
   daily.save();
