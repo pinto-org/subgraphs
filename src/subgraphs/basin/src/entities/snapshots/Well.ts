@@ -40,18 +40,22 @@ export function takeWellSnapshots(well: Well, block: ethereum.Block): void {
   hourly.hour = hour;
   hourly.well = well.id;
   hourly.lpTokenSupply = well.lpTokenSupply;
-  hourly.totalLiquidityUSD = well.totalLiquidityUSD;
+  hourly.totalLiquidityUSD = well.totalLiquidityUSD.truncate(2);
   hourly.tokenPrice = well.tokenPrice;
   hourly.cumulativeTradeVolumeReserves = well.cumulativeTradeVolumeReserves;
-  hourly.cumulativeTradeVolumeReservesUSD = well.cumulativeTradeVolumeReservesUSD;
-  hourly.cumulativeTradeVolumeUSD = well.cumulativeTradeVolumeUSD;
+  hourly.cumulativeTradeVolumeReservesUSD = well.cumulativeTradeVolumeReservesUSD.map<BigDecimal>((bd) =>
+    bd.truncate(2)
+  );
+  hourly.cumulativeTradeVolumeUSD = well.cumulativeTradeVolumeUSD.truncate(2);
   hourly.cumulativeBiTradeVolumeReserves = well.cumulativeBiTradeVolumeReserves;
   hourly.cumulativeTransferVolumeReserves = well.cumulativeTransferVolumeReserves;
-  hourly.cumulativeTransferVolumeReservesUSD = well.cumulativeTransferVolumeReservesUSD;
-  hourly.cumulativeTransferVolumeUSD = well.cumulativeTransferVolumeUSD;
+  hourly.cumulativeTransferVolumeReservesUSD = well.cumulativeTransferVolumeReservesUSD.map<BigDecimal>((bd) =>
+    bd.truncate(2)
+  );
+  hourly.cumulativeTransferVolumeUSD = well.cumulativeTransferVolumeUSD.truncate(2);
   hourly.convertVolumeReserves = well.convertVolumeReserves;
-  hourly.convertVolumeReservesUSD = well.convertVolumeReservesUSD;
-  hourly.convertVolumeUSD = well.convertVolumeUSD;
+  hourly.convertVolumeReservesUSD = well.convertVolumeReservesUSD.map<BigDecimal>((bd) => bd.truncate(2));
+  hourly.convertVolumeUSD = well.convertVolumeUSD.truncate(2);
 
   // Set deltas
   if (baseHourly !== null) {
@@ -145,6 +149,15 @@ export function takeWellSnapshots(well: Well, block: ethereum.Block): void {
     hourly.deltaConvertVolumeReservesUSD = hourly.convertVolumeReservesUSD;
     hourly.deltaConvertVolumeUSD = hourly.convertVolumeUSD;
   }
+  // Set precision on BigDecimal deltas as
+  hourly.deltaLiquidityUSD = hourly.deltaLiquidityUSD.truncate(2);
+  hourly.deltaTradeVolumeReservesUSD = hourly.deltaTradeVolumeReservesUSD.map<BigDecimal>((bd) => bd.truncate(2));
+  hourly.deltaTradeVolumeUSD = hourly.deltaTradeVolumeUSD.truncate(2);
+  hourly.deltaTransferVolumeReservesUSD = hourly.deltaTransferVolumeReservesUSD.map<BigDecimal>((bd) => bd.truncate(2));
+  hourly.deltaTransferVolumeUSD = hourly.deltaTransferVolumeUSD.truncate(2);
+  hourly.deltaConvertVolumeReservesUSD = hourly.deltaConvertVolumeReservesUSD.map<BigDecimal>((bd) => bd.truncate(2));
+  hourly.deltaConvertVolumeUSD = hourly.deltaConvertVolumeUSD.truncate(2);
+
   hourly.createdTimestamp = hour.times(BigInt.fromU32(3600));
   hourly.lastUpdateTimestamp = block.timestamp;
   hourly.lastUpdateBlockNumber = block.number;
@@ -159,18 +172,22 @@ export function takeWellSnapshots(well: Well, block: ethereum.Block): void {
   daily.day = day;
   daily.well = well.id;
   daily.lpTokenSupply = well.lpTokenSupply;
-  daily.totalLiquidityUSD = well.totalLiquidityUSD;
+  daily.totalLiquidityUSD = well.totalLiquidityUSD.truncate(2);
   daily.tokenPrice = well.tokenPrice;
   daily.cumulativeTradeVolumeReserves = well.cumulativeTradeVolumeReserves;
-  daily.cumulativeTradeVolumeReservesUSD = well.cumulativeTradeVolumeReservesUSD;
-  daily.cumulativeTradeVolumeUSD = well.cumulativeTradeVolumeUSD;
+  daily.cumulativeTradeVolumeReservesUSD = well.cumulativeTradeVolumeReservesUSD.map<BigDecimal>((bd) =>
+    bd.truncate(2)
+  );
+  daily.cumulativeTradeVolumeUSD = well.cumulativeTradeVolumeUSD.truncate(2);
   daily.cumulativeBiTradeVolumeReserves = well.cumulativeBiTradeVolumeReserves;
   daily.cumulativeTransferVolumeReserves = well.cumulativeTransferVolumeReserves;
-  daily.cumulativeTransferVolumeReservesUSD = well.cumulativeTransferVolumeReservesUSD;
-  daily.cumulativeTransferVolumeUSD = well.cumulativeTransferVolumeUSD;
+  daily.cumulativeTransferVolumeReservesUSD = well.cumulativeTransferVolumeReservesUSD.map<BigDecimal>((bd) =>
+    bd.truncate(2)
+  );
+  daily.cumulativeTransferVolumeUSD = well.cumulativeTransferVolumeUSD.truncate(2);
   daily.convertVolumeReserves = well.convertVolumeReserves;
-  daily.convertVolumeReservesUSD = well.convertVolumeReservesUSD;
-  daily.convertVolumeUSD = well.convertVolumeUSD;
+  daily.convertVolumeReservesUSD = well.convertVolumeReservesUSD.map<BigDecimal>((bd) => bd.truncate(2));
+  daily.convertVolumeUSD = well.convertVolumeUSD.truncate(2);
 
   // Set deltas
   if (baseDaily !== null) {
@@ -258,6 +275,15 @@ export function takeWellSnapshots(well: Well, block: ethereum.Block): void {
     daily.deltaConvertVolumeReservesUSD = daily.convertVolumeReservesUSD;
     daily.deltaConvertVolumeUSD = daily.convertVolumeUSD;
   }
+  // Set precision on BigDecimal deltas as
+  daily.deltaLiquidityUSD = daily.deltaLiquidityUSD.truncate(2);
+  daily.deltaTradeVolumeReservesUSD = daily.deltaTradeVolumeReservesUSD.map<BigDecimal>((bd) => bd.truncate(2));
+  daily.deltaTradeVolumeUSD = daily.deltaTradeVolumeUSD.truncate(2);
+  daily.deltaTransferVolumeReservesUSD = daily.deltaTransferVolumeReservesUSD.map<BigDecimal>((bd) => bd.truncate(2));
+  daily.deltaTransferVolumeUSD = daily.deltaTransferVolumeUSD.truncate(2);
+  daily.deltaConvertVolumeReservesUSD = daily.deltaConvertVolumeReservesUSD.map<BigDecimal>((bd) => bd.truncate(2));
+  daily.deltaConvertVolumeUSD = daily.deltaConvertVolumeUSD.truncate(2);
+
   daily.createdTimestamp = day.times(BigInt.fromU32(86400));
   daily.lastUpdateTimestamp = block.timestamp;
   daily.lastUpdateBlockNumber = block.number;
