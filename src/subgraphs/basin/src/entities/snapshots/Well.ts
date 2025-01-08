@@ -130,9 +130,7 @@ export function takeWellSnapshots(well: Well, block: ethereum.Block): void {
     } else {
       // *Hourly only functionality*
       // This is the first time creating a snapshot for this hour, and past datapoints are available.
-      // Update the rolling 24h/7d values by removing the oldest value.
-      // Newer values for the latest hour were already added.
-      // TODO
+      removeOldestRollingWellStats(well, hour.toI32());
     }
   } else {
     hourly.deltaLpTokenSupply = hourly.lpTokenSupply;
@@ -291,202 +289,15 @@ export function takeWellSnapshots(well: Well, block: ethereum.Block): void {
 
   well.lastHourlySnapshotHour = hour;
   well.lastDailySnapshotDay = day;
+  well.lastUpdateTimestamp = block.timestamp;
+  well.lastUpdateBlockNumber = block.number;
 }
 
-export function loadOrCreateWellDailySnapshot(
-  wellAddress: Address,
-  dayID: i32,
-  block: ethereum.Block
-): WellDailySnapshot {
-  let snapshot = WellDailySnapshot.load(wellAddress.concatI32(dayID));
-
-  if (snapshot == null) {
-    let well = loadWell(wellAddress);
-    snapshot = new WellDailySnapshot(wellAddress.concatI32(dayID));
-    snapshot.day = dayID;
-    snapshot.well = wellAddress;
-    snapshot.season = "1"; /// change when reimplemented
-    snapshot.lpTokenSupply = well.lpTokenSupply;
-    snapshot.totalLiquidityUSD = well.totalLiquidityUSD;
-    snapshot.tokenPrice = well.tokenPrice;
-    snapshot.deltaTokenPrice = well.tokenPrice; ///
-    snapshot.cumulativeTradeVolumeReserves = well.cumulativeTradeVolumeReserves;
-    snapshot.cumulativeTradeVolumeReservesUSD = well.cumulativeTradeVolumeReservesUSD;
-    snapshot.cumulativeTradeVolumeUSD = well.cumulativeTradeVolumeUSD;
-    snapshot.cumulativeBiTradeVolumeReserves = well.cumulativeBiTradeVolumeReserves;
-    snapshot.cumulativeTransferVolumeReserves = well.cumulativeTransferVolumeReserves;
-    snapshot.cumulativeTransferVolumeReservesUSD = well.cumulativeTransferVolumeReservesUSD;
-    snapshot.cumulativeTransferVolumeUSD = well.cumulativeTransferVolumeUSD;
-    snapshot.deltaLpTokenSupply = ZERO_BI;
-    snapshot.deltaLiquidityUSD = ZERO_BD;
-    snapshot.deltaTradeVolumeReserves = emptyBigIntArray(well.tokens.length);
-    snapshot.deltaTradeVolumeReservesUSD = emptyBigDecimalArray(well.tokens.length);
-    snapshot.deltaTradeVolumeUSD = ZERO_BD;
-    snapshot.deltaBiTradeVolumeReserves = emptyBigIntArray(well.tokens.length);
-    snapshot.deltaTransferVolumeReserves = emptyBigIntArray(well.tokens.length);
-    snapshot.deltaTransferVolumeReservesUSD = emptyBigDecimalArray(well.tokens.length);
-    snapshot.deltaTransferVolumeUSD = ZERO_BD;
-    ///
-    snapshot.convertVolumeReserves = emptyBigIntArray(well.tokens.length);
-    snapshot.convertVolumeReservesUSD = emptyBigDecimalArray(well.tokens.length);
-    snapshot.convertVolumeUSD = ZERO_BD;
-    snapshot.deltaConvertVolumeReserves = emptyBigIntArray(well.tokens.length);
-    snapshot.deltaConvertVolumeReservesUSD = emptyBigDecimalArray(well.tokens.length);
-    snapshot.deltaConvertVolumeUSD = ZERO_BD;
-    ///
-    snapshot.lastUpdateTimestamp = block.timestamp;
-    snapshot.lastUpdateBlockNumber = block.number;
-    snapshot.save();
-  }
-  return snapshot as WellDailySnapshot;
-}
-
-export function loadOrCreateWellHourlySnapshot(
-  wellAddress: Address,
-  hourID: i32,
-  block: ethereum.Block
-): WellHourlySnapshot {
-  let snapshot = WellHourlySnapshot.load(wellAddress.concatI32(hourID));
-  if (snapshot == null) {
-    let well = loadWell(wellAddress);
-    snapshot = new WellHourlySnapshot(wellAddress.concatI32(hourID));
-    snapshot.hour = hourID;
-    snapshot.well = wellAddress;
-    snapshot.season = "1"; /// change when reimplemented
-    snapshot.lpTokenSupply = well.lpTokenSupply;
-    snapshot.totalLiquidityUSD = well.totalLiquidityUSD;
-    snapshot.tokenPrice = well.tokenPrice;
-    snapshot.deltaTokenPrice = well.tokenPrice; ///
-    snapshot.cumulativeTradeVolumeReserves = well.cumulativeTradeVolumeReserves;
-    snapshot.cumulativeTradeVolumeReservesUSD = well.cumulativeTradeVolumeReservesUSD;
-    snapshot.cumulativeTradeVolumeUSD = well.cumulativeTradeVolumeUSD;
-    snapshot.cumulativeBiTradeVolumeReserves = well.cumulativeBiTradeVolumeReserves;
-    snapshot.cumulativeTransferVolumeReserves = well.cumulativeTransferVolumeReserves;
-    snapshot.cumulativeTransferVolumeReservesUSD = well.cumulativeTransferVolumeReservesUSD;
-    snapshot.cumulativeTransferVolumeUSD = well.cumulativeTransferVolumeUSD;
-    snapshot.deltaLpTokenSupply = ZERO_BI;
-    snapshot.deltaLiquidityUSD = ZERO_BD;
-    snapshot.deltaTradeVolumeReserves = emptyBigIntArray(well.tokens.length);
-    snapshot.deltaTradeVolumeReservesUSD = emptyBigDecimalArray(well.tokens.length);
-    snapshot.deltaTradeVolumeUSD = ZERO_BD;
-    snapshot.deltaBiTradeVolumeReserves = emptyBigIntArray(well.tokens.length);
-    snapshot.deltaTransferVolumeReserves = emptyBigIntArray(well.tokens.length);
-    snapshot.deltaTransferVolumeReservesUSD = emptyBigDecimalArray(well.tokens.length);
-    snapshot.deltaTransferVolumeUSD = ZERO_BD;
-    ///
-    snapshot.convertVolumeReserves = emptyBigIntArray(well.tokens.length);
-    snapshot.convertVolumeReservesUSD = emptyBigDecimalArray(well.tokens.length);
-    snapshot.convertVolumeUSD = ZERO_BD;
-    snapshot.deltaConvertVolumeReserves = emptyBigIntArray(well.tokens.length);
-    snapshot.deltaConvertVolumeReservesUSD = emptyBigDecimalArray(well.tokens.length);
-    snapshot.deltaConvertVolumeUSD = ZERO_BD;
-    ///
-    snapshot.lastUpdateTimestamp = block.timestamp;
-    snapshot.lastUpdateBlockNumber = block.timestamp;
-    snapshot.save();
-  }
-  return snapshot as WellHourlySnapshot;
-}
-
-export function takeWellDailySnapshot(wellAddress: Address, dayID: i32, block: ethereum.Block): void {
-  let well = loadWell(wellAddress);
-
-  if (well.lastSnapshotDayID == 0) {
-    loadOrCreateWellDailySnapshot(wellAddress, dayID, block);
-    well.lastSnapshotDayID = dayID;
-    well.save();
-    return;
-  }
-
-  let priorDay = well.lastSnapshotDayID;
-  well.lastSnapshotDayID = dayID;
-  well.save();
-
-  let priorSnapshot = loadOrCreateWellDailySnapshot(wellAddress, priorDay, block);
-  let newSnapshot = loadOrCreateWellDailySnapshot(wellAddress, well.lastSnapshotDayID, block);
-
-  newSnapshot.deltaLpTokenSupply = newSnapshot.lpTokenSupply.minus(priorSnapshot.lpTokenSupply);
-  newSnapshot.deltaLiquidityUSD = newSnapshot.totalLiquidityUSD.minus(priorSnapshot.totalLiquidityUSD).truncate(2);
-
-  newSnapshot.deltaTradeVolumeReserves = subBigIntArray(
-    newSnapshot.cumulativeTradeVolumeReserves,
-    priorSnapshot.cumulativeTradeVolumeReserves
-  );
-  newSnapshot.deltaTradeVolumeReservesUSD = subBigDecimalArray(
-    newSnapshot.cumulativeTradeVolumeReservesUSD,
-    priorSnapshot.cumulativeTradeVolumeReservesUSD
-  ).map<BigDecimal>((bd) => bd.truncate(2));
-  newSnapshot.deltaTradeVolumeUSD = newSnapshot.cumulativeTradeVolumeUSD
-    .minus(priorSnapshot.cumulativeTradeVolumeUSD)
-    .truncate(2);
-  newSnapshot.deltaBiTradeVolumeReserves = subBigIntArray(
-    newSnapshot.cumulativeBiTradeVolumeReserves,
-    priorSnapshot.cumulativeBiTradeVolumeReserves
-  );
-  newSnapshot.deltaTransferVolumeReserves = subBigIntArray(
-    newSnapshot.cumulativeTransferVolumeReserves,
-    priorSnapshot.cumulativeTransferVolumeReserves
-  );
-  newSnapshot.deltaTransferVolumeReservesUSD = subBigDecimalArray(
-    newSnapshot.cumulativeTransferVolumeReservesUSD,
-    priorSnapshot.cumulativeTransferVolumeReservesUSD
-  ).map<BigDecimal>((bd) => bd.truncate(2));
-  newSnapshot.deltaTransferVolumeUSD = newSnapshot.cumulativeTransferVolumeUSD
-    .minus(priorSnapshot.cumulativeTransferVolumeUSD)
-    .truncate(2);
-
-  newSnapshot.lastUpdateTimestamp = block.timestamp;
-  newSnapshot.lastUpdateBlockNumber = block.number;
-  newSnapshot.save();
-}
-
-export function takeWellHourlySnapshot(wellAddress: Address, hourID: i32, block: ethereum.Block): void {
-  let well = loadWell(wellAddress);
-
-  let priorHourID = well.lastSnapshotHourID;
-  well.lastSnapshotHourID = hourID;
-
-  let priorSnapshot = loadOrCreateWellHourlySnapshot(wellAddress, priorHourID, block);
-  let newSnapshot = loadOrCreateWellHourlySnapshot(wellAddress, hourID, block);
-
-  newSnapshot.deltaLpTokenSupply = newSnapshot.lpTokenSupply.minus(priorSnapshot.lpTokenSupply);
-  newSnapshot.deltaLiquidityUSD = newSnapshot.totalLiquidityUSD.minus(priorSnapshot.totalLiquidityUSD).truncate(2);
-
-  newSnapshot.deltaTradeVolumeReserves = subBigIntArray(
-    newSnapshot.cumulativeTradeVolumeReserves,
-    priorSnapshot.cumulativeTradeVolumeReserves
-  );
-  newSnapshot.deltaTradeVolumeReservesUSD = subBigDecimalArray(
-    newSnapshot.cumulativeTradeVolumeReservesUSD,
-    priorSnapshot.cumulativeTradeVolumeReservesUSD
-  ).map<BigDecimal>((bd) => bd.truncate(2));
-  newSnapshot.deltaTradeVolumeUSD = newSnapshot.cumulativeTradeVolumeUSD
-    .minus(priorSnapshot.cumulativeTradeVolumeUSD)
-    .truncate(2);
-  newSnapshot.deltaBiTradeVolumeReserves = subBigIntArray(
-    newSnapshot.cumulativeBiTradeVolumeReserves,
-    priorSnapshot.cumulativeBiTradeVolumeReserves
-  );
-  newSnapshot.deltaTransferVolumeReserves = subBigIntArray(
-    newSnapshot.cumulativeTransferVolumeReserves,
-    priorSnapshot.cumulativeTransferVolumeReserves
-  );
-  newSnapshot.deltaTransferVolumeReservesUSD = subBigDecimalArray(
-    newSnapshot.cumulativeTransferVolumeReservesUSD,
-    priorSnapshot.cumulativeTransferVolumeReservesUSD
-  ).map<BigDecimal>((bd) => bd.truncate(2));
-  newSnapshot.deltaTransferVolumeUSD = newSnapshot.cumulativeTransferVolumeUSD
-    .minus(priorSnapshot.cumulativeTransferVolumeUSD)
-    .truncate(2);
-
-  newSnapshot.lastUpdateTimestamp = block.timestamp;
-  newSnapshot.lastUpdateBlockNumber = block.number;
-  newSnapshot.save();
-
-  // Update the rolling daily and weekly volumes by removing the oldest value.
-  // Newer values for the latest hour were already added.
-  let oldest24h = WellHourlySnapshot.load(wellAddress.concatI32(hourID - 24));
-  let oldest7d = WellHourlySnapshot.load(wellAddress.concatI32(hourID - 168));
+// Modifies the provided well entity by removing the oldest values from its rolling 7d/24h stats
+// Newer values for the latest hour were already added.
+function removeOldestRollingWellStats(well: Well, hour: i32): void {
+  let oldest24h = WellHourlySnapshot.load(well.id.toHexString() + "-" + (hour - 24).toString());
+  let oldest7d = WellHourlySnapshot.load(well.id.toHexString() + "-" + (hour - 168).toString());
   if (oldest24h != null) {
     well.rollingDailyTradeVolumeReserves = subBigIntArray(
       well.rollingDailyTradeVolumeReserves,
@@ -511,6 +322,17 @@ export function takeWellHourlySnapshot(wellAddress: Address, hourID: i32, block:
     ).map<BigDecimal>((bd) => bd.truncate(2));
     well.rollingDailyTransferVolumeUSD = well.rollingDailyTransferVolumeUSD
       .minus(oldest24h.deltaTransferVolumeUSD)
+      .truncate(2);
+    well.rollingDailyConvertVolumeReserves = subBigIntArray(
+      well.rollingDailyConvertVolumeReserves,
+      oldest24h.deltaConvertVolumeReserves
+    );
+    well.rollingDailyConvertVolumeReservesUSD = subBigDecimalArray(
+      well.rollingDailyConvertVolumeReservesUSD,
+      oldest24h.deltaConvertVolumeReservesUSD
+    ).map<BigDecimal>((bd) => bd.truncate(2));
+    well.rollingDailyConvertVolumeUSD = well.rollingDailyConvertVolumeUSD
+      .minus(oldest24h.deltaConvertVolumeUSD)
       .truncate(2);
     if (oldest7d != null) {
       well.rollingWeeklyTradeVolumeReserves = subBigIntArray(
@@ -539,9 +361,17 @@ export function takeWellHourlySnapshot(wellAddress: Address, hourID: i32, block:
       well.rollingWeeklyTransferVolumeUSD = well.rollingWeeklyTransferVolumeUSD
         .minus(oldest7d.deltaTransferVolumeUSD)
         .truncate(2);
+      well.rollingWeeklyConvertVolumeReserves = subBigIntArray(
+        well.rollingWeeklyConvertVolumeReserves,
+        oldest7d.deltaConvertVolumeReserves
+      );
+      well.rollingWeeklyConvertVolumeReservesUSD = subBigDecimalArray(
+        well.rollingWeeklyConvertVolumeReservesUSD,
+        oldest7d.deltaConvertVolumeReservesUSD
+      ).map<BigDecimal>((bd) => bd.truncate(2));
+      well.rollingWeeklyConvertVolumeUSD = well.rollingWeeklyConvertVolumeUSD
+        .minus(oldest7d.deltaConvertVolumeUSD)
+        .truncate(2);
     }
   }
-  well.lastUpdateTimestamp = block.timestamp;
-  well.lastUpdateBlockNumber = block.number;
-  well.save();
 }

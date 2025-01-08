@@ -150,4 +150,6 @@ export function takeBeanstalkSnapshots(beanstalk: Beanstalk, block: ethereum.Blo
 
   beanstalk.lastHourlySnapshotSeason = currentSeason;
   beanstalk.lastDailySnapshotDay = day;
+  beanstalk.lastUpdateTimestamp = block.timestamp;
+  beanstalk.lastUpdateBlockNumber = block.number;
 }
