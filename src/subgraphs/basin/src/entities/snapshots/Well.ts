@@ -11,7 +11,7 @@ import { loadBeanstalk } from "../Beanstalk";
 
 export function takeWellSnapshots(well: Well, block: ethereum.Block): void {
   const hour = BigInt.fromI32(hourFromTimestamp(block.timestamp));
-  const day = BigInt.fromI32(dayFromTimestamp(block.timestamp));
+  const day = BigInt.fromI32(dayFromTimestamp(block.timestamp, 8 * 60 * 60));
 
   // Load the snapshot for this hour/day
   const hourlyId = well.id.toHexString() + "-" + hour.toString();
@@ -29,7 +29,11 @@ export function takeWellSnapshots(well: Well, block: ethereum.Block): void {
 
   // Set current values
   if (well.isBeanstalk) {
+    // For Beanstalk Wells, prevent taking new snapshot until the new season
     hourly.season = loadBeanstalk().lastSeason;
+    if (baseHourly && hourly.id != baseHourly.id && hourly.season == baseHourly.season) {
+      return;
+    }
   }
   hourly.hour = hour;
   hourly.well = well.id;

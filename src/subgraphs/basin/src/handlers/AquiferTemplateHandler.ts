@@ -13,6 +13,7 @@ import { createWellUpgradeHistoryEntry, loadOrCreateWell } from "../entities/Wel
 import { getWhitelistedWells } from "../../../../core/constants/RuntimeConstants";
 import { v } from "../utils/constants/Version";
 import { loadBeanstalk } from "../entities/Beanstalk";
+import { takeWellSnapshots } from "../entities/snapshots/Well";
 
 export function handleBoreWell(event: BoreWell): void {
   // Accounts for well proxies here
@@ -61,6 +62,7 @@ export function handleBoreWell(event: BoreWell): void {
     }
   }
 
+  takeWellSnapshots(well, event.block);
   well.save();
 
   // Add to well history

@@ -25,8 +25,6 @@ export function getWithdrawEntityId(event: ethereum.Event, lpTokenAmount: BigInt
 export function recordAddLiquidityEvent(event: AddLiquidity, volume: EventVolume): void {
   let deposit = new Deposit(getDepositEntityId(event, event.params.lpAmountOut));
   let well = loadWell(event.address);
-  well.tokenPrice = getTokenPrices(well);
-  well.save();
 
   deposit.hash = event.transaction.hash;
   deposit.logIndex = event.logIndex.toI32();
@@ -54,8 +52,6 @@ export function recordAddLiquidityEvent(event: AddLiquidity, volume: EventVolume
 export function recordSyncEvent(event: Sync, deltaReserves: BigInt[], volume: EventVolume): void {
   let deposit = new Deposit(getDepositEntityId(event, event.params.lpAmountOut));
   let well = loadWell(event.address);
-  well.tokenPrice = getTokenPrices(well);
-  well.save();
 
   deposit.hash = event.transaction.hash;
   deposit.logIndex = event.logIndex.toI32();
@@ -83,8 +79,6 @@ export function recordSyncEvent(event: Sync, deltaReserves: BigInt[], volume: Ev
 export function recordRemoveLiquidityEvent(event: RemoveLiquidity, volume: EventVolume): void {
   let withdraw = new Withdraw(getWithdrawEntityId(event, event.params.lpAmountIn));
   let well = loadWell(event.address);
-  well.tokenPrice = getTokenPrices(well);
-  well.save();
 
   withdraw.hash = event.transaction.hash;
   withdraw.logIndex = event.logIndex.toI32();
@@ -118,8 +112,6 @@ export function recordRemoveLiquidityOneEvent(
 ): void {
   let withdraw = new Withdraw(getWithdrawEntityId(event, event.params.lpAmountIn));
   let well = loadWell(event.address);
-  well.tokenPrice = getTokenPrices(well);
-  well.save();
 
   withdraw.hash = event.transaction.hash;
   withdraw.logIndex = event.logIndex.toI32();

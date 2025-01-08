@@ -16,8 +16,6 @@ export function getSwapEntityId(event: ethereum.Event, outTokenAmount: BigInt, r
 export function recordSwapEvent(event: Swap, volume: EventVolume): void {
   let swap = new SwapEvent(getSwapEntityId(event, event.params.amountOut));
   let well = loadWell(event.address);
-  well.tokenPrice = getTokenPrices(well);
-  well.save();
 
   swap.hash = event.transaction.hash;
   swap.logIndex = event.logIndex.toI32();
@@ -44,8 +42,6 @@ export function recordSwapEvent(event: Swap, volume: EventVolume): void {
 export function recordShiftEvent(event: Shift, fromToken: Address, amountIn: BigInt, volume: EventVolume): void {
   let swap = new SwapEvent(getSwapEntityId(event, event.params.amountOut));
   let well = loadWell(event.address);
-  well.tokenPrice = getTokenPrices(well);
-  well.save();
 
   swap.hash = event.transaction.hash;
   swap.logIndex = event.logIndex.toI32();

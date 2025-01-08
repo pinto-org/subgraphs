@@ -6,7 +6,7 @@ export function takeBeanstalkSnapshots(beanstalk: Beanstalk, block: ethereum.Blo
   const currentSeason = beanstalk.lastSeason;
 
   const hour = BigInt.fromI32(hourFromTimestamp(block.timestamp));
-  const day = BigInt.fromI32(dayFromTimestamp(block.timestamp));
+  const day = BigInt.fromI32(dayFromTimestamp(block.timestamp, 8 * 60 * 60));
 
   // Load the snapshot for this season/day
   const hourlyId = beanstalk.id + "-" + currentSeason.toString();

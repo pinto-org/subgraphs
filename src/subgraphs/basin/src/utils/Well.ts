@@ -1,5 +1,4 @@
-import { Address, BigDecimal, BigInt, Bytes, ethereum, log } from "@graphprotocol/graph-ts";
-import { dayFromTimestamp, hourFromTimestamp } from "../../../../core/utils/Dates";
+import { Address, BigDecimal, BigInt, Bytes, log } from "@graphprotocol/graph-ts";
 import {
   allNonzero_BI,
   BI_10,
@@ -19,7 +18,6 @@ import { WellFunction } from "../../generated/Basin-ABIs/WellFunction";
 import { toAddress } from "../../../../core/utils/Bytes";
 import { calcRates } from "./legacy/CP2";
 import { loadOrCreateWellFunction } from "../entities/WellComponents";
-import { takeWellDailySnapshot, takeWellHourlySnapshot } from "../entities/snapshots/Well";
 
 export function getCalculatedReserveUSDValues(tokens: Bytes[], reserves: BigInt[]): BigDecimal[] {
   let results = emptyBigDecimalArray(tokens.length);
@@ -97,22 +95,4 @@ export function getTokenPrices(well: Well): BigInt[] {
     ]);
   }
   return rates;
-}
-
-export function checkForSnapshot(wellAddress: Address, block: ethereum.Block): void {
-  // We check for the prior period snapshot and then take one if needed
-  // Schedule the "day" to begin at 9am PT/12pm ET.
-  // Future work could include properly adjusting this when DST occurs.
-  let dayID = dayFromTimestamp(block.timestamp, 8 * 60 * 60) - 1;
-  let hourID = hourFromTimestamp(block.timestamp) - 1;
-
-  let well = loadWell(wellAddress);
-
-  if (dayID > well.lastSnapshotDayID) {
-    takeWellDailySnapshot(wellAddress, dayID, block);
-  }
-  // TODO: if this is a Beanstalk well, it should only be able to do this if the season has advanced.
-  if (hourID > well.lastSnapshotHourID) {
-    takeWellHourlySnapshot(wellAddress, hourID, block);
-  }
 }
