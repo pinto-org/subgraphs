@@ -24,17 +24,18 @@ export function takeWellSnapshots(well: Well, block: ethereum.Block): void {
   if (baseDaily == null && well.lastDailySnapshotDay !== 0) {
     baseDaily = WellDailySnapshot.load(well.id.toHexString() + "-" + well.lastDailySnapshotDay.toString());
   }
-  const hourly = new WellHourlySnapshot(hourlyId);
-  const daily = new WellDailySnapshot(dailyId);
+  let hourly = new WellHourlySnapshot(hourlyId);
+  let daily = new WellDailySnapshot(dailyId);
 
-  // Set current values
   if (well.isBeanstalk) {
-    // For Beanstalk Wells, prevent taking new snapshot until the new season
+    // For Beanstalk Wells, prevent starting new snapshot until the new season.
+    // This will cause the same case as when a snapshot is taken again during the same hour.
     hourly.season = loadBeanstalk().lastSeason;
     if (baseHourly && hourly.id != baseHourly.id && hourly.season == baseHourly.season) {
-      return;
+      hourly = baseHourly;
     }
   }
+  // Set current values
   hourly.hour = hour;
   hourly.well = well.id;
   hourly.lpTokenSupply = well.lpTokenSupply;
@@ -160,6 +161,12 @@ export function takeWellSnapshots(well: Well, block: ethereum.Block): void {
 
   if (well.isBeanstalk) {
     daily.season = loadBeanstalk().lastSeason;
+    // For Beanstalk Wells, prevent starting new snapshot until the new season.
+    // This will cause the same case as when a snapshot is taken again during the same day.
+    daily.season = loadBeanstalk().lastSeason;
+    if (baseDaily && daily.id != baseDaily.id && daily.season == baseDaily.season) {
+      daily = baseDaily;
+    }
   }
   daily.day = day;
   daily.well = well.id;
