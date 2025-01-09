@@ -13,7 +13,6 @@ import { loadOrCreatePool } from "../entities/Pool";
 import { BI_10 } from "../../../../core/utils/Decimals";
 import { loadOrCreateTwaOracle } from "../entities/TwaOracle";
 
-// Beanstalk 3 handler here, might not put this in the manifest yet - do not delete.
 export function handleSunrise(event: Sunrise): void {
   updateSeason(event.params.season.toU32(), event.block);
 

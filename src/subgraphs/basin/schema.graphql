@@ -104,6 +104,8 @@ type Season @entity {
   timestamp: BigInt!
 
   # Snapshots
+  beanstalkHourlySnapshots: [BeanstalkHourlySnapshot!]! @derivedFrom(field: "season")
+  beanstalkDailySnapshots: [BeanstalkDailySnapshot!]! @derivedFrom(field: "season")
   wellHourlySnapshots: [WellHourlySnapshot!]! @derivedFrom(field: "season")
   wellDailySnapshots: [WellDailySnapshot!]! @derivedFrom(field: "season")
 }
