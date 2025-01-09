@@ -149,9 +149,9 @@ export function updateWellLiquidityTokenBalance(
 
 // Updates Well reserve/liquidity values, and the same for Beanstalk
 export function updateWellLiquidityUSD(well: Well): void {
+  well.reservesUSD = getCalculatedReserveUSDValues(well.tokens, well.reserves).map<BigDecimal>((bd) => bd.truncate(2));
   const deltaLiquidityUSD = getBigDecimalArrayTotal(well.reservesUSD).truncate(2).minus(well.totalLiquidityUSD);
   well.totalLiquidityUSD = well.totalLiquidityUSD.plus(deltaLiquidityUSD);
-  well.reservesUSD = getCalculatedReserveUSDValues(well.tokens, well.reserves).map<BigDecimal>((bd) => bd.truncate(2));
 
   if (well.isBeanstalk) {
     const beanstalk = loadBeanstalk();

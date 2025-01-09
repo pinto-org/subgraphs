@@ -28,7 +28,6 @@ import { loadOrCreateWellFunction } from "../src/entities/WellComponents";
 import { assertBDClose } from "../../../core/tests/Assert";
 import { WETH } from "../../../core/constants/raw/BeanstalkEthConstants";
 import { loadBeanstalk } from "../src/entities/Beanstalk";
-import { mockL1TokenPrices } from "./entity-mocking/MockToken";
 
 const BI_2 = BigInt.fromU32(2);
 const BI_3 = BigInt.fromU32(3);
@@ -39,7 +38,6 @@ describe("Well Entity: Liquidity Event Tests", () => {
   beforeEach(() => {
     initL1Version();
     boreDefaultWell();
-    mockL1TokenPrices();
   });
 
   afterEach(() => {
