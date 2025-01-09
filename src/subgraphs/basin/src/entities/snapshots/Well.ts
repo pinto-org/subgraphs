@@ -27,16 +27,16 @@ export function takeWellSnapshots(well: Well, block: ethereum.Block): void {
   let hourly = new WellHourlySnapshot(hourlyId);
   let daily = new WellDailySnapshot(dailyId);
 
+  // Set current values
+  hourly.hour = hour;
   if (well.isBeanstalk) {
     // For Beanstalk Wells, prevent starting new snapshot until the new season.
     // This will cause the same case as when a snapshot is taken again during the same hour.
     hourly.season = loadBeanstalk().lastSeason;
     if (baseHourly && hourly.id != baseHourly.id && hourly.season == baseHourly.season) {
-      hourly = baseHourly;
+      hourly = WellHourlySnapshot.load(well.id.toHexString() + "-" + well.lastHourlySnapshotHour.toString())!;
     }
   }
-  // Set current values
-  hourly.hour = hour;
   hourly.well = well.id;
   hourly.lpTokenSupply = well.lpTokenSupply;
   hourly.totalLiquidityUSD = well.totalLiquidityUSD;
@@ -125,7 +125,7 @@ export function takeWellSnapshots(well: Well, block: ethereum.Block): void {
     } else {
       // *Hourly only functionality*
       // This is the first time creating a snapshot for this hour, and past datapoints are available.
-      removeOldestRollingWellStats(well, hour);
+      removeOldestRollingWellStats(well, hourly.hour);
     }
   } else {
     hourly.deltaLpTokenSupply = hourly.lpTokenSupply;
@@ -151,7 +151,7 @@ export function takeWellSnapshots(well: Well, block: ethereum.Block): void {
   hourly.deltaConvertVolumeReservesUSD = hourly.deltaConvertVolumeReservesUSD.map<BigDecimal>((bd) => bd.truncate(2));
   hourly.deltaConvertVolumeUSD = hourly.deltaConvertVolumeUSD.truncate(2);
 
-  hourly.createdTimestamp = BigInt.fromI32(hour).times(BigInt.fromU32(3600));
+  hourly.createdTimestamp = BigInt.fromI32(hourly.hour).times(BigInt.fromU32(3600));
   hourly.lastUpdateTimestamp = block.timestamp;
   hourly.lastUpdateBlockNumber = block.number;
   hourly.save();
@@ -161,12 +161,6 @@ export function takeWellSnapshots(well: Well, block: ethereum.Block): void {
 
   if (well.isBeanstalk) {
     daily.season = loadBeanstalk().lastSeason;
-    // For Beanstalk Wells, prevent starting new snapshot until the new season.
-    // This will cause the same case as when a snapshot is taken again during the same day.
-    daily.season = loadBeanstalk().lastSeason;
-    if (baseDaily && daily.id != baseDaily.id && daily.season == baseDaily.season) {
-      daily = baseDaily;
-    }
   }
   daily.day = day;
   daily.well = well.id;
@@ -279,13 +273,13 @@ export function takeWellSnapshots(well: Well, block: ethereum.Block): void {
   daily.deltaConvertVolumeReservesUSD = daily.deltaConvertVolumeReservesUSD.map<BigDecimal>((bd) => bd.truncate(2));
   daily.deltaConvertVolumeUSD = daily.deltaConvertVolumeUSD.truncate(2);
 
-  daily.createdTimestamp = BigInt.fromI32(day).times(BigInt.fromU32(86400));
+  daily.createdTimestamp = BigInt.fromI32(daily.day).times(BigInt.fromU32(86400));
   daily.lastUpdateTimestamp = block.timestamp;
   daily.lastUpdateBlockNumber = block.number;
   daily.save();
 
-  well.lastHourlySnapshotHour = hour;
-  well.lastDailySnapshotDay = day;
+  well.lastHourlySnapshotHour = hourly.hour;
+  well.lastDailySnapshotDay = daily.day;
   well.lastUpdateTimestamp = block.timestamp;
   well.lastUpdateBlockNumber = block.number;
 }
@@ -330,46 +324,44 @@ function removeOldestRollingWellStats(well: Well, hour: i32): void {
     well.rollingDailyConvertVolumeUSD = well.rollingDailyConvertVolumeUSD
       .minus(oldest24h.deltaConvertVolumeUSD)
       .truncate(2);
+  }
 
-    let oldest7d = WellHourlySnapshot.load(well.id.toHexString() + "-" + (hour - 168).toString());
-    if (oldest7d != null) {
-      well.rollingWeeklyTradeVolumeReserves = subBigIntArray(
-        well.rollingWeeklyTradeVolumeReserves,
-        oldest7d.deltaTradeVolumeReserves
-      );
-      well.rollingWeeklyTradeVolumeReservesUSD = subBigDecimalArray(
-        well.rollingWeeklyTradeVolumeReservesUSD,
-        oldest7d.deltaTradeVolumeReservesUSD
-      ).map<BigDecimal>((bd) => bd.truncate(2));
-      well.rollingWeeklyTradeVolumeUSD = well.rollingWeeklyTradeVolumeUSD
-        .minus(oldest7d.deltaTradeVolumeUSD)
-        .truncate(2);
-      well.rollingWeeklyBiTradeVolumeReserves = subBigIntArray(
-        well.rollingWeeklyBiTradeVolumeReserves,
-        oldest7d.deltaBiTradeVolumeReserves
-      );
-      well.rollingWeeklyTransferVolumeReserves = subBigIntArray(
-        well.rollingWeeklyTransferVolumeReserves,
-        oldest7d.deltaTransferVolumeReserves
-      );
-      well.rollingWeeklyTransferVolumeReservesUSD = subBigDecimalArray(
-        well.rollingWeeklyTransferVolumeReservesUSD,
-        oldest7d.deltaTransferVolumeReservesUSD
-      ).map<BigDecimal>((bd) => bd.truncate(2));
-      well.rollingWeeklyTransferVolumeUSD = well.rollingWeeklyTransferVolumeUSD
-        .minus(oldest7d.deltaTransferVolumeUSD)
-        .truncate(2);
-      well.rollingWeeklyConvertVolumeReserves = subBigIntArray(
-        well.rollingWeeklyConvertVolumeReserves,
-        oldest7d.deltaConvertVolumeReserves
-      );
-      well.rollingWeeklyConvertVolumeReservesUSD = subBigDecimalArray(
-        well.rollingWeeklyConvertVolumeReservesUSD,
-        oldest7d.deltaConvertVolumeReservesUSD
-      ).map<BigDecimal>((bd) => bd.truncate(2));
-      well.rollingWeeklyConvertVolumeUSD = well.rollingWeeklyConvertVolumeUSD
-        .minus(oldest7d.deltaConvertVolumeUSD)
-        .truncate(2);
-    }
+  let oldest7d = WellHourlySnapshot.load(well.id.toHexString() + "-" + (hour - 168).toString());
+  if (oldest7d != null) {
+    well.rollingWeeklyTradeVolumeReserves = subBigIntArray(
+      well.rollingWeeklyTradeVolumeReserves,
+      oldest7d.deltaTradeVolumeReserves
+    );
+    well.rollingWeeklyTradeVolumeReservesUSD = subBigDecimalArray(
+      well.rollingWeeklyTradeVolumeReservesUSD,
+      oldest7d.deltaTradeVolumeReservesUSD
+    ).map<BigDecimal>((bd) => bd.truncate(2));
+    well.rollingWeeklyTradeVolumeUSD = well.rollingWeeklyTradeVolumeUSD.minus(oldest7d.deltaTradeVolumeUSD).truncate(2);
+    well.rollingWeeklyBiTradeVolumeReserves = subBigIntArray(
+      well.rollingWeeklyBiTradeVolumeReserves,
+      oldest7d.deltaBiTradeVolumeReserves
+    );
+    well.rollingWeeklyTransferVolumeReserves = subBigIntArray(
+      well.rollingWeeklyTransferVolumeReserves,
+      oldest7d.deltaTransferVolumeReserves
+    );
+    well.rollingWeeklyTransferVolumeReservesUSD = subBigDecimalArray(
+      well.rollingWeeklyTransferVolumeReservesUSD,
+      oldest7d.deltaTransferVolumeReservesUSD
+    ).map<BigDecimal>((bd) => bd.truncate(2));
+    well.rollingWeeklyTransferVolumeUSD = well.rollingWeeklyTransferVolumeUSD
+      .minus(oldest7d.deltaTransferVolumeUSD)
+      .truncate(2);
+    well.rollingWeeklyConvertVolumeReserves = subBigIntArray(
+      well.rollingWeeklyConvertVolumeReserves,
+      oldest7d.deltaConvertVolumeReserves
+    );
+    well.rollingWeeklyConvertVolumeReservesUSD = subBigDecimalArray(
+      well.rollingWeeklyConvertVolumeReservesUSD,
+      oldest7d.deltaConvertVolumeReservesUSD
+    ).map<BigDecimal>((bd) => bd.truncate(2));
+    well.rollingWeeklyConvertVolumeUSD = well.rollingWeeklyConvertVolumeUSD
+      .minus(oldest7d.deltaConvertVolumeUSD)
+      .truncate(2);
   }
 }
