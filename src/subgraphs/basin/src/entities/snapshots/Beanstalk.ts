@@ -193,10 +193,10 @@ export function takeBeanstalkSnapshots(beanstalk: Beanstalk, block: ethereum.Blo
   beanstalk.lastUpdateBlockNumber = block.number;
 }
 
-// Modifies the provided Beanstalk entity by removing the oldest values from its rolling 7d/24h stats
-// Newer values for the latest hour were already added.
+// Modifies the provided Beanstalk entity by removing the oldest values from its rolling 7d/24h stats.
+// Maintains a 1 hour buffer, i.e. rolling 24-25h rather than 23-24h.
 function removeOldestRollingBeanstalkStats(beanstalk: Beanstalk, season: i32): void {
-  let oldest24h = BeanstalkHourlySnapshot.load(beanstalk.id + "-" + (season - 24).toString());
+  let oldest24h = BeanstalkHourlySnapshot.load(beanstalk.id + "-" + (season - 24 - 1).toString());
   if (oldest24h != null) {
     beanstalk.rollingDailyTradeVolumeUSD = beanstalk.rollingDailyTradeVolumeUSD
       .minus(oldest24h.deltaTradeVolumeUSD)
@@ -226,7 +226,7 @@ function removeOldestRollingBeanstalkStats(beanstalk: Beanstalk, season: i32): v
       .minus(oldest24h.deltaConvertNeutralTransferVolumeUSD)
       .truncate(2);
 
-    let oldest7d = BeanstalkHourlySnapshot.load(beanstalk.id + "-" + (season - 168).toString());
+    let oldest7d = BeanstalkHourlySnapshot.load(beanstalk.id + "-" + (season - 168 - 1).toString());
     if (oldest7d != null) {
       beanstalk.rollingWeeklyTradeVolumeUSD = beanstalk.rollingWeeklyTradeVolumeUSD
         .minus(oldest7d.deltaTradeVolumeUSD)

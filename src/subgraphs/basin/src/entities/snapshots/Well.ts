@@ -284,10 +284,10 @@ export function takeWellSnapshots(well: Well, block: ethereum.Block): void {
   well.lastUpdateBlockNumber = block.number;
 }
 
-// Modifies the provided Well entity by removing the oldest values from its rolling 7d/24h stats
-// Newer values for the latest hour were already added.
+// Modifies the provided Well entity by removing the oldest values from its rolling 7d/24h stats.
+// Maintains a 1 hour buffer, i.e. rolling 24-25h rather than 23-24h.
 function removeOldestRollingWellStats(well: Well, hour: i32): void {
-  let oldest24h = WellHourlySnapshot.load(well.id.toHexString() + "-" + (hour - 24).toString());
+  let oldest24h = WellHourlySnapshot.load(well.id.toHexString() + "-" + (hour - 24 - 1).toString());
   if (oldest24h != null) {
     well.rollingDailyTradeVolumeReserves = subBigIntArray(
       well.rollingDailyTradeVolumeReserves,
@@ -326,7 +326,7 @@ function removeOldestRollingWellStats(well: Well, hour: i32): void {
       .truncate(2);
   }
 
-  let oldest7d = WellHourlySnapshot.load(well.id.toHexString() + "-" + (hour - 168).toString());
+  let oldest7d = WellHourlySnapshot.load(well.id.toHexString() + "-" + (hour - 168 - 1).toString());
   if (oldest7d != null) {
     well.rollingWeeklyTradeVolumeReserves = subBigIntArray(
       well.rollingWeeklyTradeVolumeReserves,
