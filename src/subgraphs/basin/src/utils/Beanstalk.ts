@@ -49,6 +49,7 @@ export function convert(params: ConvertParams): void {
       depositEntity.tradeVolumeReserves,
       depositEntity.tradeVolumeReservesUSD,
       depositEntity.tradeVolumeUSD,
+      depositEntity.transferVolumeUSD,
       wellCount == 1 ? ConvertDirection.DOWN : ConvertDirection.NEUTRAL
     );
   }
@@ -59,6 +60,7 @@ export function convert(params: ConvertParams): void {
       withdrawEntity.tradeVolumeReserves,
       withdrawEntity.tradeVolumeReservesUSD,
       withdrawEntity.tradeVolumeUSD,
+      withdrawEntity.transferVolumeUSD,
       wellCount == 1 ? ConvertDirection.UP : ConvertDirection.NEUTRAL
     );
   }
@@ -69,6 +71,7 @@ function addWellConvertStats(
   tradeVolumeReserves: BigInt[],
   tradeVolumeReservesUSD: BigDecimal[],
   tradeVolumeUSD: BigDecimal,
+  transferVolumeUSD: BigDecimal,
   direction: ConvertDirection
 ): void {
   const well = loadWell(wellAddress);
@@ -98,27 +101,35 @@ function addWellConvertStats(
   well.save();
 
   const beanstalk = loadBeanstalk();
-  if (direction == ConvertDirection.NEUTRAL) {
-    // LP->LP converts will invoke this method once per Well. Avoid double-counting the same usd value
-    const halfVolume = tradeVolumeUSD.div(BigDecimal.fromString("2"));
-    beanstalk.cumulativeConvertVolumeUSD = beanstalk.cumulativeConvertVolumeUSD.plus(halfVolume).truncate(2);
-    beanstalk.rollingDailyConvertVolumeUSD = beanstalk.rollingDailyConvertVolumeUSD.plus(halfVolume).truncate(2);
-    beanstalk.rollingWeeklyConvertVolumeUSD = beanstalk.rollingWeeklyConvertVolumeUSD.plus(halfVolume).truncate(2);
+  beanstalk.cumulativeConvertVolumeUSD = beanstalk.cumulativeConvertVolumeUSD.plus(tradeVolumeUSD).truncate(2);
+  beanstalk.rollingDailyConvertVolumeUSD = beanstalk.rollingDailyConvertVolumeUSD.plus(tradeVolumeUSD).truncate(2);
+  beanstalk.rollingWeeklyConvertVolumeUSD = beanstalk.rollingWeeklyConvertVolumeUSD.plus(tradeVolumeUSD).truncate(2);
 
-    beanstalk.cumulativeConvertNeutralVolumeUSD = beanstalk.cumulativeConvertNeutralVolumeUSD
-      .plus(halfVolume)
+  if (direction == ConvertDirection.NEUTRAL) {
+    // Example: 10k convert from WETH -> CBBTC.
+    // ~10k volume (5k sell, 5k buy).
+    // ~10k transfer amount (10k/2 + 10k/2). Transfer amount halved due to this method called twice.
+    beanstalk.cumulativeConvertNeutralTradeVolumeUSD = beanstalk.cumulativeConvertNeutralTradeVolumeUSD
+      .plus(tradeVolumeUSD)
       .truncate(2);
-    beanstalk.rollingDailyConvertNeutralVolumeUSD = beanstalk.rollingDailyConvertNeutralVolumeUSD
-      .plus(halfVolume)
+    beanstalk.rollingDailyConvertNeutralTradeVolumeUSD = beanstalk.rollingDailyConvertNeutralTradeVolumeUSD
+      .plus(tradeVolumeUSD)
       .truncate(2);
-    beanstalk.rollingWeeklyConvertNeutralVolumeUSD = beanstalk.rollingWeeklyConvertNeutralVolumeUSD
-      .plus(halfVolume)
+    beanstalk.rollingWeeklyConvertNeutralTradeVolumeUSD = beanstalk.rollingWeeklyConvertNeutralTradeVolumeUSD
+      .plus(tradeVolumeUSD)
+      .truncate(2);
+
+    const halfTransferUSD = transferVolumeUSD.div(BigDecimal.fromString("2"));
+    beanstalk.cumulativeConvertNeutralTransferVolumeUSD = beanstalk.cumulativeConvertNeutralTransferVolumeUSD
+      .plus(halfTransferUSD)
+      .truncate(2);
+    beanstalk.rollingDailyConvertNeutralTransferVolumeUSD = beanstalk.rollingDailyConvertNeutralTransferVolumeUSD
+      .plus(halfTransferUSD)
+      .truncate(2);
+    beanstalk.rollingWeeklyConvertNeutralTransferVolumeUSD = beanstalk.rollingWeeklyConvertNeutralTransferVolumeUSD
+      .plus(halfTransferUSD)
       .truncate(2);
   } else {
-    beanstalk.cumulativeConvertVolumeUSD = beanstalk.cumulativeConvertVolumeUSD.plus(tradeVolumeUSD).truncate(2);
-    beanstalk.rollingDailyConvertVolumeUSD = beanstalk.rollingDailyConvertVolumeUSD.plus(tradeVolumeUSD).truncate(2);
-    beanstalk.rollingWeeklyConvertVolumeUSD = beanstalk.rollingWeeklyConvertVolumeUSD.plus(tradeVolumeUSD).truncate(2);
-
     if (direction == ConvertDirection.UP) {
       beanstalk.cumulativeConvertUpVolumeUSD = beanstalk.cumulativeConvertUpVolumeUSD.plus(tradeVolumeUSD).truncate(2);
       beanstalk.rollingDailyConvertUpVolumeUSD = beanstalk.rollingDailyConvertUpVolumeUSD

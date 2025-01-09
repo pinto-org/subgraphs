@@ -58,7 +58,8 @@ describe("Convert Tests", () => {
     assert.assertTrue(beanstalk.cumulativeConvertVolumeUSD.gt(ZERO_BD));
     assert.assertTrue(beanstalk.cumulativeConvertUpVolumeUSD == ZERO_BD);
     assert.assertTrue(beanstalk.cumulativeConvertDownVolumeUSD.gt(ZERO_BD));
-    assert.assertTrue(beanstalk.cumulativeConvertNeutralVolumeUSD == ZERO_BD);
+    assert.assertTrue(beanstalk.cumulativeConvertNeutralTradeVolumeUSD == ZERO_BD);
+    assert.assertTrue(beanstalk.cumulativeConvertNeutralTransferVolumeUSD == ZERO_BD);
   });
   describe("With starting liquidity", () => {
     beforeEach(() => {
@@ -96,7 +97,8 @@ describe("Convert Tests", () => {
       assert.assertTrue(beanstalk.cumulativeConvertVolumeUSD.gt(ZERO_BD));
       assert.assertTrue(beanstalk.cumulativeConvertUpVolumeUSD.gt(ZERO_BD));
       assert.assertTrue(beanstalk.cumulativeConvertDownVolumeUSD == ZERO_BD);
-      assert.assertTrue(beanstalk.cumulativeConvertNeutralVolumeUSD == ZERO_BD);
+      assert.assertTrue(beanstalk.cumulativeConvertNeutralTradeVolumeUSD == ZERO_BD);
+      assert.assertTrue(beanstalk.cumulativeConvertNeutralTransferVolumeUSD == ZERO_BD);
     });
     test("Identifies LP -> LP convert", () => {
       const transaction = mockTransaction();
@@ -147,7 +149,8 @@ describe("Convert Tests", () => {
       assert.assertTrue(beanstalk.cumulativeConvertVolumeUSD.gt(ZERO_BD));
       assert.assertTrue(beanstalk.cumulativeConvertUpVolumeUSD == ZERO_BD);
       assert.assertTrue(beanstalk.cumulativeConvertDownVolumeUSD == ZERO_BD);
-      assert.assertTrue(beanstalk.cumulativeConvertNeutralVolumeUSD.gt(ZERO_BD));
+      assert.assertTrue(beanstalk.cumulativeConvertNeutralTradeVolumeUSD.gt(ZERO_BD));
+      assert.assertTrue(beanstalk.cumulativeConvertNeutralTransferVolumeUSD.gt(ZERO_BD));
     });
   });
 

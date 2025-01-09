@@ -33,7 +33,8 @@ export function takeBeanstalkSnapshots(beanstalk: Beanstalk, block: ethereum.Blo
   hourly.cumulativeConvertVolumeUSD = beanstalk.cumulativeConvertVolumeUSD;
   hourly.cumulativeConvertUpVolumeUSD = beanstalk.cumulativeConvertUpVolumeUSD;
   hourly.cumulativeConvertDownVolumeUSD = beanstalk.cumulativeConvertDownVolumeUSD;
-  hourly.cumulativeConvertNeutralVolumeUSD = beanstalk.cumulativeConvertNeutralVolumeUSD;
+  hourly.cumulativeConvertNeutralTradeVolumeUSD = beanstalk.cumulativeConvertNeutralTradeVolumeUSD;
+  hourly.cumulativeConvertNeutralTransferVolumeUSD = beanstalk.cumulativeConvertNeutralTransferVolumeUSD;
 
   // Set deltas
   if (baseHourly !== null) {
@@ -47,8 +48,11 @@ export function takeBeanstalkSnapshots(beanstalk: Beanstalk, block: ethereum.Blo
     hourly.deltaConvertDownVolumeUSD = hourly.cumulativeConvertDownVolumeUSD.minus(
       baseHourly.cumulativeConvertDownVolumeUSD
     );
-    hourly.deltaConvertNeutralVolumeUSD = hourly.cumulativeConvertNeutralVolumeUSD.minus(
-      baseHourly.cumulativeConvertNeutralVolumeUSD
+    hourly.deltaConvertNeutralTradeVolumeUSD = hourly.cumulativeConvertNeutralTradeVolumeUSD.minus(
+      baseHourly.cumulativeConvertNeutralTradeVolumeUSD
+    );
+    hourly.deltaConvertNeutralTransferVolumeUSD = hourly.cumulativeConvertNeutralTransferVolumeUSD.minus(
+      baseHourly.cumulativeConvertNeutralTransferVolumeUSD
     );
 
     if (hourly.id == baseHourly.id) {
@@ -61,8 +65,11 @@ export function takeBeanstalkSnapshots(beanstalk: Beanstalk, block: ethereum.Blo
       hourly.deltaConvertVolumeUSD = hourly.deltaConvertVolumeUSD.plus(baseHourly.deltaConvertVolumeUSD);
       hourly.deltaConvertUpVolumeUSD = hourly.deltaConvertUpVolumeUSD.plus(baseHourly.deltaConvertUpVolumeUSD);
       hourly.deltaConvertDownVolumeUSD = hourly.deltaConvertDownVolumeUSD.plus(baseHourly.deltaConvertDownVolumeUSD);
-      hourly.deltaConvertNeutralVolumeUSD = hourly.deltaConvertNeutralVolumeUSD.plus(
-        baseHourly.deltaConvertNeutralVolumeUSD
+      hourly.deltaConvertNeutralTradeVolumeUSD = hourly.deltaConvertNeutralTradeVolumeUSD.plus(
+        baseHourly.deltaConvertNeutralTradeVolumeUSD
+      );
+      hourly.deltaConvertNeutralTransferVolumeUSD = hourly.deltaConvertNeutralTransferVolumeUSD.plus(
+        baseHourly.deltaConvertNeutralTransferVolumeUSD
       );
     } else {
       // *Hourly only functionality*
@@ -78,7 +85,8 @@ export function takeBeanstalkSnapshots(beanstalk: Beanstalk, block: ethereum.Blo
     hourly.deltaConvertVolumeUSD = hourly.cumulativeConvertVolumeUSD;
     hourly.deltaConvertUpVolumeUSD = hourly.cumulativeConvertUpVolumeUSD;
     hourly.deltaConvertDownVolumeUSD = hourly.cumulativeConvertDownVolumeUSD;
-    hourly.deltaConvertNeutralVolumeUSD = hourly.cumulativeConvertNeutralVolumeUSD;
+    hourly.deltaConvertNeutralTradeVolumeUSD = hourly.cumulativeConvertNeutralTradeVolumeUSD;
+    hourly.deltaConvertNeutralTransferVolumeUSD = hourly.cumulativeConvertNeutralTransferVolumeUSD;
   }
   // Set precision on BigDecimal deltas
   hourly.deltaLiquidityUSD = hourly.deltaLiquidityUSD.truncate(2);
@@ -89,7 +97,8 @@ export function takeBeanstalkSnapshots(beanstalk: Beanstalk, block: ethereum.Blo
   hourly.deltaConvertVolumeUSD = hourly.deltaConvertVolumeUSD.truncate(2);
   hourly.deltaConvertUpVolumeUSD = hourly.deltaConvertUpVolumeUSD.truncate(2);
   hourly.deltaConvertDownVolumeUSD = hourly.deltaConvertDownVolumeUSD.truncate(2);
-  hourly.deltaConvertNeutralVolumeUSD = hourly.deltaConvertNeutralVolumeUSD.truncate(2);
+  hourly.deltaConvertNeutralTradeVolumeUSD = hourly.deltaConvertNeutralTradeVolumeUSD.truncate(2);
+  hourly.deltaConvertNeutralTransferVolumeUSD = hourly.deltaConvertNeutralTransferVolumeUSD.truncate(2);
 
   hourly.createdTimestamp = BigInt.fromI32(hour).times(BigInt.fromU32(3600));
   hourly.lastUpdateTimestamp = block.timestamp;
@@ -110,7 +119,8 @@ export function takeBeanstalkSnapshots(beanstalk: Beanstalk, block: ethereum.Blo
   daily.cumulativeConvertVolumeUSD = beanstalk.cumulativeConvertVolumeUSD;
   daily.cumulativeConvertUpVolumeUSD = beanstalk.cumulativeConvertUpVolumeUSD;
   daily.cumulativeConvertDownVolumeUSD = beanstalk.cumulativeConvertDownVolumeUSD;
-  daily.cumulativeConvertNeutralVolumeUSD = beanstalk.cumulativeConvertNeutralVolumeUSD;
+  daily.cumulativeConvertNeutralTradeVolumeUSD = beanstalk.cumulativeConvertNeutralTradeVolumeUSD;
+  daily.cumulativeConvertNeutralTransferVolumeUSD = beanstalk.cumulativeConvertNeutralTransferVolumeUSD;
 
   // Set deltas
   if (baseDaily !== null) {
@@ -124,8 +134,11 @@ export function takeBeanstalkSnapshots(beanstalk: Beanstalk, block: ethereum.Blo
     daily.deltaConvertDownVolumeUSD = daily.cumulativeConvertDownVolumeUSD.minus(
       baseDaily.cumulativeConvertDownVolumeUSD
     );
-    daily.deltaConvertNeutralVolumeUSD = daily.cumulativeConvertNeutralVolumeUSD.minus(
-      baseDaily.cumulativeConvertNeutralVolumeUSD
+    daily.deltaConvertNeutralTradeVolumeUSD = daily.cumulativeConvertNeutralTradeVolumeUSD.minus(
+      baseDaily.cumulativeConvertNeutralTradeVolumeUSD
+    );
+    daily.deltaConvertNeutralTransferVolumeUSD = daily.cumulativeConvertNeutralTransferVolumeUSD.minus(
+      baseDaily.cumulativeConvertNeutralTransferVolumeUSD
     );
 
     if (daily.id == baseDaily.id) {
@@ -138,8 +151,11 @@ export function takeBeanstalkSnapshots(beanstalk: Beanstalk, block: ethereum.Blo
       daily.deltaConvertVolumeUSD = daily.deltaConvertVolumeUSD.plus(baseDaily.deltaConvertVolumeUSD);
       daily.deltaConvertUpVolumeUSD = daily.deltaConvertUpVolumeUSD.plus(baseDaily.deltaConvertUpVolumeUSD);
       daily.deltaConvertDownVolumeUSD = daily.deltaConvertDownVolumeUSD.plus(baseDaily.deltaConvertDownVolumeUSD);
-      daily.deltaConvertNeutralVolumeUSD = daily.deltaConvertNeutralVolumeUSD.plus(
-        baseDaily.deltaConvertNeutralVolumeUSD
+      daily.deltaConvertNeutralTradeVolumeUSD = daily.deltaConvertNeutralTradeVolumeUSD.plus(
+        baseDaily.deltaConvertNeutralTradeVolumeUSD
+      );
+      daily.deltaConvertNeutralTransferVolumeUSD = daily.deltaConvertNeutralTransferVolumeUSD.plus(
+        baseDaily.deltaConvertNeutralTransferVolumeUSD
       );
     }
   } else {
@@ -151,7 +167,8 @@ export function takeBeanstalkSnapshots(beanstalk: Beanstalk, block: ethereum.Blo
     daily.deltaConvertVolumeUSD = daily.cumulativeConvertVolumeUSD;
     daily.deltaConvertUpVolumeUSD = daily.cumulativeConvertUpVolumeUSD;
     daily.deltaConvertDownVolumeUSD = daily.cumulativeConvertDownVolumeUSD;
-    daily.deltaConvertNeutralVolumeUSD = daily.cumulativeConvertNeutralVolumeUSD;
+    daily.deltaConvertNeutralTradeVolumeUSD = daily.cumulativeConvertNeutralTradeVolumeUSD;
+    daily.deltaConvertNeutralTransferVolumeUSD = daily.cumulativeConvertNeutralTransferVolumeUSD;
   }
   // Set precision on BigDecimal deltas
   daily.deltaLiquidityUSD = daily.deltaLiquidityUSD.truncate(2);
@@ -162,7 +179,8 @@ export function takeBeanstalkSnapshots(beanstalk: Beanstalk, block: ethereum.Blo
   daily.deltaConvertVolumeUSD = daily.deltaConvertVolumeUSD.truncate(2);
   daily.deltaConvertUpVolumeUSD = daily.deltaConvertUpVolumeUSD.truncate(2);
   daily.deltaConvertDownVolumeUSD = daily.deltaConvertDownVolumeUSD.truncate(2);
-  daily.deltaConvertNeutralVolumeUSD = daily.deltaConvertNeutralVolumeUSD.truncate(2);
+  daily.deltaConvertNeutralTradeVolumeUSD = daily.deltaConvertNeutralTradeVolumeUSD.truncate(2);
+  daily.deltaConvertNeutralTransferVolumeUSD = daily.deltaConvertNeutralTransferVolumeUSD.truncate(2);
 
   daily.createdTimestamp = BigInt.fromI32(day).times(BigInt.fromU32(86400));
   daily.lastUpdateTimestamp = block.timestamp;
@@ -201,8 +219,11 @@ function removeOldestRollingBeanstalkStats(beanstalk: Beanstalk, season: i32): v
     beanstalk.rollingDailyConvertDownVolumeUSD = beanstalk.rollingDailyConvertDownVolumeUSD
       .minus(oldest24h.deltaConvertDownVolumeUSD)
       .truncate(2);
-    beanstalk.rollingDailyConvertNeutralVolumeUSD = beanstalk.rollingDailyConvertNeutralVolumeUSD
-      .minus(oldest24h.deltaConvertNeutralVolumeUSD)
+    beanstalk.rollingDailyConvertNeutralTradeVolumeUSD = beanstalk.rollingDailyConvertNeutralTradeVolumeUSD
+      .minus(oldest24h.deltaConvertNeutralTradeVolumeUSD)
+      .truncate(2);
+    beanstalk.rollingDailyConvertNeutralTransferVolumeUSD = beanstalk.rollingDailyConvertNeutralTransferVolumeUSD
+      .minus(oldest24h.deltaConvertNeutralTransferVolumeUSD)
       .truncate(2);
 
     let oldest7d = BeanstalkHourlySnapshot.load(beanstalk.id + "-" + (season - 168).toString());
@@ -228,8 +249,11 @@ function removeOldestRollingBeanstalkStats(beanstalk: Beanstalk, season: i32): v
       beanstalk.rollingWeeklyConvertDownVolumeUSD = beanstalk.rollingWeeklyConvertDownVolumeUSD
         .minus(oldest7d.deltaConvertDownVolumeUSD)
         .truncate(2);
-      beanstalk.rollingWeeklyConvertNeutralVolumeUSD = beanstalk.rollingWeeklyConvertNeutralVolumeUSD
-        .minus(oldest7d.deltaConvertNeutralVolumeUSD)
+      beanstalk.rollingWeeklyConvertNeutralTradeVolumeUSD = beanstalk.rollingWeeklyConvertNeutralTradeVolumeUSD
+        .minus(oldest7d.deltaConvertNeutralTradeVolumeUSD)
+        .truncate(2);
+      beanstalk.rollingWeeklyConvertNeutralTransferVolumeUSD = beanstalk.rollingWeeklyConvertNeutralTransferVolumeUSD
+        .minus(oldest7d.deltaConvertNeutralTransferVolumeUSD)
         .truncate(2);
     }
   }

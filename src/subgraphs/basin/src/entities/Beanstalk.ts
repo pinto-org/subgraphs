@@ -49,9 +49,13 @@ export function loadBeanstalk(): Beanstalk {
     beanstalk.rollingDailyConvertDownVolumeUSD = ZERO_BD;
     beanstalk.rollingWeeklyConvertDownVolumeUSD = ZERO_BD;
 
-    beanstalk.cumulativeConvertNeutralVolumeUSD = ZERO_BD;
-    beanstalk.rollingDailyConvertNeutralVolumeUSD = ZERO_BD;
-    beanstalk.rollingWeeklyConvertNeutralVolumeUSD = ZERO_BD;
+    beanstalk.cumulativeConvertNeutralTradeVolumeUSD = ZERO_BD;
+    beanstalk.rollingDailyConvertNeutralTradeVolumeUSD = ZERO_BD;
+    beanstalk.rollingWeeklyConvertNeutralTradeVolumeUSD = ZERO_BD;
+
+    beanstalk.cumulativeConvertNeutralTransferVolumeUSD = ZERO_BD;
+    beanstalk.rollingDailyConvertNeutralTransferVolumeUSD = ZERO_BD;
+    beanstalk.rollingWeeklyConvertNeutralTransferVolumeUSD = ZERO_BD;
 
     beanstalk.createdTimestamp = ZERO_BI;
     beanstalk.lastUpdateTimestamp = ZERO_BI;

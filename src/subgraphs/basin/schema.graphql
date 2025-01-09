@@ -152,33 +152,40 @@ type Beanstalk @entity {
   "Rolling 7d of cumulativeTransferVolumeUSD"
   rollingWeeklyTransferVolumeUSD: BigDecimal!
 
-  "All bidirectional convert volume, in USD. Includes LP->LP converts which are neither up nor down."
+  "All bidirectional convert trading volume, in USD. Includes LP->LP converts which are neither up nor down."
   cumulativeConvertVolumeUSD: BigDecimal!
   "Rolling 24h of cumulativeConvertVolumeUSD"
   rollingDailyConvertVolumeUSD: BigDecimal!
   "Rolling 7d of cumulativeConvertVolumeUSD"
   rollingWeeklyConvertVolumeUSD: BigDecimal!
 
-  "All upconvert convert volume, in USD. Subset of cumulativeConvertVolumeUSD."
+  "All upconvert convert trading volume, in USD. Subset of cumulativeConvertVolumeUSD."
   cumulativeConvertUpVolumeUSD: BigDecimal!
   "Rolling 24h of cumulativeConvertUpVolumeUSD"
   rollingDailyConvertUpVolumeUSD: BigDecimal!
   "Rolling 7d of cumulativeConvertUpVolumeUSD"
   rollingWeeklyConvertUpVolumeUSD: BigDecimal!
 
-  "All downconvert convert volume, in USD. Subset of cumulativeConvertVolumeUSD."
+  "All downconvert convert trading volume, in USD. Subset of cumulativeConvertVolumeUSD."
   cumulativeConvertDownVolumeUSD: BigDecimal!
   "Rolling 24h of cumulativeConvertDownVolumeUSD"
   rollingDailyConvertDownVolumeUSD: BigDecimal!
   "Rolling 7d of cumulativeConvertDownVolumeUSD"
   rollingWeeklyConvertDownVolumeUSD: BigDecimal!
 
-  "All LP->LP convert volume, in USD. Does not double-count values from both actions. A LP->LP convert is defined as a remove liquidity in one Well and add liquidity in another Well. Does not include L2L or AL2L converts which have no Well trading activity. Subset of cumulativeConvertVolumeUSD."
-  cumulativeConvertNeutralVolumeUSD: BigDecimal!
-  "Rolling 24h of cumulativeConvertNeutralVolumeUSD"
-  rollingDailyConvertNeutralVolumeUSD: BigDecimal!
-  "Rolling 7d of cumulativeConvertNeutralVolumeUSD"
-  rollingWeeklyConvertNeutralVolumeUSD: BigDecimal!
+  "All LP->LP convert trading volume, in USD. Counts values from both Well interactions. A LP->LP convert is defined as a remove liquidity in one Well and add liquidity in another Well. Does not include L2L or AL2L converts which have no Well trading activity. Subset of cumulativeConvertVolumeUSD."
+  cumulativeConvertNeutralTradeVolumeUSD: BigDecimal!
+  "Rolling 24h of cumulativeConvertNeutralTradeVolumeUSD"
+  rollingDailyConvertNeutralTradeVolumeUSD: BigDecimal!
+  "Rolling 7d of cumulativeConvertNeutralTradeVolumeUSD"
+  rollingWeeklyConvertNeutralTradeVolumeUSD: BigDecimal!
+
+  "All LP->LP convert transfer volume, in USD. Does NOT double count values from both well interactions. A LP->LP convert is defined as a remove liquidity in one Well and add liquidity in another Well. Does not include L2L or AL2L converts which have no Well trading activity. Subset of cumulativeConvertVolumeUSD."
+  cumulativeConvertNeutralTransferVolumeUSD: BigDecimal!
+  "Rolling 24h of cumulativeConvertNeutralTransferVolumeUSD"
+  rollingDailyConvertNeutralTransferVolumeUSD: BigDecimal!
+  "Rolling 7d of cumulativeConvertNeutralTransferVolumeUSD"
+  rollingWeeklyConvertNeutralTransferVolumeUSD: BigDecimal!
 
   "Season when the previous hourly snapshot was taken/updated"
   lastHourlySnapshotSeason: Int
@@ -228,25 +235,30 @@ type BeanstalkHourlySnapshot @entity {
   "Delta of cumulativeTransferVolumeUSD"
   deltaTransferVolumeUSD: BigDecimal!
 
-  "All bidirectional convert volume, in USD. Includes LP->LP converts which are neither up nor down."
+  "All bidirectional convert trading volume, in USD. Includes LP->LP converts which are neither up nor down."
   cumulativeConvertVolumeUSD: BigDecimal!
   "Delta of cumulativeConvertVolumeUSD"
   deltaConvertVolumeUSD: BigDecimal!
 
-  "All upconvert convert volume, in USD."
+  "All upconvert convert trading volume, in USD."
   cumulativeConvertUpVolumeUSD: BigDecimal!
   "Delta of cumulativeConvertUpVolumeUSD"
   deltaConvertUpVolumeUSD: BigDecimal!
 
-  "All downconvert convert volume, in USD."
+  "All downconvert convert trading volume, in USD."
   cumulativeConvertDownVolumeUSD: BigDecimal!
   "Delta of cumulativeConvertDownVolumeUSD"
   deltaConvertDownVolumeUSD: BigDecimal!
 
-  "All LP->LP convert volume, in USD. Does not double-count values from both actions. A LP->LP convert is defined as a remove liquidity in one Well and add liquidity in another Well. Does not include L2L or AL2L converts which have no Well trading activity."
-  cumulativeConvertNeutralVolumeUSD: BigDecimal!
-  "Delta of cumulativeConvertNeutralVolumeUSD"
-  deltaConvertNeutralVolumeUSD: BigDecimal!
+  "All LP->LP convert trading volume, in USD. Counts values from both Well interactions. A LP->LP convert is defined as a remove liquidity in one Well and add liquidity in another Well. Does not include L2L or AL2L converts which have no Well trading activity."
+  cumulativeConvertNeutralTradeVolumeUSD: BigDecimal!
+  "Delta of cumulativeConvertNeutralTradeVolumeUSD"
+  deltaConvertNeutralTradeVolumeUSD: BigDecimal!
+
+  "All LP->LP convert transfer volume, in USD. Does NOT double count values from both well interactions. A LP->LP convert is defined as a remove liquidity in one Well and add liquidity in another Well. Does not include L2L or AL2L converts which have no Well trading activity."
+  cumulativeConvertNeutralTransferVolumeUSD: BigDecimal!
+  "Delta of cumulativeConvertNeutralTransferVolumeUSD"
+  deltaConvertNeutralTransferVolumeUSD: BigDecimal!
 
   "Timestamp of entity creation"
   createdTimestamp: BigInt!
@@ -294,25 +306,30 @@ type BeanstalkDailySnapshot @entity {
   "Delta of cumulativeTransferVolumeUSD"
   deltaTransferVolumeUSD: BigDecimal!
 
-  "All bidirectional convert volume, in USD. Includes LP->LP converts which are neither up nor down."
+  "All bidirectional convert trading volume, in USD. Includes LP->LP converts which are neither up nor down."
   cumulativeConvertVolumeUSD: BigDecimal!
   "Delta of cumulativeConvertVolumeUSD"
   deltaConvertVolumeUSD: BigDecimal!
 
-  "All upconvert convert volume, in USD."
+  "All upconvert convert trading volume, in USD."
   cumulativeConvertUpVolumeUSD: BigDecimal!
   "Delta of cumulativeConvertUpVolumeUSD"
   deltaConvertUpVolumeUSD: BigDecimal!
 
-  "All downconvert convert volume, in USD."
+  "All downconvert convert trading volume, in USD."
   cumulativeConvertDownVolumeUSD: BigDecimal!
   "Delta of cumulativeConvertDownVolumeUSD"
   deltaConvertDownVolumeUSD: BigDecimal!
 
-  "All LP->LP convert volume, in USD. Does not double-count values from both actions. A LP->LP convert is defined as a remove liquidity in one Well and add liquidity in another Well. Does not include L2L or AL2L converts which have no Well trading activity."
-  cumulativeConvertNeutralVolumeUSD: BigDecimal!
-  "Delta of cumulativeConvertNeutralVolumeUSD"
-  deltaConvertNeutralVolumeUSD: BigDecimal!
+  "All LP->LP convert trading volume, in USD. Counts values from both Well interactions. A LP->LP convert is defined as a remove liquidity in one Well and add liquidity in another Well. Does not include L2L or AL2L converts which have no Well trading activity."
+  cumulativeConvertNeutralTradeVolumeUSD: BigDecimal!
+  "Delta of cumulativeConvertNeutralTradeVolumeUSD"
+  deltaConvertNeutralTradeVolumeUSD: BigDecimal!
+
+  "All LP->LP convert transfer volume, in USD. Does NOT double count values from both well interactions. A LP->LP convert is defined as a remove liquidity in one Well and add liquidity in another Well. Does not include L2L or AL2L converts which have no Well trading activity."
+  cumulativeConvertNeutralTransferVolumeUSD: BigDecimal!
+  "Delta of cumulativeConvertNeutralTransferVolumeUSD"
+  deltaConvertNeutralTransferVolumeUSD: BigDecimal!
 
   "Timestamp of entity creation"
   createdTimestamp: BigInt!
@@ -431,21 +448,21 @@ type Well @entity {
   "Rolling 7d of cumulativeTransferVolumeUSD"
   rollingWeeklyTransferVolumeUSD: BigDecimal!
 
-  "All Beanstalk convert volume occurring in this Well, by each token, in native amount. A subset of cumulativeTradeVolumeReserves"
+  "All Beanstalk convert trading volume occurring in this Well, by each token, in native amount. A subset of cumulativeTradeVolumeReserves"
   convertVolumeReserves: [BigInt!]!
   "Rolling 24h of convertVolumeReserves"
   rollingDailyConvertVolumeReserves: [BigInt!]!
   "Rolling 7d of convertVolumeReserves"
   rollingWeeklyConvertVolumeReserves: [BigInt!]!
 
-  "All Beanstalk convert volume occurring in this Well, by each token, in USD.  A subset of cumulativeTradeVolumeReservesUSD"
+  "All Beanstalk convert trading volume occurring in this Well, by each token, in USD.  A subset of cumulativeTradeVolumeReservesUSD"
   convertVolumeReservesUSD: [BigDecimal!]!
   "Rolling 24h of convertVolumeReservesUSD"
   rollingDailyConvertVolumeReservesUSD: [BigDecimal!]!
   "Rolling 7d of convertVolumeReservesUSD"
   rollingWeeklyConvertVolumeReservesUSD: [BigDecimal!]!
 
-  "All Beanstalk convert volume occurring in this Well. A subset of cumulativeTradeVolumeUSD"
+  "All Beanstalk convert trading volume occurring in this Well. A subset of cumulativeTradeVolumeUSD"
   convertVolumeUSD: BigDecimal!
   "Rolling 24h of convertVolumeUSD"
   rollingDailyConvertVolumeUSD: BigDecimal!
@@ -546,17 +563,17 @@ type WellHourlySnapshot @entity {
   "Delta of cumulativeTransferVolumeUSD"
   deltaTransferVolumeUSD: BigDecimal!
 
-  "All Beanstalk convert volume occurring in this Well, by each token, in native amount. A subset of cumulativeTradeVolumeReserves"
+  "All Beanstalk convert trading volume occurring in this Well, by each token, in native amount. A subset of cumulativeTradeVolumeReserves"
   convertVolumeReserves: [BigInt!]!
   "Delta of convertVolumeReserves"
   deltaConvertVolumeReserves: [BigInt!]!
 
-  "All Beanstalk convert volume occurring in this Well, by each token, in USD.  A subset of cumulativeTradeVolumeReservesUSD"
+  "All Beanstalk convert trading volume occurring in this Well, by each token, in USD.  A subset of cumulativeTradeVolumeReservesUSD"
   convertVolumeReservesUSD: [BigDecimal!]!
   "Delta of convertVolumeReservesUSD"
   deltaConvertVolumeReservesUSD: [BigDecimal!]!
 
-  "All Beanstalk convert volume occurring in this Well. A subset of cumulativeTradeVolumeUSD"
+  "All Beanstalk convert trading volume occurring in this Well. A subset of cumulativeTradeVolumeUSD"
   convertVolumeUSD: BigDecimal!
   "Delta of convertVolumeUSD"
   deltaConvertVolumeUSD: BigDecimal!
@@ -634,17 +651,17 @@ type WellDailySnapshot @entity {
   "Delta of cumulativeTransferVolumeUSD"
   deltaTransferVolumeUSD: BigDecimal!
 
-  "All Beanstalk convert volume occurring in this Well, by each token, in native amount. A subset of cumulativeTradeVolumeReserves"
+  "All Beanstalk convert trading volume occurring in this Well, by each token, in native amount. A subset of cumulativeTradeVolumeReserves"
   convertVolumeReserves: [BigInt!]!
   "Delta of convertVolumeReserves"
   deltaConvertVolumeReserves: [BigInt!]!
 
-  "All Beanstalk convert volume occurring in this Well, by each token, in USD.  A subset of cumulativeTradeVolumeReservesUSD"
+  "All Beanstalk convert trading volume occurring in this Well, by each token, in USD.  A subset of cumulativeTradeVolumeReservesUSD"
   convertVolumeReservesUSD: [BigDecimal!]!
   "Delta of convertVolumeReservesUSD"
   deltaConvertVolumeReservesUSD: [BigDecimal!]!
 
-  "All Beanstalk convert volume occurring in this Well. A subset of cumulativeTradeVolumeUSD"
+  "All Beanstalk convert trading volume occurring in this Well. A subset of cumulativeTradeVolumeUSD"
   convertVolumeUSD: BigDecimal!
   "Delta of convertVolumeUSD"
   deltaConvertVolumeUSD: BigDecimal!
