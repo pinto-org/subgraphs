@@ -1,4 +1,4 @@
-import { Address } from "@graphprotocol/graph-ts";
+import { Address, BigDecimal } from "@graphprotocol/graph-ts";
 import { getTokenInfo } from "../utils/constants/PooledTokens";
 import { ZERO_BD } from "../../../../core/utils/Decimals";
 import { Token } from "../../generated/schema";
@@ -14,4 +14,10 @@ export function loadOrCreateToken(address: Address): Token {
     token.save();
   }
   return token as Token;
+}
+
+export function updateTokenPrice(address: Address, price: BigDecimal): void {
+  let token = loadOrCreateToken(address);
+  token.lastPriceUSD = price;
+  token.save();
 }

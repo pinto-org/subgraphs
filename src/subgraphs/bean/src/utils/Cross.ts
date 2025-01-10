@@ -1,8 +1,8 @@
 import { BigDecimal, Address, ethereum, log } from "@graphprotocol/graph-ts";
 import { ONE_BD, toDecimal, ZERO_BD, ZERO_BI } from "../../../../core/utils/Decimals";
 import { BEAN_ERC20_V1 } from "../../../../core/constants/raw/BeanstalkEthConstants";
-import { loadOrCreatePool } from "../entities/Pool";
-import { loadBean } from "../entities/Bean";
+import { loadOrCreatePool, savePool } from "../entities/Pool";
+import { loadBean, saveBean } from "../entities/Bean";
 import { createBeanCross, createPoolCross } from "../entities/Cross";
 import { BeanstalkPrice_try_price } from "./price/BeanstalkPrice";
 import { updatePoolPrice, updatePoolValues } from "./Pool";
@@ -28,7 +28,7 @@ export function checkPoolCross(
     pool.lastCross = block.timestamp;
     pool.crosses += 1;
     takePoolSnapshots(pool, block);
-    pool.save();
+    savePool(pool, block);
     return true;
   }
   return false;
@@ -50,7 +50,7 @@ export function checkBeanCross(
     bean.lastCross = block.timestamp;
     bean.crosses += 1;
     takeBeanSnapshots(bean, block);
-    bean.save();
+    saveBean(bean, block);
     return true;
   }
   return false;

@@ -1,24 +1,24 @@
 import { BigDecimal, BigInt, ethereum, Address } from "@graphprotocol/graph-ts";
-import { Bean, Pool, PoolHourlySnapshot } from "../../generated/schema";
+import { Pool, PoolHourlySnapshot } from "../../generated/schema";
 import { BEAN_ERC20_V1, BEAN_WETH_V1 } from "../../../../core/constants/raw/BeanstalkEthConstants";
 import { ONE_BD, toDecimal, ZERO_BD, ZERO_BI } from "../../../../core/utils/Decimals";
 import { checkBeanCross } from "./Cross";
 import { BeanstalkPrice_try_price, BeanstalkPriceResult } from "./price/BeanstalkPrice";
 import { calcLockedBeans } from "./LockedBeans";
-import { loadBean } from "../entities/Bean";
+import { loadBean, saveBean } from "../entities/Bean";
 import { loadOrCreatePool } from "../entities/Pool";
 import { externalUpdatePoolPrice as univ2_externalUpdatePoolPrice } from "../handlers/legacy/LegacyUniswapV2Handler";
 import { updateBeanSupplyPegPercent_v1 } from "./legacy/Bean";
 import { toAddress } from "../../../../core/utils/Bytes";
 import { getProtocolToken } from "../../../../core/constants/RuntimeConstants";
 import { v } from "./constants/Version";
-import { getSeason } from "../entities/Season";
 import { setBeanSnapshotInstDeltaB, setBeanSnapshotTwa, takeBeanSnapshots } from "../entities/snapshots/Bean";
 
-export function adjustSupply(beanToken: Address, amount: BigInt): void {
+export function adjustSupply(beanToken: Address, amount: BigInt, block: ethereum.Block): void {
   let bean = loadBean(beanToken);
   bean.supply = bean.supply.plus(amount);
-  bean.save();
+  takeBeanSnapshots(bean, block);
+  saveBean(bean, block);
 }
 
 export function updateBeanValues(
@@ -41,18 +41,7 @@ export function updateBeanValues(
   bean.liquidityUSD = bean.liquidityUSD.plus(deltaLiquidityUSD);
 
   takeBeanSnapshots(bean, block);
-  bean.save();
-}
-
-export function updateBeanSeason(bean: Bean, season: u32, block: ethereum.Block): void {
-  bean.currentSeason = getSeason(season).id;
-  takeBeanSnapshots(bean, block);
-}
-
-// Returns the last stored bean price
-export function getLastBeanPrice(token: Address): BigDecimal {
-  let bean = loadBean(token);
-  return bean.price;
+  saveBean(bean, block);
 }
 
 // Returns the liquidity-weighted bean price across all of the whitelisted pools.
@@ -88,7 +77,7 @@ export function updateBeanSupplyPegPercent(beanToken: Address, block: ethereum.B
   bean.lockedBeans = calcLockedBeans(block.number);
   bean.supplyInPegLP = toDecimal(pegSupply).div(toDecimal(bean.supply.minus(bean.lockedBeans)));
   takeBeanSnapshots(bean, block);
-  bean.save();
+  saveBean(bean, block);
 }
 
 // Update bean information if the pool is still whitelisted

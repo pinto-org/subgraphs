@@ -1,4 +1,4 @@
-import { BigDecimal, Address } from "@graphprotocol/graph-ts";
+import { BigDecimal, Address, ethereum } from "@graphprotocol/graph-ts";
 import { BEAN_ERC20 } from "../../../../core/constants/raw/BeanstalkEthConstants";
 import { ZERO_BD, ZERO_BI } from "../../../../core/utils/Decimals";
 import { Bean } from "../../generated/schema";
@@ -22,7 +22,18 @@ export function loadBean(token: Address): Bean {
     bean.currentSeason = getSeason(token == BEAN_ERC20 ? 6074 : 1).id;
     bean.pools = [];
     bean.dewhitelistedPools = [];
-    bean.save();
+    bean.createdTimestamp = ZERO_BI;
+    bean.lastUpdateTimestamp = ZERO_BI;
+    bean.lastUpdateBlockNumber = ZERO_BI;
   }
   return bean as Bean;
+}
+
+export function saveBean(bean: Bean, block: ethereum.Block): void {
+  if (bean.createdTimestamp == ZERO_BI) {
+    bean.createdTimestamp = block.timestamp;
+  }
+  bean.lastUpdateTimestamp = block.timestamp;
+  bean.lastUpdateBlockNumber = block.number;
+  bean.save();
 }

@@ -1,6 +1,5 @@
 import { BigDecimal, ethereum } from "@graphprotocol/graph-ts";
 import { Bean, BeanCross, Pool, PoolCross } from "../../generated/schema";
-import { toAddress } from "../../../../core/utils/Bytes";
 
 export function createBeanCross(
   bean: Bean,

@@ -1,6 +1,6 @@
 import { ethereum } from "@graphprotocol/graph-ts";
 import { BEAN_INITIAL_VALUES } from "../../../cache-builder/results/B3Migration_arb";
-import { loadBean } from "../../entities/Bean";
+import { loadBean, saveBean } from "../../entities/Bean";
 import { getProtocolToken } from "../../../../../core/constants/RuntimeConstants";
 import { v } from "../constants/Version";
 import { createNewSeason } from "../../entities/Season";
@@ -19,7 +19,7 @@ export function init(block: ethereum.Block): void {
   bean.currentSeason = createNewSeason(BEAN_INITIAL_VALUES.currentSeason, block).id;
 
   takeBeanSnapshots(bean, block);
-  bean.save();
+  saveBean(bean, block);
 
   // No need to initialize supply/price etc as those will be initialized when liquidity is added.
 

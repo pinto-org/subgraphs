@@ -2,7 +2,7 @@ import { ethereum, Address } from "@graphprotocol/graph-ts";
 import { BEAN_3CRV_V1, BEAN_LUSD_V1, BEAN_WETH_V1 } from "../../../../../core/constants/raw/BeanstalkEthConstants";
 import { toDecimal, ZERO_BD } from "../../../../../core/utils/Decimals";
 import { Pool } from "../../../generated/schema";
-import { loadBean } from "../../entities/Bean";
+import { loadBean, saveBean } from "../../entities/Bean";
 import { takeBeanSnapshots } from "../../entities/snapshots/Bean";
 
 export function updateBeanSupplyPegPercent_v1(beanToken: Address, block: ethereum.Block): void {
@@ -26,5 +26,5 @@ export function updateBeanSupplyPegPercent_v1(beanToken: Address, block: ethereu
 
   bean.supplyInPegLP = lpSupply.div(toDecimal(bean.supply));
   takeBeanSnapshots(bean, block);
-  bean.save();
+  saveBean(bean, block);
 }

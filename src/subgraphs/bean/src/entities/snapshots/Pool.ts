@@ -2,7 +2,6 @@ import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import { dayFromTimestamp, hourFromTimestamp } from "../../../../../core/utils/Dates";
 import { Pool, PoolDailySnapshot, PoolHourlySnapshot } from "../../../generated/schema";
 import { addBigIntArray, subBigIntArray } from "../../../../../core/utils/Decimals";
-import { loadOrCreatePool } from "../Pool";
 import { DeltaBAndPrice } from "../../utils/price/Types";
 
 export function takePoolSnapshots(pool: Pool, block: ethereum.Block): void {

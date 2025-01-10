@@ -2,10 +2,10 @@ import { BigInt } from "@graphprotocol/graph-ts";
 import { updateBeanSupplyPegPercent, updateBeanTwa } from "../utils/Bean";
 import { Chop } from "../../generated/Bean-ABIs/Reseed";
 import { Convert, DewhitelistToken, Shipped, Sunrise, WellOracle } from "../../generated/Bean-ABIs/PintoLaunch";
-import { loadBean } from "../entities/Bean";
+import { loadBean, saveBean } from "../entities/Bean";
 import { setRawWellReserves, setTwaLast } from "../utils/price/TwaOracle";
 import { decodeCumulativeWellReserves, setWellTwa } from "../utils/price/WellPrice";
-import { updateSeason } from "../utils/legacy/Beanstalk";
+import { updateSeason } from "../utils/Beanstalk";
 import { updatePoolPricesOnCross } from "../utils/Cross";
 import { beanDecimals, getProtocolToken, isUnripe } from "../../../../core/constants/RuntimeConstants";
 import { v } from "../utils/constants/Version";
@@ -32,7 +32,7 @@ export function handleDewhitelistToken(event: DewhitelistToken): void {
     newDewhitelistedPools.push(newPools.splice(index, 1)[0]);
     bean.pools = newPools;
     bean.dewhitelistedPools = newDewhitelistedPools;
-    bean.save();
+    saveBean(bean, event.block);
   }
 }
 

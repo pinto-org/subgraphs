@@ -7,7 +7,7 @@ import { loadBean } from "../../entities/Bean";
 import { loadOrCreatePool } from "../../entities/Pool";
 import { updateBeanSupplyPegPercent, updateBeanTwa, updateBeanValues } from "../../utils/Bean";
 import { checkBeanCross, updatePoolPricesOnCross } from "../../utils/Cross";
-import { updateSeason } from "../../utils/legacy/Beanstalk";
+import { updateSeason } from "../../utils/Beanstalk";
 import { updatePoolPrice, updatePoolValues } from "../../utils/Pool";
 import { calcCurveInst, setCurveTwa } from "../../utils/price/CurvePrice";
 import { setTwaLast } from "../../utils/price/TwaOracle";
