@@ -5,14 +5,15 @@ import { ONE_BD, toDecimal, ZERO_BD, ZERO_BI } from "../../../../core/utils/Deci
 import { checkBeanCross } from "./Cross";
 import { BeanstalkPrice_try_price, BeanstalkPriceResult } from "./price/BeanstalkPrice";
 import { calcLockedBeans } from "./LockedBeans";
-import { loadBean, loadOrCreateBeanDailySnapshot, loadOrCreateBeanHourlySnapshot } from "../entities/Bean";
-import { loadOrCreatePool, loadOrCreatePoolHourlySnapshot } from "../entities/Pool";
+import { loadBean } from "../entities/Bean";
+import { loadOrCreatePool } from "../entities/Pool";
 import { externalUpdatePoolPrice as univ2_externalUpdatePoolPrice } from "../handlers/legacy/LegacyUniswapV2Handler";
 import { updateBeanSupplyPegPercent_v1 } from "./legacy/Bean";
 import { toAddress } from "../../../../core/utils/Bytes";
 import { getProtocolToken } from "../../../../core/constants/RuntimeConstants";
 import { v } from "./constants/Version";
 import { getSeason } from "../entities/Season";
+import { takeBeanSnapshots } from "../entities/snapshots/Bean";
 
 export function adjustSupply(beanToken: Address, amount: BigInt): void {
   let bean = loadBean(beanToken);
@@ -30,51 +31,22 @@ export function updateBeanValues(
   block: ethereum.Block
 ): void {
   let bean = loadBean(token);
-  let beanHourly = loadOrCreateBeanHourlySnapshot(bean, block);
-  let beanDaily = loadOrCreateBeanDailySnapshot(bean, block);
   if (newPrice !== null) {
     bean.price = newPrice;
-    beanHourly.price = newPrice;
-    beanDaily.price = newPrice;
   }
   bean.supply = bean.supply.plus(deltaSupply);
   bean.marketCap = toDecimal(bean.supply).times(bean.price);
   bean.volume = bean.volume.plus(deltaVolume);
   bean.volumeUSD = bean.volumeUSD.plus(deltaVolumeUSD);
   bean.liquidityUSD = bean.liquidityUSD.plus(deltaLiquidityUSD);
+
+  takeBeanSnapshots(bean, block);
   bean.save();
-
-  beanHourly.volume = bean.volume;
-  beanHourly.volumeUSD = bean.volumeUSD;
-  beanHourly.liquidityUSD = bean.liquidityUSD;
-  beanHourly.supply = bean.supply;
-  beanHourly.marketCap = bean.marketCap;
-  beanHourly.lockedBeans = bean.lockedBeans;
-  beanHourly.supplyInPegLP = bean.supplyInPegLP;
-  beanHourly.deltaVolume = beanHourly.deltaVolume.plus(deltaVolume);
-  beanHourly.deltaVolumeUSD = beanHourly.deltaVolumeUSD.plus(deltaVolumeUSD);
-  beanHourly.deltaLiquidityUSD = beanHourly.deltaLiquidityUSD.plus(deltaLiquidityUSD);
-  beanHourly.save();
-
-  beanDaily.volume = bean.volume;
-  beanDaily.volumeUSD = bean.volumeUSD;
-  beanDaily.liquidityUSD = bean.liquidityUSD;
-  beanDaily.supply = bean.supply;
-  beanDaily.marketCap = bean.marketCap;
-  beanDaily.lockedBeans = bean.lockedBeans;
-  beanDaily.supplyInPegLP = bean.supplyInPegLP;
-  beanDaily.deltaVolume = beanDaily.deltaVolume.plus(deltaVolume);
-  beanDaily.deltaVolumeUSD = beanDaily.deltaVolumeUSD.plus(deltaVolumeUSD);
-  beanDaily.deltaLiquidityUSD = beanDaily.deltaLiquidityUSD.plus(deltaLiquidityUSD);
-  beanDaily.save();
 }
 
 export function updateBeanSeason(bean: Bean, season: u32, block: ethereum.Block): void {
   bean.currentSeason = getSeason(season).id;
-  bean.save();
-
-  loadOrCreateBeanHourlySnapshot(bean, block);
-  loadOrCreateBeanDailySnapshot(bean, block);
+  takeBeanSnapshots(bean, block);
 }
 
 // Returns the last stored bean price
@@ -115,14 +87,8 @@ export function updateBeanSupplyPegPercent(beanToken: Address, block: ethereum.B
   }
   bean.lockedBeans = calcLockedBeans(block.number);
   bean.supplyInPegLP = toDecimal(pegSupply).div(toDecimal(bean.supply.minus(bean.lockedBeans)));
+  takeBeanSnapshots(bean, block);
   bean.save();
-
-  let beanHourly = loadOrCreateBeanHourlySnapshot(bean, block);
-  let beanDaily = loadOrCreateBeanDailySnapshot(bean, block);
-  beanHourly.supplyInPegLP = bean.supplyInPegLP;
-  beanDaily.supplyInPegLP = bean.supplyInPegLP;
-  beanHourly.save();
-  beanDaily.save();
 }
 
 // Update bean information if the pool is still whitelisted

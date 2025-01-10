@@ -12,6 +12,7 @@ export function updateSeason(season: u32, block: ethereum.Block): void {
 
   let bean = loadBean(getProtocolToken(v(), block.number));
   updateBeanSeason(bean, season, block);
+  bean.save();
 
   for (let i = 0; i < bean.pools.length; i++) {
     updatePoolSeason(toAddress(bean.pools[i]), season, block);

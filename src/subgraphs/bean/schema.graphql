@@ -309,9 +309,6 @@ type PoolHourlySnapshot @entity {
   "(DEPRECATED): See basin subgraph instead // Delta of volumeUSD"
   deltaVolumeUSD: BigDecimal!
 
-  "(DEPRECATED): See basin subgraph instead // Percentage of the LP used to trade during this period"
-  utilization: BigDecimal!
-
   "(DEPRECATED): See basin subgraph instead // Total liquidity in this pool"
   liquidityUSD: BigDecimal!
   "(DEPRECATED): See basin subgraph instead // Delta of liquidityUSD"
@@ -369,9 +366,6 @@ type PoolDailySnapshot @entity {
   volumeUSD: BigDecimal!
   "(DEPRECATED): See basin subgraph instead // Delta of volumeUSD"
   deltaVolumeUSD: BigDecimal!
-
-  "(DEPRECATED): See basin subgraph instead // Percentage of the LP used to trade during this period"
-  utilization: BigDecimal!
 
   "(DEPRECATED): See basin subgraph instead // Total liquidity in this pool"
   liquidityUSD: BigDecimal!

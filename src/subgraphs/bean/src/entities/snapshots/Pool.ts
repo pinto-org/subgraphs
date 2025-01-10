@@ -123,5 +123,4 @@ export function takePoolSnapshots(pool: Pool, block: ethereum.Block): void {
 // twa price
 // twaToken2Price
 // twaDeltaBeans
-// utilization
 ////

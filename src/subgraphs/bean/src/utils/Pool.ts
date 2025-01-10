@@ -1,11 +1,11 @@
 import { BigDecimal, BigInt, ethereum, Address, log } from "@graphprotocol/graph-ts";
-import { ZERO_BD } from "../../../../core/utils/Decimals";
 import { updateInstDeltaB } from "./Bean";
 import { checkPoolCross } from "./Cross";
 import { DeltaBAndPrice } from "./price/Types";
-import { loadOrCreatePool, loadOrCreatePoolDailySnapshot, loadOrCreatePoolHourlySnapshot } from "../entities/Pool";
+import { loadOrCreatePool } from "../entities/Pool";
 import { toAddress } from "../../../../core/utils/Bytes";
 import { getSeason } from "../entities/Season";
+import { takePoolSnapshots } from "../entities/snapshots/Pool";
 
 export function updatePoolValues(
   poolAddress: Address,
@@ -16,68 +16,22 @@ export function updatePoolValues(
   block: ethereum.Block
 ): void {
   let pool = loadOrCreatePool(poolAddress, block.number);
-  let poolHourly = loadOrCreatePoolHourlySnapshot(poolAddress, block);
-  let poolDaily = loadOrCreatePoolDailySnapshot(poolAddress, block);
-
   pool.volume = pool.volume.plus(volumeBean);
   pool.volumeUSD = pool.volumeUSD.plus(volumeUSD);
   pool.liquidityUSD = pool.liquidityUSD.plus(deltaLiquidityUSD);
   pool.deltaBeans = deltaBeans;
+
+  takePoolSnapshots(pool, block);
   pool.save();
-
-  poolHourly.volume = pool.volume;
-  poolHourly.volumeUSD = pool.volumeUSD;
-  poolHourly.liquidityUSD = pool.liquidityUSD;
-  poolHourly.deltaBeans = pool.deltaBeans;
-  poolHourly.deltaVolume = poolHourly.deltaVolume.plus(volumeBean);
-  poolHourly.deltaVolumeUSD = poolHourly.deltaVolumeUSD.plus(volumeUSD);
-  poolHourly.deltaLiquidityUSD = poolHourly.deltaLiquidityUSD.plus(deltaLiquidityUSD);
-  if (poolHourly.liquidityUSD.gt(ZERO_BD)) {
-    poolHourly.utilization = poolHourly.deltaVolumeUSD.div(poolHourly.liquidityUSD);
-  }
-  poolHourly.updatedAt = block.timestamp;
-  poolHourly.save();
-
-  poolDaily.volume = pool.volume;
-  poolDaily.volumeUSD = pool.volumeUSD;
-  poolDaily.liquidityUSD = pool.liquidityUSD;
-  poolDaily.deltaBeans = pool.deltaBeans;
-  poolDaily.deltaVolume = poolDaily.deltaVolume.plus(volumeBean);
-  poolDaily.deltaVolumeUSD = poolDaily.deltaVolumeUSD.plus(volumeUSD);
-  poolDaily.deltaLiquidityUSD = poolDaily.deltaLiquidityUSD.plus(deltaLiquidityUSD);
-  if (poolDaily.liquidityUSD.gt(ZERO_BD)) {
-    poolDaily.utilization = poolDaily.deltaVolumeUSD.div(poolDaily.liquidityUSD);
-  }
-  poolDaily.updatedAt = block.timestamp;
-  poolDaily.save();
 
   updateInstDeltaB(toAddress(pool.bean), block);
-}
-
-export function incrementPoolCross(poolAddress: Address, block: ethereum.Block): void {
-  let pool = loadOrCreatePool(poolAddress, block.number);
-  let poolHourly = loadOrCreatePoolHourlySnapshot(poolAddress, block);
-  let poolDaily = loadOrCreatePoolDailySnapshot(poolAddress, block);
-
-  pool.crosses += 1;
-  pool.save();
-
-  poolHourly.crosses += 1;
-  poolHourly.deltaCrosses += 1;
-  poolHourly.save();
-
-  poolDaily.crosses += 1;
-  poolDaily.deltaCrosses += 1;
-  poolDaily.save();
 }
 
 export function updatePoolSeason(poolAddress: Address, season: i32, block: ethereum.Block): void {
   let pool = loadOrCreatePool(poolAddress, block.number);
   pool.currentSeason = getSeason(season).id;
+  takePoolSnapshots(pool, block);
   pool.save();
-
-  loadOrCreatePoolHourlySnapshot(poolAddress, block);
-  loadOrCreatePoolDailySnapshot(poolAddress, block);
 }
 
 export function updatePoolPrice(
@@ -86,20 +40,12 @@ export function updatePoolPrice(
   block: ethereum.Block,
   checkCross: boolean = true
 ): void {
-  let pool = loadOrCreatePool(poolAddress, block.number);
-  let poolHourly = loadOrCreatePoolHourlySnapshot(poolAddress, block);
-  let poolDaily = loadOrCreatePoolDailySnapshot(poolAddress, block);
-
-  let oldPrice = pool.lastPrice;
-
+  const pool = loadOrCreatePool(poolAddress, block.number);
+  const oldPrice = pool.lastPrice;
   pool.lastPrice = price;
+
+  takePoolSnapshots(pool, block);
   pool.save();
-
-  poolHourly.lastPrice = price;
-  poolHourly.save();
-
-  poolDaily.lastPrice = price;
-  poolDaily.save();
 
   if (checkCross) {
     checkPoolCross(poolAddress, oldPrice, price, block);
@@ -108,31 +54,9 @@ export function updatePoolPrice(
 
 export function setPoolReserves(poolAddress: Address, reserves: BigInt[], block: ethereum.Block): void {
   let pool = loadOrCreatePool(poolAddress, block.number);
-  let poolHourly = loadOrCreatePoolHourlySnapshot(poolAddress, block);
-  let poolDaily = loadOrCreatePoolDailySnapshot(poolAddress, block);
-
-  let deltaReserves: BigInt[] = [];
-  for (let i = 0; i < reserves.length; ++i) {
-    deltaReserves.push(reserves[i].minus(pool.reserves[i]));
-  }
-
   pool.reserves = reserves;
-  poolHourly.reserves = reserves;
-  poolDaily.reserves = reserves;
-
-  let newHourlyDelta: BigInt[] = [];
-  let newDailyDelta: BigInt[] = [];
-  for (let i = 0; i < reserves.length; ++i) {
-    newHourlyDelta.push(poolHourly.deltaReserves[i].plus(deltaReserves[i]));
-    newDailyDelta.push(poolDaily.deltaReserves[i].plus(deltaReserves[i]));
-  }
-
-  poolHourly.deltaReserves = newHourlyDelta;
-  poolDaily.deltaReserves = newDailyDelta;
-
+  takePoolSnapshots(pool, block);
   pool.save();
-  poolHourly.save();
-  poolDaily.save();
 }
 
 export function getPoolLiquidityUSD(poolAddress: Address, block: ethereum.Block): BigDecimal {
