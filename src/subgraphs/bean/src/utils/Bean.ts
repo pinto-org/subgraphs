@@ -70,7 +70,7 @@ export function updateBeanValues(
 }
 
 export function updateBeanSeason(bean: Bean, season: u32, block: ethereum.Block): void {
-  bean.lastSeason = getSeason(season).id;
+  bean.currentSeason = getSeason(season).id;
   bean.save();
 
   loadOrCreateBeanHourlySnapshot(bean, block);

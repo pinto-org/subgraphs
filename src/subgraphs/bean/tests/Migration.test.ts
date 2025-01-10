@@ -8,7 +8,7 @@ import { mockBeanSeasons, mockSeason } from "./entity-mocking/MockSeason";
 
 describe("Beanstalk 3 Migration", () => {
   beforeEach(() => {
-    mockSeason(BEAN_INITIAL_VALUES.lastSeason);
+    mockSeason(BEAN_INITIAL_VALUES.currentSeason);
     mockBeanSeasons();
     // NOTE: it may be more appropriate to init l2 version, but this shouldnt affect the tests
     // (aside from having to use L1 addresses in this test)
@@ -21,11 +21,11 @@ describe("Beanstalk 3 Migration", () => {
 
   test("Bean entity initialization", () => {
     assert.fieldEquals("Bean", BEAN_ERC20.toHexString(), "volume", BEAN_INITIAL_VALUES.volume.toString());
-    assert.fieldEquals("Bean", BEAN_ERC20.toHexString(), "lastSeason", BEAN_INITIAL_VALUES.lastSeason.toString());
+    assert.fieldEquals("Bean", BEAN_ERC20.toHexString(), "currentSeason", BEAN_INITIAL_VALUES.currentSeason.toString());
     assert.fieldEquals("Bean", BEAN_ERC20.toHexString(), "crosses", BEAN_INITIAL_VALUES.crosses.toString());
     assert.fieldEquals(
       "BeanHourlySnapshot",
-      BEAN_ERC20.toHexString() + "-" + BEAN_INITIAL_VALUES.lastSeason.toString(),
+      BEAN_ERC20.toHexString() + "-" + BEAN_INITIAL_VALUES.currentSeason.toString(),
       "crosses",
       BEAN_INITIAL_VALUES.crosses.toString()
     );

@@ -8,6 +8,6 @@ import { createNewSeason } from "../../entities/Season";
 export function init(block: ethereum.Block): void {
   const season = createNewSeason(1, block);
   const bean = loadBean(getProtocolToken(v(), block.number));
-  bean.lastSeason = season.id;
+  bean.currentSeason = season.id;
   bean.save();
 }

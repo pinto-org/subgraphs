@@ -20,7 +20,7 @@ export function loadBean(token: Address): Bean {
     bean.price = BigDecimal.fromString(token == BEAN_ERC20 ? "1.072" : "1.0");
     bean.crosses = token == BEAN_ERC20 ? getV1Crosses() : 0;
     bean.lastCross = ZERO_BI;
-    bean.lastSeason = getSeason(token == BEAN_ERC20 ? 6074 : 1).id;
+    bean.currentSeason = getSeason(token == BEAN_ERC20 ? 6074 : 1).id;
     bean.pools = [];
     bean.dewhitelistedPools = [];
     bean.save();
@@ -29,7 +29,7 @@ export function loadBean(token: Address): Bean {
 }
 
 export function loadOrCreateBeanHourlySnapshot(bean: Bean, block: ethereum.Block): BeanHourlySnapshot {
-  let id = bean.id.toHexString() + "-" + bean.lastSeason;
+  let id = bean.id.toHexString() + "-" + bean.currentSeason;
   let snapshot = BeanHourlySnapshot.load(id);
   if (snapshot == null) {
     snapshot = new BeanHourlySnapshot(id);
@@ -50,7 +50,7 @@ export function loadOrCreateBeanHourlySnapshot(bean: Bean, block: ethereum.Block
     snapshot.deltaVolumeUSD = ZERO_BD;
     snapshot.deltaLiquidityUSD = ZERO_BD;
     snapshot.deltaCrosses = 0;
-    snapshot.season = bean.lastSeason;
+    snapshot.season = bean.currentSeason;
     snapshot.timestamp = block.timestamp;
     snapshot.blockNumber = block.number;
     snapshot.save();
@@ -80,7 +80,7 @@ export function loadOrCreateBeanDailySnapshot(bean: Bean, block: ethereum.Block)
     snapshot.deltaVolumeUSD = ZERO_BD;
     snapshot.deltaLiquidityUSD = ZERO_BD;
     snapshot.deltaCrosses = 0;
-    snapshot.season = bean.lastSeason;
+    snapshot.season = bean.currentSeason;
     snapshot.timestamp = block.timestamp;
     snapshot.blockNumber = block.number;
     snapshot.save();

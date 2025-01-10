@@ -7,7 +7,7 @@ class BeanInitialValues {
   volumeUsd: BigDecimal;
   crosses: i32;
   lastCross: BigInt;
-  lastSeason: i32;
+  currentSeason: i32;
 }
 
 export const BEAN_INITIAL_VALUES: BeanInitialValues = {
@@ -15,5 +15,5 @@ export const BEAN_INITIAL_VALUES: BeanInitialValues = {
   volumeUsd: BigDecimal.fromString("83909550.415218251951"),
   crosses: 5675,
   lastCross: BigInt.fromString("1716828947"),
-  lastSeason: 25129
+  currentSeason: 25129
 };

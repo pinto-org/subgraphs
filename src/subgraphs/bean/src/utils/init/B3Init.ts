@@ -14,7 +14,7 @@ export function init(block: ethereum.Block): void {
   bean.volumeUSD = BEAN_INITIAL_VALUES.volumeUsd;
   bean.crosses = BEAN_INITIAL_VALUES.crosses;
   bean.lastCross = BEAN_INITIAL_VALUES.lastCross;
-  bean.lastSeason = createNewSeason(BEAN_INITIAL_VALUES.lastSeason, block).id;
+  bean.currentSeason = createNewSeason(BEAN_INITIAL_VALUES.currentSeason, block).id;
   bean.save();
 
   // No need to initialize supply/price etc as those will be initialized when liquidity is added.

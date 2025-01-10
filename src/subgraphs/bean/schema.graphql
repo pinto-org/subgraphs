@@ -46,7 +46,7 @@ type Bean @entity {
   id: Bytes!
 
   "Current Beanstalk season"
-  lastSeason: Season!
+  currentSeason: Season!
   "Current bean supply"
   supply: BigInt!
   "Current market cap. Accuracy not guaranteed except at sunrise"
@@ -70,6 +70,11 @@ type Bean @entity {
   "Percent of supply in LP used for peg maintenance"
   supplyInPegLP: BigDecimal!
 
+  "Season when the previous hourly snapshot was taken/updated"
+  lastHourlySnapshotSeason: Int
+  "Day of when the previous daily snapshot was taken/updated"
+  lastDailySnapshotDay: Int
+
   hourlySnapshots: [BeanHourlySnapshot!]! @derivedFrom(field: "bean")
   dailySnapshots: [BeanDailySnapshot!]! @derivedFrom(field: "bean")
 
@@ -84,12 +89,20 @@ type Bean @entity {
 
   "(DEPRECATED): See basin subgraph instead // Total liquidity trading against this Bean"
   liquidityUSD: BigDecimal!
+
+  "Timestamp of entity creation"
+  createdTimestamp: BigInt!
+  "Timestamp of the last time this entity was updated"
+  lastUpdateTimestamp: BigInt!
+  "Block number of the last time this entity was updated"
+  lastUpdateBlockNumber: BigInt!
 }
 
 type BeanHourlySnapshot @entity {
   "{Token address}-{Season}"
   id: ID!
 
+  seasonNumber: Int!
   season: Season!
   bean: Bean!
 
@@ -118,10 +131,6 @@ type BeanHourlySnapshot @entity {
   "Percent of supply in LP used for peg maintenance"
   supplyInPegLP: BigDecimal!
 
-  # TODO: this will be refactored when snapshots standardized
-  timestamp: BigInt!
-  blockNumber: BigInt!
-
   "(DEPRECATED): Not relevant to Pinto. // Amount of the supply which is considered Locked Beans (untradeable due to chop rate)"
   lockedBeans: BigInt!
 
@@ -139,11 +148,21 @@ type BeanHourlySnapshot @entity {
   liquidityUSD: BigDecimal!
   "(DEPRECATED): See basin subgraph instead // Delta of liquidityUSD"
   deltaLiquidityUSD: BigDecimal!
+
+  "Timestamp of entity creation"
+  createdTimestamp: BigInt!
+  "Timestamp of the last time this entity was updated"
+  lastUpdateTimestamp: BigInt!
+  "Block number of the last time this entity was updated"
+  lastUpdateBlockNumber: BigInt!
 }
 
 type BeanDailySnapshot @entity {
   "{Token address}-{Unix day}"
   id: ID!
+
+  "Unix day"
+  day: Int!
 
   season: Season!
   bean: Bean!
@@ -173,10 +192,6 @@ type BeanDailySnapshot @entity {
   "Percent of supply in LP used for peg maintenance"
   supplyInPegLP: BigDecimal!
 
-  # TODO: this will be refactored when snapshots standardized
-  timestamp: BigInt!
-  blockNumber: BigInt!
-
   "(DEPRECATED): Not relevant to Pinto. // Amount of the supply which is considered Locked Beans (untradeable due to chop rate)"
   lockedBeans: BigInt!
 
@@ -194,11 +209,21 @@ type BeanDailySnapshot @entity {
   liquidityUSD: BigDecimal!
   "(DEPRECATED): See basin subgraph instead // Delta of liquidityUSD"
   deltaLiquidityUSD: BigDecimal!
+
+  "Timestamp of entity creation"
+  createdTimestamp: BigInt!
+  "Timestamp of the last time this entity was updated"
+  lastUpdateTimestamp: BigInt!
+  "Block number of the last time this entity was updated"
+  lastUpdateBlockNumber: BigInt!
 }
 
 type Pool @entity {
   "Pool contract address"
   id: Bytes!
+
+  "Current Beanstalk season"
+  currentSeason: Season!
   "The Bean token that is in this pool"
   bean: Bean!
   "Tokens in this pool"
@@ -218,6 +243,11 @@ type Pool @entity {
   "Peg cross references"
   crossEvents: [PoolCross!]! @derivedFrom(field: "pool")
 
+  "Season when the previous hourly snapshot was taken/updated"
+  lastHourlySnapshotSeason: Int
+  "Day of when the previous daily snapshot was taken/updated"
+  lastDailySnapshotDay: Int
+
   hourlySnapshots: [PoolHourlySnapshot!]! @derivedFrom(field: "pool")
   dailySnapshots: [PoolDailySnapshot!]! @derivedFrom(field: "pool")
 
@@ -227,12 +257,20 @@ type Pool @entity {
   volumeUSD: BigDecimal!
   "(DEPRECATED): See basin subgraph instead // Total liquidity in this pool"
   liquidityUSD: BigDecimal!
+
+  "Timestamp of entity creation"
+  createdTimestamp: BigInt!
+  "Timestamp of the last time this entity was updated"
+  lastUpdateTimestamp: BigInt!
+  "Block number of the last time this entity was updated"
+  lastUpdateBlockNumber: BigInt!
 }
 
 type PoolHourlySnapshot @entity {
   "{Token address}-{Season}"
   id: ID!
 
+  seasonNumber: Int!
   season: Season!
   pool: Pool!
 
@@ -261,10 +299,6 @@ type PoolHourlySnapshot @entity {
   "All crosses occurred in the same time period as this snapshot"
   crossEvents: [PoolCross!]! @derivedFrom(field: "poolHourlySnapshot")
 
-  # TODO: this will be refactored when snapshots standardized
-  createdAt: BigInt!
-  updatedAt: BigInt!
-
   "(DEPRECATED): See basin subgraph instead // Pool exchange volume in bean"
   volume: BigInt!
   "(DEPRECATED): See basin subgraph instead // Delta of volume"
@@ -282,11 +316,21 @@ type PoolHourlySnapshot @entity {
   liquidityUSD: BigDecimal!
   "(DEPRECATED): See basin subgraph instead // Delta of liquidityUSD"
   deltaLiquidityUSD: BigDecimal!
+
+  "Timestamp of entity creation"
+  createdTimestamp: BigInt!
+  "Timestamp of the last time this entity was updated"
+  lastUpdateTimestamp: BigInt!
+  "Block number of the last time this entity was updated"
+  lastUpdateBlockNumber: BigInt!
 }
 
 type PoolDailySnapshot @entity {
   "{Token address}-{Unix day}"
   id: ID!
+
+  "Unix day"
+  day: Int!
 
   season: Season!
   pool: Pool!
@@ -316,10 +360,6 @@ type PoolDailySnapshot @entity {
   "All crosses occurred in the same time period as this snapshot"
   crossEvents: [PoolCross!]! @derivedFrom(field: "poolDailySnapshot")
 
-  # TODO: this will be refactored when snapshots standardized
-  createdAt: BigInt!
-  updatedAt: BigInt!
-
   "(DEPRECATED): See basin subgraph instead // Pool exchange volume in bean"
   volume: BigInt!
   "(DEPRECATED): See basin subgraph instead // Delta of volume"
@@ -337,6 +377,13 @@ type PoolDailySnapshot @entity {
   liquidityUSD: BigDecimal!
   "(DEPRECATED): See basin subgraph instead // Delta of liquidityUSD"
   deltaLiquidityUSD: BigDecimal!
+
+  "Timestamp of entity creation"
+  createdTimestamp: BigInt!
+  "Timestamp of the last time this entity was updated"
+  lastUpdateTimestamp: BigInt!
+  "Block number of the last time this entity was updated"
+  lastUpdateBlockNumber: BigInt!
 }
 
 type BeanCross @entity {
