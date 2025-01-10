@@ -45,50 +45,45 @@ type Bean @entity {
   "Contract address of the Bean token"
   id: Bytes!
 
-  "Current supply"
+  "Current Beanstalk season"
+  lastSeason: Season!
+  "Current bean supply"
   supply: BigInt!
-
-  "Latest price seen"
-  price: BigDecimal!
-
-  "Current market cap"
+  "Current market cap. Accuracy not guaranteed except at sunrise"
   marketCap: BigDecimal!
 
-  "Amount of the supply which is considered Locked Beans (untradeable due to chop rate)"
-  lockedBeans: BigInt!
+  "Whitelisted pools having Bean"
+  pools: [Pool!]!
+  "Dewhitelisted pools having Bean"
+  dewhitelistedPools: [Pool!]!
+
+  "Current bean token price. Accuracy not guaranteed except at sunrise"
+  price: BigDecimal!
+
+  "Cumulative number of peg crosses"
+  crosses: Int!
+  "Last timestamp a peg cross occurred"
+  lastCross: BigInt!
+  "Peg cross references"
+  crossEvents: [BeanCross!]! @derivedFrom(field: "bean")
 
   "Percent of supply in LP used for peg maintenance"
   supplyInPegLP: BigDecimal!
 
-  "Cumulative volume of beans traded"
-  volume: BigInt!
-
-  "Cumulative volume in USD value"
-  volumeUSD: BigDecimal!
-
-  "Current liquidity in USD value"
-  liquidityUSD: BigDecimal!
-
-  "Cumulative number of crosses"
-  crosses: Int!
-
-  "Peg crosses information"
-  crossEvents: [BeanCross!]! @derivedFrom(field: "bean")
-
-  "Last timestamp a cross was seen"
-  lastCross: BigInt!
-
-  "Last season seen from Beanstalk"
-  lastSeason: Season!
-
-  "Whitelisted pools having bean"
-  pools: [Pool!]!
-
-  "Dewhitelisted pools having bean"
-  dewhitelistedPools: [Pool!]!
-
   hourlySnapshots: [BeanHourlySnapshot!]! @derivedFrom(field: "bean")
   dailySnapshots: [BeanDailySnapshot!]! @derivedFrom(field: "bean")
+
+  "(DEPRECATED): Not relevant to Pinto. // Amount of the supply which is considered Locked Beans (untradeable due to chop rate)"
+  lockedBeans: BigInt!
+
+  "(DEPRECATED): See basin subgraph instead // Exchange volume in bean"
+  volume: BigInt!
+
+  "(DEPRECATED): See basin subgraph instead // Exchange volume in USD"
+  volumeUSD: BigDecimal!
+
+  "(DEPRECATED): See basin subgraph instead // Total liquidity trading against this Bean"
+  liquidityUSD: BigDecimal!
 }
 
 type BeanHourlySnapshot @entity {
@@ -97,59 +92,53 @@ type BeanHourlySnapshot @entity {
 
   season: Season!
   bean: Bean!
+
+  "Bean supply"
   supply: BigInt!
+  "Market cap. Accuracy not guaranteed except at sunrise"
   marketCap: BigDecimal!
 
-  "Amount of the supply which is considered Locked Beans (untradeable due to chop rate)"
-  lockedBeans: BigInt!
+  "Bean token price. Accuracy not guaranteed except at sunrise"
+  price: BigDecimal!
+  "Time-Weighted price over the previous season"
+  twaPrice: BigDecimal!
+
+  "Instantaneous deltaB across all whitelisted pools. Updated once per season or at time of trading activity. Accuracy not guaranteed except at sunrise"
+  instantaneousDeltaB: BigInt!
+  "Time-Weighted deltaB across all whitelisted pools over the previous season"
+  twaDeltaB: BigInt!
+
+  "Cumulative number of peg crosses"
+  crosses: Int!
+  "Delta of crosses"
+  deltaCrosses: Int!
+  "All crosses occurred in the same time period as this snapshot"
+  crossEvents: [BeanCross!]! @derivedFrom(field: "beanHourlySnapshot")
 
   "Percent of supply in LP used for peg maintenance"
   supplyInPegLP: BigDecimal!
 
-  "Instantaneous deltaB across all whitelisted pools"
-  instantaneousDeltaB: BigInt!
+  # TODO: this will be refactored when snapshots standardized
+  timestamp: BigInt!
+  blockNumber: BigInt!
 
-  "Time-Weighted deltaB in whitelisted pools over the previous season"
-  twaDeltaB: BigInt!
+  "(DEPRECATED): Not relevant to Pinto. // Amount of the supply which is considered Locked Beans (untradeable due to chop rate)"
+  lockedBeans: BigInt!
 
-  "Cumulative volume in BEAN"
+  "(DEPRECATED): See basin subgraph instead // Exchange volume in bean"
   volume: BigInt!
-
-  "Cumulative volume in USD"
-  volumeUSD: BigDecimal!
-
-  "Current liquidity in USD"
-  liquidityUSD: BigDecimal!
-
-  "Current USD price"
-  price: BigDecimal!
-
-  "Time-Weighted price over the previous season"
-  twaPrice: BigDecimal!
-
-  "Cumulative number of crosses"
-  crosses: Int!
-
-  "Volume in BEAN for this snapshot"
+  "(DEPRECATED): See basin subgraph instead // Delta of volume"
   deltaVolume: BigInt!
 
-  "Volume in USD for this snapshot"
+  "(DEPRECATED): See basin subgraph instead // Exchange volume in USD"
+  volumeUSD: BigDecimal!
+  "(DEPRECATED): See basin subgraph instead // Delta of volumeUSD"
   deltaVolumeUSD: BigDecimal!
 
-  "Difference in liquidity for this snapshot"
+  "(DEPRECATED): See basin subgraph instead // Total liquidity trading against this Bean"
+  liquidityUSD: BigDecimal!
+  "(DEPRECATED): See basin subgraph instead // Delta of liquidityUSD"
   deltaLiquidityUSD: BigDecimal!
-
-  "Crosses occuring in this snapshot"
-  deltaCrosses: Int!
-
-  "Detailed cross events during this snapshot"
-  crossEvents: [BeanCross!]! @derivedFrom(field: "beanHourlySnapshot")
-
-  "Timestamp this snapshot was updated"
-  timestamp: BigInt!
-
-  "Block number this snapshot was updated"
-  blockNumber: BigInt!
 }
 
 type BeanDailySnapshot @entity {
@@ -158,141 +147,258 @@ type BeanDailySnapshot @entity {
 
   season: Season!
   bean: Bean!
+
+  "Bean supply"
   supply: BigInt!
+  "Market cap. Accuracy not guaranteed except at sunrise"
   marketCap: BigDecimal!
 
-  "Amount of the supply which is considered Locked Beans (untradeable due to chop rate)"
-  lockedBeans: BigInt!
-  "Percent of supply in LP used for peg maintenance"
-  supplyInPegLP: BigDecimal!
-  "Instantaneous deltaB across all whitelisted pools"
-  instantaneousDeltaB: BigInt!
-  "Time-Weighted deltaB in whitelisted pools over the previous season"
-  twaDeltaB: BigInt!
-  volume: BigInt!
-  volumeUSD: BigDecimal!
-  liquidityUSD: BigDecimal!
+  "Bean token price. Accuracy not guaranteed except at sunrise"
   price: BigDecimal!
   "Time-Weighted price over the previous season"
   twaPrice: BigDecimal!
+
+  "Instantaneous deltaB across all whitelisted pools. Updated once per season or at time of trading activity. Accuracy not guaranteed except at sunrise"
+  instantaneousDeltaB: BigInt!
+  "Time-Weighted deltaB across all whitelisted pools over the previous season"
+  twaDeltaB: BigInt!
+
+  "Cumulative number of peg crosses"
   crosses: Int!
-  deltaVolume: BigInt!
-  deltaVolumeUSD: BigDecimal!
-  deltaLiquidityUSD: BigDecimal!
+  "Delta of crosses"
   deltaCrosses: Int!
+  "All crosses occurred in the same time period as this snapshot"
   crossEvents: [BeanCross!]! @derivedFrom(field: "beanDailySnapshot")
+
+  "Percent of supply in LP used for peg maintenance"
+  supplyInPegLP: BigDecimal!
+
+  # TODO: this will be refactored when snapshots standardized
   timestamp: BigInt!
   blockNumber: BigInt!
+
+  "(DEPRECATED): Not relevant to Pinto. // Amount of the supply which is considered Locked Beans (untradeable due to chop rate)"
+  lockedBeans: BigInt!
+
+  "(DEPRECATED): See basin subgraph instead // Exchange volume in bean"
+  volume: BigInt!
+  "(DEPRECATED): See basin subgraph instead // Delta of volume"
+  deltaVolume: BigInt!
+
+  "(DEPRECATED): See basin subgraph instead // Exchange volume in USD"
+  volumeUSD: BigDecimal!
+  "(DEPRECATED): See basin subgraph instead // Delta of volumeUSD"
+  deltaVolumeUSD: BigDecimal!
+
+  "(DEPRECATED): See basin subgraph instead // Total liquidity trading against this Bean"
+  liquidityUSD: BigDecimal!
+  "(DEPRECATED): See basin subgraph instead // Delta of liquidityUSD"
+  deltaLiquidityUSD: BigDecimal!
 }
 
 type Pool @entity {
+  "Pool contract address"
   id: Bytes!
   "The Bean token that is in this pool"
   bean: Bean!
-  "All tokens in this pool"
+  "Tokens in this pool"
   tokens: [Token!]!
+
+  "Token reserves in the pool"
   reserves: [BigInt!]!
-  lastSeason: Season!
+  "Current price of Bean in this Pool. Accuracy not guaranteed except at sunrise"
   lastPrice: BigDecimal!
-  volume: BigInt!
-  volumeUSD: BigDecimal!
-  liquidityUSD: BigDecimal!
-  crosses: Int!
-  "Last timestamp a cross was seen for this pool"
-  lastCross: BigInt!
-  crossEvents: [PoolCross!]! @derivedFrom(field: "pool")
-  "Instantaneous deltaB"
+  "Current instantaneous deltaB. Accuracy not guaranteed except at sunrise"
   deltaBeans: BigInt!
+
+  "Cumulative number of peg crosses in this Pool"
+  crosses: Int!
+  "Last timestamp a peg cross occurred"
+  lastCross: BigInt!
+  "Peg cross references"
+  crossEvents: [PoolCross!]! @derivedFrom(field: "pool")
+
   hourlySnapshots: [PoolHourlySnapshot!]! @derivedFrom(field: "pool")
   dailySnapshots: [PoolDailySnapshot!]! @derivedFrom(field: "pool")
+
+  "(DEPRECATED): See basin subgraph instead // Pool exchange volume in bean"
+  volume: BigInt!
+  "(DEPRECATED): See basin subgraph instead // Pool exchange volume in USD"
+  volumeUSD: BigDecimal!
+  "(DEPRECATED): See basin subgraph instead // Total liquidity in this pool"
+  liquidityUSD: BigDecimal!
 }
 
 type PoolHourlySnapshot @entity {
+  "{Token address}-{Season}"
   id: ID!
+
   season: Season!
   pool: Pool!
+
+  "Token reserves in the pool"
   reserves: [BigInt!]!
+  "Delta of reserves"
+  deltaReserves: [BigInt!]!
+
+  "Price of Bean in this Pool. Accuracy not guaranteed except at sunrise"
   lastPrice: BigDecimal!
   "Time-Weighted bean price over the previous season"
   twaPrice: BigDecimal!
-  "Time-Weighted price of the other token in the pool over the previous season, if applicable"
+  "Time-Weighted price of the non-bean token in the pool over the previous season"
   twaToken2Price: BigDecimal
-  volume: BigInt!
-  volumeUSD: BigDecimal!
-  liquidityUSD: BigDecimal!
+
+  "Cumulative number of peg crosses in this Pool"
   crosses: Int!
-  utilization: BigDecimal!
-  "Instantaneous deltaB"
+  "Delta of crosses"
+  deltaCrosses: Int!
+
+  "Instantaneous deltaB. Accuracy not guaranteed except at sunrise"
   deltaBeans: BigInt!
   "Time-Weighted deltaB over the previous season"
   twaDeltaBeans: BigInt!
-  deltaReserves: [BigInt!]!
-  deltaVolume: BigInt!
-  deltaVolumeUSD: BigDecimal!
-  deltaLiquidityUSD: BigDecimal!
-  deltaCrosses: Int!
+
+  "All crosses occurred in the same time period as this snapshot"
   crossEvents: [PoolCross!]! @derivedFrom(field: "poolHourlySnapshot")
+
+  # TODO: this will be refactored when snapshots standardized
   createdAt: BigInt!
   updatedAt: BigInt!
+
+  "(DEPRECATED): See basin subgraph instead // Pool exchange volume in bean"
+  volume: BigInt!
+  "(DEPRECATED): See basin subgraph instead // Delta of volume"
+  deltaVolume: BigInt!
+
+  "(DEPRECATED): See basin subgraph instead // Pool exchange volume in USD"
+  volumeUSD: BigDecimal!
+  "(DEPRECATED): See basin subgraph instead // Delta of volumeUSD"
+  deltaVolumeUSD: BigDecimal!
+
+  "(DEPRECATED): See basin subgraph instead // Percentage of the LP used to trade during this period"
+  utilization: BigDecimal!
+
+  "(DEPRECATED): See basin subgraph instead // Total liquidity in this pool"
+  liquidityUSD: BigDecimal!
+  "(DEPRECATED): See basin subgraph instead // Delta of liquidityUSD"
+  deltaLiquidityUSD: BigDecimal!
 }
 
 type PoolDailySnapshot @entity {
+  "{Token address}-{Unix day}"
   id: ID!
+
   season: Season!
   pool: Pool!
+
+  "Token reserves in the pool"
   reserves: [BigInt!]!
+  "Delta of reserves"
+  deltaReserves: [BigInt!]!
+
+  "Price of Bean in this Pool. Accuracy not guaranteed except at sunrise"
   lastPrice: BigDecimal!
-  "Time-Weighted price over the previous season"
+  "Time-Weighted bean price over the previous season"
   twaPrice: BigDecimal!
-  "Time-Weighted price of the other token in the pool over the previous season, if applicable"
+  "Time-Weighted price of the non-bean token in the pool over the previous season"
   twaToken2Price: BigDecimal
-  volume: BigInt!
-  volumeUSD: BigDecimal!
-  liquidityUSD: BigDecimal!
+
+  "Cumulative number of peg crosses in this Pool"
   crosses: Int!
-  utilization: BigDecimal!
-  "Instantaneous deltaB"
+  "Delta of crosses"
+  deltaCrosses: Int!
+
+  "Instantaneous deltaB. Accuracy not guaranteed except at sunrise"
   deltaBeans: BigInt!
   "Time-Weighted deltaB over the previous season"
   twaDeltaBeans: BigInt!
-  deltaReserves: [BigInt!]!
-  deltaVolume: BigInt!
-  deltaVolumeUSD: BigDecimal!
-  deltaLiquidityUSD: BigDecimal!
-  deltaCrosses: Int!
+
+  "All crosses occurred in the same time period as this snapshot"
   crossEvents: [PoolCross!]! @derivedFrom(field: "poolDailySnapshot")
+
+  # TODO: this will be refactored when snapshots standardized
   createdAt: BigInt!
   updatedAt: BigInt!
+
+  "(DEPRECATED): See basin subgraph instead // Pool exchange volume in bean"
+  volume: BigInt!
+  "(DEPRECATED): See basin subgraph instead // Delta of volume"
+  deltaVolume: BigInt!
+
+  "(DEPRECATED): See basin subgraph instead // Pool exchange volume in USD"
+  volumeUSD: BigDecimal!
+  "(DEPRECATED): See basin subgraph instead // Delta of volumeUSD"
+  deltaVolumeUSD: BigDecimal!
+
+  "(DEPRECATED): See basin subgraph instead // Percentage of the LP used to trade during this period"
+  utilization: BigDecimal!
+
+  "(DEPRECATED): See basin subgraph instead // Total liquidity in this pool"
+  liquidityUSD: BigDecimal!
+  "(DEPRECATED): See basin subgraph instead // Delta of liquidityUSD"
+  deltaLiquidityUSD: BigDecimal!
 }
 
 type BeanCross @entity {
+  "Cross number (string)"
   id: ID!
+  "Cross number (int)"
+  cross: Int!
+
+  "The Bean for which this cross occurred"
   bean: Bean!
-  price: BigDecimal!
-  blockNumber: BigInt!
-  timestamp: BigInt!
-  timeSinceLastCross: BigInt!
+
+  "Whether this cross was above or below peg"
   above: Boolean!
 
+  "The price of bean at the time this cross occurred"
+  price: BigDecimal!
+
+  "Time elapsed since the previous cross of this type"
+  timeSinceLastCross: BigInt!
+
+  "Timestamp when this cross was identified"
+  timestamp: BigInt!
+  "Block number when this cross was identified"
+  blockNumber: BigInt!
+
+  "Hourly snapshot in which the cross occurred"
   beanHourlySnapshot: BeanHourlySnapshot!
+  "Daily snapshot in which the cross occurred"
   beanDailySnapshot: BeanDailySnapshot!
 }
 
 type PoolCross @entity {
+  "{Pool Address}-{Cross Number}"
   id: ID!
+  "Cross number (int)"
+  cross: Int!
+  "The Pool in which this cross occurred"
   pool: Pool!
-  price: BigDecimal!
-  blockNumber: BigInt!
-  timestamp: BigInt!
-  timeSinceLastCross: BigInt!
+
+  "Whether this cross was above or below peg"
   above: Boolean!
 
+  "The price of bean in this pool at the time this cross occurred"
+  price: BigDecimal!
+
+  "Time elapsed since the previous cross of this type"
+  timeSinceLastCross: BigInt!
+
+  "Timestamp when this cross was identified"
+  timestamp: BigInt!
+  "Block number when this cross was identified"
+  blockNumber: BigInt!
+
+  "Hourly snapshot in which the cross occurred"
   poolHourlySnapshot: PoolHourlySnapshot!
+  "Daily snapshot in which the cross occurred"
   poolDailySnapshot: PoolDailySnapshot!
 }
 
 # For tracking twa balances as the seasons progress
 type TwaOracle @entity {
+  "NOTICE! This entity is intended for internal use, and is intentionally not documented or even useful in the graphql interface."
   id: Bytes!
   pool: Pool!
   # These two fields are used to determine twa over the previous season.
