@@ -2,10 +2,10 @@ import { Bytes, BigInt, Address, BigDecimal, ethereum, log } from "@graphprotoco
 import { getTWAPrices } from "./TwaOracle";
 import { ABDK_toUInt, pow2toX } from "../../../../../core/utils/ABDKMathQuad";
 import { DeltaBAndPrice, TWAType } from "./Types";
-import { setPoolTwa } from "../Pool";
 import { constantProductPrice } from "./UniswapPrice";
 import { ONE_BI, pow, toDecimal, ZERO_BI } from "../../../../../core/utils/Decimals";
 import { loadOrCreateTwaOracle } from "../../entities/TwaOracle";
+import { setPoolSnapshotTwa } from "../../entities/snapshots/Pool";
 
 // Cumulative Well reserves are abi encoded as a bytes16[]. This decodes into BigInt[] in uint format
 export function decodeCumulativeWellReserves(data: Bytes): BigInt[] {
@@ -51,7 +51,7 @@ export function setWellTwa(wellAddress: Address, twaDeltaB: BigInt, block: ether
   const twaBalances = getTWAPrices(wellAddress, TWAType.WELL_PUMP, block.timestamp);
   const twaResult = wellTwaDeltaBAndPrice(twaBalances, twaDeltaB);
 
-  setPoolTwa(wellAddress, twaResult, block);
+  setPoolSnapshotTwa(poolAddress, twaResult);
 }
 
 function wellTwaDeltaBAndPrice(twaBalances: BigInt[], twaDeltaB: BigInt): DeltaBAndPrice {

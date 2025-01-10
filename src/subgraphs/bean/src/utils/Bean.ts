@@ -1,5 +1,5 @@
 import { BigDecimal, BigInt, ethereum, Address } from "@graphprotocol/graph-ts";
-import { Bean, Pool } from "../../generated/schema";
+import { Bean, Pool, PoolHourlySnapshot } from "../../generated/schema";
 import { BEAN_ERC20_V1, BEAN_WETH_V1 } from "../../../../core/constants/raw/BeanstalkEthConstants";
 import { ONE_BD, toDecimal, ZERO_BD, ZERO_BI } from "../../../../core/utils/Decimals";
 import { checkBeanCross } from "./Cross";
@@ -13,7 +13,7 @@ import { toAddress } from "../../../../core/utils/Bytes";
 import { getProtocolToken } from "../../../../core/constants/RuntimeConstants";
 import { v } from "./constants/Version";
 import { getSeason } from "../entities/Season";
-import { takeBeanSnapshots } from "../entities/snapshots/Bean";
+import { setBeanSnapshotInstDeltaB, setBeanSnapshotTwa, takeBeanSnapshots } from "../entities/snapshots/Bean";
 
 export function adjustSupply(beanToken: Address, amount: BigInt): void {
   let bean = loadBean(beanToken);
@@ -130,8 +130,6 @@ export function updateBeanAfterPoolSwap(
 
 export function updateInstDeltaB(token: Address, block: ethereum.Block): void {
   let bean = loadBean(token);
-  let beanHourly = loadOrCreateBeanHourlySnapshot(bean, block);
-  let beanDaily = loadOrCreateBeanDailySnapshot(bean, block);
 
   let cumulativeDeltaB = ZERO_BI;
   for (let i = 0; i < bean.pools.length; i++) {
@@ -140,34 +138,27 @@ export function updateInstDeltaB(token: Address, block: ethereum.Block): void {
   }
 
   // TODO: This needs to be updated to only be set once at the start of the season and not updated after that.
-  beanHourly.instantaneousDeltaB = cumulativeDeltaB;
-  beanDaily.instantaneousDeltaB = cumulativeDeltaB;
-  beanHourly.save();
-  beanDaily.save();
+  setBeanSnapshotInstDeltaB(bean, cumulativeDeltaB);
 }
 
 // Update Bean's TWA deltaB and price. Individual pools' values must be computed prior to calling this method.
 export function updateBeanTwa(block: ethereum.Block): void {
-  let beanAddress = getProtocolToken(v(), block.number);
-  let bean = loadBean(beanAddress);
-  let beanHourly = loadOrCreateBeanHourlySnapshot(bean, block);
-  let beanDaily = loadOrCreateBeanDailySnapshot(bean, block);
+  const beanAddress = getProtocolToken(v(), block.number);
+  const bean = loadBean(beanAddress);
 
   let twaDeltaB = ZERO_BI;
   let weightedTwaPrice = ZERO_BD;
   for (let i = 0; i < bean.pools.length; i++) {
-    let poolHourly = loadOrCreatePoolHourlySnapshot(toAddress(bean.pools[i]), block);
+    const poolHourly = PoolHourlySnapshot.load(
+      bean.pools[i].toHexString() + "-" + bean.lastHourlySnapshotSeason.toString()
+    )!;
     twaDeltaB = twaDeltaB.plus(poolHourly.twaDeltaBeans);
+    // TODO: this should be using twa liquidity on each pool instead
     weightedTwaPrice = weightedTwaPrice.plus(poolHourly.twaPrice.times(poolHourly.liquidityUSD));
   }
 
   // Assumption is that total bean liquidity was already summed earlier in the same event's processing
   const twaPrice = weightedTwaPrice.div(bean.liquidityUSD != ZERO_BD ? bean.liquidityUSD : ONE_BD);
 
-  beanHourly.twaDeltaB = twaDeltaB;
-  beanHourly.twaPrice = twaPrice;
-  beanDaily.twaDeltaB = twaDeltaB;
-  beanDaily.twaPrice = twaPrice;
-  beanHourly.save();
-  beanDaily.save();
+  setBeanSnapshotTwa(bean, twaPrice, twaDeltaB);
 }

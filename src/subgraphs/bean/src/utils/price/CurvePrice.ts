@@ -13,11 +13,11 @@ import {
 import { ERC20 } from "../../../generated/Bean-ABIs/ERC20";
 import { DeltaBAndPrice, DeltaBPriceLiquidity, TWAType } from "./Types";
 import { Pool } from "../../../generated/schema";
-import { setPoolTwa } from "../Pool";
 import { getTWAPrices } from "./TwaOracle";
 import { loadOrCreateTwaOracle } from "../../entities/TwaOracle";
 import { CalculationsCurve } from "../../../generated/Bean-ABIs/CalculationsCurve";
 import { toAddress } from "../../../../../core/utils/Bytes";
+import { setPoolSnapshotTwa } from "../../entities/snapshots/Pool";
 
 // Note that the Bean3CRV type applies to any curve pool (including lusd)
 
@@ -92,7 +92,7 @@ export function setCurveTwa(poolAddress: Address, block: ethereum.Block): void {
   const otherPool = poolAddress == BEAN_LUSD_V1 ? LUSD_3POOL : CRV3_POOL;
   const twaResult = curveTwaDeltaBAndPrice(twaBalances, poolAddress, otherPool);
 
-  setPoolTwa(poolAddress, twaResult, block);
+  setPoolSnapshotTwa(poolAddress, twaResult);
 }
 
 export function curveCumulativePrices(pool: Address, timestamp: BigInt): BigInt[] {

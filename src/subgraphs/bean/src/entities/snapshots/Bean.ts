@@ -1,4 +1,4 @@
-import { BigInt, ethereum } from "@graphprotocol/graph-ts";
+import { BigDecimal, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import { dayFromTimestamp, hourFromTimestamp } from "../../../../../core/utils/Dates";
 import { Bean, BeanDailySnapshot, BeanHourlySnapshot } from "../../../generated/schema";
 
@@ -115,9 +115,26 @@ export function takeBeanSnapshots(bean: Bean, block: ethereum.Block): void {
   bean.lastUpdateBlockNumber = block.number;
 }
 
-/////
-// TODO:
-// twa price
-// instantaneousDeltaB
-// twaDeltaB
-////
+// Set twa values from the start of the season. Snapshot must have already been created.
+export function setBeanSnapshotTwa(bean: Bean, twaPrice: BigDecimal, twaDeltaB: BigInt): void {
+  const hourly = BeanHourlySnapshot.load(bean.id.toHexString() + "-" + bean.lastHourlySnapshotSeason.toString())!;
+  hourly.twaPrice = twaPrice;
+  hourly.twaDeltaB = twaDeltaB;
+  hourly.save();
+
+  const daily = BeanDailySnapshot.load(bean.id.toHexString() + "-" + bean.lastDailySnapshotDay.toString())!;
+  daily.twaPrice = twaPrice;
+  daily.twaDeltaB = twaDeltaB;
+  daily.save();
+}
+
+// Set inst deltaB values from the start of the season. Snapshot must have already been created.
+export function setBeanSnapshotInstDeltaB(bean: Bean, instDeltaB: BigInt): void {
+  const hourly = BeanHourlySnapshot.load(bean.id.toHexString() + "-" + bean.lastHourlySnapshotSeason.toString())!;
+  hourly.instantaneousDeltaB = instDeltaB;
+  hourly.save();
+
+  const daily = BeanDailySnapshot.load(bean.id.toHexString() + "-" + bean.lastDailySnapshotDay.toString())!;
+  daily.instantaneousDeltaB = instDeltaB;
+  daily.save();
+}

@@ -2,7 +2,6 @@ import { Address, BigDecimal, BigInt, ethereum, log } from "@graphprotocol/graph
 import { BD_10, BI_10, ONE_BI, pow, sqrt, toDecimal, ZERO_BD, ZERO_BI } from "../../../../../core/utils/Decimals";
 import { WETH, WETH_USDC_PAIR } from "../../../../../core/constants/raw/BeanstalkEthConstants";
 import { DeltaBAndPrice, DeltaBPriceLiquidity, TWAType } from "./Types";
-import { setPoolTwa } from "../Pool";
 import { getTWAPrices } from "./TwaOracle";
 import { loadOrCreateToken } from "../../entities/Token";
 import { UniswapV2Pair } from "../../../generated/Bean-ABIs/UniswapV2Pair";
@@ -10,6 +9,7 @@ import { Pool } from "../../../generated/schema";
 import { PreReplant } from "../../../generated/Bean-ABIs/PreReplant";
 import { toAddress } from "../../../../../core/utils/Bytes";
 import { v } from "../constants/Version";
+import { setPoolSnapshotTwa } from "../../entities/snapshots/Pool";
 
 export function updatePreReplantPriceETH(): BigDecimal {
   let token = loadOrCreateToken(WETH);
@@ -87,7 +87,7 @@ export function setUniswapV2Twa(poolAddress: Address, block: ethereum.Block): vo
   const twaPrices = getTWAPrices(poolAddress, TWAType.UNISWAP, block.timestamp);
   const twaResult = uniswapTwaDeltaBAndPrice(twaPrices, block.number);
 
-  setPoolTwa(poolAddress, twaResult, block);
+  setPoolSnapshotTwa(poolAddress, twaResult);
 }
 
 export function uniswapCumulativePrice(pool: Address, tokenIndex: u32, timestamp: BigInt): BigInt {

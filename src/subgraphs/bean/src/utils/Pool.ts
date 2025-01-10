@@ -63,17 +63,3 @@ export function getPoolLiquidityUSD(poolAddress: Address, block: ethereum.Block)
   let pool = loadOrCreatePool(poolAddress, block.number);
   return pool.liquidityUSD;
 }
-
-export function setPoolTwa(poolAddress: Address, twaValues: DeltaBAndPrice, block: ethereum.Block): void {
-  let poolHourly = loadOrCreatePoolHourlySnapshot(poolAddress, block);
-  let poolDaily = loadOrCreatePoolDailySnapshot(poolAddress, block);
-  poolHourly.twaDeltaBeans = twaValues.deltaB;
-  poolHourly.twaPrice = twaValues.price;
-  poolHourly.twaToken2Price = twaValues.token2Price;
-  // NOTE: ideally this would be a twa of the entire day
-  poolDaily.twaDeltaBeans = twaValues.deltaB;
-  poolDaily.twaPrice = twaValues.price;
-  poolDaily.twaToken2Price = twaValues.token2Price;
-  poolHourly.save();
-  poolDaily.save();
-}

@@ -1,7 +1,9 @@
-import { BigInt, ethereum } from "@graphprotocol/graph-ts";
+import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import { dayFromTimestamp, hourFromTimestamp } from "../../../../../core/utils/Dates";
 import { Pool, PoolDailySnapshot, PoolHourlySnapshot } from "../../../generated/schema";
 import { addBigIntArray, subBigIntArray } from "../../../../../core/utils/Decimals";
+import { loadOrCreatePool } from "../Pool";
+import { DeltaBAndPrice } from "../../utils/price/Types";
 
 export function takePoolSnapshots(pool: Pool, block: ethereum.Block): void {
   const season = <i32>parseInt(pool.currentSeason);
@@ -118,9 +120,17 @@ export function takePoolSnapshots(pool: Pool, block: ethereum.Block): void {
   pool.lastUpdateBlockNumber = block.number;
 }
 
-/////
-// TODO:
-// twa price
-// twaToken2Price
-// twaDeltaBeans
-////
+export function setPoolSnapshotTwa(poolAddress: Address, twaValues: DeltaBAndPrice): void {
+  const pool = Pool.load(poolAddress)!;
+  const hourly = PoolHourlySnapshot.load(pool.id.toHexString() + "-" + pool.lastHourlySnapshotSeason.toString())!;
+  hourly.twaPrice = twaValues.price;
+  hourly.twaToken2Price = twaValues.token2Price;
+  hourly.twaDeltaBeans = twaValues.deltaB;
+  hourly.save();
+
+  const daily = PoolDailySnapshot.load(pool.id.toHexString() + "-" + pool.lastDailySnapshotDay.toString())!;
+  daily.twaPrice = twaValues.price;
+  daily.twaToken2Price = twaValues.token2Price;
+  daily.twaDeltaBeans = twaValues.deltaB;
+  daily.save();
+}
