@@ -173,6 +173,7 @@ export function updateInstDeltaB(token: Address, block: ethereum.Block): void {
     cumulativeDeltaB = cumulativeDeltaB.plus(pool.deltaBeans);
   }
 
+  // TODO: This needs to be updated to only be set once at the start of the season and not updated after that.
   beanHourly.instantaneousDeltaB = cumulativeDeltaB;
   beanDaily.instantaneousDeltaB = cumulativeDeltaB;
   beanHourly.save();

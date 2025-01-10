@@ -116,7 +116,7 @@ type BeanHourlySnapshot @entity {
   "Time-Weighted price over the previous season"
   twaPrice: BigDecimal!
 
-  "Instantaneous deltaB across all whitelisted pools. Updated once per season or at time of trading activity. Accuracy not guaranteed except at sunrise"
+  "Instantaneous deltaB across all whitelisted pools. Set at the start of the season only."
   instantaneousDeltaB: BigInt!
   "Time-Weighted deltaB across all whitelisted pools over the previous season"
   twaDeltaB: BigInt!
@@ -177,7 +177,7 @@ type BeanDailySnapshot @entity {
   "Time-Weighted price over the previous season"
   twaPrice: BigDecimal!
 
-  "Instantaneous deltaB across all whitelisted pools. Updated once per season or at time of trading activity. Accuracy not guaranteed except at sunrise"
+  "Instantaneous deltaB across all whitelisted pools. Set at the start of the season only."
   instantaneousDeltaB: BigInt!
   "Time-Weighted deltaB across all whitelisted pools over the previous season"
   twaDeltaB: BigInt!
@@ -291,7 +291,7 @@ type PoolHourlySnapshot @entity {
   "Delta of crosses"
   deltaCrosses: Int!
 
-  "Instantaneous deltaB. Accuracy not guaranteed except at sunrise"
+  "Instantaneous deltaB at the start of the season"
   deltaBeans: BigInt!
   "Time-Weighted deltaB over the previous season"
   twaDeltaBeans: BigInt!
@@ -352,7 +352,7 @@ type PoolDailySnapshot @entity {
   "Delta of crosses"
   deltaCrosses: Int!
 
-  "Instantaneous deltaB. Accuracy not guaranteed except at sunrise"
+  "Instantaneous deltaB at the start of the season"
   deltaBeans: BigInt!
   "Time-Weighted deltaB over the previous season"
   twaDeltaBeans: BigInt!

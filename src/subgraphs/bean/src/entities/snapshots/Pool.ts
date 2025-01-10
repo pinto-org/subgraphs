@@ -29,7 +29,7 @@ export function takePoolSnapshots(pool: Pool, block: ethereum.Block): void {
   hourly.reserves = pool.reserves;
   hourly.lastPrice = pool.lastPrice;
   hourly.crosses = pool.crosses;
-  hourly.deltaBeans = pool.deltaBeans;
+  hourly.deltaBeans = pool.deltaBeans; // TODO: This field should only be assignable ONCE when the snapshot is first created
   hourly.volume = pool.volume;
   hourly.volumeUSD = pool.volumeUSD;
   hourly.liquidityUSD = pool.liquidityUSD;
