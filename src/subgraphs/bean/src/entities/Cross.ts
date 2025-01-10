@@ -15,8 +15,8 @@ export function createBeanCross(
   cross.timestamp = block.timestamp;
   cross.timeSinceLastCross = block.timestamp.minus(bean.lastCross);
   cross.above = crossedAbove;
-  cross.beanHourlySnapshot = loadOrCreateBeanHourlySnapshot(bean, block).id;
-  cross.beanDailySnapshot = loadOrCreateBeanDailySnapshot(bean, block).id;
+  cross.beanHourlySnapshot = bean.id.toHexString() + "-" + bean.lastHourlySnapshotSeason.toString();
+  cross.beanDailySnapshot = bean.id.toHexString() + "-" + bean.lastDailySnapshotDay.toString();
   return cross;
 }
 
@@ -33,7 +33,7 @@ export function createPoolCross(
   cross.timestamp = block.timestamp;
   cross.timeSinceLastCross = block.timestamp.minus(pool.lastCross);
   cross.above = crossedAbove;
-  cross.poolHourlySnapshot = loadOrCreatePoolHourlySnapshot(toAddress(pool.id), block).id;
-  cross.poolDailySnapshot = loadOrCreatePoolDailySnapshot(toAddress(pool.id), block).id;
+  cross.poolHourlySnapshot = pool.id.toHexString() + "-" + pool.lastHourlySnapshotSeason.toString();
+  cross.poolDailySnapshot = pool.id.toHexString() + "-" + pool.lastDailySnapshotDay.toString();
   return cross;
 }

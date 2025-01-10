@@ -51,7 +51,7 @@ export function setWellTwa(wellAddress: Address, twaDeltaB: BigInt, block: ether
   const twaBalances = getTWAPrices(wellAddress, TWAType.WELL_PUMP, block.timestamp);
   const twaResult = wellTwaDeltaBAndPrice(twaBalances, twaDeltaB);
 
-  setPoolSnapshotTwa(poolAddress, twaResult);
+  setPoolSnapshotTwa(wellAddress, twaResult);
 }
 
 function wellTwaDeltaBAndPrice(twaBalances: BigInt[], twaDeltaB: BigInt): DeltaBAndPrice {

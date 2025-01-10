@@ -63,7 +63,7 @@ export function takePoolSnapshots(pool: Pool, block: ethereum.Block): void {
   hourly.deltaVolumeUSD = hourly.deltaVolumeUSD.truncate(2);
   hourly.deltaLiquidityUSD = hourly.deltaLiquidityUSD.truncate(2);
 
-  hourly.createdTimestamp = hour.times(BigInt.fromU32(3600));
+  hourly.createdTimestamp = BigInt.fromI32(hour).times(BigInt.fromU32(3600));
   hourly.lastUpdateTimestamp = block.timestamp;
   hourly.lastUpdateBlockNumber = block.number;
   hourly.save();
