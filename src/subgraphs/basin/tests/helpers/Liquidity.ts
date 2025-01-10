@@ -1,13 +1,13 @@
-import { BigDecimal, BigInt, Bytes, log } from "@graphprotocol/graph-ts";
+import { Address, BigDecimal, BigInt, Bytes, ethereum } from "@graphprotocol/graph-ts";
 import { Deposit, Withdraw } from "../../generated/schema";
-import { BASIN_BLOCK, BEAN_ERC20, WETH } from "../../../../core/constants/raw/BeanstalkEthConstants";
+import { BASIN_BLOCK } from "../../../../core/constants/raw/BeanstalkEthConstants";
 import {
   handleAddLiquidity,
   handleRemoveLiquidity,
   handleRemoveLiquidityOneToken,
   handleSync
 } from "../../src/handlers/WellHandler";
-import { BEAN_SWAP_AMOUNT, SWAP_ACCOUNT, WELL, WELL_FUNCTION, WELL_LP_AMOUNT, WETH_SWAP_AMOUNT } from "./Constants";
+import { BEAN_SWAP_AMOUNT, SWAP_ACCOUNT, WELL, WELL_LP_AMOUNT, WETH_SWAP_AMOUNT } from "./Constants";
 import { createContractCallMocks } from "./Functions";
 import {
   createAddLiquidityEvent,
@@ -15,73 +15,128 @@ import {
   createRemoveLiquidityOneTokenEvent,
   createSyncEvent
 } from "./Well";
-import { BI_10, subBigIntArray, ONE_BD, ZERO_BI, addBigIntArray } from "../../../../core/utils/Decimals";
+import { BI_10, subBigIntArray, ONE_BD, addBigIntArray, ZERO_BI, BI_MAX } from "../../../../core/utils/Decimals";
 import { mockWellLpTokenUnderlying } from "../../../../core/tests/event-mocking/Tokens";
 import { loadWell } from "../../src/entities/Well";
 import { toAddress } from "../../../../core/utils/Bytes";
+import { AddLiquidity, RemoveLiquidity, RemoveLiquidityOneToken, Sync } from "../../generated/Basin-ABIs/Well";
+import { getProtocolToken } from "../../../../core/constants/RuntimeConstants";
+import { v } from "../../src/utils/constants/Version";
+import { createConvertEvent } from "./Beanstalk";
+import { Convert } from "../../generated/Basin-ABIs/PintoLaunch";
+import { handleConvert } from "../../src/handlers/BeanstalkHandler";
 
 export function mockAddLiquidity(
   tokenAmounts: BigInt[] = [BEAN_SWAP_AMOUNT, WETH_SWAP_AMOUNT],
   lpAmount: BigInt = WELL_LP_AMOUNT,
-  beanPriceMultiple: BigDecimal = ONE_BD
-): string {
+  beanPriceMultiple: BigDecimal = ONE_BD,
+  well: Address = WELL,
+  transaction: ethereum.Transaction | null = null
+): AddLiquidity {
   createContractCallMocks(beanPriceMultiple);
-  mockCalcLPTokenUnderlying_AddLiq(tokenAmounts, lpAmount);
-  let newEvent = createAddLiquidityEvent(WELL, SWAP_ACCOUNT, lpAmount, tokenAmounts);
-  newEvent.block.number = BASIN_BLOCK;
-  handleAddLiquidity(newEvent);
-  return newEvent.transaction.hash.toHexString() + "-" + newEvent.logIndex.toString();
+  mockCalcLPTokenUnderlying_AddLiq(well, tokenAmounts, lpAmount);
+  const event = createAddLiquidityEvent(well, SWAP_ACCOUNT, lpAmount, tokenAmounts);
+  event.block.number = BASIN_BLOCK;
+  if (transaction != null) {
+    event.transaction = transaction;
+  }
+  handleAddLiquidity(event);
+  return event;
 }
 
 export function mockSync(
   newReserves: BigInt[],
   lpAmount: BigInt = WELL_LP_AMOUNT,
-  beanPriceMultiple: BigDecimal = ONE_BD
-): string {
+  beanPriceMultiple: BigDecimal = ONE_BD,
+  well: Address = WELL,
+  transaction: ethereum.Transaction | null = null
+): Sync {
   createContractCallMocks(beanPriceMultiple);
-  mockCalcLPTokenUnderlying_AddLiq(subBigIntArray(newReserves, loadWell(WELL).reserves), lpAmount);
-  let newSyncEvent = createSyncEvent(WELL, SWAP_ACCOUNT, newReserves, lpAmount);
-  newSyncEvent.block.number = BASIN_BLOCK;
-  handleSync(newSyncEvent);
-  return newSyncEvent.transaction.hash.toHexString() + "-" + newSyncEvent.logIndex.toString();
+  mockCalcLPTokenUnderlying_AddLiq(well, subBigIntArray(newReserves, loadWell(well).reserves), lpAmount);
+  const event = createSyncEvent(well, SWAP_ACCOUNT, newReserves, lpAmount);
+  event.block.number = BASIN_BLOCK;
+  if (transaction != null) {
+    event.transaction = transaction;
+  }
+  handleSync(event);
+  return event;
 }
 
 export function mockRemoveLiquidity(
   tokenAmounts: BigInt[] = [BEAN_SWAP_AMOUNT, WETH_SWAP_AMOUNT],
-  lpAmount: BigInt = WELL_LP_AMOUNT
-): string {
-  createContractCallMocks();
-  mockCalcLPTokenUnderlying_RemoveLiq(lpAmount.neg());
-  let newEvent = createRemoveLiquidityEvent(WELL, SWAP_ACCOUNT, lpAmount, tokenAmounts);
-  newEvent.block.number = BASIN_BLOCK;
-  handleRemoveLiquidity(newEvent);
-  return newEvent.transaction.hash.toHexString() + "-" + newEvent.logIndex.toString();
-}
-
-export function mockRemoveLiquidityOneBean(lpAmount: BigInt = WELL_LP_AMOUNT): string {
-  createContractCallMocks();
-  mockCalcLPTokenUnderlying_RemoveLiq(lpAmount.neg());
-  let newEvent = createRemoveLiquidityOneTokenEvent(WELL, SWAP_ACCOUNT, lpAmount, BEAN_ERC20, BEAN_SWAP_AMOUNT);
-  newEvent.block.number = BASIN_BLOCK;
-  handleRemoveLiquidityOneToken(newEvent);
-  return newEvent.transaction.hash.toHexString() + "-" + newEvent.logIndex.toString();
-}
-
-export function mockRemoveLiquidityOneWeth(
   lpAmount: BigInt = WELL_LP_AMOUNT,
-  beanPriceMultiple: BigDecimal = ONE_BD
-): string {
+  well: Address = WELL,
+  transaction: ethereum.Transaction | null = null
+): RemoveLiquidity {
+  createContractCallMocks();
+  mockCalcLPTokenUnderlying_RemoveLiq(well, lpAmount.neg());
+  const event = createRemoveLiquidityEvent(well, SWAP_ACCOUNT, lpAmount, tokenAmounts);
+  event.block.number = BASIN_BLOCK;
+  if (transaction != null) {
+    event.transaction = transaction;
+  }
+  handleRemoveLiquidity(event);
+  return event;
+}
+
+export function mockRemoveLiquidityOneBean(
+  lpAmount: BigInt = WELL_LP_AMOUNT,
+  well: Address = WELL,
+  transaction: ethereum.Transaction | null = null
+): RemoveLiquidityOneToken {
+  createContractCallMocks();
+  mockCalcLPTokenUnderlying_RemoveLiq(well, lpAmount.neg());
+  const event = createRemoveLiquidityOneTokenEvent(
+    well,
+    SWAP_ACCOUNT,
+    lpAmount,
+    getProtocolToken(v(), BI_MAX),
+    BEAN_SWAP_AMOUNT
+  );
+  event.block.number = BASIN_BLOCK;
+  if (transaction != null) {
+    event.transaction = transaction;
+  }
+  handleRemoveLiquidityOneToken(event);
+  return event;
+}
+
+export function mockRemoveLiquidityOneNonBean(
+  tokenAddress: Address,
+  lpAmount: BigInt = WELL_LP_AMOUNT,
+  beanPriceMultiple: BigDecimal = ONE_BD,
+  well: Address = WELL,
+  transaction: ethereum.Transaction | null = null
+): RemoveLiquidityOneToken {
   createContractCallMocks(beanPriceMultiple);
-  mockCalcLPTokenUnderlying_RemoveLiq(lpAmount.neg());
-  let newEvent = createRemoveLiquidityOneTokenEvent(WELL, SWAP_ACCOUNT, lpAmount, WETH, WETH_SWAP_AMOUNT);
-  newEvent.block.number = BASIN_BLOCK;
-  handleRemoveLiquidityOneToken(newEvent);
-  return newEvent.transaction.hash.toHexString() + "-" + newEvent.logIndex.toString();
+  mockCalcLPTokenUnderlying_RemoveLiq(well, lpAmount.neg());
+  const event = createRemoveLiquidityOneTokenEvent(well, SWAP_ACCOUNT, lpAmount, tokenAddress, WETH_SWAP_AMOUNT);
+  event.block.number = BASIN_BLOCK;
+  if (transaction != null) {
+    event.transaction = transaction;
+  }
+  handleRemoveLiquidityOneToken(event);
+  return event;
+}
+
+export function mockConvert(
+  fromToken: Address,
+  toToken: Address,
+  fromAmount: BigInt,
+  toAmount: BigInt,
+  transaction: ethereum.Transaction | null = null
+): Convert {
+  const event = createConvertEvent(SWAP_ACCOUNT, fromToken, toToken, fromAmount, toAmount);
+  if (transaction != null) {
+    event.transaction = transaction;
+  }
+  handleConvert(event);
+  return event;
 }
 
 // Proxy to the mockWellLpTokenUnderlying method, adds base well amounts to reserves/lp delta
-function mockCalcLPTokenUnderlying_AddLiq(deltaReserves: BigInt[], lpDelta: BigInt): void {
-  const well = loadWell(WELL);
+function mockCalcLPTokenUnderlying_AddLiq(wellAddr: Address, deltaReserves: BigInt[], lpDelta: BigInt): void {
+  const well = loadWell(wellAddr);
   mockWellLpTokenUnderlying(
     toAddress(well.wellFunction),
     lpDelta.abs(),
@@ -93,8 +148,8 @@ function mockCalcLPTokenUnderlying_AddLiq(deltaReserves: BigInt[], lpDelta: BigI
 }
 
 // Proxy to the mockWellLpTokenUnderlying method, adds base well amounts to reserves/lp delta
-function mockCalcLPTokenUnderlying_RemoveLiq(lpDelta: BigInt): void {
-  const well = loadWell(WELL);
+function mockCalcLPTokenUnderlying_RemoveLiq(wellAddr: Address, lpDelta: BigInt): void {
+  const well = loadWell(wellAddr);
   mockWellLpTokenUnderlying(
     toAddress(well.wellFunction),
     lpDelta.abs(),

@@ -1,16 +1,14 @@
-import { Address, BigDecimal, BigInt, Bytes, ethereum } from "@graphprotocol/graph-ts";
-import { dayFromTimestamp, hourFromTimestamp } from "../../../../core/utils/Dates";
+import { Address, BigDecimal, BigInt, Bytes, log } from "@graphprotocol/graph-ts";
 import {
   allNonzero_BI,
   BI_10,
   emptyBigDecimalArray,
   emptyBigIntArray,
-  getBigDecimalArrayTotal,
   ONE_BI,
   toDecimal,
   ZERO_BI
 } from "../../../../core/utils/Decimals";
-import { loadWell, takeWellDailySnapshot, takeWellHourlySnapshot } from "../entities/Well";
+import { loadWell, updateWellLiquidityUSD } from "../entities/Well";
 import { getTokenDecimals, updateTokenUSD } from "./Token";
 import { getProtocolToken, isStable2WellFn, wellFnSupportsRate } from "../../../../core/constants/RuntimeConstants";
 import { v } from "./constants/Version";
@@ -59,9 +57,7 @@ export function updateWellTokenUSDPrices(wellAddress: Address, blockNumber: BigI
       );
     }
   }
-
-  well.reservesUSD = getCalculatedReserveUSDValues(well.tokens, well.reserves).map<BigDecimal>((bd) => bd.truncate(2));
-  well.totalLiquidityUSD = getBigDecimalArrayTotal(well.reservesUSD).truncate(2);
+  updateWellLiquidityUSD(well);
   well.save();
 }
 
@@ -99,21 +95,4 @@ export function getTokenPrices(well: Well): BigInt[] {
     ]);
   }
   return rates;
-}
-
-export function checkForSnapshot(wellAddress: Address, block: ethereum.Block): void {
-  // We check for the prior period snapshot and then take one if needed
-  // Schedule the "day" to begin at 9am PT/12pm ET.
-  // Future work could include properly adjusting this when DST occurs.
-  let dayID = dayFromTimestamp(block.timestamp, 8 * 60 * 60) - 1;
-  let hourID = hourFromTimestamp(block.timestamp) - 1;
-
-  let well = loadWell(wellAddress);
-
-  if (dayID > well.lastSnapshotDayID) {
-    takeWellDailySnapshot(wellAddress, dayID, block);
-  }
-  if (hourID > well.lastSnapshotHourID) {
-    takeWellHourlySnapshot(wellAddress, hourID, block);
-  }
 }

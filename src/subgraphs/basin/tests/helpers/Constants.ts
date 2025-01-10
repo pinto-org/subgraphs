@@ -9,7 +9,7 @@ export const ACCOUNT_ENTITY_TYPE = "Account";
 export const DEPOSIT_ENTITY_TYPE = "Deposit";
 export const WITHDRAW_ENTITY_TYPE = "Withdraw";
 
-export const WELL = Address.fromString("0x90767D012E17F8d1D2f7a257ECB951db703D7b3D");
+export const WELL = Address.fromString("0xBEA0e11282e2bB5893bEcE110cF199501e872bAd");
 export const AQUIFER = Address.fromString("0xF6a8aD553b265405526030c2102fda2bDcdDC177");
 export const IMPLEMENTATION = Address.fromString("0x09120eAED8e4cD86D85a616680151DAA653880F2");
 export const WELL_FUNCTION = Address.fromString("0xBA510C20FD2c52E4cb0d23CFC3cCD092F9165a6E");

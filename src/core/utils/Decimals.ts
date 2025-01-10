@@ -94,6 +94,14 @@ export function subBigIntArray(a: BigInt[], b: BigInt[]): BigInt[] {
   return finalArray;
 }
 
+export function addBigDecimalArray(a: BigDecimal[], b: BigDecimal[]): BigDecimal[] {
+  let finalArray = emptyBigDecimalArray(a.length);
+  for (let i = 0; i < a.length; i++) {
+    finalArray[i] = a[i].plus(b[i]);
+  }
+  return finalArray;
+}
+
 export function subBigDecimalArray(a: BigDecimal[], b: BigDecimal[]): BigDecimal[] {
   let finalArray = emptyBigDecimalArray(a.length);
   for (let i = 0; i < a.length; i++) {
@@ -123,4 +131,8 @@ export function allNonzero_BI(a: BigInt[]): boolean {
     }
   }
   return true;
+}
+
+export function BigDecimal_abs(a: BigDecimal): BigDecimal {
+  return a < ZERO_BD ? a.neg() : a;
 }

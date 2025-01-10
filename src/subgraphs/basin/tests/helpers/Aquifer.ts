@@ -7,7 +7,16 @@ import { createContractCallMocks } from "./Functions";
 import { UPGRADEABLE_MAPPING } from "../../src/utils/UpgradeableMapping";
 import * as BeanstalkEth from "../../../../core/constants/raw/BeanstalkEthConstants";
 import * as BeanstalkArb from "../../../../core/constants/raw/BeanstalkArbConstants";
+import * as PintoBase from "../../../../core/constants/raw/PintoBaseConstants";
 import { ONE_BD } from "../../../../core/utils/Decimals";
+
+const wellFunctionTuple = new ethereum.Tuple();
+wellFunctionTuple.push(ethereum.Value.fromAddress(WELL_FUNCTION));
+wellFunctionTuple.push(ethereum.Value.fromBytes(Bytes.empty()));
+
+let pumpTuple = new ethereum.Tuple();
+pumpTuple.push(ethereum.Value.fromAddress(PUMP));
+pumpTuple.push(ethereum.Value.fromBytes(Bytes.empty()));
 
 export function createBoreWellEvent(
   aquifer: Address,
@@ -42,47 +51,61 @@ export function createBoreWellEvent(
 
 export function boreDefaultWell(): void {
   createContractCallMocks();
-  let wellFunctionTuple = new ethereum.Tuple();
-  wellFunctionTuple.push(ethereum.Value.fromAddress(WELL_FUNCTION));
-  wellFunctionTuple.push(ethereum.Value.fromBytes(Bytes.empty()));
-
-  let pump1Tuple = new ethereum.Tuple();
-  pump1Tuple.push(ethereum.Value.fromAddress(PUMP));
-  pump1Tuple.push(ethereum.Value.fromBytes(Bytes.empty()));
-
-  let boreWellEvent = createBoreWellEvent(
-    AQUIFER,
-    WELL,
-    [BeanstalkEth.BEAN_ERC20, BeanstalkEth.WETH],
-    wellFunctionTuple,
-    [pump1Tuple],
-    IMPLEMENTATION,
-    WELL_DATA
+  handleBoreWell(
+    createBoreWellEvent(
+      AQUIFER,
+      WELL,
+      [BeanstalkEth.BEAN_ERC20, BeanstalkEth.WETH],
+      wellFunctionTuple,
+      [pumpTuple],
+      IMPLEMENTATION,
+      WELL_DATA
+    )
   );
-
-  handleBoreWell(boreWellEvent);
 }
 
 export function boreUpgradeableWell(index: i32): void {
-  const tokens = [BeanstalkArb.BEAN_ERC20, BeanstalkArb.WETH];
-  createContractCallMocks(ONE_BD, UPGRADEABLE_MAPPING[0].proxy, tokens);
-  let wellFunctionTuple = new ethereum.Tuple();
-  wellFunctionTuple.push(ethereum.Value.fromAddress(WELL_FUNCTION));
-  wellFunctionTuple.push(ethereum.Value.fromBytes(Bytes.empty()));
+  const tokens = [PintoBase.BEAN_ERC20, PintoBase.WETH];
+  createContractCallMocks(ONE_BD, UPGRADEABLE_MAPPING[6].proxy, tokens);
+  handleBoreWell(
+    createBoreWellEvent(
+      AQUIFER,
+      UPGRADEABLE_MAPPING[6].boredWells[index],
+      tokens,
+      wellFunctionTuple,
+      [pumpTuple],
+      IMPLEMENTATION,
+      WELL_DATA
+    )
+  );
+}
 
-  let pump1Tuple = new ethereum.Tuple();
-  pump1Tuple.push(ethereum.Value.fromAddress(PUMP));
-  pump1Tuple.push(ethereum.Value.fromBytes(Bytes.empty()));
-
-  let boreWellEvent = createBoreWellEvent(
-    AQUIFER,
-    UPGRADEABLE_MAPPING[0].boredWells[index],
-    tokens,
-    wellFunctionTuple,
-    [pump1Tuple],
-    IMPLEMENTATION,
-    WELL_DATA
+export function borePintoWells(): void {
+  const tokensBtc = [PintoBase.BEAN_ERC20, PintoBase.CBBTC];
+  createContractCallMocks(ONE_BD, PintoBase.PINTO_CBBTC, tokensBtc);
+  handleBoreWell(
+    createBoreWellEvent(
+      AQUIFER,
+      Address.fromString("0x175c021718788c613F666018de08864767ede78C"),
+      tokensBtc,
+      wellFunctionTuple,
+      [pumpTuple],
+      IMPLEMENTATION,
+      WELL_DATA
+    )
   );
 
-  handleBoreWell(boreWellEvent);
+  const tokensWeth = [PintoBase.BEAN_ERC20, PintoBase.WETH];
+  createContractCallMocks(ONE_BD, PintoBase.PINTO_WETH, tokensWeth);
+  handleBoreWell(
+    createBoreWellEvent(
+      AQUIFER,
+      Address.fromString("0x8cab609400b70eC65973A1Ad4DF63193B82D43c1"),
+      tokensWeth,
+      wellFunctionTuple,
+      [pumpTuple],
+      IMPLEMENTATION,
+      WELL_DATA
+    )
+  );
 }

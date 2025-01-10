@@ -1,5 +1,5 @@
 import { afterEach, assert, beforeEach, clearStore, describe, test } from "matchstick-as/assembly/index";
-import { ZERO_BI } from "../../../core/utils/Decimals";
+import { ZERO_BD, ZERO_BI } from "../../../core/utils/Decimals";
 import { loadWell } from "../src/entities/Well";
 import {
   BEAN_SWAP_AMOUNT,
@@ -7,7 +7,6 @@ import {
   CURRENT_BLOCK_TIMESTAMP,
   WELL,
   WELL_DAILY_ENTITY_TYPE,
-  WELL_ENTITY_TYPE,
   WELL_HOURLY_ENTITY_TYPE,
   WETH_SWAP_AMOUNT,
   WETH_USD_AMOUNT
@@ -20,6 +19,7 @@ import { BigDecimal, BigInt } from "@graphprotocol/graph-ts";
 import { BEAN_ERC20 } from "../../../core/constants/raw/BeanstalkEthConstants";
 import { initL1Version } from "./entity-mocking/MockVersion";
 import { assertBDClose } from "../../../core/tests/Assert";
+import { loadBeanstalk } from "../src/entities/Beanstalk";
 
 describe("Well Entity: Exchange Tests", () => {
   beforeEach(() => {
@@ -32,10 +32,6 @@ describe("Well Entity: Exchange Tests", () => {
   });
 
   describe("Swap", () => {
-    test("Swap counter incremented", () => {
-      mockSwap();
-      assert.fieldEquals(WELL_ENTITY_TYPE, WELL.toHexString(), "cumulativeSwapCount", "1");
-    });
     test("Token Balances updated", () => {
       mockSwap();
 
@@ -75,18 +71,24 @@ describe("Well Entity: Exchange Tests", () => {
         BEAN_USD_AMOUNT.times(BigDecimal.fromString("2.5")).plus(WETH_USD_AMOUNT.times(BigDecimal.fromString("3.5"))),
         updatedStore.cumulativeTransferVolumeUSD
       );
+
+      const beanstalk = loadBeanstalk();
+      assertBDClose(updatedStore.cumulativeTradeVolumeUSD, beanstalk.cumulativeTradeVolumeUSD);
+      assertBDClose(ZERO_BD, beanstalk.cumulativeBuyVolumeUSD);
+      assertBDClose(WETH_USD_AMOUNT.times(BigDecimal.fromString("1.5")), beanstalk.cumulativeSellVolumeUSD);
+      assertBDClose(updatedStore.cumulativeTransferVolumeUSD, beanstalk.cumulativeTransferVolumeUSD);
     });
-    test("Previous day snapshot entity created", () => {
+    test("Well Snapshot entity created", () => {
       mockSwap();
 
-      let dayID = dayFromTimestamp(CURRENT_BLOCK_TIMESTAMP, 8 * 60 * 60) - 1;
-      let daySnapshotID = WELL.concatI32(dayID);
+      let hour = hourFromTimestamp(CURRENT_BLOCK_TIMESTAMP);
+      let hourSnapshotID = WELL.toHexString() + "-" + hour.toString();
 
-      let hourID = hourFromTimestamp(CURRENT_BLOCK_TIMESTAMP) - 1;
-      let hourSnapshotID = WELL.concatI32(hourID);
+      let day = dayFromTimestamp(CURRENT_BLOCK_TIMESTAMP, 8 * 60 * 60);
+      let daySnapshotID = WELL.toHexString() + "-" + day.toString();
 
-      assert.fieldEquals(WELL_DAILY_ENTITY_TYPE, daySnapshotID.toHexString(), "id", daySnapshotID.toHexString());
-      assert.fieldEquals(WELL_HOURLY_ENTITY_TYPE, hourSnapshotID.toHexString(), "id", hourSnapshotID.toHexString());
+      assert.fieldEquals(WELL_HOURLY_ENTITY_TYPE, hourSnapshotID, "hour", hour.toString());
+      assert.fieldEquals(WELL_DAILY_ENTITY_TYPE, daySnapshotID, "day", day.toString());
     });
   });
 
@@ -101,9 +103,6 @@ describe("Well Entity: Exchange Tests", () => {
         BEAN_SWAP_AMOUNT,
         BigDecimal.fromString("1.5")
       );
-    });
-    test("Swap counter incremented", () => {
-      assert.fieldEquals(WELL_ENTITY_TYPE, WELL.toHexString(), "cumulativeSwapCount", "1");
     });
     test("Token Balances updated", () => {
       let updatedStore = loadWell(WELL);
@@ -136,6 +135,12 @@ describe("Well Entity: Exchange Tests", () => {
         BEAN_USD_AMOUNT.times(BigDecimal.fromString("3.5")).plus(WETH_USD_AMOUNT.times(BigDecimal.fromString("2.5"))),
         updatedStore.cumulativeTransferVolumeUSD
       );
+
+      const beanstalk = loadBeanstalk();
+      assertBDClose(updatedStore.cumulativeTradeVolumeUSD, beanstalk.cumulativeTradeVolumeUSD);
+      assertBDClose(tradeAmounts[0], beanstalk.cumulativeBuyVolumeUSD);
+      assertBDClose(tradeAmounts[1], beanstalk.cumulativeSellVolumeUSD);
+      assertBDClose(updatedStore.cumulativeTransferVolumeUSD, beanstalk.cumulativeTransferVolumeUSD);
     });
   });
 });

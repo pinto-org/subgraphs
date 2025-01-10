@@ -5,13 +5,14 @@ import { BEAN_SWAP_AMOUNT, SWAP_ACCOUNT, WELL, WETH_SWAP_AMOUNT } from "./Consta
 import { createContractCallMocks } from "./Functions";
 import { createShiftEvent, createSwapEvent } from "./Well";
 import { ONE_BD } from "../../../../core/utils/Decimals";
+import { Shift, Swap } from "../../generated/Basin-ABIs/Well";
 
-export function mockSwap(beanPriceMultiple: BigDecimal = ONE_BD): string {
+export function mockSwap(beanPriceMultiple: BigDecimal = ONE_BD): Swap {
   createContractCallMocks(beanPriceMultiple);
-  let newSwapEvent = createSwapEvent(WELL, SWAP_ACCOUNT, BEAN_ERC20, WETH, BEAN_SWAP_AMOUNT, WETH_SWAP_AMOUNT);
-  newSwapEvent.block.number = BASIN_BLOCK;
-  handleSwap(newSwapEvent);
-  return newSwapEvent.transaction.hash.toHexString() + "-" + newSwapEvent.logIndex.toString();
+  const event = createSwapEvent(WELL, SWAP_ACCOUNT, BEAN_ERC20, WETH, BEAN_SWAP_AMOUNT, WETH_SWAP_AMOUNT);
+  event.block.number = BASIN_BLOCK;
+  handleSwap(event);
+  return event;
 }
 
 export function mockShift(
@@ -19,10 +20,10 @@ export function mockShift(
   toToken: Address,
   amountOut: BigInt,
   beanPriceMultiple: BigDecimal = ONE_BD
-): string {
+): Shift {
   createContractCallMocks(beanPriceMultiple);
-  let newShiftEvent = createShiftEvent(WELL, SWAP_ACCOUNT, newReserves, toToken, amountOut);
-  newShiftEvent.block.number = BASIN_BLOCK;
-  handleShift(newShiftEvent);
-  return newShiftEvent.transaction.hash.toHexString() + "-" + newShiftEvent.logIndex.toString();
+  const event = createShiftEvent(WELL, SWAP_ACCOUNT, newReserves, toToken, amountOut);
+  event.block.number = BASIN_BLOCK;
+  handleShift(event);
+  return event;
 }

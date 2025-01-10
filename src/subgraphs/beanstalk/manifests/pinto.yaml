@@ -169,7 +169,7 @@ dataSources:
       address: "0xD1A0D188E861ed9d15773a2F3574a2e94134bA8f"
       abi: PintoLaunch
       startBlock: 22622961 # Pintostalk Deployment
-      #endBlock: tbd (TODO: update after PI5 deployment)
+      endBlock: 24504478 # PI-5
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -264,7 +264,7 @@ dataSources:
       address: "0xD1A0D188E861ed9d15773a2F3574a2e94134bA8f"
       abi: PintoLaunch
       startBlock: 22622961 # Pintostalk Deployment
-      #endBlock: tbd (TODO: update after PI5 deployment)
+      endBlock: 24504478 # PI-5
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6

@@ -1,4 +1,4 @@
-import { Address, Bytes } from "@graphprotocol/graph-ts";
+import { Bytes } from "@graphprotocol/graph-ts";
 import { BoreWell } from "../../generated/Basin-ABIs/Aquifer";
 import { Well } from "../../generated/templates";
 import { loadOrCreateToken } from "../entities/Token";
@@ -10,6 +10,10 @@ import {
   loadOrCreateWellFunction
 } from "../entities/WellComponents";
 import { createWellUpgradeHistoryEntry, loadOrCreateWell } from "../entities/Well";
+import { getWhitelistedWells } from "../../../../core/constants/RuntimeConstants";
+import { v } from "../utils/constants/Version";
+import { loadBeanstalk } from "../entities/Beanstalk";
+import { takeWellSnapshots } from "../entities/snapshots/Well";
 
 export function handleBoreWell(event: BoreWell): void {
   // Accounts for well proxies here
@@ -46,6 +50,19 @@ export function handleBoreWell(event: BoreWell): void {
   well.tokens = tokens;
   well.tokenOrder = tokens;
 
+  // Add to Beanstalk entity if this is a beanstalk well
+  if (getWhitelistedWells(v()).includes(actualAddress)) {
+    const beanstalk = loadBeanstalk();
+    const beanstalkWells = beanstalk.wells;
+    if (!beanstalkWells.includes(well.id)) {
+      beanstalkWells.push(well.id);
+      beanstalk.wells = beanstalkWells;
+      beanstalk.save();
+      well.isBeanstalk = true;
+    }
+  }
+
+  takeWellSnapshots(well, event.block);
   well.save();
 
   // Add to well history

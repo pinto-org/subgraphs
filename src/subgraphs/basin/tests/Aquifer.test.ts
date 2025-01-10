@@ -2,10 +2,10 @@ import { afterEach, assert, beforeEach, clearStore, describe, test } from "match
 import { BEAN_ERC20, WETH } from "../../../core/constants/raw/BeanstalkEthConstants";
 import { boreDefaultWell, boreUpgradeableWell } from "./helpers/Aquifer";
 import { AQUIFER, IMPLEMENTATION, PUMP, WELL } from "./helpers/Constants";
-import { initL1Version } from "./entity-mocking/MockVersion";
+import { initL1Version, initPintoVersion } from "./entity-mocking/MockVersion";
 import { UPGRADEABLE_MAPPING } from "../src/utils/UpgradeableMapping";
 
-describe("Aquifer Well Deployment", () => {
+describe("Aquifer Well Deployment (L1)", () => {
   beforeEach(() => {
     initL1Version();
     boreDefaultWell();
@@ -35,15 +35,15 @@ describe("Aquifer Well Deployment", () => {
       assert.entityCount("WellUpgradeHistory", 3);
       assert.fieldEquals(
         "WellUpgradeHistory",
-        UPGRADEABLE_MAPPING[0].proxy.toHexString() + "-0",
+        UPGRADEABLE_MAPPING[6].proxy.toHexString() + "-0",
         "boredWell",
-        UPGRADEABLE_MAPPING[0].boredWells[0].toHexString()
+        UPGRADEABLE_MAPPING[6].boredWells[0].toHexString()
       );
       assert.fieldEquals(
         "WellUpgradeHistory",
-        UPGRADEABLE_MAPPING[0].proxy.toHexString() + "-1",
+        UPGRADEABLE_MAPPING[6].proxy.toHexString() + "-1",
         "boredWell",
-        UPGRADEABLE_MAPPING[0].boredWells[1].toHexString()
+        UPGRADEABLE_MAPPING[6].boredWells[1].toHexString()
       );
     });
 
@@ -52,10 +52,27 @@ describe("Aquifer Well Deployment", () => {
       assert.entityCount("Well", 2);
       assert.fieldEquals(
         "Well",
-        UPGRADEABLE_MAPPING[0].proxy.toHexString(),
+        UPGRADEABLE_MAPPING[6].proxy.toHexString(),
         "boredWell",
-        UPGRADEABLE_MAPPING[0].boredWells[1].toHexString()
+        UPGRADEABLE_MAPPING[6].boredWells[1].toHexString()
       );
     });
+  });
+});
+
+describe("Aquifer Well Deployment (Pinto)", () => {
+  beforeEach(() => {
+    initPintoVersion();
+    boreUpgradeableWell(0);
+  });
+
+  afterEach(() => {
+    clearStore();
+  });
+
+  test("Whitelisted wells are added to Beanstalk entity", () => {
+    assert.fieldEquals("Beanstalk", "beanstalk", "wells", `[${UPGRADEABLE_MAPPING[6].proxy.toHexString()}]`);
+    boreDefaultWell();
+    assert.fieldEquals("Beanstalk", "beanstalk", "wells", `[${UPGRADEABLE_MAPPING[6].proxy.toHexString()}]`);
   });
 });
