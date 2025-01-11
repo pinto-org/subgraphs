@@ -17,7 +17,7 @@ import { BigDecimal_round, toDecimal, ZERO_BD } from "../../../core/utils/Decima
 
 import { getPreReplantPriceETH, constantProductPrice, uniswapV2Reserves } from "../src/utils/price/UniswapPrice";
 import { mockPreReplantBeanEthPriceAndLiquidityWithPoolReserves } from "./entity-mocking/MockPool";
-import { mockWhitelistedPools } from "./entity-mocking/MockBean";
+import { mockPriceBelow, mockWhitelistedPools } from "./entity-mocking/MockBean";
 import { PEG_CROSS_BLOCKS } from "../cache-builder/results/PegCrossBlocks_eth";
 import { u32_binarySearchIndex } from "../../../core/utils/Math";
 import { handleBlock } from "../src/handlers/CrossHandler";
@@ -44,9 +44,8 @@ const WELL_CROSS_BLOCK = BigInt.fromU32(18965881);
 describe("Peg Crosses", () => {
   beforeEach(() => {
     initL1Version();
-    mockBeanSeasons();
 
-    // Bean price is init at 1.07, set to 0 so it is consistent will pool starting price
+    // Set initial prices to below peg
     let bean = loadBean(BEAN_ERC20);
     bean.price = ZERO_BD;
     bean.save();
@@ -54,6 +53,9 @@ describe("Peg Crosses", () => {
     let beanv1 = loadBean(BEAN_ERC20_V1);
     beanv1.price = ZERO_BD;
     beanv1.save();
+
+    mockPriceBelow();
+    mockBeanSeasons();
 
     // Should begin with zero crosses
     assert.notInStore("BeanCross", "0");
