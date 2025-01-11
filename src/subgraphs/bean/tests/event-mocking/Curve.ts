@@ -1,5 +1,5 @@
 import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
-import { createMockedFunction } from "matchstick-as";
+import { createMockedFunction } from "matchstick-as/assembly/index";
 
 import { TokenExchangeUnderlying } from "../../generated/Bean-ABIs/Bean3CRV";
 import { mockContractEvent } from "../../../../core/tests/event-mocking/Util";

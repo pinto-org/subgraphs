@@ -6,7 +6,7 @@ import {
   BEAN_WETH_CP2_WELL_BLOCK
 } from "../../../core/constants/raw/BeanstalkEthConstants";
 import { createDewhitelistTokenEvent } from "./event-mocking/Beanstalk";
-import { setWhitelistedPools } from "./entity-mocking/MockBean";
+import { mockWhitelistedPools } from "./entity-mocking/MockBean";
 import { handleDewhitelistToken } from "../src/handlers/BeanstalkHandler";
 import { initL1Version } from "./entity-mocking/MockVersion";
 import { mockBeanSeasons } from "./entity-mocking/MockSeason";
@@ -22,7 +22,7 @@ describe("Whitelisting", () => {
   });
 
   test("Dewhitelist", () => {
-    setWhitelistedPools([BEAN_3CRV, BEAN_WETH_CP2_WELL]);
+    mockWhitelistedPools([BEAN_3CRV, BEAN_WETH_CP2_WELL]);
 
     const event = createDewhitelistTokenEvent(BEAN_3CRV);
     event.block.number = BEAN_WETH_CP2_WELL_BLOCK;

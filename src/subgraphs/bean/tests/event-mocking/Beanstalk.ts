@@ -1,7 +1,18 @@
 import { BigInt, ethereum, Address, Bytes } from "@graphprotocol/graph-ts";
-import { WellOracle, Convert, DewhitelistToken } from "../../generated/Bean-ABIs/PintoLaunch";
+import { WellOracle, Convert, DewhitelistToken, Sunrise } from "../../generated/Bean-ABIs/PintoLaunch";
 import { mockBeanstalkEvent } from "../../../../core/tests/event-mocking/Util";
 import { MetapoolOracle } from "../../generated/Bean-ABIs/Replanted";
+
+export function createSunriseEvent(season: i32, block: ethereum.Block | null = null): Sunrise {
+  let event = changetype<Sunrise>(mockBeanstalkEvent());
+  event.parameters = new Array();
+  if (block !== null) {
+    event.block = block;
+  }
+  let param1 = new ethereum.EventParam("season", ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(season)));
+  event.parameters.push(param1);
+  return event as Sunrise;
+}
 
 export function createMetapoolOracleEvent(
   season: BigInt,

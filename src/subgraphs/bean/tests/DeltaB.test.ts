@@ -1,13 +1,4 @@
-import {
-  beforeEach,
-  beforeAll,
-  afterEach,
-  assert,
-  clearStore,
-  describe,
-  test,
-  createMockedFunction
-} from "matchstick-as/assembly/index";
+import { beforeEach, beforeAll, afterEach, assert, clearStore, describe, test } from "matchstick-as/assembly/index";
 import { BigInt, Bytes, BigDecimal, log } from "@graphprotocol/graph-ts";
 // import { log } from "matchstick-as/assembly/log";
 import { BI_10, ONE_BI, ZERO_BI } from "../../../core/utils/Decimals";
@@ -32,6 +23,7 @@ import { loadOrCreatePool } from "../src/entities/Pool";
 import { initL1Version } from "./entity-mocking/MockVersion";
 import { handleMetapoolOracle } from "../src/handlers/legacy/LegacyBeanstalkHandler";
 import { mockBeanSeasons } from "./entity-mocking/MockSeason";
+import { mockWhitelistedPools } from "./entity-mocking/MockBean";
 
 const timestamp1 = BigInt.fromU32(1712793374);
 const hour1 = hourFromTimestamp(timestamp1).toString();
@@ -47,6 +39,7 @@ describe("DeltaB", () => {
   });
   beforeEach(() => {
     initL1Version();
+    mockWhitelistedPools([BEAN_3CRV, BEAN_WETH_CP2_WELL]);
     mockBeanSeasons();
   });
   afterEach(() => {

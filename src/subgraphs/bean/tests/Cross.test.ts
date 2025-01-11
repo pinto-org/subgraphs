@@ -17,7 +17,7 @@ import { BigDecimal_round, toDecimal, ZERO_BD } from "../../../core/utils/Decima
 
 import { getPreReplantPriceETH, constantProductPrice, uniswapV2Reserves } from "../src/utils/price/UniswapPrice";
 import { mockPreReplantBeanEthPriceAndLiquidityWithPoolReserves } from "./entity-mocking/MockPool";
-import { setWhitelistedPools } from "./entity-mocking/MockBean";
+import { mockWhitelistedPools } from "./entity-mocking/MockBean";
 import { PEG_CROSS_BLOCKS } from "../cache-builder/results/PegCrossBlocks_eth";
 import { u32_binarySearchIndex } from "../../../core/utils/Math";
 import { handleBlock } from "../src/handlers/CrossHandler";
@@ -133,7 +133,7 @@ describe("Peg Crosses", () => {
 
   describe("BEAN:ETH Well", () => {
     beforeEach(() => {
-      setWhitelistedPools([BEAN_WETH_CP2_WELL]);
+      mockWhitelistedPools([BEAN_WETH_CP2_WELL]);
     });
 
     test("Well/Bean cross above", () => {

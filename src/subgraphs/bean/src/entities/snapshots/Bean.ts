@@ -1,6 +1,7 @@
 import { BigDecimal, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import { dayFromTimestamp, hourFromTimestamp } from "../../../../../core/utils/Dates";
 import { Bean, BeanDailySnapshot, BeanHourlySnapshot } from "../../../generated/schema";
+import { BI_MAX, ZERO_BD } from "../../../../../core/utils/Decimals";
 
 export function takeBeanSnapshots(bean: Bean, block: ethereum.Block): void {
   const season = <i32>parseInt(bean.currentSeason);
@@ -34,6 +35,10 @@ export function takeBeanSnapshots(bean: Bean, block: ethereum.Block): void {
   hourly.volume = bean.volume;
   hourly.volumeUSD = bean.volumeUSD;
   hourly.liquidityUSD = bean.liquidityUSD;
+  // These 3 fields are expected to be initialized at sunrise, after this method
+  hourly.twaPrice = ZERO_BD;
+  hourly.twaDeltaB = BI_MAX;
+  hourly.instantaneousDeltaB = BI_MAX;
 
   // Set deltas
   if (baseHourly !== null) {
@@ -53,7 +58,7 @@ export function takeBeanSnapshots(bean: Bean, block: ethereum.Block): void {
     hourly.deltaCrosses = hourly.crosses;
     hourly.deltaVolume = hourly.volume;
     hourly.deltaVolumeUSD = hourly.volumeUSD;
-    hourly.deltaLiquidityUSD = hourly.deltaLiquidityUSD;
+    hourly.deltaLiquidityUSD = hourly.liquidityUSD;
   }
   // Set precision on BigDecimal deltas
   hourly.deltaVolumeUSD = hourly.deltaVolumeUSD.truncate(2);
@@ -79,6 +84,10 @@ export function takeBeanSnapshots(bean: Bean, block: ethereum.Block): void {
   daily.volume = bean.volume;
   daily.volumeUSD = bean.volumeUSD;
   daily.liquidityUSD = bean.liquidityUSD;
+  // These 3 fields are expected to be initialized at sunrise, after this method
+  daily.twaPrice = ZERO_BD;
+  daily.twaDeltaB = BI_MAX;
+  daily.instantaneousDeltaB = BI_MAX;
 
   // Set deltas
   if (baseDaily !== null) {
@@ -98,7 +107,7 @@ export function takeBeanSnapshots(bean: Bean, block: ethereum.Block): void {
     daily.deltaCrosses = daily.crosses;
     daily.deltaVolume = daily.volume;
     daily.deltaVolumeUSD = daily.volumeUSD;
-    daily.deltaLiquidityUSD = daily.deltaLiquidityUSD;
+    daily.deltaLiquidityUSD = daily.liquidityUSD;
   }
   // Set precision on BigDecimal deltas
   daily.deltaVolumeUSD = daily.deltaVolumeUSD.truncate(2);

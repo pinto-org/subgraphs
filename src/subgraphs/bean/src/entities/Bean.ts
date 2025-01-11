@@ -19,7 +19,7 @@ export function loadBean(token: Address): Bean {
     bean.price = BigDecimal.fromString(token == BEAN_ERC20 ? "1.072" : "1.0");
     bean.crosses = token == BEAN_ERC20 ? getV1Crosses() : 0;
     bean.lastCross = ZERO_BI;
-    bean.currentSeason = getSeason(token == BEAN_ERC20 ? 6074 : 1).id;
+    bean.currentSeason = (token == BEAN_ERC20 ? 6074 : 1).toString();
     bean.pools = [];
     bean.dewhitelistedPools = [];
     bean.createdTimestamp = ZERO_BI;
