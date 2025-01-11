@@ -3,7 +3,6 @@ import { BEAN_ERC20 } from "../../../../core/constants/raw/BeanstalkEthConstants
 import { ZERO_BD, ZERO_BI } from "../../../../core/utils/Decimals";
 import { Bean } from "../../generated/schema";
 import { getV1Crosses } from "../utils/Cross";
-import { getSeason } from "./Season";
 
 export function loadBean(token: Address): Bean {
   let bean = Bean.load(token);

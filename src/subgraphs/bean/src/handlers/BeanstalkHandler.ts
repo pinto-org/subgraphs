@@ -1,5 +1,5 @@
 import { BigInt } from "@graphprotocol/graph-ts";
-import { updateBeanSupplyPegPercent, updateBeanTwa } from "../utils/Bean";
+import { updateBeanSupplyPegPercent, updateBeanTwa, updateInstDeltaB } from "../utils/Bean";
 import { Chop } from "../../generated/Bean-ABIs/Reseed";
 import { Convert, DewhitelistToken, Shipped, Sunrise, WellOracle } from "../../generated/Bean-ABIs/PintoLaunch";
 import { loadBean, saveBean } from "../entities/Bean";
@@ -19,6 +19,9 @@ export function handleSunrise(event: Sunrise): void {
   // Fetch price from price contract to capture any non-bean token price movevements
   // Update the current price regardless of a peg cross
   updatePoolPricesOnCross(false, event.block);
+
+  // Set the inst deltaB on the bean snapshots
+  updateInstDeltaB(getProtocolToken(v(), event.block.number), event.block);
 }
 
 // Assumption is that the whitelisted token corresponds to a pool lp. If not, this method will simply do nothing.

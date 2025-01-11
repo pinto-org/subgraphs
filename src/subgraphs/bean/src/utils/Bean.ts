@@ -117,16 +117,14 @@ export function updateBeanAfterPoolSwap(
   }
 }
 
-export function updateInstDeltaB(token: Address, block: ethereum.Block): void {
-  let bean = loadBean(token);
+export function updateInstDeltaB(beanAddress: Address, block: ethereum.Block): void {
+  let bean = loadBean(beanAddress);
 
   let cumulativeDeltaB = ZERO_BI;
   for (let i = 0; i < bean.pools.length; i++) {
     let pool = loadOrCreatePool(toAddress(bean.pools[i]), block.number);
     cumulativeDeltaB = cumulativeDeltaB.plus(pool.deltaBeans);
   }
-
-  // TODO: This needs to be updated to only be set once at the start of the season and not updated after that.
   setBeanSnapshotInstDeltaB(bean, cumulativeDeltaB);
 }
 

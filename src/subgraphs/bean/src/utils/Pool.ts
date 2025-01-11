@@ -1,8 +1,6 @@
 import { BigDecimal, BigInt, ethereum, Address, log } from "@graphprotocol/graph-ts";
-import { updateInstDeltaB } from "./Bean";
 import { checkPoolCross } from "./Cross";
 import { loadOrCreatePool, savePool } from "../entities/Pool";
-import { toAddress } from "../../../../core/utils/Bytes";
 import { takePoolSnapshots } from "../entities/snapshots/Pool";
 
 export function updatePoolValues(
@@ -21,8 +19,6 @@ export function updatePoolValues(
 
   takePoolSnapshots(pool, block);
   savePool(pool, block);
-
-  updateInstDeltaB(toAddress(pool.bean), block);
 }
 
 export function updatePoolPrice(
