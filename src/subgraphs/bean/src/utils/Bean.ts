@@ -1,4 +1,4 @@
-import { BigDecimal, BigInt, ethereum, Address } from "@graphprotocol/graph-ts";
+import { BigDecimal, BigInt, ethereum, Address, log } from "@graphprotocol/graph-ts";
 import { Pool, PoolHourlySnapshot } from "../../generated/schema";
 import { BEAN_ERC20_V1, BEAN_WETH_V1 } from "../../../../core/constants/raw/BeanstalkEthConstants";
 import { ONE_BD, toDecimal, ZERO_BD, ZERO_BI } from "../../../../core/utils/Decimals";

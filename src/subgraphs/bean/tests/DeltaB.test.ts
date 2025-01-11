@@ -24,6 +24,8 @@ import { initL1Version } from "./entity-mocking/MockVersion";
 import { handleMetapoolOracle } from "../src/handlers/legacy/LegacyBeanstalkHandler";
 import { mockBeanSeasons } from "./entity-mocking/MockSeason";
 import { mockPriceBelow, mockWhitelistedPools } from "./entity-mocking/MockBean";
+import { takePoolSnapshots } from "../src/entities/snapshots/Pool";
+import { takeBeanSnapshots } from "../src/entities/snapshots/Bean";
 
 const timestamp1 = BigInt.fromU32(1712793374);
 const hour1 = hourFromTimestamp(timestamp1).toString();
@@ -133,9 +135,13 @@ describe("DeltaB", () => {
       // Set liquidity so weighted twa prices can be set
       let pool = loadOrCreatePool(BEAN_3CRV, b2.number);
       pool.liquidityUSD = BigDecimal.fromString("10000");
+      takePoolSnapshots(pool, b2);
       pool.save();
       let bean = loadBean(BEAN_ERC20);
       bean.liquidityUSD = BigDecimal.fromString("10000");
+      // One pool to compute the overall twas on
+      bean.pools = [BEAN_3CRV];
+      takeBeanSnapshots(bean, b2);
       bean.save();
 
       // Initialize oracle
