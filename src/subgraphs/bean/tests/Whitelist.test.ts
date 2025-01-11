@@ -6,7 +6,7 @@ import {
   BEAN_WETH_CP2_WELL_BLOCK
 } from "../../../core/constants/raw/BeanstalkEthConstants";
 import { createDewhitelistTokenEvent } from "./event-mocking/Beanstalk";
-import { mockWhitelistedPools } from "./entity-mocking/MockBean";
+import { mockPriceBelow, mockWhitelistedPools } from "./entity-mocking/MockBean";
 import { handleDewhitelistToken } from "../src/handlers/BeanstalkHandler";
 import { initL1Version } from "./entity-mocking/MockVersion";
 import { mockBeanSeasons } from "./entity-mocking/MockSeason";
@@ -14,6 +14,7 @@ import { mockBeanSeasons } from "./entity-mocking/MockSeason";
 describe("Whitelisting", () => {
   beforeEach(() => {
     initL1Version();
+    mockPriceBelow();
     mockBeanSeasons();
   });
   afterEach(() => {

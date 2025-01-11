@@ -23,7 +23,7 @@ import { loadOrCreatePool } from "../src/entities/Pool";
 import { initL1Version } from "./entity-mocking/MockVersion";
 import { handleMetapoolOracle } from "../src/handlers/legacy/LegacyBeanstalkHandler";
 import { mockBeanSeasons } from "./entity-mocking/MockSeason";
-import { mockWhitelistedPools } from "./entity-mocking/MockBean";
+import { mockPriceBelow, mockWhitelistedPools } from "./entity-mocking/MockBean";
 
 const timestamp1 = BigInt.fromU32(1712793374);
 const hour1 = hourFromTimestamp(timestamp1).toString();
@@ -40,6 +40,7 @@ describe("DeltaB", () => {
   beforeEach(() => {
     initL1Version();
     mockWhitelistedPools([BEAN_3CRV, BEAN_WETH_CP2_WELL]);
+    mockPriceBelow();
     mockBeanSeasons();
   });
   afterEach(() => {

@@ -12,10 +12,12 @@ import { loadOrCreatePool } from "../src/entities/Pool";
 import { toAddress } from "../../../core/utils/Bytes";
 import { initL1Version } from "./entity-mocking/MockVersion";
 import { mockBeanSeasons } from "./entity-mocking/MockSeason";
+import { mockPriceBelow } from "./entity-mocking/MockBean";
 
 describe("Token", () => {
   beforeEach(() => {
     initL1Version();
+    mockPriceBelow();
     mockBeanSeasons();
   });
   afterEach(() => {
