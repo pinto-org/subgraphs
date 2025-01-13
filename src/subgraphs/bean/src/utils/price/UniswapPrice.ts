@@ -1,7 +1,7 @@
 import { Address, BigDecimal, BigInt, ethereum, log } from "@graphprotocol/graph-ts";
 import { BD_10, BI_10, ONE_BI, pow, sqrt, toDecimal, ZERO_BD, ZERO_BI } from "../../../../../core/utils/Decimals";
 import { WETH, WETH_USDC_PAIR } from "../../../../../core/constants/raw/BeanstalkEthConstants";
-import { DeltaBAndPrice, DeltaBPriceLiquidity, TWAType } from "./Types";
+import { TwaResults, DeltaBPriceLiquidity, TWAType } from "./Types";
 import { getTWAPrices } from "./TwaOracle";
 import { loadOrCreateToken } from "../../entities/Token";
 import { UniswapV2Pair } from "../../../generated/Bean-ABIs/UniswapV2Pair";
@@ -85,7 +85,7 @@ export function uniswapV2DeltaB(beanReserves: BigDecimal, token2Reserves: BigDec
 // Calculates and sets the TWA on the pool hourly/daily snapshots
 export function setUniswapV2Twa(poolAddress: Address, block: ethereum.Block): void {
   const twaPrices = getTWAPrices(poolAddress, TWAType.UNISWAP, block.timestamp);
-  const twaResult = uniswapTwaDeltaBAndPrice(twaPrices, block.number);
+  const twaResult = uniswapTwaResults(twaPrices, block.number);
 
   setPoolSnapshotTwa(poolAddress, twaResult);
 }
@@ -106,7 +106,7 @@ export function uniswapCumulativePrice(pool: Address, tokenIndex: u32, timestamp
   return cumulativeNow;
 }
 
-export function uniswapTwaDeltaBAndPrice(prices: BigInt[], blockNumber: BigInt): DeltaBAndPrice {
+export function uniswapTwaResults(prices: BigInt[], blockNumber: BigInt): TwaResults {
   const protocol = toAddress(v().protocolAddress);
   let beanstalk = PreReplant.bind(protocol);
   let reserves: BigInt[];
@@ -135,6 +135,7 @@ export function uniswapTwaDeltaBAndPrice(prices: BigInt[], blockNumber: BigInt):
   // log.debug("deltab deltaB {}", [deltaB.toString()]);
 
   return {
+    reserves,
     deltaB: deltaB,
     price: twaPrice,
     token2Price: null

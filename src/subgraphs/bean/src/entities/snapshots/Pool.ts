@@ -1,8 +1,8 @@
 import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import { dayFromTimestamp, hourFromTimestamp } from "../../../../../core/utils/Dates";
 import { Pool, PoolDailySnapshot, PoolHourlySnapshot } from "../../../generated/schema";
-import { addBigIntArray, BI_MAX, subBigIntArray, ZERO_BD } from "../../../../../core/utils/Decimals";
-import { DeltaBAndPrice } from "../../utils/price/Types";
+import { addBigIntArray, BI_MAX, emptyBigIntArray, subBigIntArray, ZERO_BD } from "../../../../../core/utils/Decimals";
+import { TwaResults } from "../../utils/price/Types";
 
 export function takePoolSnapshots(pool: Pool, block: ethereum.Block): void {
   const season = <i32>parseInt(pool.currentSeason);
@@ -34,7 +34,8 @@ export function takePoolSnapshots(pool: Pool, block: ethereum.Block): void {
   hourly.volume = pool.volume;
   hourly.volumeUSD = pool.volumeUSD;
   hourly.liquidityUSD = pool.liquidityUSD;
-  // These 3 fields are expected to be initialized at sunrise, after this method
+  // These fields are expected to be initialized at sunrise, after this method
+  hourly.twaReserves = emptyBigIntArray(2);
   hourly.twaPrice = ZERO_BD;
   hourly.twaToken2Price = ZERO_BD;
   hourly.twaDeltaBeans = BI_MAX;
@@ -84,7 +85,8 @@ export function takePoolSnapshots(pool: Pool, block: ethereum.Block): void {
   daily.volume = pool.volume;
   daily.volumeUSD = pool.volumeUSD;
   daily.liquidityUSD = pool.liquidityUSD;
-  // These 3 fields are expected to be initialized at sunrise, after this method
+  // These fields are expected to be initialized at sunrise, after this method
+  daily.twaReserves = emptyBigIntArray(2);
   daily.twaPrice = ZERO_BD;
   daily.twaToken2Price = ZERO_BD;
   daily.twaDeltaBeans = BI_MAX;
@@ -127,15 +129,17 @@ export function takePoolSnapshots(pool: Pool, block: ethereum.Block): void {
   pool.lastUpdateBlockNumber = block.number;
 }
 
-export function setPoolSnapshotTwa(poolAddress: Address, twaValues: DeltaBAndPrice): void {
+export function setPoolSnapshotTwa(poolAddress: Address, twaValues: TwaResults): void {
   const pool = Pool.load(poolAddress)!;
   const hourly = PoolHourlySnapshot.load(pool.id.toHexString() + "-" + pool.lastHourlySnapshotSeason.toString())!;
+  hourly.twaReserves = twaValues.reserves;
   hourly.twaPrice = twaValues.price;
   hourly.twaToken2Price = twaValues.token2Price;
   hourly.twaDeltaBeans = twaValues.deltaB;
   hourly.save();
 
   const daily = PoolDailySnapshot.load(pool.id.toHexString() + "-" + pool.lastDailySnapshotDay.toString())!;
+  daily.twaReserves = twaValues.reserves;
   daily.twaPrice = twaValues.price;
   daily.twaToken2Price = twaValues.token2Price;
   daily.twaDeltaBeans = twaValues.deltaB;

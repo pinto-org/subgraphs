@@ -6,7 +6,8 @@ export enum TWAType {
   WELL_PUMP
 }
 
-export class DeltaBAndPrice {
+export class TwaResults {
+  reserves: BigInt[];
   deltaB: BigInt;
   price: BigDecimal;
   token2Price: BigDecimal | null;

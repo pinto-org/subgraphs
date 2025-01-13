@@ -1,7 +1,7 @@
 import { Bytes, BigInt, Address, BigDecimal, ethereum, log } from "@graphprotocol/graph-ts";
 import { getTWAPrices } from "./TwaOracle";
 import { ABDK_toUInt, pow2toX } from "../../../../../core/utils/ABDKMathQuad";
-import { DeltaBAndPrice, TWAType } from "./Types";
+import { TwaResults, TWAType } from "./Types";
 import { constantProductPrice } from "./UniswapPrice";
 import { ONE_BI, pow, toDecimal, ZERO_BI } from "../../../../../core/utils/Decimals";
 import { loadOrCreateTwaOracle } from "../../entities/TwaOracle";
@@ -49,12 +49,12 @@ export function wellTwaReserves(currentReserves: BigInt[], pastReserves: BigInt[
 
 export function setWellTwa(wellAddress: Address, twaDeltaB: BigInt, block: ethereum.Block): void {
   const twaBalances = getTWAPrices(wellAddress, TWAType.WELL_PUMP, block.timestamp);
-  const twaResult = wellTwaDeltaBAndPrice(twaBalances, twaDeltaB);
+  const twaResult = wellTwaResults(twaBalances, twaDeltaB);
 
   setPoolSnapshotTwa(wellAddress, twaResult);
 }
 
-function wellTwaDeltaBAndPrice(twaBalances: BigInt[], twaDeltaB: BigInt): DeltaBAndPrice {
+function wellTwaResults(twaBalances: BigInt[], twaDeltaB: BigInt): TwaResults {
   // Use known twaDeltaB to infer the twa eth price
   // This approach of determining price/token2Price is technically "incorrect", in that it is affected
   // by the issue resolved in EBIP-11 https://github.com/BeanstalkFarms/Beanstalk-Governance-Proposals/blob/master/bip/ebip/ebip-11-upgrade-eth-usd-minting-oracle.md
@@ -66,6 +66,7 @@ function wellTwaDeltaBAndPrice(twaBalances: BigInt[], twaDeltaB: BigInt): DeltaB
   );
 
   return {
+    reserves: twaBalances,
     deltaB: twaDeltaB,
     // TODO: solution for twa price on general well functions
     price: constantProductPrice(toDecimal(twaBalances[0]), toDecimal(twaBalances[1], 18), twaEthPrice),

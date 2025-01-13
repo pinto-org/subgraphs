@@ -35,7 +35,7 @@ export function takeBeanSnapshots(bean: Bean, block: ethereum.Block): void {
   hourly.volume = bean.volume;
   hourly.volumeUSD = bean.volumeUSD;
   hourly.liquidityUSD = bean.liquidityUSD;
-  // These 3 fields are expected to be initialized at sunrise, after this method
+  // These fields are expected to be initialized at sunrise, after this method
   hourly.twaPrice = ZERO_BD;
   hourly.twaDeltaB = BI_MAX;
   hourly.instantaneousDeltaB = BI_MAX;
@@ -84,7 +84,7 @@ export function takeBeanSnapshots(bean: Bean, block: ethereum.Block): void {
   daily.volume = bean.volume;
   daily.volumeUSD = bean.volumeUSD;
   daily.liquidityUSD = bean.liquidityUSD;
-  // These 3 fields are expected to be initialized at sunrise, after this method
+  // These fields are expected to be initialized at sunrise, after this method
   daily.twaPrice = ZERO_BD;
   daily.twaDeltaB = BI_MAX;
   daily.instantaneousDeltaB = BI_MAX;
