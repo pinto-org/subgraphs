@@ -43,7 +43,9 @@ export function takePoolSnapshots(pool: Pool, block: ethereum.Block): void {
   hourly.liquidityUSD = pool.liquidityUSD;
   // These fields are expected to be initialized at sunrise, after this method
   hourly.twaReserves = emptyBigIntArray(2);
+  hourly.twaLiquidityUSD = ZERO_BD;
   hourly.twaPrice = ZERO_BD;
+  hourly.twaToken2Price = ZERO_BD;
   hourly.twaDeltaBeans = BI_MAX;
 
   // Set deltas
@@ -95,7 +97,9 @@ export function takePoolSnapshots(pool: Pool, block: ethereum.Block): void {
   daily.liquidityUSD = pool.liquidityUSD;
   // These fields are expected to be initialized at sunrise, after this method
   daily.twaReserves = emptyBigIntArray(2);
+  daily.twaLiquidityUSD = ZERO_BD;
   daily.twaPrice = ZERO_BD;
+  daily.twaToken2Price = ZERO_BD;
   daily.twaDeltaBeans = BI_MAX;
 
   // Set deltas

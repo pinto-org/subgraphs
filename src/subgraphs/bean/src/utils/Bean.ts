@@ -133,19 +133,17 @@ export function updateBeanTwa(block: ethereum.Block): void {
   const beanAddress = getProtocolToken(v(), block.number);
   const bean = loadBean(beanAddress);
 
-  let twaDeltaB = ZERO_BI;
   let weightedTwaPrice = ZERO_BD;
+  let twaLiquidityUSD = ZERO_BD;
+  let twaDeltaB = ZERO_BI;
   for (let i = 0; i < bean.pools.length; i++) {
     const poolHourly = PoolHourlySnapshot.load(
       bean.pools[i].toHexString() + "-" + bean.lastHourlySnapshotSeason.toString()
     )!;
+    weightedTwaPrice = weightedTwaPrice.plus(poolHourly.twaPrice.times(poolHourly.twaLiquidityUSD));
+    twaLiquidityUSD = twaLiquidityUSD.plus(poolHourly.twaLiquidityUSD);
     twaDeltaB = twaDeltaB.plus(poolHourly.twaDeltaBeans);
-    // TODO: this should be using twa liquidity on each pool instead
-    weightedTwaPrice = weightedTwaPrice.plus(poolHourly.twaPrice.times(poolHourly.liquidityUSD));
   }
-
-  // Assumption is that total bean liquidity was already summed earlier in the same event's processing
-  const twaPrice = weightedTwaPrice.div(bean.liquidityUSD != ZERO_BD ? bean.liquidityUSD : ONE_BD);
-
-  setBeanSnapshotTwa(bean, twaPrice, twaDeltaB);
+  const twaPrice = weightedTwaPrice.div(twaLiquidityUSD != ZERO_BD ? twaLiquidityUSD : ONE_BD);
+  setBeanSnapshotTwa(bean, twaPrice, twaLiquidityUSD, twaDeltaB);
 }

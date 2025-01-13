@@ -115,6 +115,8 @@ type BeanHourlySnapshot @entity {
   price: BigDecimal!
   "Time-Weighted price over the previous season"
   twaPrice: BigDecimal!
+  "Time-Weighted cumulative liquidity over the previous season"
+  twaLiquidityUSD: BigDecimal!
 
   "Instantaneous deltaB across all whitelisted pools. Set at the start of the season only."
   instantaneousDeltaB: BigInt!
@@ -176,6 +178,8 @@ type BeanDailySnapshot @entity {
   price: BigDecimal!
   "Time-Weighted price over the previous season"
   twaPrice: BigDecimal!
+  "Time-Weighted cumulative liquidity over the previous season"
+  twaLiquidityUSD: BigDecimal!
 
   "Instantaneous deltaB across all whitelisted pools. Set at the start of the season only."
   instantaneousDeltaB: BigInt!
@@ -281,14 +285,14 @@ type PoolHourlySnapshot @entity {
   "Time-Weighted average reserves in this pool over the previous season"
   twaReserves: [BigInt!]!
   "Time-Weighted average total USD liquidity in this pool over the previous season"
-  twaLiquidityUSD: BigDecimal
+  twaLiquidityUSD: BigDecimal!
 
   "Price of Bean in this Pool. Accuracy not guaranteed except at sunrise"
   lastPrice: BigDecimal!
   "Time-Weighted bean price in this pool over the previous season"
   twaPrice: BigDecimal!
   "Time-Weighted price of the non-bean token in the pool over the previous season"
-  twaToken2Price: BigDecimal
+  twaToken2Price: BigDecimal!
 
   "Cumulative number of peg crosses in this Pool"
   crosses: Int!
@@ -343,14 +347,14 @@ type PoolDailySnapshot @entity {
   "Time-Weighted average reserves in this pool over the previous season"
   twaReserves: [BigInt!]!
   "Time-Weighted average total USD liquidity in this pool over the previous season"
-  twaLiquidityUSD: BigDecimal
+  twaLiquidityUSD: BigDecimal!
 
   "Price of Bean in this Pool. Accuracy not guaranteed except at sunrise"
   lastPrice: BigDecimal!
   "Time-Weighted bean price in this pool over the previous season"
   twaPrice: BigDecimal!
   "Time-Weighted price of the non-bean token in the pool over the previous season"
-  twaToken2Price: BigDecimal
+  twaToken2Price: BigDecimal!
 
   "Cumulative number of peg crosses in this Pool"
   crosses: Int!

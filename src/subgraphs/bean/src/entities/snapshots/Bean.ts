@@ -37,6 +37,7 @@ export function takeBeanSnapshots(bean: Bean, block: ethereum.Block): void {
   hourly.liquidityUSD = bean.liquidityUSD;
   // These fields are expected to be initialized at sunrise, after this method
   hourly.twaPrice = ZERO_BD;
+  hourly.twaLiquidityUSD = ZERO_BD;
   hourly.twaDeltaB = BI_MAX;
   hourly.instantaneousDeltaB = BI_MAX;
 
@@ -86,6 +87,7 @@ export function takeBeanSnapshots(bean: Bean, block: ethereum.Block): void {
   daily.liquidityUSD = bean.liquidityUSD;
   // These fields are expected to be initialized at sunrise, after this method
   daily.twaPrice = ZERO_BD;
+  daily.twaLiquidityUSD = ZERO_BD;
   daily.twaDeltaB = BI_MAX;
   daily.instantaneousDeltaB = BI_MAX;
 
@@ -125,14 +127,21 @@ export function takeBeanSnapshots(bean: Bean, block: ethereum.Block): void {
 }
 
 // Set twa values from the start of the season. Snapshot must have already been created.
-export function setBeanSnapshotTwa(bean: Bean, twaPrice: BigDecimal, twaDeltaB: BigInt): void {
+export function setBeanSnapshotTwa(
+  bean: Bean,
+  twaPrice: BigDecimal,
+  twaLiquidityUSD: BigDecimal,
+  twaDeltaB: BigInt
+): void {
   const hourly = BeanHourlySnapshot.load(bean.id.toHexString() + "-" + bean.lastHourlySnapshotSeason.toString())!;
-  hourly.twaPrice = twaPrice;
+  hourly.twaPrice = twaPrice.truncate(2);
+  hourly.twaLiquidityUSD = twaLiquidityUSD.truncate(2);
   hourly.twaDeltaB = twaDeltaB;
   hourly.save();
 
   const daily = BeanDailySnapshot.load(bean.id.toHexString() + "-" + bean.lastDailySnapshotDay.toString())!;
-  daily.twaPrice = twaPrice;
+  daily.twaPrice = twaPrice.truncate(2);
+  daily.twaLiquidityUSD = twaLiquidityUSD.truncate(2);
   daily.twaDeltaB = twaDeltaB;
   daily.save();
 }
