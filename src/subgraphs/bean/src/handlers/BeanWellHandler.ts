@@ -8,9 +8,9 @@ import {
   Sync
 } from "../../generated/Bean-ABIs/Well";
 import { subBigIntArray, toDecimal, ZERO_BD, ZERO_BI } from "../../../../core/utils/Decimals";
-import { loadOrCreatePool } from "../entities/Pool";
+import { getPoolLiquidityUSD, loadOrCreatePool, setPoolReserves } from "../entities/Pool";
 import { BeanstalkPrice_try_price, getPoolPrice } from "../utils/price/BeanstalkPrice";
-import { getPoolLiquidityUSD, setPoolReserves, updatePoolPrice, updatePoolValues } from "../utils/Pool";
+import { updatePoolPrice, updatePoolValues } from "../utils/Pool";
 import { updateBeanAfterPoolSwap } from "../utils/Bean";
 import { toAddress } from "../../../../core/utils/Bytes";
 import { v } from "../utils/constants/Version";

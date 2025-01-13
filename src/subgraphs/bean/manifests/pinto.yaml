@@ -125,6 +125,8 @@ dataSources:
           file: ../../../core/abis/Beanstalk/Pinto-Launch.json
         - name: Well
           file: ../../../core/abis/Well.json
+        - name: WellFunction
+          file: ../../../core/abis/WellFunction.json
       eventHandlers:
         - event: WellOracle(indexed uint32,address,int256,bytes)
           handler: handleWellOracle

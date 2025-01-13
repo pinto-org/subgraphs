@@ -138,7 +138,8 @@ export function uniswapTwaResults(prices: BigInt[], blockNumber: BigInt): TwaRes
     reserves,
     deltaB: deltaB,
     price: twaPrice,
-    token2Price: null
+    token2Price: null,
+    liquidity: null
   };
 }
 

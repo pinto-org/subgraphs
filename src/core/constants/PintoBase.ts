@@ -1,4 +1,4 @@
-import { Address, BigInt } from "@graphprotocol/graph-ts";
+import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
 import {
   AQUIFER,
   BEAN_ERC20,
@@ -10,6 +10,7 @@ import {
   PINTO_WETH,
   WELL_STABLE2
 } from "./raw/PintoBaseConstants";
+import { WellFnInfo } from "./RuntimeConstants";
 
 /// ADDRESSES ///
 
@@ -96,4 +97,20 @@ export function wellFnSupportsRate(wellFnAddress: Address): boolean {
 
 export function isStable2WellFn(wellFnAddress: Address): boolean {
   return wellFnAddress == WELL_STABLE2;
+}
+
+export function wellFnInfoForWell(wellAddress: Address): WellFnInfo {
+  if (wellAddress == PINTO_USDC) {
+    return {
+      address: Address.fromString("0xba51055a97b40d7f41f3f64b57469b5d45b67c87"),
+      data: Bytes.fromHexString(
+        "0x00000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006"
+      )
+    };
+  } else {
+    return {
+      address: Address.fromString("0xba510c289fd067ebba41335afa11f0591940d6fe"),
+      data: Bytes.fromHexString("0x")
+    };
+  }
 }

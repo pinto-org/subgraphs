@@ -45,6 +45,10 @@ export function loadOrCreatePool(poolAddress: Address, blockNumber: BigInt): Poo
   return pool as Pool;
 }
 
+export function getPool(poolAddress: Address): Pool {
+  return Pool.load(poolAddress)!;
+}
+
 export function savePool(pool: Pool, block: ethereum.Block): void {
   if (pool.createdTimestamp == ZERO_BI) {
     pool.createdTimestamp = block.timestamp;

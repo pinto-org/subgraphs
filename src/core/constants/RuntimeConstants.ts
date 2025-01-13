@@ -1,4 +1,4 @@
-import { Address, BigInt } from "@graphprotocol/graph-ts";
+import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
 import * as ConstantsEth from "./raw/BeanstalkEthConstants";
 import * as BeanstalkEth from "./BeanstalkEth";
 import * as ConstantsArb from "./raw/BeanstalkArbConstants";
@@ -209,6 +209,17 @@ export function isStable2WellFn(v: VersionDto, wellFnAddress: Address): boolean 
     return BeanstalkArb.isStable2WellFn(wellFnAddress);
   } else if (v.chain == "base" && v.protocolAddress == ConstantsPintoBase.BEANSTALK) {
     return PintoBase.isStable2WellFn(wellFnAddress);
+  }
+  throw new Error("Unsupported protocol");
+}
+
+export class WellFnInfo {
+  address: Address;
+  data: Bytes;
+}
+export function wellFnInfoForWell(v: VersionDto, wellAddress: Address): WellFnInfo {
+  if (v.chain == "base" && v.protocolAddress == ConstantsPintoBase.BEANSTALK) {
+    return PintoBase.wellFnInfoForWell(wellAddress);
   }
   throw new Error("Unsupported protocol");
 }

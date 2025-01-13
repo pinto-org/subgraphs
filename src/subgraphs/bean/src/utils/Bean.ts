@@ -8,7 +8,7 @@ import { calcLockedBeans } from "./LockedBeans";
 import { loadBean, saveBean } from "../entities/Bean";
 import { loadOrCreatePool } from "../entities/Pool";
 import { externalUpdatePoolPrice as univ2_externalUpdatePoolPrice } from "../handlers/legacy/LegacyUniswapV2Handler";
-import { updateBeanSupplyPegPercent_v1 } from "./legacy/Bean";
+import { updateBeanSupplyPegPercent_v1 } from "./legacy/LegacyBean";
 import { toAddress } from "../../../../core/utils/Bytes";
 import { getProtocolToken } from "../../../../core/constants/RuntimeConstants";
 import { v } from "./constants/Version";

@@ -11,6 +11,7 @@ export class TwaResults {
   deltaB: BigInt;
   price: BigDecimal;
   token2Price: BigDecimal | null;
+  liquidity: BigDecimal | null;
 }
 
 export class DeltaBPriceLiquidity {

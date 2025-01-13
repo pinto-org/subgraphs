@@ -280,6 +280,8 @@ type PoolHourlySnapshot @entity {
   deltaReserves: [BigInt!]!
   "Time-Weighted average reserves in this pool over the previous season"
   twaReserves: [BigInt!]!
+  "Time-Weighted average total USD liquidity in this pool over the previous season"
+  twaLiquidityUSD: BigDecimal
 
   "Price of Bean in this Pool. Accuracy not guaranteed except at sunrise"
   lastPrice: BigDecimal!
@@ -340,6 +342,8 @@ type PoolDailySnapshot @entity {
   deltaReserves: [BigInt!]!
   "Time-Weighted average reserves in this pool over the previous season"
   twaReserves: [BigInt!]!
+  "Time-Weighted average total USD liquidity in this pool over the previous season"
+  twaLiquidityUSD: BigDecimal
 
   "Price of Bean in this Pool. Accuracy not guaranteed except at sunrise"
   lastPrice: BigDecimal!

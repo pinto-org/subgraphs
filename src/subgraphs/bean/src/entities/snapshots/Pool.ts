@@ -1,7 +1,14 @@
 import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import { dayFromTimestamp, hourFromTimestamp } from "../../../../../core/utils/Dates";
 import { Pool, PoolDailySnapshot, PoolHourlySnapshot } from "../../../generated/schema";
-import { addBigIntArray, BI_MAX, emptyBigIntArray, subBigIntArray, ZERO_BD } from "../../../../../core/utils/Decimals";
+import {
+  addBigIntArray,
+  BI_MAX,
+  emptyBigDecimalArray,
+  emptyBigIntArray,
+  subBigIntArray,
+  ZERO_BD
+} from "../../../../../core/utils/Decimals";
 import { TwaResults } from "../../utils/price/Types";
 
 export function takePoolSnapshots(pool: Pool, block: ethereum.Block): void {
@@ -37,7 +44,6 @@ export function takePoolSnapshots(pool: Pool, block: ethereum.Block): void {
   // These fields are expected to be initialized at sunrise, after this method
   hourly.twaReserves = emptyBigIntArray(2);
   hourly.twaPrice = ZERO_BD;
-  hourly.twaToken2Price = ZERO_BD;
   hourly.twaDeltaBeans = BI_MAX;
 
   // Set deltas
@@ -90,7 +96,6 @@ export function takePoolSnapshots(pool: Pool, block: ethereum.Block): void {
   // These fields are expected to be initialized at sunrise, after this method
   daily.twaReserves = emptyBigIntArray(2);
   daily.twaPrice = ZERO_BD;
-  daily.twaToken2Price = ZERO_BD;
   daily.twaDeltaBeans = BI_MAX;
 
   // Set deltas
@@ -137,6 +142,7 @@ export function setPoolSnapshotTwa(poolAddress: Address, twaValues: TwaResults):
   const pool = Pool.load(poolAddress)!;
   const hourly = PoolHourlySnapshot.load(pool.id.toHexString() + "-" + pool.lastHourlySnapshotSeason.toString())!;
   hourly.twaReserves = twaValues.reserves;
+  hourly.twaLiquidityUSD = twaValues.liquidity;
   hourly.twaPrice = twaValues.price;
   hourly.twaToken2Price = twaValues.token2Price;
   hourly.twaDeltaBeans = twaValues.deltaB;
@@ -144,6 +150,7 @@ export function setPoolSnapshotTwa(poolAddress: Address, twaValues: TwaResults):
 
   const daily = PoolDailySnapshot.load(pool.id.toHexString() + "-" + pool.lastDailySnapshotDay.toString())!;
   daily.twaReserves = twaValues.reserves;
+  daily.twaLiquidityUSD = twaValues.liquidity;
   daily.twaPrice = twaValues.price;
   daily.twaToken2Price = twaValues.token2Price;
   daily.twaDeltaBeans = twaValues.deltaB;

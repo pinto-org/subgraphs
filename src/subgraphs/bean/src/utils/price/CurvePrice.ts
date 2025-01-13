@@ -147,7 +147,8 @@ export function curveTwaResults(twaBalances: BigInt[], beanPool: Address, otherP
     reserves: twaBalances,
     deltaB: deltaFromD(D, twaBalances[0]),
     price: priceFromY(y, xp[1]),
-    token2Price: null
+    token2Price: null,
+    liquidity: null
   };
 }
 
