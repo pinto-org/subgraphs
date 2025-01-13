@@ -30,7 +30,7 @@ export function takePoolSnapshots(pool: Pool, block: ethereum.Block): void {
   hourly.reserves = pool.reserves;
   hourly.lastPrice = pool.lastPrice;
   hourly.crosses = pool.crosses;
-  hourly.deltaBeans = pool.deltaBeans; // TODO: This field should only be assignable ONCE when the snapshot is first created
+  hourly.deltaBeans = pool.deltaBeans;
   hourly.volume = pool.volume;
   hourly.volumeUSD = pool.volumeUSD;
   hourly.liquidityUSD = pool.liquidityUSD;
@@ -55,6 +55,8 @@ export function takePoolSnapshots(pool: Pool, block: ethereum.Block): void {
       hourly.deltaVolume = hourly.deltaVolume.plus(baseHourly.deltaVolume);
       hourly.deltaVolumeUSD = hourly.deltaVolumeUSD.plus(baseHourly.deltaVolumeUSD);
       hourly.deltaLiquidityUSD = hourly.deltaLiquidityUSD.plus(baseHourly.deltaLiquidityUSD);
+      // Prevent reassignment to deltaBeans after initial creation
+      hourly.deltaBeans = baseHourly.deltaBeans;
     }
   } else {
     hourly.deltaReserves = hourly.reserves;
@@ -106,6 +108,8 @@ export function takePoolSnapshots(pool: Pool, block: ethereum.Block): void {
       daily.deltaVolume = daily.deltaVolume.plus(baseDaily.deltaVolume);
       daily.deltaVolumeUSD = daily.deltaVolumeUSD.plus(baseDaily.deltaVolumeUSD);
       daily.deltaLiquidityUSD = daily.deltaLiquidityUSD.plus(baseDaily.deltaLiquidityUSD);
+      // Prevent reassignment to deltaBeans after initial creation
+      daily.deltaBeans = baseDaily.deltaBeans;
     }
   } else {
     daily.deltaReserves = daily.reserves;
