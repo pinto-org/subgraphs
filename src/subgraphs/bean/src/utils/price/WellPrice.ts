@@ -9,10 +9,10 @@ import { PintoLaunch } from "../../../generated/Bean-ABIs/PintoLaunch";
 import { WellFunction } from "../../../generated/Bean-ABIs/WellFunction";
 import { v } from "../constants/Version";
 import { getLastSeasonDuration } from "../../entities/Season";
-import { getTokensForPool } from "../constants/PooledTokens";
 import {
   getProtocolToken,
   getTokenDecimals,
+  getTokensForPool,
   isStable2WellFn,
   wellFnInfoForWell
 } from "../../../../../core/constants/RuntimeConstants";

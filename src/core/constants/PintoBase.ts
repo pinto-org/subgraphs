@@ -8,9 +8,11 @@ import {
   PINTO_WSOL,
   PINTO_USDC,
   PINTO_WETH,
-  WELL_STABLE2
+  WELL_STABLE2,
+  POOL_TOKENS,
+  TOKEN_INFOS
 } from "./raw/PintoBaseConstants";
-import { WellFnInfo } from "./RuntimeConstants";
+import { PoolTokens, Token, WellFnInfo } from "./RuntimeConstants";
 
 /// ADDRESSES ///
 
@@ -36,6 +38,14 @@ export function getUnripeLpAddr(): Address {
 
 export function isUnripe(token: Address): boolean {
   return false;
+}
+
+export function getPoolTokens(): PoolTokens[] {
+  return POOL_TOKENS;
+}
+
+export function getTokenInfos(): Token[] {
+  return TOKEN_INFOS;
 }
 
 export function getTokenDecimals(token: Address): i32 {

@@ -160,12 +160,12 @@ export function setPoolSnapshotTwa(poolAddress: Address, twaValues: TwaResults):
 
   // Legacy implementations may be missing these values
   if (twaValues.liquidity !== null) {
-    hourly.twaBeanLiquidityUSD = twaValues.liquidity.beanLiquidity;
-    hourly.twaNonBeanLiquidityUSD = twaValues.liquidity.nonBeanLiquidity;
-    hourly.twaLiquidityUSD = twaValues.liquidity.totalLiquidity;
-    daily.twaBeanLiquidityUSD = twaValues.liquidity.beanLiquidity;
-    daily.twaNonBeanLiquidityUSD = twaValues.liquidity.nonBeanLiquidity;
-    daily.twaLiquidityUSD = twaValues.liquidity.totalLiquidity;
+    hourly.twaBeanLiquidityUSD = twaValues.liquidity!.beanLiquidity;
+    hourly.twaNonBeanLiquidityUSD = twaValues.liquidity!.nonBeanLiquidity;
+    hourly.twaLiquidityUSD = twaValues.liquidity!.totalLiquidity;
+    daily.twaBeanLiquidityUSD = twaValues.liquidity!.beanLiquidity;
+    daily.twaNonBeanLiquidityUSD = twaValues.liquidity!.nonBeanLiquidity;
+    daily.twaLiquidityUSD = twaValues.liquidity!.totalLiquidity;
   }
   if (twaValues.token2Price !== null) {
     hourly.twaToken2Price = twaValues.token2Price!;

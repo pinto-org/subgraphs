@@ -1,11 +1,10 @@
 import { BigInt, Address, ethereum, BigDecimal } from "@graphprotocol/graph-ts";
 import { loadBean } from "./Bean";
-import { getTokensForPool } from "../utils/constants/PooledTokens";
 import { Pool } from "../../generated/schema";
 import { loadOrCreateToken } from "./Token";
 import { emptyBigIntArray, ZERO_BD, ZERO_BI } from "../../../../core/utils/Decimals";
 import { toAddress, toBytesArray } from "../../../../core/utils/Bytes";
-import { getProtocolToken } from "../../../../core/constants/RuntimeConstants";
+import { getProtocolToken, getTokensForPool } from "../../../../core/constants/RuntimeConstants";
 import { v } from "../utils/constants/Version";
 import { takePoolSnapshots } from "./snapshots/Pool";
 import { getSeason } from "./Season";

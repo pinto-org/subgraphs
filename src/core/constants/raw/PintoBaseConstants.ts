@@ -1,4 +1,5 @@
 import { Address, BigInt } from "@graphprotocol/graph-ts";
+import { PoolTokens, Token } from "../RuntimeConstants";
 
 // Protocol tokens
 export const BEAN_ERC20 = Address.fromString("0xb170000aeeFa790fa61D6e837d1035906839a3c8");
@@ -27,3 +28,53 @@ export const WELL_STABLE2 = Address.fromString("0xBA51055a97b40d7f41f3F64b57469b
 export const PINTOSTALK_BLOCK = BigInt.fromU32(22622961);
 export const BASIN_BLOCK = BigInt.fromU64(22622966);
 export const PI_1_BLOCK = BigInt.fromU64(22948714);
+
+export const POOL_TOKENS: PoolTokens[] = [
+  {
+    pool: PINTO_WETH,
+    tokens: [BEAN_ERC20, WETH]
+  },
+  {
+    pool: PINTO_CBETH,
+    tokens: [BEAN_ERC20, CBETH]
+  },
+  {
+    pool: PINTO_CBBTC,
+    tokens: [BEAN_ERC20, CBBTC]
+  },
+  {
+    pool: PINTO_WSOL,
+    tokens: [BEAN_ERC20, WSOL]
+  },
+  {
+    pool: PINTO_USDC,
+    tokens: [BEAN_ERC20, USDC]
+  }
+];
+
+export const TOKEN_INFOS: Token[] = [
+  {
+    address: BEAN_ERC20,
+    info: { name: "PINTO", decimals: BigInt.fromU32(6) }
+  },
+  {
+    address: WETH,
+    info: { name: "WETH", decimals: BigInt.fromU32(18) }
+  },
+  {
+    address: CBETH,
+    info: { name: "cbETH", decimals: BigInt.fromU32(18) }
+  },
+  {
+    address: CBBTC,
+    info: { name: "cbBTC", decimals: BigInt.fromU32(8) }
+  },
+  {
+    address: WSOL,
+    info: { name: "WSOL", decimals: BigInt.fromU32(9) }
+  },
+  {
+    address: USDC,
+    info: { name: "USDC", decimals: BigInt.fromU32(6) }
+  }
+];

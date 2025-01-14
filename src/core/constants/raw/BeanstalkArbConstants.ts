@@ -1,4 +1,5 @@
 import { Address, BigInt } from "@graphprotocol/graph-ts";
+import { PoolTokens, Token } from "../RuntimeConstants";
 
 // Protocol tokens
 export const BEAN_ERC20 = Address.fromString("0xBEA0005B8599265D41256905A9B3073D397812E4");
@@ -40,3 +41,61 @@ export const RESEED_BLOCK = BigInt.fromU64(261772156);
 // Therefore there is no need to start indexing from the initial block. The selected block
 // number is arbitrary and slightly prior to the reseed.
 export const BASIN_BLOCK = BigInt.fromU64(261000000);
+
+export const POOL_TOKENS: PoolTokens[] = [
+  {
+    pool: BEAN_WETH,
+    tokens: [BEAN_ERC20, WETH]
+  },
+  {
+    pool: BEAN_WSTETH,
+    tokens: [BEAN_ERC20, WSTETH]
+  },
+  {
+    pool: BEAN_WEETH,
+    tokens: [BEAN_ERC20, WEETH]
+  },
+  {
+    pool: BEAN_WBTC,
+    tokens: [BEAN_ERC20, WBTC]
+  },
+  {
+    pool: BEAN_USDC,
+    tokens: [BEAN_ERC20, USDC]
+  },
+  {
+    pool: BEAN_USDT,
+    tokens: [BEAN_ERC20, USDT]
+  }
+];
+
+export const TOKEN_INFOS: Token[] = [
+  {
+    address: BEAN_ERC20,
+    info: { name: "BEAN", decimals: BigInt.fromU32(6) }
+  },
+  {
+    address: WETH,
+    info: { name: "WETH", decimals: BigInt.fromU32(18) }
+  },
+  {
+    address: WSTETH,
+    info: { name: "wstETH", decimals: BigInt.fromU32(18) }
+  },
+  {
+    address: WEETH,
+    info: { name: "weETH", decimals: BigInt.fromU32(18) }
+  },
+  {
+    address: WBTC,
+    info: { name: "WBTC", decimals: BigInt.fromU32(8) }
+  },
+  {
+    address: USDC,
+    info: { name: "USDC", decimals: BigInt.fromU32(6) }
+  },
+  {
+    address: USDT,
+    info: { name: "USDT", decimals: BigInt.fromU32(6) }
+  }
+];

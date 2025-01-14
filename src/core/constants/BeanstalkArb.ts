@@ -14,8 +14,11 @@ import {
   BEAN_USDT,
   AQUIFER,
   WELL_STABLE2,
-  WELL_STABLE2_121
+  WELL_STABLE2_121,
+  POOL_TOKENS,
+  TOKEN_INFOS
 } from "./raw/BeanstalkArbConstants";
+import { Token, PoolTokens } from "./RuntimeConstants";
 
 /// ADDRESSES ///
 
@@ -47,6 +50,14 @@ export function isUnripe(token: Address): boolean {
     }
   }
   return false;
+}
+
+export function getPoolTokens(): PoolTokens[] {
+  return POOL_TOKENS;
+}
+
+export function getTokenInfos(): Token[] {
+  return TOKEN_INFOS;
 }
 
 export function getTokenDecimals(token: Address): i32 {

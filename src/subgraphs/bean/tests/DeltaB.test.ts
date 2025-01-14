@@ -138,6 +138,7 @@ describe("DeltaB", () => {
       pool.save();
       let bean = loadBean(BEAN_ERC20);
       bean.liquidityUSD = BigDecimal.fromString("10000");
+      bean.supply = ONE_BI;
       // One pool to compute the overall twas on
       bean.pools = [BEAN_3CRV];
       takeBeanSnapshots(bean, b2);
@@ -174,6 +175,10 @@ describe("DeltaB", () => {
       const pool = loadOrCreatePool(BEAN_WETH_CP2_WELL, GAUGE_BIP45_BLOCK);
       pool.reserves = [BigInt.fromString("2000000000"), BigInt.fromString("1000000000000000000")];
       pool.save();
+
+      let bean = loadBean(BEAN_ERC20);
+      bean.supply = ONE_BI;
+      bean.save();
 
       // 2 consecutive seasons used for test
       // https://etherscan.io/tx/0xe62ebdb74a9908760f709408944ab2d50f0bc4fd95614a05dcc053a7117e6b33#eventlog

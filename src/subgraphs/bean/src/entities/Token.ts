@@ -1,7 +1,7 @@
 import { Address, BigDecimal } from "@graphprotocol/graph-ts";
-import { getTokenInfo } from "../utils/constants/PooledTokens";
 import { ZERO_BD } from "../../../../core/utils/Decimals";
 import { Token } from "../../generated/schema";
+import { getTokenInfo } from "../../../../core/constants/RuntimeConstants";
 
 export function loadOrCreateToken(address: Address): Token {
   let token = Token.load(address);

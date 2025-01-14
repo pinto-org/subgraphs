@@ -16,13 +16,16 @@ import {
   FERTILIZER,
   GAUGE_BIP45_BLOCK,
   NEW_BEAN_TOKEN_BLOCK,
+  POOL_TOKENS,
   PRICE_2_BLOCK,
   REPLANT_BLOCK,
   REPLANT_SEASON,
+  TOKEN_INFOS,
   UNRIPE_BEAN,
   UNRIPE_LP,
   WELL_CP2_1_0
 } from "./raw/BeanstalkEthConstants";
+import { Token, PoolTokens } from "./RuntimeConstants";
 
 /// ADDRESSES ///
 
@@ -58,6 +61,14 @@ export function isUnripe(token: Address): boolean {
     }
   }
   return false;
+}
+
+export function getPoolTokens(): PoolTokens[] {
+  return POOL_TOKENS;
+}
+
+export function getTokenInfos(): Token[] {
+  return TOKEN_INFOS;
 }
 
 export function getTokenDecimals(token: Address): i32 {
