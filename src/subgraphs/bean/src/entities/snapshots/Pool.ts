@@ -9,7 +9,7 @@ import {
   subBigIntArray,
   ZERO_BD
 } from "../../../../../core/utils/Decimals";
-import { TwaResults } from "../../utils/price/Types";
+import { TwaResults } from "../../utils/price/PoolStats";
 
 export function takePoolSnapshots(pool: Pool, block: ethereum.Block): void {
   const season = <i32>parseInt(pool.currentSeason);
@@ -43,6 +43,8 @@ export function takePoolSnapshots(pool: Pool, block: ethereum.Block): void {
   hourly.liquidityUSD = pool.liquidityUSD;
   // These fields are expected to be initialized at sunrise, after this method
   hourly.twaReserves = emptyBigIntArray(2);
+  hourly.twaBeanLiquidityUSD = ZERO_BD;
+  hourly.twaNonBeanLiquidityUSD = ZERO_BD;
   hourly.twaLiquidityUSD = ZERO_BD;
   hourly.twaPrice = ZERO_BD;
   hourly.twaToken2Price = ZERO_BD;
@@ -97,6 +99,8 @@ export function takePoolSnapshots(pool: Pool, block: ethereum.Block): void {
   daily.liquidityUSD = pool.liquidityUSD;
   // These fields are expected to be initialized at sunrise, after this method
   daily.twaReserves = emptyBigIntArray(2);
+  daily.twaBeanLiquidityUSD = ZERO_BD;
+  daily.twaNonBeanLiquidityUSD = ZERO_BD;
   daily.twaLiquidityUSD = ZERO_BD;
   daily.twaPrice = ZERO_BD;
   daily.twaToken2Price = ZERO_BD;
@@ -146,22 +150,26 @@ export function setPoolSnapshotTwa(poolAddress: Address, twaValues: TwaResults):
   const pool = Pool.load(poolAddress)!;
   const hourly = PoolHourlySnapshot.load(pool.id.toHexString() + "-" + pool.lastHourlySnapshotSeason.toString())!;
   hourly.twaReserves = twaValues.reserves;
-  hourly.twaPrice = twaValues.price;
+  hourly.twaPrice = twaValues.beanPrice;
   hourly.twaDeltaBeans = twaValues.deltaB;
 
   const daily = PoolDailySnapshot.load(pool.id.toHexString() + "-" + pool.lastDailySnapshotDay.toString())!;
   daily.twaReserves = twaValues.reserves;
-  daily.twaPrice = twaValues.price;
+  daily.twaPrice = twaValues.beanPrice;
   daily.twaDeltaBeans = twaValues.deltaB;
 
   // Legacy implementations may be missing these values
   if (twaValues.liquidity !== null) {
-    daily.twaLiquidityUSD = twaValues.liquidity!;
-    hourly.twaLiquidityUSD = twaValues.liquidity!;
+    hourly.twaBeanLiquidityUSD = twaValues.liquidity.beanLiquidity;
+    hourly.twaNonBeanLiquidityUSD = twaValues.liquidity.nonBeanLiquidity;
+    hourly.twaLiquidityUSD = twaValues.liquidity.totalLiquidity;
+    daily.twaBeanLiquidityUSD = twaValues.liquidity.beanLiquidity;
+    daily.twaNonBeanLiquidityUSD = twaValues.liquidity.nonBeanLiquidity;
+    daily.twaLiquidityUSD = twaValues.liquidity.totalLiquidity;
   }
   if (twaValues.token2Price !== null) {
-    daily.twaToken2Price = twaValues.token2Price!;
     hourly.twaToken2Price = twaValues.token2Price!;
+    daily.twaToken2Price = twaValues.token2Price!;
   }
 
   hourly.save();

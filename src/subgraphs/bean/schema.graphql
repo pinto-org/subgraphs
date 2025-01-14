@@ -115,7 +115,12 @@ type BeanHourlySnapshot @entity {
   price: BigDecimal!
   "Time-Weighted price over the previous season"
   twaPrice: BigDecimal!
-  "Time-Weighted cumulative liquidity over the previous season"
+
+  "Time-Weighted cumulative bean USD liquidity over the previous season. Sum of the same property on individual pools"
+  twaBeanLiquidityUSD: BigDecimal!
+  "Time-Weighted cumulative non-bean USD liquidity over the previous season. Sum of the same property on individual pools"
+  twaNonBeanLiquidityUSD: BigDecimal!
+  "Time-Weighted cumulative total USD liquidity over the previous season. Sum of the same property on individual pools"
   twaLiquidityUSD: BigDecimal!
 
   "Instantaneous deltaB across all whitelisted pools. Set at the start of the season only."
@@ -130,8 +135,10 @@ type BeanHourlySnapshot @entity {
   "All crosses occurred in the same time period as this snapshot"
   crossEvents: [BeanCross!]! @derivedFrom(field: "beanHourlySnapshot")
 
-  "Percent of supply in LP used for peg maintenance"
+  "Percent of bean supply in LP pools [0-1]"
   supplyInPegLP: BigDecimal!
+  "The L2SR, set at the start of the season only. [0-1]"
+  l2sr: BigDecimal!
 
   "(DEPRECATED): Not relevant to Pinto. // Amount of the supply which is considered Locked Beans (untradeable due to chop rate)"
   lockedBeans: BigInt!
@@ -178,7 +185,12 @@ type BeanDailySnapshot @entity {
   price: BigDecimal!
   "Time-Weighted price over the previous season"
   twaPrice: BigDecimal!
-  "Time-Weighted cumulative liquidity over the previous season"
+
+  "Time-Weighted cumulative bean USD liquidity over the previous season. Sum of the same property on individual pools"
+  twaBeanLiquidityUSD: BigDecimal!
+  "Time-Weighted cumulative non-bean USD liquidity over the previous season. Sum of the same property on individual pools"
+  twaNonBeanLiquidityUSD: BigDecimal!
+  "Time-Weighted cumulative total USD liquidity over the previous season. Sum of the same property on individual pools"
   twaLiquidityUSD: BigDecimal!
 
   "Instantaneous deltaB across all whitelisted pools. Set at the start of the season only."
@@ -195,6 +207,8 @@ type BeanDailySnapshot @entity {
 
   "Percent of supply in LP used for peg maintenance"
   supplyInPegLP: BigDecimal!
+  "The L2SR, set at the start of the season only. [0-1]"
+  l2sr: BigDecimal!
 
   "(DEPRECATED): Not relevant to Pinto. // Amount of the supply which is considered Locked Beans (untradeable due to chop rate)"
   lockedBeans: BigInt!
@@ -284,6 +298,11 @@ type PoolHourlySnapshot @entity {
   deltaReserves: [BigInt!]!
   "Time-Weighted average reserves in this pool over the previous season"
   twaReserves: [BigInt!]!
+
+  "Time-Weighted average bean USD liquidity in this pool over the previous season, using the price of bean in this pool only"
+  twaBeanLiquidityUSD: BigDecimal!
+  "Time-Weighted average non-bean USD liquidity in this pool over the previous season"
+  twaNonBeanLiquidityUSD: BigDecimal!
   "Time-Weighted average total USD liquidity in this pool over the previous season"
   twaLiquidityUSD: BigDecimal!
 
@@ -346,6 +365,11 @@ type PoolDailySnapshot @entity {
   deltaReserves: [BigInt!]!
   "Time-Weighted average reserves in this pool over the previous season"
   twaReserves: [BigInt!]!
+
+  "Time-Weighted average bean USD liquidity in this pool over the previous season, using the price of bean in this pool only"
+  twaBeanLiquidityUSD: BigDecimal!
+  "Time-Weighted average non-bean USD liquidity in this pool over the previous season"
+  twaNonBeanLiquidityUSD: BigDecimal!
   "Time-Weighted average total USD liquidity in this pool over the previous season"
   twaLiquidityUSD: BigDecimal!
 

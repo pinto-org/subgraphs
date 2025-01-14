@@ -1,7 +1,7 @@
 import { Bytes, BigInt, Address, BigDecimal, ethereum, log } from "@graphprotocol/graph-ts";
 import { getTWAPrices } from "./TwaOracle";
 import { ABDK_toUInt, pow2toX } from "../../../../../core/utils/ABDKMathQuad";
-import { TwaResults, TWAType } from "./Types";
+import { calcLiquidity, TwaResults, TWAType } from "./PoolStats";
 import { ONE_BI, toDecimal, ZERO_BI } from "../../../../../core/utils/Decimals";
 import { loadOrCreateTwaOracle } from "../../entities/TwaOracle";
 import { setPoolSnapshotTwa } from "../../entities/snapshots/Pool";
@@ -91,16 +91,13 @@ function wellTwaResults(
     beanRate,
     isStable2WellFn(v(), wellFnInfo.address) ? 6 : decimals[token2Idx] + 18 - decimals[1 - token2Idx]
   );
-  const beanPrice = beanRateAdjusted.times(twaToken2Price);
-
-  const twaBeanLiquidity = toDecimal(twaBalances[1 - token2Idx]).times(beanPrice);
-  const twaToken2Liquidity = toDecimal(twaBalances[token2Idx], decimals[token2Idx]).times(twaToken2Price);
+  const twaBeanPrice = beanRateAdjusted.times(twaToken2Price);
 
   return {
     reserves: twaBalances,
     deltaB: twaDeltaB,
-    price: beanPrice.truncate(2),
+    beanPrice: twaBeanPrice.truncate(2),
     token2Price: twaToken2Price.truncate(2),
-    liquidity: twaBeanLiquidity.plus(twaToken2Liquidity).truncate(2)
+    liquidity: calcLiquidity(twaBalances, [twaBeanPrice, twaToken2Price], decimals, 1 - token2Idx)
   };
 }

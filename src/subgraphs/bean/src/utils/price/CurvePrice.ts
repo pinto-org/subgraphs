@@ -11,7 +11,7 @@ import {
   LUSD_3POOL
 } from "../../../../../core/constants/raw/BeanstalkEthConstants";
 import { ERC20 } from "../../../generated/Bean-ABIs/ERC20";
-import { TwaResults, DeltaBPriceLiquidity, TWAType } from "./Types";
+import { TwaResults, DeltaBPriceLiquidity, TWAType } from "./PoolStats";
 import { Pool } from "../../../generated/schema";
 import { getTWAPrices } from "./TwaOracle";
 import { loadOrCreateTwaOracle } from "../../entities/TwaOracle";
@@ -146,7 +146,7 @@ export function curveTwaResults(twaBalances: BigInt[], beanPool: Address, otherP
   return {
     reserves: twaBalances,
     deltaB: deltaFromD(D, twaBalances[0]),
-    price: priceFromY(y, xp[1]),
+    beanPrice: priceFromY(y, xp[1]),
     token2Price: null,
     liquidity: null
   };

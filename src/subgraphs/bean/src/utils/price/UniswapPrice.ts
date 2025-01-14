@@ -1,7 +1,7 @@
 import { Address, BigDecimal, BigInt, ethereum, log } from "@graphprotocol/graph-ts";
 import { BD_10, BI_10, ONE_BI, pow, sqrt, toDecimal, ZERO_BD, ZERO_BI } from "../../../../../core/utils/Decimals";
 import { WETH, WETH_USDC_PAIR } from "../../../../../core/constants/raw/BeanstalkEthConstants";
-import { TwaResults, DeltaBPriceLiquidity, TWAType } from "./Types";
+import { TwaResults, DeltaBPriceLiquidity, TWAType } from "./PoolStats";
 import { getTWAPrices } from "./TwaOracle";
 import { loadOrCreateToken } from "../../entities/Token";
 import { UniswapV2Pair } from "../../../generated/Bean-ABIs/UniswapV2Pair";
@@ -137,7 +137,7 @@ export function uniswapTwaResults(prices: BigInt[], blockNumber: BigInt): TwaRes
   return {
     reserves,
     deltaB: deltaB,
-    price: twaPrice,
+    beanPrice: twaPrice,
     token2Price: null,
     liquidity: null
   };

@@ -75,7 +75,6 @@ export function updateBeanSupplyPegPercent(beanToken: Address, block: ethereum.B
     pegSupply = pegSupply.plus(pool.reserves[0]);
   }
   bean.lockedBeans = calcLockedBeans(block.number);
-  // TODO: Update the calculation. consider only setting at sunrise?
   bean.supplyInPegLP = toDecimal(pegSupply).div(toDecimal(bean.supply.minus(bean.lockedBeans)));
   takeBeanSnapshots(bean, block);
   saveBean(bean, block);
@@ -135,6 +134,8 @@ export function updateBeanTwa(block: ethereum.Block): void {
   const bean = loadBean(beanAddress);
 
   let weightedTwaPrice = ZERO_BD;
+  let twaBeanLiquidityUSD = ZERO_BD;
+  let twaNonBeanLiquidityUSD = ZERO_BD;
   let twaLiquidityUSD = ZERO_BD;
   let twaDeltaB = ZERO_BI;
   for (let i = 0; i < bean.pools.length; i++) {
@@ -142,9 +143,20 @@ export function updateBeanTwa(block: ethereum.Block): void {
       bean.pools[i].toHexString() + "-" + bean.lastHourlySnapshotSeason.toString()
     )!;
     weightedTwaPrice = weightedTwaPrice.plus(poolHourly.twaPrice.times(poolHourly.twaLiquidityUSD));
+    twaBeanLiquidityUSD = twaBeanLiquidityUSD.plus(poolHourly.twaBeanLiquidityUSD);
+    twaNonBeanLiquidityUSD = twaNonBeanLiquidityUSD.plus(poolHourly.twaNonBeanLiquidityUSD);
     twaLiquidityUSD = twaLiquidityUSD.plus(poolHourly.twaLiquidityUSD);
     twaDeltaB = twaDeltaB.plus(poolHourly.twaDeltaBeans);
   }
   const twaPrice = weightedTwaPrice.div(twaLiquidityUSD != ZERO_BD ? twaLiquidityUSD : ONE_BD);
-  setBeanSnapshotTwa(bean, twaPrice, twaLiquidityUSD, twaDeltaB);
+  setBeanSnapshotTwa(
+    bean,
+    twaPrice,
+    {
+      beanLiquidity: twaBeanLiquidityUSD,
+      nonBeanLiquidity: twaNonBeanLiquidityUSD,
+      totalLiquidity: twaLiquidityUSD
+    },
+    twaDeltaB
+  );
 }

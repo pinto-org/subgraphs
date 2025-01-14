@@ -11,7 +11,7 @@ import { updateSeason, wellOracle } from "../../utils/Beanstalk";
 import { updatePoolPrice, updatePoolValues } from "../../utils/Pool";
 import { calcCurveInst, setCurveTwa } from "../../utils/price/CurvePrice";
 import { setTwaLast } from "../../utils/price/TwaOracle";
-import { DeltaBPriceLiquidity } from "../../utils/price/Types";
+import { DeltaBPriceLiquidity } from "../../utils/price/PoolStats";
 import { calcUniswapV2Inst, setUniswapV2Twa } from "../../utils/price/UniswapPrice";
 import { getProtocolToken } from "../../../../../core/constants/RuntimeConstants";
 import { v } from "../../utils/constants/Version";

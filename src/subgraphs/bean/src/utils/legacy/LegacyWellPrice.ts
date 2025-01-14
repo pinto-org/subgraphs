@@ -1,5 +1,5 @@
 import { BigInt, Address, ethereum, BigDecimal } from "@graphprotocol/graph-ts";
-import { TwaResults, TWAType } from "../price/Types";
+import { TwaResults, TWAType } from "../price/PoolStats";
 import { pow, toDecimal } from "../../../../../core/utils/Decimals";
 import { setPoolSnapshotTwa } from "../../entities/snapshots/Pool";
 import { getTWAPrices } from "../price/TwaOracle";
@@ -27,7 +27,7 @@ function wellTwaResults(twaBalances: BigInt[], twaDeltaB: BigInt): TwaResults {
   return {
     reserves: twaBalances,
     deltaB: twaDeltaB,
-    price: constantProductPrice(toDecimal(twaBalances[0]), toDecimal(twaBalances[1], 18), twaEthPrice),
+    beanPrice: constantProductPrice(toDecimal(twaBalances[0]), toDecimal(twaBalances[1], 18), twaEthPrice),
     token2Price: twaEthPrice,
     liquidity: null
   };
