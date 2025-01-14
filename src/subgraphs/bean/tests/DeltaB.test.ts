@@ -1,7 +1,7 @@
 import { beforeEach, beforeAll, afterEach, assert, clearStore, describe, test } from "matchstick-as/assembly/index";
 import { BigInt, Bytes, BigDecimal, log } from "@graphprotocol/graph-ts";
 // import { log } from "matchstick-as/assembly/log";
-import { BI_10, ONE_BI, ZERO_BI } from "../../../core/utils/Decimals";
+import { BI_10, ONE_BI, toDecimal, ZERO_BI } from "../../../core/utils/Decimals";
 import { createMetapoolOracleEvent, createWellOracleEvent } from "./event-mocking/Beanstalk";
 import {
   BEAN_3CRV,
@@ -152,7 +152,7 @@ describe("DeltaB", () => {
         "priceCumulativeLast",
         "[100000000, 100000000000000000000]"
       );
-      assert.fieldEquals("PoolHourlySnapshot", BEAN_3CRV.toHexString() + "-6074", "twaDeltaBeans", "0");
+      assert.fieldEquals("PoolHourlySnapshot", BEAN_3CRV.toHexString() + "-6074", "twaDeltaB", "0");
       assert.fieldEquals("PoolHourlySnapshot", BEAN_3CRV.toHexString() + "-6074", "twaPrice", "0.9999995");
       assert.fieldEquals("BeanHourlySnapshot", BEAN_ERC20.toHexString() + "-6074", "twaDeltaB", "0");
 
@@ -163,11 +163,11 @@ describe("DeltaB", () => {
         "priceCumulativeLast",
         "[" + reserves2[0].toString() + ", " + reserves2[1].toString() + "]"
       );
-      assert.fieldEquals("PoolHourlySnapshot", BEAN_3CRV.toHexString() + "-6074", "twaDeltaBeans", "4969504");
+      assert.fieldEquals("PoolHourlySnapshot", BEAN_3CRV.toHexString() + "-6074", "twaDeltaB", "4.969504");
       assert.fieldEquals("PoolHourlySnapshot", BEAN_3CRV.toHexString() + "-6074", "twaPrice", "1.024700651737");
 
       handleMetapoolOracle(createMetapoolOracleEvent(ONE_BI, ZERO_BI, reserves3, b3));
-      assert.fieldEquals("PoolHourlySnapshot", BEAN_3CRV.toHexString() + "-6074", "twaDeltaBeans", "0");
+      assert.fieldEquals("PoolHourlySnapshot", BEAN_3CRV.toHexString() + "-6074", "twaDeltaB", "0");
       assert.fieldEquals("PoolHourlySnapshot", BEAN_3CRV.toHexString() + "-6074", "twaPrice", "0.9999999975");
     });
 
@@ -223,8 +223,8 @@ describe("DeltaB", () => {
       assert.fieldEquals(
         "PoolHourlySnapshot",
         BEAN_WETH_CP2_WELL.toHexString() + "-6074",
-        "twaDeltaBeans",
-        event2.params.deltaB.toString()
+        "twaDeltaB",
+        toDecimal(event2.params.deltaB).toString()
       );
       assert.fieldEquals(
         "PoolHourlySnapshot",

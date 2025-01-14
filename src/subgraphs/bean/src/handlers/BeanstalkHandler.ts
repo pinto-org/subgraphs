@@ -1,17 +1,11 @@
-import { BigInt } from "@graphprotocol/graph-ts";
-import { updateBeanSupplyPegPercent, updateBeanTwa, updateInstDeltaB } from "../utils/Bean";
+import { updateBeanSupplyPegPercent, updateInstDeltaB } from "../utils/Bean";
 import { Chop } from "../../generated/Bean-ABIs/Reseed";
 import { Convert, DewhitelistToken, Shipped, Sunrise, WellOracle } from "../../generated/Bean-ABIs/PintoLaunch";
 import { loadBean, saveBean } from "../entities/Bean";
-import { setRawWellReserves, setTwaLast } from "../utils/price/TwaOracle";
-import { decodeCumulativeWellReserves, setWellTwa } from "../utils/price/WellPrice";
 import { updateSeason, wellOracle } from "../utils/Beanstalk";
 import { updatePoolPricesOnCross } from "../utils/Cross";
-import { beanDecimals, getProtocolToken, isUnripe } from "../../../../core/constants/RuntimeConstants";
+import { getProtocolToken, isUnripe } from "../../../../core/constants/RuntimeConstants";
 import { v } from "../utils/constants/Version";
-import { loadOrCreatePool } from "../entities/Pool";
-import { BI_10 } from "../../../../core/utils/Decimals";
-import { loadOrCreateTwaOracle } from "../entities/TwaOracle";
 
 export function handleSunrise(event: Sunrise): void {
   updateSeason(event.params.season.toU32(), event.block);
@@ -21,7 +15,7 @@ export function handleSunrise(event: Sunrise): void {
   updatePoolPricesOnCross(false, event.block);
 
   // Set the inst deltaB on the bean snapshots
-  updateInstDeltaB(getProtocolToken(v(), event.block.number), event.block);
+  updateInstDeltaB(event.block);
 }
 
 // Assumption is that the whitelisted token corresponds to a pool lp. If not, this method will simply do nothing.

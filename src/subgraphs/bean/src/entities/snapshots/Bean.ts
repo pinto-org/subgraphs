@@ -1,7 +1,7 @@
 import { BigDecimal, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import { dayFromTimestamp, hourFromTimestamp } from "../../../../../core/utils/Dates";
 import { Bean, BeanDailySnapshot, BeanHourlySnapshot } from "../../../generated/schema";
-import { BI_MAX, ZERO_BD } from "../../../../../core/utils/Decimals";
+import { BD_MAX, BI_MAX, ZERO_BD } from "../../../../../core/utils/Decimals";
 import { LiquidityBreakdown } from "../../utils/price/PoolStats";
 
 export function takeBeanSnapshots(bean: Bean, block: ethereum.Block): void {
@@ -42,8 +42,8 @@ export function takeBeanSnapshots(bean: Bean, block: ethereum.Block): void {
   hourly.twaNonBeanLiquidityUSD = ZERO_BD;
   hourly.twaLiquidityUSD = ZERO_BD;
   hourly.l2sr = ZERO_BD;
-  hourly.twaDeltaB = BI_MAX;
-  hourly.instantaneousDeltaB = BI_MAX;
+  hourly.twaDeltaB = BD_MAX;
+  hourly.instDeltaB = BD_MAX;
 
   // Set deltas
   if (baseHourly !== null) {
@@ -65,7 +65,7 @@ export function takeBeanSnapshots(bean: Bean, block: ethereum.Block): void {
       hourly.twaLiquidityUSD = baseHourly.twaLiquidityUSD;
       hourly.l2sr = baseHourly.l2sr;
       hourly.twaDeltaB = baseHourly.twaDeltaB;
-      hourly.instantaneousDeltaB = baseHourly.instantaneousDeltaB;
+      hourly.instDeltaB = baseHourly.instDeltaB;
     }
   } else {
     hourly.deltaCrosses = hourly.crosses;
@@ -103,8 +103,8 @@ export function takeBeanSnapshots(bean: Bean, block: ethereum.Block): void {
   daily.twaNonBeanLiquidityUSD = ZERO_BD;
   daily.twaLiquidityUSD = ZERO_BD;
   daily.l2sr = ZERO_BD;
-  daily.twaDeltaB = BI_MAX;
-  daily.instantaneousDeltaB = BI_MAX;
+  daily.twaDeltaB = BD_MAX;
+  daily.instDeltaB = BD_MAX;
 
   // Set deltas
   if (baseDaily !== null) {
@@ -126,7 +126,7 @@ export function takeBeanSnapshots(bean: Bean, block: ethereum.Block): void {
       daily.twaLiquidityUSD = baseDaily.twaLiquidityUSD;
       daily.l2sr = baseDaily.l2sr;
       daily.twaDeltaB = baseDaily.twaDeltaB;
-      daily.instantaneousDeltaB = baseDaily.instantaneousDeltaB;
+      daily.instDeltaB = baseDaily.instDeltaB;
     }
   } else {
     daily.deltaCrosses = daily.crosses;
@@ -149,12 +149,24 @@ export function takeBeanSnapshots(bean: Bean, block: ethereum.Block): void {
   bean.lastUpdateBlockNumber = block.number;
 }
 
+// Set inst deltaB values from the start of the season. Snapshot must have already been created.
+export function setBeanSnapshotInstDeltaB(bean: Bean, instDeltaB: BigDecimal): void {
+  const hourly = BeanHourlySnapshot.load(bean.id.toHexString() + "-" + bean.lastHourlySnapshotSeason.toString())!;
+  if (hourly.instDeltaB == BD_MAX) {
+    const daily = BeanDailySnapshot.load(bean.id.toHexString() + "-" + bean.lastDailySnapshotDay.toString())!;
+    hourly.instDeltaB = instDeltaB;
+    daily.instDeltaB = instDeltaB;
+    hourly.save();
+    daily.save();
+  }
+}
+
 // Set twa values from the start of the season. Snapshot must have already been created.
 export function setBeanSnapshotTwa(
   bean: Bean,
   twaPrice: BigDecimal,
   twaLiquidity: LiquidityBreakdown,
-  twaDeltaB: BigInt
+  twaDeltaB: BigDecimal
 ): void {
   const hourly = BeanHourlySnapshot.load(bean.id.toHexString() + "-" + bean.lastHourlySnapshotSeason.toString())!;
   hourly.twaPrice = twaPrice.truncate(2);
@@ -175,16 +187,5 @@ export function setBeanSnapshotTwa(
   daily.l2sr = hourly.l2sr;
 
   hourly.save();
-  daily.save();
-}
-
-// Set inst deltaB values from the start of the season. Snapshot must have already been created.
-export function setBeanSnapshotInstDeltaB(bean: Bean, instDeltaB: BigInt): void {
-  const hourly = BeanHourlySnapshot.load(bean.id.toHexString() + "-" + bean.lastHourlySnapshotSeason.toString())!;
-  hourly.instantaneousDeltaB = instDeltaB;
-  hourly.save();
-
-  const daily = BeanDailySnapshot.load(bean.id.toHexString() + "-" + bean.lastDailySnapshotDay.toString())!;
-  daily.instantaneousDeltaB = instDeltaB;
   daily.save();
 }

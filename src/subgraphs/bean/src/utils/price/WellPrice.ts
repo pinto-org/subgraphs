@@ -95,9 +95,9 @@ function wellTwaResults(
 
   return {
     reserves: twaBalances,
-    deltaB: twaDeltaB,
-    beanPrice: twaBeanPrice.truncate(2),
-    token2Price: twaToken2Price.truncate(2),
+    deltaB: toDecimal(twaDeltaB),
+    beanPrice: twaBeanPrice.truncate(6),
+    token2Price: twaToken2Price.truncate(6),
     liquidity: calcLiquidity(twaBalances, [twaBeanPrice, twaToken2Price], decimals, 1 - token2Idx)
   };
 }

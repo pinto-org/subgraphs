@@ -145,7 +145,7 @@ export function curveTwaResults(twaBalances: BigInt[], beanPool: Address, otherP
 
   return {
     reserves: twaBalances,
-    deltaB: deltaFromD(D, twaBalances[0]),
+    deltaB: toDecimal(deltaFromD(D, twaBalances[0])),
     beanPrice: priceFromY(y, xp[1]),
     token2Price: null,
     liquidity: null

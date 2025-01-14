@@ -119,13 +119,15 @@ export function updateBeanAfterPoolSwap(
   }
 }
 
-export function updateInstDeltaB(beanAddress: Address, block: ethereum.Block): void {
-  let bean = loadBean(beanAddress);
+export function updateInstDeltaB(block: ethereum.Block): void {
+  let bean = loadBean(getProtocolToken(v(), block.number));
 
-  let cumulativeDeltaB = ZERO_BI;
+  let cumulativeDeltaB = ZERO_BD;
   for (let i = 0; i < bean.pools.length; i++) {
-    let pool = loadOrCreatePool(toAddress(bean.pools[i]), block.number);
-    cumulativeDeltaB = cumulativeDeltaB.plus(pool.deltaBeans);
+    const poolHourly = PoolHourlySnapshot.load(
+      bean.pools[i].toHexString() + "-" + bean.lastHourlySnapshotSeason.toString()
+    )!;
+    cumulativeDeltaB = cumulativeDeltaB.plus(poolHourly.instDeltaB);
   }
   setBeanSnapshotInstDeltaB(bean, cumulativeDeltaB);
 }
@@ -139,7 +141,7 @@ export function updateBeanTwa(block: ethereum.Block): void {
   let twaBeanLiquidityUSD = ZERO_BD;
   let twaNonBeanLiquidityUSD = ZERO_BD;
   let twaLiquidityUSD = ZERO_BD;
-  let twaDeltaB = ZERO_BI;
+  let twaDeltaB = ZERO_BD;
   for (let i = 0; i < bean.pools.length; i++) {
     const poolHourly = PoolHourlySnapshot.load(
       bean.pools[i].toHexString() + "-" + bean.lastHourlySnapshotSeason.toString()
@@ -148,7 +150,7 @@ export function updateBeanTwa(block: ethereum.Block): void {
     twaBeanLiquidityUSD = twaBeanLiquidityUSD.plus(poolHourly.twaBeanLiquidityUSD);
     twaNonBeanLiquidityUSD = twaNonBeanLiquidityUSD.plus(poolHourly.twaNonBeanLiquidityUSD);
     twaLiquidityUSD = twaLiquidityUSD.plus(poolHourly.twaLiquidityUSD);
-    twaDeltaB = twaDeltaB.plus(poolHourly.twaDeltaBeans);
+    twaDeltaB = twaDeltaB.plus(poolHourly.twaDeltaB);
   }
   const twaPrice = weightedTwaPrice.div(twaLiquidityUSD != ZERO_BD ? twaLiquidityUSD : ONE_BD);
   setBeanSnapshotTwa(

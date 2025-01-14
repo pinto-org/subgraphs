@@ -26,7 +26,7 @@ function wellTwaResults(twaBalances: BigInt[], twaDeltaB: BigInt): TwaResults {
 
   return {
     reserves: twaBalances,
-    deltaB: twaDeltaB,
+    deltaB: toDecimal(twaDeltaB),
     beanPrice: constantProductPrice(toDecimal(twaBalances[0]), toDecimal(twaBalances[1], 18), twaEthPrice),
     token2Price: twaEthPrice,
     liquidity: null

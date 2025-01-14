@@ -9,7 +9,7 @@ export enum TWAType {
 
 export class TwaResults {
   reserves: BigInt[];
-  deltaB: BigInt;
+  deltaB: BigDecimal;
   beanPrice: BigDecimal;
   token2Price: BigDecimal | null;
   liquidity: LiquidityBreakdown | null;

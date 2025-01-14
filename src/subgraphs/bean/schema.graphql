@@ -124,9 +124,9 @@ type BeanHourlySnapshot @entity {
   twaLiquidityUSD: BigDecimal!
 
   "Instantaneous deltaB across all whitelisted pools. Set at the start of the season only."
-  instantaneousDeltaB: BigInt!
+  instDeltaB: BigDecimal!
   "Time-Weighted deltaB across all whitelisted pools over the previous season"
-  twaDeltaB: BigInt!
+  twaDeltaB: BigDecimal!
 
   "Cumulative number of peg crosses"
   crosses: Int!
@@ -194,9 +194,9 @@ type BeanDailySnapshot @entity {
   twaLiquidityUSD: BigDecimal!
 
   "Instantaneous deltaB across all whitelisted pools. Set at the start of the season only."
-  instantaneousDeltaB: BigInt!
+  instDeltaB: BigDecimal!
   "Time-Weighted deltaB across all whitelisted pools over the previous season"
-  twaDeltaB: BigInt!
+  twaDeltaB: BigDecimal!
 
   "Cumulative number of peg crosses"
   crosses: Int!
@@ -251,8 +251,6 @@ type Pool @entity {
   reserves: [BigInt!]!
   "Current price of Bean in this Pool. Accuracy not guaranteed except at sunrise"
   lastPrice: BigDecimal!
-  "Current instantaneous deltaB. Accuracy not guaranteed except at sunrise"
-  deltaBeans: BigInt!
 
   "Cumulative number of peg crosses in this Pool"
   crosses: Int!
@@ -319,9 +317,9 @@ type PoolHourlySnapshot @entity {
   deltaCrosses: Int!
 
   "Instantaneous deltaB at the start of the season"
-  deltaBeans: BigInt!
+  instDeltaB: BigDecimal!
   "Time-Weighted deltaB over the previous season"
-  twaDeltaBeans: BigInt!
+  twaDeltaB: BigDecimal!
 
   "All crosses occurred in the same time period as this snapshot"
   crossEvents: [PoolCross!]! @derivedFrom(field: "poolHourlySnapshot")
@@ -386,9 +384,9 @@ type PoolDailySnapshot @entity {
   deltaCrosses: Int!
 
   "Instantaneous deltaB at the start of the season"
-  deltaBeans: BigInt!
+  instDeltaB: BigDecimal!
   "Time-Weighted deltaB over the previous season"
-  twaDeltaBeans: BigInt!
+  twaDeltaB: BigDecimal!
 
   "All crosses occurred in the same time period as this snapshot"
   crossEvents: [PoolCross!]! @derivedFrom(field: "poolDailySnapshot")

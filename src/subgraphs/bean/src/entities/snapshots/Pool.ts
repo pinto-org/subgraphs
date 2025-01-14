@@ -1,10 +1,10 @@
-import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
+import { Address, BigDecimal, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import { dayFromTimestamp, hourFromTimestamp } from "../../../../../core/utils/Dates";
 import { Pool, PoolDailySnapshot, PoolHourlySnapshot } from "../../../generated/schema";
 import {
   addBigIntArray,
+  BD_MAX,
   BI_MAX,
-  emptyBigDecimalArray,
   emptyBigIntArray,
   subBigIntArray,
   ZERO_BD
@@ -37,7 +37,6 @@ export function takePoolSnapshots(pool: Pool, block: ethereum.Block): void {
   hourly.reserves = pool.reserves;
   hourly.lastPrice = pool.lastPrice;
   hourly.crosses = pool.crosses;
-  hourly.deltaBeans = pool.deltaBeans;
   hourly.volume = pool.volume;
   hourly.volumeUSD = pool.volumeUSD;
   hourly.liquidityUSD = pool.liquidityUSD;
@@ -48,7 +47,8 @@ export function takePoolSnapshots(pool: Pool, block: ethereum.Block): void {
   hourly.twaLiquidityUSD = ZERO_BD;
   hourly.twaPrice = ZERO_BD;
   hourly.twaToken2Price = ZERO_BD;
-  hourly.twaDeltaBeans = BI_MAX;
+  hourly.instDeltaB = BD_MAX;
+  hourly.twaDeltaB = BD_MAX;
 
   // Set deltas
   if (baseHourly !== null) {
@@ -66,14 +66,14 @@ export function takePoolSnapshots(pool: Pool, block: ethereum.Block): void {
       hourly.deltaVolumeUSD = hourly.deltaVolumeUSD.plus(baseHourly.deltaVolumeUSD);
       hourly.deltaLiquidityUSD = hourly.deltaLiquidityUSD.plus(baseHourly.deltaLiquidityUSD);
       // Prevent reassignment to these values after initial creation/external modification
-      hourly.deltaBeans = baseHourly.deltaBeans;
       hourly.twaReserves = baseHourly.twaReserves;
       hourly.twaBeanLiquidityUSD = baseHourly.twaBeanLiquidityUSD;
       hourly.twaNonBeanLiquidityUSD = baseHourly.twaNonBeanLiquidityUSD;
       hourly.twaLiquidityUSD = baseHourly.twaLiquidityUSD;
       hourly.twaPrice = baseHourly.twaPrice;
       hourly.twaToken2Price = baseHourly.twaToken2Price;
-      hourly.twaDeltaBeans = baseHourly.twaDeltaBeans;
+      hourly.instDeltaB = baseHourly.instDeltaB;
+      hourly.twaDeltaB = baseHourly.twaDeltaB;
     }
   } else {
     hourly.deltaReserves = hourly.reserves;
@@ -100,7 +100,6 @@ export function takePoolSnapshots(pool: Pool, block: ethereum.Block): void {
   daily.reserves = pool.reserves;
   daily.lastPrice = pool.lastPrice;
   daily.crosses = pool.crosses;
-  daily.deltaBeans = pool.deltaBeans;
   daily.volume = pool.volume;
   daily.volumeUSD = pool.volumeUSD;
   daily.liquidityUSD = pool.liquidityUSD;
@@ -111,7 +110,8 @@ export function takePoolSnapshots(pool: Pool, block: ethereum.Block): void {
   daily.twaLiquidityUSD = ZERO_BD;
   daily.twaPrice = ZERO_BD;
   daily.twaToken2Price = ZERO_BD;
-  daily.twaDeltaBeans = BI_MAX;
+  daily.instDeltaB = BD_MAX;
+  daily.twaDeltaB = BD_MAX;
 
   // Set deltas
   if (baseDaily !== null) {
@@ -129,14 +129,14 @@ export function takePoolSnapshots(pool: Pool, block: ethereum.Block): void {
       daily.deltaVolumeUSD = daily.deltaVolumeUSD.plus(baseDaily.deltaVolumeUSD);
       daily.deltaLiquidityUSD = daily.deltaLiquidityUSD.plus(baseDaily.deltaLiquidityUSD);
       // Prevent reassignment to these values after initial creation/external modification
-      daily.deltaBeans = baseDaily.deltaBeans;
       daily.twaReserves = baseDaily.twaReserves;
       daily.twaBeanLiquidityUSD = baseDaily.twaBeanLiquidityUSD;
       daily.twaNonBeanLiquidityUSD = baseDaily.twaNonBeanLiquidityUSD;
       daily.twaLiquidityUSD = baseDaily.twaLiquidityUSD;
       daily.twaPrice = baseDaily.twaPrice;
       daily.twaToken2Price = baseDaily.twaToken2Price;
-      daily.twaDeltaBeans = baseDaily.twaDeltaBeans;
+      daily.instDeltaB = baseDaily.instDeltaB;
+      daily.twaDeltaB = baseDaily.twaDeltaB;
     }
   } else {
     daily.deltaReserves = daily.reserves;
@@ -160,17 +160,29 @@ export function takePoolSnapshots(pool: Pool, block: ethereum.Block): void {
   pool.lastUpdateBlockNumber = block.number;
 }
 
+// Set inst deltaB values from the start of the season. Snapshot must have already been created.
+export function setPoolSnapshotInstDeltaB(pool: Pool, instDeltaB: BigDecimal): void {
+  const hourly = PoolHourlySnapshot.load(pool.id.toHexString() + "-" + pool.lastHourlySnapshotSeason.toString())!;
+  if (hourly.instDeltaB == BD_MAX) {
+    const daily = PoolDailySnapshot.load(pool.id.toHexString() + "-" + pool.lastDailySnapshotDay.toString())!;
+    hourly.instDeltaB = instDeltaB;
+    daily.instDeltaB = instDeltaB;
+    hourly.save();
+    daily.save();
+  }
+}
+
 export function setPoolSnapshotTwa(poolAddress: Address, twaValues: TwaResults): void {
   const pool = Pool.load(poolAddress)!;
   const hourly = PoolHourlySnapshot.load(pool.id.toHexString() + "-" + pool.lastHourlySnapshotSeason.toString())!;
   hourly.twaReserves = twaValues.reserves;
   hourly.twaPrice = twaValues.beanPrice;
-  hourly.twaDeltaBeans = twaValues.deltaB;
+  hourly.twaDeltaB = twaValues.deltaB;
 
   const daily = PoolDailySnapshot.load(pool.id.toHexString() + "-" + pool.lastDailySnapshotDay.toString())!;
   daily.twaReserves = twaValues.reserves;
   daily.twaPrice = twaValues.beanPrice;
-  daily.twaDeltaBeans = twaValues.deltaB;
+  daily.twaDeltaB = twaValues.deltaB;
 
   // Legacy implementations may be missing these values
   if (twaValues.liquidity !== null) {

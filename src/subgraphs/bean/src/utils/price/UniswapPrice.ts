@@ -136,7 +136,7 @@ export function uniswapTwaResults(prices: BigInt[], blockNumber: BigInt): TwaRes
 
   return {
     reserves,
-    deltaB: deltaB,
+    deltaB: toDecimal(deltaB),
     beanPrice: twaPrice,
     token2Price: null,
     liquidity: null

@@ -1,23 +1,24 @@
 import { BigDecimal, BigInt, ethereum, Address, log } from "@graphprotocol/graph-ts";
 import { checkPoolCross } from "./Cross";
 import { loadOrCreatePool, savePool } from "../entities/Pool";
-import { takePoolSnapshots } from "../entities/snapshots/Pool";
+import { setPoolSnapshotInstDeltaB, takePoolSnapshots } from "../entities/snapshots/Pool";
+import { toDecimal } from "../../../../core/utils/Decimals";
 
 export function updatePoolValues(
   poolAddress: Address,
   volumeBean: BigInt,
   volumeUSD: BigDecimal,
   deltaLiquidityUSD: BigDecimal,
-  deltaBeans: BigInt,
+  instDeltaB: BigInt,
   block: ethereum.Block
 ): void {
   let pool = loadOrCreatePool(poolAddress, block.number);
   pool.volume = pool.volume.plus(volumeBean);
   pool.volumeUSD = pool.volumeUSD.plus(volumeUSD);
   pool.liquidityUSD = pool.liquidityUSD.plus(deltaLiquidityUSD);
-  pool.deltaBeans = deltaBeans;
 
   takePoolSnapshots(pool, block);
+  setPoolSnapshotInstDeltaB(pool, toDecimal(instDeltaB));
   savePool(pool, block);
 }
 

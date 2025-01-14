@@ -29,7 +29,6 @@ export function loadOrCreatePool(poolAddress: Address, blockNumber: BigInt): Poo
     pool.liquidityUSD = ZERO_BD;
     pool.crosses = 0;
     pool.lastCross = ZERO_BI;
-    pool.deltaBeans = ZERO_BI;
     pool.createdTimestamp = ZERO_BI;
     pool.lastUpdateTimestamp = ZERO_BI;
     pool.lastUpdateBlockNumber = ZERO_BI;
