@@ -75,7 +75,9 @@ export function updateBeanSupplyPegPercent(beanToken: Address, block: ethereum.B
     pegSupply = pegSupply.plus(pool.reserves[0]);
   }
   bean.lockedBeans = calcLockedBeans(block.number);
-  bean.supplyInPegLP = toDecimal(pegSupply).div(toDecimal(bean.supply.minus(bean.lockedBeans)));
+  bean.supplyInPegLP = toDecimal(pegSupply)
+    .div(toDecimal(bean.supply.minus(bean.lockedBeans)))
+    .truncate(6);
   takeBeanSnapshots(bean, block);
   saveBean(bean, block);
 }

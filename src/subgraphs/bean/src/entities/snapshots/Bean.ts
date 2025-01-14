@@ -58,6 +58,14 @@ export function takeBeanSnapshots(bean: Bean, block: ethereum.Block): void {
       hourly.deltaVolume = hourly.deltaVolume.plus(baseHourly.deltaVolume);
       hourly.deltaVolumeUSD = hourly.deltaVolumeUSD.plus(baseHourly.deltaVolumeUSD);
       hourly.deltaLiquidityUSD = hourly.deltaLiquidityUSD.plus(baseHourly.deltaLiquidityUSD);
+      // Prevent reassignment to these values after initial creation/external modification
+      hourly.twaPrice = baseHourly.twaPrice;
+      hourly.twaBeanLiquidityUSD = baseHourly.twaBeanLiquidityUSD;
+      hourly.twaNonBeanLiquidityUSD = baseHourly.twaNonBeanLiquidityUSD;
+      hourly.twaLiquidityUSD = baseHourly.twaLiquidityUSD;
+      hourly.l2sr = baseHourly.l2sr;
+      hourly.twaDeltaB = baseHourly.twaDeltaB;
+      hourly.instantaneousDeltaB = baseHourly.instantaneousDeltaB;
     }
   } else {
     hourly.deltaCrosses = hourly.crosses;
@@ -111,6 +119,14 @@ export function takeBeanSnapshots(bean: Bean, block: ethereum.Block): void {
       daily.deltaVolume = daily.deltaVolume.plus(baseDaily.deltaVolume);
       daily.deltaVolumeUSD = daily.deltaVolumeUSD.plus(baseDaily.deltaVolumeUSD);
       daily.deltaLiquidityUSD = daily.deltaLiquidityUSD.plus(baseDaily.deltaLiquidityUSD);
+      // Prevent reassignment to these values after initial creation/external modification
+      daily.twaPrice = baseDaily.twaPrice;
+      daily.twaBeanLiquidityUSD = baseDaily.twaBeanLiquidityUSD;
+      daily.twaNonBeanLiquidityUSD = baseDaily.twaNonBeanLiquidityUSD;
+      daily.twaLiquidityUSD = baseDaily.twaLiquidityUSD;
+      daily.l2sr = baseDaily.l2sr;
+      daily.twaDeltaB = baseDaily.twaDeltaB;
+      daily.instantaneousDeltaB = baseDaily.instantaneousDeltaB;
     }
   } else {
     daily.deltaCrosses = daily.crosses;
@@ -155,7 +171,7 @@ export function setBeanSnapshotTwa(
   daily.twaDeltaB = twaDeltaB;
 
   // Set L2SR here now that twa liquidity is known
-  hourly.l2sr = twaLiquidity.nonBeanLiquidity.div(new BigDecimal(bean.supply)).truncate(2);
+  hourly.l2sr = twaLiquidity.nonBeanLiquidity.div(new BigDecimal(bean.supply)).truncate(6);
   daily.l2sr = hourly.l2sr;
 
   hourly.save();

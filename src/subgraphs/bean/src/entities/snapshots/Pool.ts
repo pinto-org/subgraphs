@@ -65,8 +65,15 @@ export function takePoolSnapshots(pool: Pool, block: ethereum.Block): void {
       hourly.deltaVolume = hourly.deltaVolume.plus(baseHourly.deltaVolume);
       hourly.deltaVolumeUSD = hourly.deltaVolumeUSD.plus(baseHourly.deltaVolumeUSD);
       hourly.deltaLiquidityUSD = hourly.deltaLiquidityUSD.plus(baseHourly.deltaLiquidityUSD);
-      // Prevent reassignment to deltaBeans after initial creation
+      // Prevent reassignment to these values after initial creation/external modification
       hourly.deltaBeans = baseHourly.deltaBeans;
+      hourly.twaReserves = baseHourly.twaReserves;
+      hourly.twaBeanLiquidityUSD = baseHourly.twaBeanLiquidityUSD;
+      hourly.twaNonBeanLiquidityUSD = baseHourly.twaNonBeanLiquidityUSD;
+      hourly.twaLiquidityUSD = baseHourly.twaLiquidityUSD;
+      hourly.twaPrice = baseHourly.twaPrice;
+      hourly.twaToken2Price = baseHourly.twaToken2Price;
+      hourly.twaDeltaBeans = baseHourly.twaDeltaBeans;
     }
   } else {
     hourly.deltaReserves = hourly.reserves;
@@ -121,8 +128,15 @@ export function takePoolSnapshots(pool: Pool, block: ethereum.Block): void {
       daily.deltaVolume = daily.deltaVolume.plus(baseDaily.deltaVolume);
       daily.deltaVolumeUSD = daily.deltaVolumeUSD.plus(baseDaily.deltaVolumeUSD);
       daily.deltaLiquidityUSD = daily.deltaLiquidityUSD.plus(baseDaily.deltaLiquidityUSD);
-      // Prevent reassignment to deltaBeans after initial creation
+      // Prevent reassignment to these values after initial creation/external modification
       daily.deltaBeans = baseDaily.deltaBeans;
+      daily.twaReserves = baseDaily.twaReserves;
+      daily.twaBeanLiquidityUSD = baseDaily.twaBeanLiquidityUSD;
+      daily.twaNonBeanLiquidityUSD = baseDaily.twaNonBeanLiquidityUSD;
+      daily.twaLiquidityUSD = baseDaily.twaLiquidityUSD;
+      daily.twaPrice = baseDaily.twaPrice;
+      daily.twaToken2Price = baseDaily.twaToken2Price;
+      daily.twaDeltaBeans = baseDaily.twaDeltaBeans;
     }
   } else {
     daily.deltaReserves = daily.reserves;

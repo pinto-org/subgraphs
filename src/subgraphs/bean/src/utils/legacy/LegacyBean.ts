@@ -24,7 +24,7 @@ export function updateBeanSupplyPegPercent_v1(beanToken: Address, block: ethereu
     lpSupply = lpSupply.plus(toDecimal(pool.reserves[0]));
   }
 
-  bean.supplyInPegLP = lpSupply.div(toDecimal(bean.supply));
+  bean.supplyInPegLP = lpSupply.div(toDecimal(bean.supply)).truncate(6);
   takeBeanSnapshots(bean, block);
   saveBean(bean, block);
 }
