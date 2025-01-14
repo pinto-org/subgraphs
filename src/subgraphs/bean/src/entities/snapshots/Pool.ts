@@ -146,17 +146,24 @@ export function setPoolSnapshotTwa(poolAddress: Address, twaValues: TwaResults):
   const pool = Pool.load(poolAddress)!;
   const hourly = PoolHourlySnapshot.load(pool.id.toHexString() + "-" + pool.lastHourlySnapshotSeason.toString())!;
   hourly.twaReserves = twaValues.reserves;
-  hourly.twaLiquidityUSD = twaValues.liquidity;
   hourly.twaPrice = twaValues.price;
-  hourly.twaToken2Price = twaValues.token2Price;
   hourly.twaDeltaBeans = twaValues.deltaB;
-  hourly.save();
 
   const daily = PoolDailySnapshot.load(pool.id.toHexString() + "-" + pool.lastDailySnapshotDay.toString())!;
   daily.twaReserves = twaValues.reserves;
-  daily.twaLiquidityUSD = twaValues.liquidity;
   daily.twaPrice = twaValues.price;
-  daily.twaToken2Price = twaValues.token2Price;
   daily.twaDeltaBeans = twaValues.deltaB;
+
+  // Legacy implementations may be missing these values
+  if (twaValues.liquidity !== null) {
+    daily.twaLiquidityUSD = twaValues.liquidity!;
+    hourly.twaLiquidityUSD = twaValues.liquidity!;
+  }
+  if (twaValues.token2Price !== null) {
+    daily.twaToken2Price = twaValues.token2Price!;
+    hourly.twaToken2Price = twaValues.token2Price!;
+  }
+
+  hourly.save();
   daily.save();
 }

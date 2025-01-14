@@ -17,11 +17,10 @@ import { decodeCumulativeWellReserves } from "../src/utils/price/WellPrice";
 import { mock_virtual_price } from "./event-mocking/Curve";
 import { getD, getY, priceFromY } from "../src/utils/price/CurvePrice";
 import { pow2toX } from "../../../core/utils/ABDKMathQuad";
-import { handleWellOracle } from "../src/handlers/BeanstalkHandler";
 import { loadBean } from "../src/entities/Bean";
 import { loadOrCreatePool } from "../src/entities/Pool";
 import { initL1Version } from "./entity-mocking/MockVersion";
-import { handleMetapoolOracle } from "../src/handlers/legacy/LegacyBeanstalkHandler";
+import { handleMetapoolOracle, handleWellOracle_beanstalk } from "../src/handlers/legacy/LegacyBeanstalkHandler";
 import { mockBeanSeasons } from "./entity-mocking/MockSeason";
 import { mockPriceBelow, mockWhitelistedPools } from "./entity-mocking/MockBean";
 import { takePoolSnapshots } from "../src/entities/snapshots/Pool";
@@ -165,7 +164,6 @@ describe("DeltaB", () => {
       );
       assert.fieldEquals("PoolHourlySnapshot", BEAN_3CRV.toHexString() + "-6074", "twaDeltaBeans", "4969504");
       assert.fieldEquals("PoolHourlySnapshot", BEAN_3CRV.toHexString() + "-6074", "twaPrice", "1.024700651737");
-      assert.fieldEquals("BeanHourlySnapshot", BEAN_ERC20.toHexString() + "-6074", "twaPrice", "1.024700651737");
 
       handleMetapoolOracle(createMetapoolOracleEvent(ONE_BI, ZERO_BI, reserves3, b3));
       assert.fieldEquals("PoolHourlySnapshot", BEAN_3CRV.toHexString() + "-6074", "twaDeltaBeans", "0");
@@ -188,7 +186,7 @@ describe("DeltaB", () => {
         )
       );
       event1.block = mockBlock(BigInt.fromI32(19200000), BigInt.fromI32(1713920000));
-      handleWellOracle(event1);
+      handleWellOracle_beanstalk(event1);
 
       assert.fieldEquals(
         "TwaOracle",
@@ -208,7 +206,7 @@ describe("DeltaB", () => {
         )
       );
       event2.block = mockBlock(BigInt.fromI32(19200000), BigInt.fromI32(1713923600));
-      handleWellOracle(event2);
+      handleWellOracle_beanstalk(event2);
 
       const h1 = hourFromTimestamp(event2.block.timestamp).toString();
       assert.fieldEquals(

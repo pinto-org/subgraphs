@@ -75,6 +75,7 @@ export function updateBeanSupplyPegPercent(beanToken: Address, block: ethereum.B
     pegSupply = pegSupply.plus(pool.reserves[0]);
   }
   bean.lockedBeans = calcLockedBeans(block.number);
+  // TODO: Update the calculation. consider only setting at sunrise?
   bean.supplyInPegLP = toDecimal(pegSupply).div(toDecimal(bean.supply.minus(bean.lockedBeans)));
   takeBeanSnapshots(bean, block);
   saveBean(bean, block);

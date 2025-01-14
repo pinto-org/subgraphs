@@ -130,7 +130,7 @@ dataSources:
       eventHandlers:
         - event: WellOracle(indexed uint32,address,int256,bytes)
           handler: handleWellOracle
-      file: ../src/handlers/BeanstalkHandler.ts
+      file: ../src/handlers/legacy/LegacyBeanstalkHandler.ts
   ###
   # POOLS
   ###

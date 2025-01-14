@@ -5,7 +5,7 @@ import { Convert, DewhitelistToken, Shipped, Sunrise, WellOracle } from "../../g
 import { loadBean, saveBean } from "../entities/Bean";
 import { setRawWellReserves, setTwaLast } from "../utils/price/TwaOracle";
 import { decodeCumulativeWellReserves, setWellTwa } from "../utils/price/WellPrice";
-import { updateSeason } from "../utils/Beanstalk";
+import { updateSeason, wellOracle } from "../utils/Beanstalk";
 import { updatePoolPricesOnCross } from "../utils/Cross";
 import { beanDecimals, getProtocolToken, isUnripe } from "../../../../core/constants/RuntimeConstants";
 import { v } from "../utils/constants/Version";
@@ -46,27 +46,7 @@ export function handleWellOracle(event: WellOracle): void {
     // Ignore emissions for wells with uninitialized reserves
     return;
   }
-  setRawWellReserves(event);
-  const newPriceCumulative = decodeCumulativeWellReserves(event.params.cumulativeReserves);
-  const decreasing = setTwaLast(event.params.well, newPriceCumulative, event.block.timestamp);
-
-  // Ignore further twa price processing if the cumulative reserves decreased. This is generally
-  // considered an error, but occurred during EBIP-19. The internal oracle should still be updated here.
-  if (decreasing) {
-    const twaOracle = loadOrCreateTwaOracle(event.params.well);
-    twaOracle.priceCumulativeSun = newPriceCumulative;
-    twaOracle.lastSun = event.block.timestamp;
-    twaOracle.save();
-    return;
-  }
-
-  // Ignore deltaB processing for wells with fewer than 1k beans (contract always reports zero)
-  const pool = loadOrCreatePool(event.params.well, event.block.number);
-  const beanIndex = pool.tokens.indexOf(getProtocolToken(v(), event.block.number));
-  if (pool.reserves[beanIndex] > BigInt.fromU32(1000).times(BI_10.pow(<u8>beanDecimals()))) {
-    setWellTwa(event.params.well, event.params.deltaB, event.block);
-    updateBeanTwa(event.block);
-  }
+  wellOracle(event, false);
 }
 
 // LOCKED BEANS //
