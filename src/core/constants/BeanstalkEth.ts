@@ -92,6 +92,12 @@ export function getTokenDecimals(token: Address): i32 {
     return 18;
   } else if (token == BEAN_LUSD_V1) {
     return 18;
+  } else {
+    for (let i = 0; i < TOKEN_INFOS.length; ++i) {
+      if (TOKEN_INFOS[i].address.equals(token)) {
+        return TOKEN_INFOS[i].info.decimals.toI32();
+      }
+    }
   }
   throw new Error("Unsupported token");
 }
