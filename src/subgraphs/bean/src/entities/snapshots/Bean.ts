@@ -1,7 +1,7 @@
 import { BigDecimal, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import { dayFromTimestamp, hourFromTimestamp } from "../../../../../core/utils/Dates";
 import { Bean, BeanDailySnapshot, BeanHourlySnapshot } from "../../../generated/schema";
-import { BD_MAX, BI_MAX, ZERO_BD } from "../../../../../core/utils/Decimals";
+import { BD_MAX, toDecimal, ZERO_BD } from "../../../../../core/utils/Decimals";
 import { LiquidityBreakdown } from "../../utils/price/PoolStats";
 
 export function takeBeanSnapshots(bean: Bean, block: ethereum.Block): void {
@@ -183,7 +183,7 @@ export function setBeanSnapshotTwa(
   daily.twaDeltaB = twaDeltaB;
 
   // Set L2SR here now that twa liquidity is known
-  hourly.l2sr = twaLiquidity.nonBeanLiquidity.div(new BigDecimal(bean.supply)).truncate(6);
+  hourly.l2sr = twaLiquidity.nonBeanLiquidity.div(toDecimal(bean.supply)).truncate(6);
   daily.l2sr = hourly.l2sr;
 
   hourly.save();
