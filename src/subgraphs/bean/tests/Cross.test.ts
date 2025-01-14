@@ -1,5 +1,4 @@
 import { beforeEach, afterEach, assert, clearStore, describe, test } from "matchstick-as/assembly/index";
-import { log } from "matchstick-as/assembly/log";
 
 import { BigDecimal, BigInt } from "@graphprotocol/graph-ts";
 
@@ -98,9 +97,7 @@ describe("Peg Crosses", () => {
       const ethPriceNow2 = getPreReplantPriceETH();
       const newPrice2 = constantProductPrice(toDecimal(reserves2[1]), toDecimal(reserves2[0], 18), ethPriceNow2);
       const newLiquidity2 = toDecimal(reserves2[0], 18).times(ethPriceNow2).times(BigDecimal.fromString("2"));
-      // log.info("expected | actual {} | {}", [beanPrice2.toString(), newPrice2.truncate(4).toString()]);
       assert.assertTrue(beanPrice2.equals(newPrice2.truncate(4)));
-      // log.info("expected | actual {} | {}", [liquidity2.truncate(2).toString(), newLiquidity2.truncate(2).toString()]);
       assert.assertTrue(BigDecimal_round(liquidity2).equals(BigDecimal_round(newLiquidity2)));
     });
 

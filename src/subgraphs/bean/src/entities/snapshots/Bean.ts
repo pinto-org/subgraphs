@@ -169,14 +169,14 @@ export function setBeanSnapshotTwa(
   twaDeltaB: BigDecimal
 ): void {
   const hourly = BeanHourlySnapshot.load(bean.id.toHexString() + "-" + bean.lastHourlySnapshotSeason.toString())!;
-  hourly.twaPrice = twaPrice.truncate(2);
+  hourly.twaPrice = twaPrice.truncate(6);
   hourly.twaBeanLiquidityUSD = twaLiquidity.beanLiquidity.truncate(2);
   hourly.twaNonBeanLiquidityUSD = twaLiquidity.nonBeanLiquidity.truncate(2);
   hourly.twaLiquidityUSD = twaLiquidity.totalLiquidity.truncate(2);
   hourly.twaDeltaB = twaDeltaB;
 
   const daily = BeanDailySnapshot.load(bean.id.toHexString() + "-" + bean.lastDailySnapshotDay.toString())!;
-  daily.twaPrice = twaPrice.truncate(2);
+  daily.twaPrice = twaPrice.truncate(6);
   daily.twaBeanLiquidityUSD = twaLiquidity.beanLiquidity.truncate(2);
   daily.twaNonBeanLiquidityUSD = twaLiquidity.nonBeanLiquidity.truncate(2);
   daily.twaLiquidityUSD = twaLiquidity.totalLiquidity.truncate(2);
