@@ -28,8 +28,8 @@ export function takeBeanSnapshots(bean: Bean, block: ethereum.Block): void {
   hourly.season = bean.currentSeason;
   hourly.bean = bean.id;
   hourly.supply = bean.supply;
-  hourly.marketCap = bean.marketCap;
-  hourly.price = bean.price;
+  hourly.marketCap = toDecimal(bean.supply).times(bean.lastPrice).truncate(2);
+  hourly.instPrice = bean.lastPrice;
   hourly.crosses = bean.crosses;
   hourly.supplyInPegLP = bean.supplyInPegLP;
   hourly.lockedBeans = bean.lockedBeans;
@@ -59,6 +59,8 @@ export function takeBeanSnapshots(bean: Bean, block: ethereum.Block): void {
       hourly.deltaVolumeUSD = hourly.deltaVolumeUSD.plus(baseHourly.deltaVolumeUSD);
       hourly.deltaLiquidityUSD = hourly.deltaLiquidityUSD.plus(baseHourly.deltaLiquidityUSD);
       // Prevent reassignment to these values after initial creation/external modification
+      hourly.marketCap = baseHourly.marketCap;
+      hourly.instPrice = baseHourly.instPrice;
       hourly.twaPrice = baseHourly.twaPrice;
       hourly.twaBeanLiquidityUSD = baseHourly.twaBeanLiquidityUSD;
       hourly.twaNonBeanLiquidityUSD = baseHourly.twaNonBeanLiquidityUSD;
@@ -89,8 +91,8 @@ export function takeBeanSnapshots(bean: Bean, block: ethereum.Block): void {
   daily.season = bean.currentSeason;
   daily.bean = bean.id;
   daily.supply = bean.supply;
-  daily.marketCap = bean.marketCap;
-  daily.price = bean.price;
+  daily.marketCap = hourly.marketCap;
+  daily.instPrice = bean.lastPrice;
   daily.crosses = bean.crosses;
   daily.supplyInPegLP = bean.supplyInPegLP;
   daily.lockedBeans = bean.lockedBeans;
@@ -120,6 +122,8 @@ export function takeBeanSnapshots(bean: Bean, block: ethereum.Block): void {
       daily.deltaVolumeUSD = daily.deltaVolumeUSD.plus(baseDaily.deltaVolumeUSD);
       daily.deltaLiquidityUSD = daily.deltaLiquidityUSD.plus(baseDaily.deltaLiquidityUSD);
       // Prevent reassignment to these values after initial creation/external modification
+      daily.marketCap = baseDaily.marketCap;
+      daily.instPrice = baseDaily.instPrice;
       daily.twaPrice = baseDaily.twaPrice;
       daily.twaBeanLiquidityUSD = baseDaily.twaBeanLiquidityUSD;
       daily.twaNonBeanLiquidityUSD = baseDaily.twaNonBeanLiquidityUSD;

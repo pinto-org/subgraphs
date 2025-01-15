@@ -32,10 +32,9 @@ export function updateBeanValues(
 ): void {
   let bean = loadBean(token);
   if (newPrice !== null) {
-    bean.price = newPrice;
+    bean.lastPrice = newPrice;
   }
   bean.supply = bean.supply.plus(deltaSupply);
-  bean.marketCap = toDecimal(bean.supply).times(bean.price);
   bean.volume = bean.volume.plus(deltaVolume);
   bean.volumeUSD = bean.volumeUSD.plus(deltaVolumeUSD);
   bean.liquidityUSD = bean.liquidityUSD.plus(deltaLiquidityUSD);
@@ -52,7 +51,6 @@ export function calcLiquidityWeightedBeanPrice(token: Address): BigDecimal {
   for (let i = 0; i < bean.pools.length; ++i) {
     let pool = Pool.load(bean.pools[i])!;
     weightedPrice = weightedPrice.plus(pool.lastPrice.times(pool.liquidityUSD));
-    // log.debug("price | liquidity {} | {}", [pool.lastPrice.toString(), pool.liquidityUSD.toString()]);
     totalLiquidity = totalLiquidity.plus(pool.liquidityUSD);
   }
   return weightedPrice.div(totalLiquidity == ZERO_BD ? ONE_BD : totalLiquidity);
@@ -97,7 +95,7 @@ export function updateBeanAfterPoolSwap(
   const bean = loadBean(beanAddr);
   // Verify the pool is still whitelisted
   if (bean.pools.indexOf(poolAddress) >= 0) {
-    const oldBeanPrice = bean.price;
+    const oldBeanPrice = bean.lastPrice;
     let beanPrice = poolPrice;
 
     // Get overall price from price contract if a result was not already provided

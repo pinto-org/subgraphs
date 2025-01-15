@@ -75,7 +75,7 @@ export function updatePoolPricesOnCross(priceOnlyOnCross: boolean, block: ethere
   }
   const beanToken = getProtocolToken(v(), block.number);
   const bean = loadBean(beanToken);
-  const prevPrice = bean.price;
+  const prevPrice = bean.lastPrice;
   const newPrice = toDecimal(priceResult.value.price);
 
   // Check for overall peg cross

@@ -46,11 +46,11 @@ describe("Peg Crosses", () => {
 
     // Set initial prices to below peg
     let bean = loadBean(BEAN_ERC20);
-    bean.price = ZERO_BD;
+    bean.lastPrice = ZERO_BD;
     bean.save();
 
     let beanv1 = loadBean(BEAN_ERC20_V1);
-    beanv1.price = ZERO_BD;
+    beanv1.lastPrice = ZERO_BD;
     beanv1.save();
 
     mockPriceBelow();

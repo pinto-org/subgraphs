@@ -49,16 +49,14 @@ type Bean @entity {
   currentSeason: Season!
   "Current bean supply"
   supply: BigInt!
-  "Current market cap. Accuracy not guaranteed except at sunrise"
-  marketCap: BigDecimal!
 
   "Whitelisted pools having Bean"
   pools: [Pool!]!
   "Dewhitelisted pools having Bean"
   dewhitelistedPools: [Pool!]!
 
-  "Current bean token price. Accuracy not guaranteed except at sunrise"
-  price: BigDecimal!
+  "* The last recorded bean price. Updated upon a trade, a peg cross, or sunrise. May not be useful for external use as accuracy is not guaranteed."
+  lastPrice: BigDecimal!
 
   "Cumulative number of peg crosses"
   crosses: Int!
@@ -108,12 +106,12 @@ type BeanHourlySnapshot @entity {
 
   "Bean supply"
   supply: BigInt!
-  "Market cap. Accuracy not guaranteed except at sunrise"
+  "Market cap at the end of the previous season"
   marketCap: BigDecimal!
 
-  "Bean token price. Accuracy not guaranteed except at sunrise"
-  price: BigDecimal!
-  "Time-Weighted price over the previous season"
+  "Bean price at the end of the previous season"
+  instPrice: BigDecimal!
+  "Time-Weighted bean price over the previous season"
   twaPrice: BigDecimal!
 
   "Time-Weighted cumulative bean USD liquidity over the previous season. Sum of the same property on individual pools"
@@ -178,12 +176,12 @@ type BeanDailySnapshot @entity {
 
   "Bean supply"
   supply: BigInt!
-  "Market cap. Accuracy not guaranteed except at sunrise"
+  "Market cap at the end of the previous season"
   marketCap: BigDecimal!
 
-  "Bean token price. Accuracy not guaranteed except at sunrise"
-  price: BigDecimal!
-  "Time-Weighted price over the previous season"
+  "Bean price at the end of the previous season"
+  instPrice: BigDecimal!
+  "Time-Weighted bean price over the previous season"
   twaPrice: BigDecimal!
 
   "Time-Weighted cumulative bean USD liquidity over the previous season. Sum of the same property on individual pools"
@@ -249,7 +247,7 @@ type Pool @entity {
 
   "Token reserves in the pool"
   reserves: [BigInt!]!
-  "Current price of Bean in this Pool. Accuracy not guaranteed except at sunrise"
+  "* The last recorded bean price in this pool. Updated upon a trade, a peg cross, or sunrise. May not be useful for external use as accuracy is not guaranteed."
   lastPrice: BigDecimal!
 
   "Cumulative number of peg crosses in this Pool"
@@ -304,8 +302,8 @@ type PoolHourlySnapshot @entity {
   "Time-Weighted average total USD liquidity in this pool over the previous season"
   twaLiquidityUSD: BigDecimal!
 
-  "Price of Bean in this Pool. Accuracy not guaranteed except at sunrise"
-  lastPrice: BigDecimal!
+  "Bean price in this pool at the end of the previous season"
+  instPrice: BigDecimal!
   "Time-Weighted bean price in this pool over the previous season"
   twaPrice: BigDecimal!
   "Time-Weighted price of the non-bean token in the pool over the previous season"
@@ -371,8 +369,8 @@ type PoolDailySnapshot @entity {
   "Time-Weighted average total USD liquidity in this pool over the previous season"
   twaLiquidityUSD: BigDecimal!
 
-  "Price of Bean in this Pool. Accuracy not guaranteed except at sunrise"
-  lastPrice: BigDecimal!
+  "Bean price in this pool at the end of the previous season"
+  instPrice: BigDecimal!
   "Time-Weighted bean price in this pool over the previous season"
   twaPrice: BigDecimal!
   "Time-Weighted price of the non-bean token in the pool over the previous season"

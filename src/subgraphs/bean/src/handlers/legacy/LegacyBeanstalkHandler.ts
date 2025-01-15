@@ -56,7 +56,7 @@ export function handleSunrise_v1(event: Sunrise): void {
     totalLiquidity.minus(bean.liquidityUSD),
     event.block
   );
-  checkBeanCross(beanToken, bean.price, totalPrice, event.block);
+  checkBeanCross(beanToken, bean.lastPrice, totalPrice, event.block);
   updateBeanTwa(event.block);
 }
 
@@ -67,7 +67,7 @@ export function handleSunrise_v2(event: Sunrise): void {
   // V2 logic below
   let beanToken = getProtocolToken(v(), event.block.number);
   let bean = loadBean(beanToken);
-  let oldBeanPrice = bean.price;
+  let oldBeanPrice = bean.lastPrice;
 
   // Fetch price from price contract to capture any non-bean token price movevements
   // Attempt to pull from Beanstalk Price contract first for the overall Bean price update

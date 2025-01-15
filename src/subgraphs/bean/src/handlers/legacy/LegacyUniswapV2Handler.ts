@@ -95,7 +95,7 @@ export function checkPegCrossEth(block: ethereum.Block): void {
   }
 
   // Check for overall Bean cross
-  const oldBeanPrice = loadBean(BEAN_ERC20_V1).price;
+  const oldBeanPrice = loadBean(BEAN_ERC20_V1).lastPrice;
   const newBeanPrice = calcLiquidityWeightedBeanPrice(BEAN_ERC20_V1);
   const beanCrossed = checkBeanCross(BEAN_ERC20_V1, oldBeanPrice, newBeanPrice, block);
   if (beanCrossed) {

@@ -35,7 +35,7 @@ export function takePoolSnapshots(pool: Pool, block: ethereum.Block): void {
   hourly.season = pool.currentSeason;
   hourly.pool = pool.id;
   hourly.reserves = pool.reserves;
-  hourly.lastPrice = pool.lastPrice;
+  hourly.instPrice = pool.lastPrice;
   hourly.crosses = pool.crosses;
   hourly.volume = pool.volume;
   hourly.volumeUSD = pool.volumeUSD;
@@ -66,6 +66,7 @@ export function takePoolSnapshots(pool: Pool, block: ethereum.Block): void {
       hourly.deltaVolumeUSD = hourly.deltaVolumeUSD.plus(baseHourly.deltaVolumeUSD);
       hourly.deltaLiquidityUSD = hourly.deltaLiquidityUSD.plus(baseHourly.deltaLiquidityUSD);
       // Prevent reassignment to these values after initial creation/external modification
+      hourly.instPrice = baseHourly.instPrice;
       hourly.twaReserves = baseHourly.twaReserves;
       hourly.twaBeanLiquidityUSD = baseHourly.twaBeanLiquidityUSD;
       hourly.twaNonBeanLiquidityUSD = baseHourly.twaNonBeanLiquidityUSD;
@@ -98,7 +99,7 @@ export function takePoolSnapshots(pool: Pool, block: ethereum.Block): void {
   daily.season = pool.currentSeason;
   daily.pool = pool.id;
   daily.reserves = pool.reserves;
-  daily.lastPrice = pool.lastPrice;
+  daily.instPrice = pool.lastPrice;
   daily.crosses = pool.crosses;
   daily.volume = pool.volume;
   daily.volumeUSD = pool.volumeUSD;
@@ -129,6 +130,7 @@ export function takePoolSnapshots(pool: Pool, block: ethereum.Block): void {
       daily.deltaVolumeUSD = daily.deltaVolumeUSD.plus(baseDaily.deltaVolumeUSD);
       daily.deltaLiquidityUSD = daily.deltaLiquidityUSD.plus(baseDaily.deltaLiquidityUSD);
       // Prevent reassignment to these values after initial creation/external modification
+      daily.instPrice = baseDaily.instPrice;
       daily.twaReserves = baseDaily.twaReserves;
       daily.twaBeanLiquidityUSD = baseDaily.twaBeanLiquidityUSD;
       daily.twaNonBeanLiquidityUSD = baseDaily.twaNonBeanLiquidityUSD;

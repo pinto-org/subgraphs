@@ -9,13 +9,12 @@ export function loadBean(token: Address): Bean {
   if (bean == null) {
     bean = new Bean(token);
     bean.supply = ZERO_BI;
-    bean.marketCap = ZERO_BD;
     bean.lockedBeans = ZERO_BI;
     bean.supplyInPegLP = ZERO_BD;
     bean.volume = ZERO_BI;
     bean.volumeUSD = ZERO_BD;
     bean.liquidityUSD = ZERO_BD;
-    bean.price = BigDecimal.fromString(token == BEAN_ERC20 ? "1.072" : "1.0");
+    bean.lastPrice = BigDecimal.fromString(token == BEAN_ERC20 ? "1.072" : "1.0");
     bean.crosses = token == BEAN_ERC20 ? getV1Crosses() : 0;
     bean.lastCross = ZERO_BI;
     bean.currentSeason = (token == BEAN_ERC20 ? 6074 : 1).toString();
