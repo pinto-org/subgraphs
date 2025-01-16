@@ -5,14 +5,14 @@ import { ONE_BD, toDecimal, ZERO_BD, ZERO_BI } from "../../../../core/utils/Deci
 import { checkBeanCross } from "./Cross";
 import { BeanstalkPrice_try_price, BeanstalkPriceResult } from "./price/BeanstalkPrice";
 import { calcLockedBeans } from "./LockedBeans";
-import { loadBean, saveBean } from "../entities/Bean";
-import { loadOrCreatePool } from "../entities/Pool";
+import { getAllBeanPools, loadBean, saveBean } from "../entities/Bean";
+import { getPool, loadOrCreatePool } from "../entities/Pool";
 import { externalUpdatePoolPrice as univ2_externalUpdatePoolPrice } from "../handlers/legacy/LegacyUniswapV2Handler";
 import { updateBeanSupplyPegPercent_v1 } from "./legacy/LegacyBean";
 import { toAddress } from "../../../../core/utils/Bytes";
 import { getProtocolToken } from "../../../../core/constants/RuntimeConstants";
 import { v } from "./constants/Version";
-import { setBeanSnapshotInstDeltaB, setBeanSnapshotTwa, takeBeanSnapshots } from "../entities/snapshots/Bean";
+import { setBeanSnapshotInstValues, setBeanSnapshotTwa, takeBeanSnapshots } from "../entities/snapshots/Bean";
 
 export function adjustSupply(beanToken: Address, amount: BigInt, block: ethereum.Block): void {
   let bean = loadBean(beanToken);
@@ -117,9 +117,10 @@ export function updateBeanAfterPoolSwap(
   }
 }
 
-export function updateInstDeltaB(block: ethereum.Block): void {
+export function updateSnapshotInst(block: ethereum.Block): void {
   let bean = loadBean(getProtocolToken(v(), block.number));
 
+  // Sum deltaB on whitelisted pools
   let cumulativeDeltaB = ZERO_BD;
   for (let i = 0; i < bean.pools.length; i++) {
     const poolHourly = PoolHourlySnapshot.load(
@@ -127,7 +128,7 @@ export function updateInstDeltaB(block: ethereum.Block): void {
     )!;
     cumulativeDeltaB = cumulativeDeltaB.plus(poolHourly.instDeltaB);
   }
-  setBeanSnapshotInstDeltaB(bean, cumulativeDeltaB);
+  setBeanSnapshotInstValues(bean, cumulativeDeltaB);
 }
 
 // Update Bean's TWA deltaB and price. Individual pools' values must be computed prior to calling this method.

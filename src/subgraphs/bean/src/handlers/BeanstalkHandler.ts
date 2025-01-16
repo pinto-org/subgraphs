@@ -1,4 +1,4 @@
-import { updateBeanSupplyPegPercent, updateInstDeltaB } from "../utils/Bean";
+import { updateBeanSupplyPegPercent, updateSnapshotInst } from "../utils/Bean";
 import { Chop } from "../../generated/Bean-ABIs/Reseed";
 import { Convert, DewhitelistToken, Shipped, Sunrise, WellOracle } from "../../generated/Bean-ABIs/PintoLaunch";
 import { loadBean, saveBean } from "../entities/Bean";
@@ -15,7 +15,7 @@ export function handleSunrise(event: Sunrise): void {
   updatePoolPricesOnCross(false, event.block);
 
   // Set the inst deltaB on the bean snapshots
-  updateInstDeltaB(event.block);
+  updateSnapshotInst(event.block);
 }
 
 // Assumption is that the whitelisted token corresponds to a pool lp. If not, this method will simply do nothing.

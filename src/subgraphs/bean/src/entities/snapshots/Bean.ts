@@ -28,8 +28,6 @@ export function takeBeanSnapshots(bean: Bean, block: ethereum.Block): void {
   hourly.season = bean.currentSeason;
   hourly.bean = bean.id;
   hourly.supply = bean.supply;
-  hourly.marketCap = toDecimal(bean.supply).times(bean.lastPrice).truncate(2);
-  hourly.instPrice = bean.lastPrice;
   hourly.crosses = bean.crosses;
   hourly.supplyInPegLP = bean.supplyInPegLP;
   hourly.lockedBeans = bean.lockedBeans;
@@ -37,6 +35,8 @@ export function takeBeanSnapshots(bean: Bean, block: ethereum.Block): void {
   hourly.volumeUSD = bean.volumeUSD;
   hourly.liquidityUSD = bean.liquidityUSD;
   // These fields are expected to be initialized at sunrise, after this method
+  hourly.marketCap = ZERO_BD;
+  hourly.instPrice = ZERO_BD;
   hourly.twaPrice = ZERO_BD;
   hourly.twaBeanLiquidityUSD = ZERO_BD;
   hourly.twaNonBeanLiquidityUSD = ZERO_BD;
@@ -91,8 +91,6 @@ export function takeBeanSnapshots(bean: Bean, block: ethereum.Block): void {
   daily.season = bean.currentSeason;
   daily.bean = bean.id;
   daily.supply = bean.supply;
-  daily.marketCap = hourly.marketCap;
-  daily.instPrice = bean.lastPrice;
   daily.crosses = bean.crosses;
   daily.supplyInPegLP = bean.supplyInPegLP;
   daily.lockedBeans = bean.lockedBeans;
@@ -100,6 +98,8 @@ export function takeBeanSnapshots(bean: Bean, block: ethereum.Block): void {
   daily.volumeUSD = bean.volumeUSD;
   daily.liquidityUSD = bean.liquidityUSD;
   // These fields are expected to be initialized at sunrise, after this method
+  daily.marketCap = ZERO_BD;
+  daily.instPrice = ZERO_BD;
   daily.twaPrice = ZERO_BD;
   daily.twaBeanLiquidityUSD = ZERO_BD;
   daily.twaNonBeanLiquidityUSD = ZERO_BD;
@@ -153,14 +153,20 @@ export function takeBeanSnapshots(bean: Bean, block: ethereum.Block): void {
   bean.lastUpdateBlockNumber = block.number;
 }
 
-// Set inst deltaB values from the start of the season. Snapshot must have already been created.
-export function setBeanSnapshotInstDeltaB(bean: Bean, instDeltaB: BigDecimal): void {
+// Set inst price/deltaB values from the start of the season. Snapshot must have already been created.
+export function setBeanSnapshotInstValues(bean: Bean, instDeltaB: BigDecimal): void {
   const hourly = BeanHourlySnapshot.load(bean.id.toHexString() + "-" + bean.lastHourlySnapshotSeason.toString())!;
-  if (hourly.instDeltaB == BD_MAX) {
-    const daily = BeanDailySnapshot.load(bean.id.toHexString() + "-" + bean.lastDailySnapshotDay.toString())!;
+  if (hourly.instPrice == ZERO_BD) {
+    hourly.marketCap = toDecimal(bean.supply).times(bean.lastPrice).truncate(2);
+    hourly.instPrice = bean.lastPrice;
     hourly.instDeltaB = instDeltaB;
-    daily.instDeltaB = instDeltaB;
     hourly.save();
+  }
+  const daily = BeanDailySnapshot.load(bean.id.toHexString() + "-" + bean.lastDailySnapshotDay.toString())!;
+  if (daily.instPrice == ZERO_BD) {
+    daily.marketCap = toDecimal(bean.supply).times(bean.lastPrice).truncate(2);
+    daily.instPrice = bean.lastPrice;
+    daily.instDeltaB = instDeltaB;
     daily.save();
   }
 }
@@ -179,17 +185,18 @@ export function setBeanSnapshotTwa(
   hourly.twaLiquidityUSD = twaLiquidity.totalLiquidity.truncate(2);
   hourly.twaDeltaB = twaDeltaB;
 
-  const daily = BeanDailySnapshot.load(bean.id.toHexString() + "-" + bean.lastDailySnapshotDay.toString())!;
-  daily.twaPrice = twaPrice.truncate(6);
-  daily.twaBeanLiquidityUSD = twaLiquidity.beanLiquidity.truncate(2);
-  daily.twaNonBeanLiquidityUSD = twaLiquidity.nonBeanLiquidity.truncate(2);
-  daily.twaLiquidityUSD = twaLiquidity.totalLiquidity.truncate(2);
-  daily.twaDeltaB = twaDeltaB;
-
   // Set L2SR here now that twa liquidity is known
   hourly.l2sr = twaLiquidity.nonBeanLiquidity.div(toDecimal(bean.supply)).truncate(6);
-  daily.l2sr = hourly.l2sr;
-
   hourly.save();
-  daily.save();
+
+  const daily = BeanDailySnapshot.load(bean.id.toHexString() + "-" + bean.lastDailySnapshotDay.toString())!;
+  if (daily.twaPrice == ZERO_BD) {
+    daily.twaPrice = twaPrice.truncate(6);
+    daily.twaBeanLiquidityUSD = twaLiquidity.beanLiquidity.truncate(2);
+    daily.twaNonBeanLiquidityUSD = twaLiquidity.nonBeanLiquidity.truncate(2);
+    daily.twaLiquidityUSD = twaLiquidity.totalLiquidity.truncate(2);
+    daily.twaDeltaB = twaDeltaB;
+    daily.l2sr = hourly.l2sr;
+    daily.save();
+  }
 }

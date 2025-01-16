@@ -3,6 +3,7 @@ import { BEAN_ERC20 } from "../../../../core/constants/raw/BeanstalkEthConstants
 import { ZERO_BD, ZERO_BI } from "../../../../core/utils/Decimals";
 import { Bean } from "../../generated/schema";
 import { getV1Crosses } from "../utils/Cross";
+import { toAddress } from "../../../../core/utils/Bytes";
 
 export function loadBean(token: Address): Bean {
   let bean = Bean.load(token);
@@ -34,4 +35,16 @@ export function saveBean(bean: Bean, block: ethereum.Block): void {
   bean.lastUpdateTimestamp = block.timestamp;
   bean.lastUpdateBlockNumber = block.number;
   bean.save();
+}
+
+// Returns addresses of whitelisted/dewhitelisted pools
+export function getAllBeanPools(bean: Bean): Address[] {
+  const retval: Address[] = [];
+  for (let i = 0; i < bean.pools.length; i++) {
+    retval.push(toAddress(bean.pools[i]));
+  }
+  for (let i = 0; i < bean.dewhitelistedPools.length; i++) {
+    retval.push(toAddress(bean.dewhitelistedPools[i]));
+  }
+  return retval;
 }

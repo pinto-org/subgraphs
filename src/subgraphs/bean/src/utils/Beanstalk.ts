@@ -1,5 +1,5 @@
 import { BigInt, ethereum } from "@graphprotocol/graph-ts";
-import { loadBean, saveBean } from "../entities/Bean";
+import { getAllBeanPools, loadBean, saveBean } from "../entities/Bean";
 import { toAddress } from "../../../../core/utils/Bytes";
 import { beanDecimals, getProtocolToken } from "../../../../core/constants/RuntimeConstants";
 import { v } from "./constants/Version";
@@ -22,12 +22,9 @@ export function updateSeason(season: u32, block: ethereum.Block): void {
   takeBeanSnapshots(bean, block);
   saveBean(bean, block);
 
-  for (let i = 0; i < bean.pools.length; i++) {
-    updatePoolSeason(toAddress(bean.pools[i]), season, block);
-  }
-
-  for (let i = 0; i < bean.dewhitelistedPools.length; i++) {
-    updatePoolSeason(toAddress(bean.dewhitelistedPools[i]), season, block);
+  const allPools = getAllBeanPools(bean);
+  for (let i = 0; i < allPools.length; i++) {
+    updatePoolSeason(toAddress(allPools[i]), season, block);
   }
 }
 

@@ -35,7 +35,6 @@ export function takePoolSnapshots(pool: Pool, block: ethereum.Block): void {
   hourly.season = pool.currentSeason;
   hourly.pool = pool.id;
   hourly.reserves = pool.reserves;
-  hourly.instPrice = pool.lastPrice;
   hourly.crosses = pool.crosses;
   hourly.volume = pool.volume;
   hourly.volumeUSD = pool.volumeUSD;
@@ -45,6 +44,7 @@ export function takePoolSnapshots(pool: Pool, block: ethereum.Block): void {
   hourly.twaBeanLiquidityUSD = ZERO_BD;
   hourly.twaNonBeanLiquidityUSD = ZERO_BD;
   hourly.twaLiquidityUSD = ZERO_BD;
+  hourly.instPrice = ZERO_BD;
   hourly.twaPrice = ZERO_BD;
   hourly.twaToken2Price = ZERO_BD;
   hourly.instDeltaB = BD_MAX;
@@ -99,7 +99,6 @@ export function takePoolSnapshots(pool: Pool, block: ethereum.Block): void {
   daily.season = pool.currentSeason;
   daily.pool = pool.id;
   daily.reserves = pool.reserves;
-  daily.instPrice = pool.lastPrice;
   daily.crosses = pool.crosses;
   daily.volume = pool.volume;
   daily.volumeUSD = pool.volumeUSD;
@@ -109,6 +108,7 @@ export function takePoolSnapshots(pool: Pool, block: ethereum.Block): void {
   daily.twaBeanLiquidityUSD = ZERO_BD;
   daily.twaNonBeanLiquidityUSD = ZERO_BD;
   daily.twaLiquidityUSD = ZERO_BD;
+  daily.instPrice = ZERO_BD;
   daily.twaPrice = ZERO_BD;
   daily.twaToken2Price = ZERO_BD;
   daily.instDeltaB = BD_MAX;
@@ -162,14 +162,18 @@ export function takePoolSnapshots(pool: Pool, block: ethereum.Block): void {
   pool.lastUpdateBlockNumber = block.number;
 }
 
-// Set inst deltaB values from the start of the season. Snapshot must have already been created.
-export function setPoolSnapshotInstDeltaB(pool: Pool, instDeltaB: BigDecimal): void {
+// Set inst price/deltaB values from the start of the season. Snapshot must have already been created.
+export function setPoolSnapshotInstValues(pool: Pool, instDeltaB: BigDecimal): void {
   const hourly = PoolHourlySnapshot.load(pool.id.toHexString() + "-" + pool.lastHourlySnapshotSeason.toString())!;
   if (hourly.instDeltaB == BD_MAX) {
-    const daily = PoolDailySnapshot.load(pool.id.toHexString() + "-" + pool.lastDailySnapshotDay.toString())!;
+    hourly.instPrice = pool.lastPrice;
     hourly.instDeltaB = instDeltaB;
-    daily.instDeltaB = instDeltaB;
     hourly.save();
+  }
+  const daily = PoolDailySnapshot.load(pool.id.toHexString() + "-" + pool.lastDailySnapshotDay.toString())!;
+  if (daily.instDeltaB == BD_MAX) {
+    daily.instPrice = pool.lastPrice;
+    daily.instDeltaB = instDeltaB;
     daily.save();
   }
 }
@@ -182,22 +186,28 @@ export function setPoolSnapshotTwa(poolAddress: Address, twaValues: TwaResults):
   hourly.twaDeltaB = twaValues.deltaB;
 
   const daily = PoolDailySnapshot.load(pool.id.toHexString() + "-" + pool.lastDailySnapshotDay.toString())!;
-  daily.twaReserves = twaValues.reserves;
-  daily.twaPrice = twaValues.beanPrice;
-  daily.twaDeltaB = twaValues.deltaB;
+  if (daily.twaPrice == ZERO_BD) {
+    daily.twaReserves = twaValues.reserves;
+    daily.twaPrice = twaValues.beanPrice;
+    daily.twaDeltaB = twaValues.deltaB;
+  }
 
   // Legacy implementations may be missing these values
   if (twaValues.liquidity !== null) {
     hourly.twaBeanLiquidityUSD = twaValues.liquidity!.beanLiquidity;
     hourly.twaNonBeanLiquidityUSD = twaValues.liquidity!.nonBeanLiquidity;
     hourly.twaLiquidityUSD = twaValues.liquidity!.totalLiquidity;
-    daily.twaBeanLiquidityUSD = twaValues.liquidity!.beanLiquidity;
-    daily.twaNonBeanLiquidityUSD = twaValues.liquidity!.nonBeanLiquidity;
-    daily.twaLiquidityUSD = twaValues.liquidity!.totalLiquidity;
+    if (daily.twaBeanLiquidityUSD == ZERO_BD) {
+      daily.twaBeanLiquidityUSD = twaValues.liquidity!.beanLiquidity;
+      daily.twaNonBeanLiquidityUSD = twaValues.liquidity!.nonBeanLiquidity;
+      daily.twaLiquidityUSD = twaValues.liquidity!.totalLiquidity;
+    }
   }
   if (twaValues.token2Price !== null) {
     hourly.twaToken2Price = twaValues.token2Price!;
-    daily.twaToken2Price = twaValues.token2Price!;
+    if (daily.twaToken2Price == ZERO_BD) {
+      daily.twaToken2Price = twaValues.token2Price!;
+    }
   }
 
   hourly.save();
