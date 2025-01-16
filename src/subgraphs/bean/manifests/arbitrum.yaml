@@ -129,8 +129,8 @@ dataSources:
           file: ../../../core/abis/Well.json
       eventHandlers:
         - event: WellOracle(indexed uint32,address,int256,bytes)
-          handler: handleWellOracle
-      file: ../src/handlers/BeanstalkHandler.ts
+          handler: handleWellOracle_beanstalk
+      file: ../src/handlers/legacy/LegacyBeanstalkHandler.ts
   ###
   # POOLS
   ###

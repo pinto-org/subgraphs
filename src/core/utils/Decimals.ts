@@ -9,6 +9,7 @@ export const BI_10 = BigInt.fromI32(10);
 export const BI_MAX = BigInt.fromUnsignedBytes(
   Bytes.fromHexString("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
 );
+export const BD_MAX = new BigDecimal(BI_MAX);
 export const ZERO_BD = BigDecimal.fromString("0");
 export const ONE_BD = BigDecimal.fromString("1");
 export const BD_10 = BigDecimal.fromString("10");

@@ -1,20 +1,15 @@
-import { BigInt, ethereum, Address, log } from "@graphprotocol/graph-ts";
-import {
-  getLastBeanPrice,
-  calcLiquidityWeightedBeanPrice,
-  updateBeanSupplyPegPercent,
-  updateBeanValues
-} from "../../utils/Bean";
+import { ethereum, Address, log } from "@graphprotocol/graph-ts";
+import { calcLiquidityWeightedBeanPrice, updateBeanSupplyPegPercent, updateBeanValues } from "../../utils/Bean";
 import { Swap, Sync } from "../../../generated/Bean-ABIs/UniswapV2Pair";
-import { loadOrCreateToken } from "../../entities/Token";
+import { loadOrCreateToken, updateTokenPrice } from "../../entities/Token";
 import { BEAN_ERC20_V1, BEAN_WETH_V1, WETH } from "../../../../../core/constants/raw/BeanstalkEthConstants";
 import { toDecimal, ZERO_BD, ZERO_BI } from "../../../../../core/utils/Decimals";
-import { loadOrCreatePool } from "../../entities/Pool";
-import { setPoolReserves, updatePoolPrice, updatePoolValues } from "../../utils/Pool";
+import { loadOrCreatePool, setPoolReserves } from "../../entities/Pool";
+import { updatePoolPrice, updatePoolValues } from "../../utils/Pool";
 import { calcUniswapV2Inst_2, getPreReplantPriceETH, updatePreReplantPriceETH } from "../../utils/price/UniswapPrice";
 import { checkBeanCross, checkPoolCross } from "../../utils/Cross";
-import { updateTokenPrice } from "../../utils/Token";
 import { toAddress } from "../../../../../core/utils/Bytes";
+import { loadBean } from "../../entities/Bean";
 
 // Reserves/price already updated by Sync event. Sync event is always emitted prior to a swap.
 // Just update the volume for usd/bean
@@ -41,7 +36,7 @@ export function handleSwap(event: Swap): void {
 export function handleSync(event: Sync): void {
   let pool = loadOrCreatePool(event.address, event.block.number);
   const beanAddress = toAddress(pool.bean);
-  const oldBeanPrice = getLastBeanPrice(beanAddress);
+  const oldBeanPrice = loadBean(beanAddress).price;
 
   // Token 0 is WETH and Token 1 is BEAN
   let reserves = [event.params.reserve0, event.params.reserve1];
@@ -100,7 +95,7 @@ export function checkPegCrossEth(block: ethereum.Block): void {
   }
 
   // Check for overall Bean cross
-  const oldBeanPrice = getLastBeanPrice(BEAN_ERC20_V1);
+  const oldBeanPrice = loadBean(BEAN_ERC20_V1).lastPrice;
   const newBeanPrice = calcLiquidityWeightedBeanPrice(BEAN_ERC20_V1);
   const beanCrossed = checkBeanCross(BEAN_ERC20_V1, oldBeanPrice, newBeanPrice, block);
   if (beanCrossed) {

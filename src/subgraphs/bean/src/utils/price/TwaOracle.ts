@@ -3,7 +3,7 @@ import { BI_10, ONE_BI, ZERO_BI } from "../../../../../core/utils/Decimals";
 import { uniswapCumulativePrice } from "./UniswapPrice";
 import { WETH_USDC_PAIR } from "../../../../../core/constants/raw/BeanstalkEthConstants";
 import { curveCumulativePrices } from "./CurvePrice";
-import { TWAType } from "./Types";
+import { TWAType } from "./PoolStats";
 import { wellCumulativePrices, wellTwaReserves } from "./WellPrice";
 import { WellOracle } from "../../../generated/Bean-ABIs/PintoLaunch";
 import { loadOrCreateTwaOracle } from "../../entities/TwaOracle";

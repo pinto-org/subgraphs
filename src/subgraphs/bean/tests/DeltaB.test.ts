@@ -1,16 +1,7 @@
-import {
-  beforeEach,
-  beforeAll,
-  afterEach,
-  assert,
-  clearStore,
-  describe,
-  test,
-  createMockedFunction
-} from "matchstick-as/assembly/index";
+import { beforeEach, beforeAll, afterEach, assert, clearStore, describe, test } from "matchstick-as/assembly/index";
 import { BigInt, Bytes, BigDecimal, log } from "@graphprotocol/graph-ts";
 // import { log } from "matchstick-as/assembly/log";
-import { BI_10, ONE_BI, ZERO_BI } from "../../../core/utils/Decimals";
+import { BI_10, ONE_BI, toDecimal, ZERO_BI } from "../../../core/utils/Decimals";
 import { createMetapoolOracleEvent, createWellOracleEvent } from "./event-mocking/Beanstalk";
 import {
   BEAN_3CRV,
@@ -26,12 +17,14 @@ import { decodeCumulativeWellReserves } from "../src/utils/price/WellPrice";
 import { mock_virtual_price } from "./event-mocking/Curve";
 import { getD, getY, priceFromY } from "../src/utils/price/CurvePrice";
 import { pow2toX } from "../../../core/utils/ABDKMathQuad";
-import { handleWellOracle } from "../src/handlers/BeanstalkHandler";
 import { loadBean } from "../src/entities/Bean";
 import { loadOrCreatePool } from "../src/entities/Pool";
 import { initL1Version } from "./entity-mocking/MockVersion";
-import { handleMetapoolOracle } from "../src/handlers/legacy/LegacyBeanstalkHandler";
+import { handleMetapoolOracle, handleWellOracle_beanstalk } from "../src/handlers/legacy/LegacyBeanstalkHandler";
 import { mockBeanSeasons } from "./entity-mocking/MockSeason";
+import { mockPriceBelow, mockWhitelistedPools } from "./entity-mocking/MockBean";
+import { takePoolSnapshots } from "../src/entities/snapshots/Pool";
+import { takeBeanSnapshots } from "../src/entities/snapshots/Bean";
 
 const timestamp1 = BigInt.fromU32(1712793374);
 const hour1 = hourFromTimestamp(timestamp1).toString();
@@ -47,6 +40,8 @@ describe("DeltaB", () => {
   });
   beforeEach(() => {
     initL1Version();
+    mockWhitelistedPools([BEAN_3CRV, BEAN_WETH_CP2_WELL]);
+    mockPriceBelow();
     mockBeanSeasons();
   });
   afterEach(() => {
@@ -139,9 +134,14 @@ describe("DeltaB", () => {
       // Set liquidity so weighted twa prices can be set
       let pool = loadOrCreatePool(BEAN_3CRV, b2.number);
       pool.liquidityUSD = BigDecimal.fromString("10000");
+      takePoolSnapshots(pool, b2);
       pool.save();
       let bean = loadBean(BEAN_ERC20);
       bean.liquidityUSD = BigDecimal.fromString("10000");
+      bean.supply = ONE_BI;
+      // One pool to compute the overall twas on
+      bean.pools = [BEAN_3CRV];
+      takeBeanSnapshots(bean, b2);
       bean.save();
 
       // Initialize oracle
@@ -152,7 +152,7 @@ describe("DeltaB", () => {
         "priceCumulativeLast",
         "[100000000, 100000000000000000000]"
       );
-      assert.fieldEquals("PoolHourlySnapshot", BEAN_3CRV.toHexString() + "-6074", "twaDeltaBeans", "0");
+      assert.fieldEquals("PoolHourlySnapshot", BEAN_3CRV.toHexString() + "-6074", "twaDeltaB", "0");
       assert.fieldEquals("PoolHourlySnapshot", BEAN_3CRV.toHexString() + "-6074", "twaPrice", "0.9999995");
       assert.fieldEquals("BeanHourlySnapshot", BEAN_ERC20.toHexString() + "-6074", "twaDeltaB", "0");
 
@@ -163,12 +163,11 @@ describe("DeltaB", () => {
         "priceCumulativeLast",
         "[" + reserves2[0].toString() + ", " + reserves2[1].toString() + "]"
       );
-      assert.fieldEquals("PoolHourlySnapshot", BEAN_3CRV.toHexString() + "-6074", "twaDeltaBeans", "4969504");
+      assert.fieldEquals("PoolHourlySnapshot", BEAN_3CRV.toHexString() + "-6074", "twaDeltaB", "4.969504");
       assert.fieldEquals("PoolHourlySnapshot", BEAN_3CRV.toHexString() + "-6074", "twaPrice", "1.024700651737");
-      assert.fieldEquals("BeanHourlySnapshot", BEAN_ERC20.toHexString() + "-6074", "twaPrice", "1.024700651737");
 
       handleMetapoolOracle(createMetapoolOracleEvent(ONE_BI, ZERO_BI, reserves3, b3));
-      assert.fieldEquals("PoolHourlySnapshot", BEAN_3CRV.toHexString() + "-6074", "twaDeltaBeans", "0");
+      assert.fieldEquals("PoolHourlySnapshot", BEAN_3CRV.toHexString() + "-6074", "twaDeltaB", "0");
       assert.fieldEquals("PoolHourlySnapshot", BEAN_3CRV.toHexString() + "-6074", "twaPrice", "0.9999999975");
     });
 
@@ -176,6 +175,10 @@ describe("DeltaB", () => {
       const pool = loadOrCreatePool(BEAN_WETH_CP2_WELL, GAUGE_BIP45_BLOCK);
       pool.reserves = [BigInt.fromString("2000000000"), BigInt.fromString("1000000000000000000")];
       pool.save();
+
+      let bean = loadBean(BEAN_ERC20);
+      bean.supply = ONE_BI;
+      bean.save();
 
       // 2 consecutive seasons used for test
       // https://etherscan.io/tx/0xe62ebdb74a9908760f709408944ab2d50f0bc4fd95614a05dcc053a7117e6b33#eventlog
@@ -188,7 +191,7 @@ describe("DeltaB", () => {
         )
       );
       event1.block = mockBlock(BigInt.fromI32(19200000), BigInt.fromI32(1713920000));
-      handleWellOracle(event1);
+      handleWellOracle_beanstalk(event1);
 
       assert.fieldEquals(
         "TwaOracle",
@@ -208,7 +211,7 @@ describe("DeltaB", () => {
         )
       );
       event2.block = mockBlock(BigInt.fromI32(19200000), BigInt.fromI32(1713923600));
-      handleWellOracle(event2);
+      handleWellOracle_beanstalk(event2);
 
       const h1 = hourFromTimestamp(event2.block.timestamp).toString();
       assert.fieldEquals(
@@ -220,8 +223,8 @@ describe("DeltaB", () => {
       assert.fieldEquals(
         "PoolHourlySnapshot",
         BEAN_WETH_CP2_WELL.toHexString() + "-6074",
-        "twaDeltaBeans",
-        event2.params.deltaB.toString()
+        "twaDeltaB",
+        toDecimal(event2.params.deltaB).toString()
       );
       assert.fieldEquals(
         "PoolHourlySnapshot",

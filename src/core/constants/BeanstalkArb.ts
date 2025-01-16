@@ -14,8 +14,12 @@ import {
   BEAN_USDT,
   AQUIFER,
   WELL_STABLE2,
-  WELL_STABLE2_121
+  WELL_STABLE2_121,
+  POOL_TOKENS,
+  TOKEN_INFOS
 } from "./raw/BeanstalkArbConstants";
+import { Token, PoolTokens, beanDecimals } from "./RuntimeConstants";
+import { BI_10 } from "../utils/Decimals";
 
 /// ADDRESSES ///
 
@@ -49,6 +53,14 @@ export function isUnripe(token: Address): boolean {
   return false;
 }
 
+export function getPoolTokens(): PoolTokens[] {
+  return POOL_TOKENS;
+}
+
+export function getTokenInfos(): Token[] {
+  return TOKEN_INFOS;
+}
+
 export function getTokenDecimals(token: Address): i32 {
   if (token == BEAN_ERC20) {
     return 6;
@@ -68,6 +80,12 @@ export function getTokenDecimals(token: Address): i32 {
     return 18;
   } else if (token == BEAN_USDT) {
     return 18;
+  } else {
+    for (let i = 0; i < TOKEN_INFOS.length; ++i) {
+      if (TOKEN_INFOS[i].address.equals(token)) {
+        return TOKEN_INFOS[i].info.decimals.toI32();
+      }
+    }
   }
   throw new Error("Unsupported token");
 }
@@ -112,6 +130,10 @@ export function stalkDecimals(): i32 {
 }
 
 /// BASIN ///
+
+export function wellMinimumBeanBalance(): BigInt {
+  return BigInt.fromU32(10).times(BI_10.pow(<u8>beanDecimals()));
+}
 
 export function wellFnSupportsRate(wellFnAddress: Address): boolean {
   return true;

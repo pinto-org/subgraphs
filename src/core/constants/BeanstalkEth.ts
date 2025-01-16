@@ -16,13 +16,17 @@ import {
   FERTILIZER,
   GAUGE_BIP45_BLOCK,
   NEW_BEAN_TOKEN_BLOCK,
+  POOL_TOKENS,
   PRICE_2_BLOCK,
   REPLANT_BLOCK,
   REPLANT_SEASON,
+  TOKEN_INFOS,
   UNRIPE_BEAN,
   UNRIPE_LP,
   WELL_CP2_1_0
 } from "./raw/BeanstalkEthConstants";
+import { Token, PoolTokens, beanDecimals } from "./RuntimeConstants";
+import { BI_10 } from "../utils/Decimals";
 
 /// ADDRESSES ///
 
@@ -60,6 +64,14 @@ export function isUnripe(token: Address): boolean {
   return false;
 }
 
+export function getPoolTokens(): PoolTokens[] {
+  return POOL_TOKENS;
+}
+
+export function getTokenInfos(): Token[] {
+  return TOKEN_INFOS;
+}
+
 export function getTokenDecimals(token: Address): i32 {
   if (token == BEAN_ERC20) {
     return 6;
@@ -81,6 +93,12 @@ export function getTokenDecimals(token: Address): i32 {
     return 18;
   } else if (token == BEAN_LUSD_V1) {
     return 18;
+  } else {
+    for (let i = 0; i < TOKEN_INFOS.length; ++i) {
+      if (TOKEN_INFOS[i].address.equals(token)) {
+        return TOKEN_INFOS[i].info.decimals.toI32();
+      }
+    }
   }
   throw new Error("Unsupported token");
 }
@@ -135,6 +153,10 @@ export function stalkDecimals(): i32 {
 }
 
 /// BASIN ///
+
+export function wellMinimumBeanBalance(): BigInt {
+  return BigInt.fromU32(1000).times(BI_10.pow(<u8>beanDecimals()));
+}
 
 export function wellFnSupportsRate(wellFnAddress: Address): boolean {
   return wellFnAddress != WELL_CP2_1_0;

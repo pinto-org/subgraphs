@@ -1,5 +1,4 @@
 import { beforeEach, afterEach, assert, clearStore, describe, test } from "matchstick-as/assembly/index";
-import { log } from "matchstick-as/assembly/log";
 
 import { BigDecimal, BigInt } from "@graphprotocol/graph-ts";
 
@@ -17,7 +16,7 @@ import { BigDecimal_round, toDecimal, ZERO_BD } from "../../../core/utils/Decima
 
 import { getPreReplantPriceETH, constantProductPrice, uniswapV2Reserves } from "../src/utils/price/UniswapPrice";
 import { mockPreReplantBeanEthPriceAndLiquidityWithPoolReserves } from "./entity-mocking/MockPool";
-import { setWhitelistedPools } from "./entity-mocking/MockBean";
+import { mockPriceBelow, mockWhitelistedPools } from "./entity-mocking/MockBean";
 import { PEG_CROSS_BLOCKS } from "../cache-builder/results/PegCrossBlocks_eth";
 import { u32_binarySearchIndex } from "../../../core/utils/Math";
 import { handleBlock } from "../src/handlers/CrossHandler";
@@ -44,16 +43,18 @@ const WELL_CROSS_BLOCK = BigInt.fromU32(18965881);
 describe("Peg Crosses", () => {
   beforeEach(() => {
     initL1Version();
-    mockBeanSeasons();
 
-    // Bean price is init at 1.07, set to 0 so it is consistent will pool starting price
+    // Set initial prices to below peg
     let bean = loadBean(BEAN_ERC20);
-    bean.price = ZERO_BD;
+    bean.lastPrice = ZERO_BD;
     bean.save();
 
     let beanv1 = loadBean(BEAN_ERC20_V1);
-    beanv1.price = ZERO_BD;
+    beanv1.lastPrice = ZERO_BD;
     beanv1.save();
+
+    mockPriceBelow();
+    mockBeanSeasons();
 
     // Should begin with zero crosses
     assert.notInStore("BeanCross", "0");
@@ -96,9 +97,7 @@ describe("Peg Crosses", () => {
       const ethPriceNow2 = getPreReplantPriceETH();
       const newPrice2 = constantProductPrice(toDecimal(reserves2[1]), toDecimal(reserves2[0], 18), ethPriceNow2);
       const newLiquidity2 = toDecimal(reserves2[0], 18).times(ethPriceNow2).times(BigDecimal.fromString("2"));
-      // log.info("expected | actual {} | {}", [beanPrice2.toString(), newPrice2.truncate(4).toString()]);
       assert.assertTrue(beanPrice2.equals(newPrice2.truncate(4)));
-      // log.info("expected | actual {} | {}", [liquidity2.truncate(2).toString(), newLiquidity2.truncate(2).toString()]);
       assert.assertTrue(BigDecimal_round(liquidity2).equals(BigDecimal_round(newLiquidity2)));
     });
 
@@ -133,7 +132,7 @@ describe("Peg Crosses", () => {
 
   describe("BEAN:ETH Well", () => {
     beforeEach(() => {
-      setWhitelistedPools([BEAN_WETH_CP2_WELL]);
+      mockWhitelistedPools([BEAN_WETH_CP2_WELL]);
     });
 
     test("Well/Bean cross above", () => {

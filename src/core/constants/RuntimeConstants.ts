@@ -1,4 +1,4 @@
-import { Address, BigInt } from "@graphprotocol/graph-ts";
+import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
 import * as ConstantsEth from "./raw/BeanstalkEthConstants";
 import * as BeanstalkEth from "./BeanstalkEth";
 import * as ConstantsArb from "./raw/BeanstalkArbConstants";
@@ -186,7 +186,51 @@ export function beanDecimals(): i32 {
   return 6;
 }
 
+export class PoolTokens {
+  pool: Address;
+  tokens: Address[];
+}
+export function getTokensForPool(v: VersionDto, pool: Address): Address[] {
+  const poolTokens = getPoolTokens(v);
+  for (let i = 0; i < poolTokens.length; ++i) {
+    if (poolTokens[i].pool == pool) {
+      return poolTokens[i].tokens;
+    }
+  }
+  throw new Error("Pool has not been configured");
+}
+
+export class Token {
+  address: Address;
+  info: TokenInfo;
+}
+
+export class TokenInfo {
+  name: string;
+  decimals: BigInt;
+}
+export function getTokenInfo(v: VersionDto, token: Address): TokenInfo {
+  const tokens = getTokenInfos(v);
+  for (let i = 0; i < tokens.length; ++i) {
+    if (tokens[i].address == token) {
+      return tokens[i].info;
+    }
+  }
+  throw new Error("Token has not been configured");
+}
+
 /// BASIN ///
+
+export function wellMinimumBeanBalance(v: VersionDto): BigInt {
+  if (v.chain == "ethereum" && v.protocolAddress == ConstantsEth.BEANSTALK) {
+    return BeanstalkEth.wellMinimumBeanBalance();
+  } else if (v.chain == "arbitrum" && v.protocolAddress == ConstantsArb.BEANSTALK) {
+    return BeanstalkArb.wellMinimumBeanBalance();
+  } else if (v.chain == "base" && v.protocolAddress == ConstantsPintoBase.BEANSTALK) {
+    return PintoBase.wellMinimumBeanBalance();
+  }
+  throw new Error("Unsupported protocol");
+}
 
 export function wellFnSupportsRate(v: VersionDto, wellFnAddress: Address): boolean {
   if (v.versionNumber == "TESTING") {
@@ -209,6 +253,39 @@ export function isStable2WellFn(v: VersionDto, wellFnAddress: Address): boolean 
     return BeanstalkArb.isStable2WellFn(wellFnAddress);
   } else if (v.chain == "base" && v.protocolAddress == ConstantsPintoBase.BEANSTALK) {
     return PintoBase.isStable2WellFn(wellFnAddress);
+  }
+  throw new Error("Unsupported protocol");
+}
+
+export class WellFnInfo {
+  address: Address;
+  data: Bytes;
+}
+export function wellFnInfoForWell(v: VersionDto, wellAddress: Address): WellFnInfo {
+  if (v.chain == "base" && v.protocolAddress == ConstantsPintoBase.BEANSTALK) {
+    return PintoBase.wellFnInfoForWell(wellAddress);
+  }
+  throw new Error("Unsupported protocol");
+}
+
+function getPoolTokens(v: VersionDto): PoolTokens[] {
+  if (v.chain == "ethereum" && v.protocolAddress == ConstantsEth.BEANSTALK) {
+    return BeanstalkEth.getPoolTokens();
+  } else if (v.chain == "arbitrum" && v.protocolAddress == ConstantsArb.BEANSTALK) {
+    return BeanstalkArb.getPoolTokens();
+  } else if (v.chain == "base" && v.protocolAddress == ConstantsPintoBase.BEANSTALK) {
+    return PintoBase.getPoolTokens();
+  }
+  throw new Error("Unsupported protocol");
+}
+
+function getTokenInfos(v: VersionDto): Token[] {
+  if (v.chain == "ethereum" && v.protocolAddress == ConstantsEth.BEANSTALK) {
+    return BeanstalkEth.getTokenInfos();
+  } else if (v.chain == "arbitrum" && v.protocolAddress == ConstantsArb.BEANSTALK) {
+    return BeanstalkArb.getTokenInfos();
+  } else if (v.chain == "base" && v.protocolAddress == ConstantsPintoBase.BEANSTALK) {
+    return PintoBase.getTokenInfos();
   }
   throw new Error("Unsupported protocol");
 }

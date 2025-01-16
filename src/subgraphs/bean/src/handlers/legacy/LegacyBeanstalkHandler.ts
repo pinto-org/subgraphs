@@ -7,14 +7,15 @@ import { loadBean } from "../../entities/Bean";
 import { loadOrCreatePool } from "../../entities/Pool";
 import { updateBeanSupplyPegPercent, updateBeanTwa, updateBeanValues } from "../../utils/Bean";
 import { checkBeanCross, updatePoolPricesOnCross } from "../../utils/Cross";
-import { updateSeason } from "../../utils/legacy/Beanstalk";
+import { updateSeason, wellOracle } from "../../utils/Beanstalk";
 import { updatePoolPrice, updatePoolValues } from "../../utils/Pool";
 import { calcCurveInst, setCurveTwa } from "../../utils/price/CurvePrice";
 import { setTwaLast } from "../../utils/price/TwaOracle";
-import { DeltaBPriceLiquidity } from "../../utils/price/Types";
+import { DeltaBPriceLiquidity } from "../../utils/price/PoolStats";
 import { calcUniswapV2Inst, setUniswapV2Twa } from "../../utils/price/UniswapPrice";
 import { getProtocolToken } from "../../../../../core/constants/RuntimeConstants";
 import { v } from "../../utils/constants/Version";
+import { WellOracle } from "../../../generated/Bean-ABIs/PintoLaunch";
 
 export function handleSunrise_v1(event: Sunrise): void {
   updateSeason(event.params.season.toU32(), event.block);
@@ -55,7 +56,7 @@ export function handleSunrise_v1(event: Sunrise): void {
     totalLiquidity.minus(bean.liquidityUSD),
     event.block
   );
-  checkBeanCross(beanToken, bean.price, totalPrice, event.block);
+  checkBeanCross(beanToken, bean.lastPrice, totalPrice, event.block);
   updateBeanTwa(event.block);
 }
 
@@ -66,7 +67,7 @@ export function handleSunrise_v2(event: Sunrise): void {
   // V2 logic below
   let beanToken = getProtocolToken(v(), event.block.number);
   let bean = loadBean(beanToken);
-  let oldBeanPrice = bean.price;
+  let oldBeanPrice = bean.lastPrice;
 
   // Fetch price from price contract to capture any non-bean token price movevements
   // Attempt to pull from Beanstalk Price contract first for the overall Bean price update
@@ -107,4 +108,13 @@ export function handleMetapoolOracle(event: MetapoolOracle): void {
   setTwaLast(BEAN_3CRV, event.params.balances, event.block.timestamp);
   setCurveTwa(BEAN_3CRV, event.block);
   updateBeanTwa(event.block);
+}
+
+// Pre-Pinto
+export function handleWellOracle_beanstalk(event: WellOracle): void {
+  if (event.params.cumulativeReserves.length == 0) {
+    // Ignore emissions for wells with uninitialized reserves
+    return;
+  }
+  wellOracle(event, true);
 }

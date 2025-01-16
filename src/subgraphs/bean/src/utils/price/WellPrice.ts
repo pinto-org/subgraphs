@@ -1,11 +1,21 @@
 import { Bytes, BigInt, Address, BigDecimal, ethereum, log } from "@graphprotocol/graph-ts";
 import { getTWAPrices } from "./TwaOracle";
 import { ABDK_toUInt, pow2toX } from "../../../../../core/utils/ABDKMathQuad";
-import { DeltaBAndPrice, TWAType } from "./Types";
-import { setPoolTwa } from "../Pool";
-import { constantProductPrice } from "./UniswapPrice";
-import { ONE_BI, pow, toDecimal, ZERO_BI } from "../../../../../core/utils/Decimals";
+import { calcLiquidity, TwaResults, TWAType } from "./PoolStats";
+import { ONE_BI, toDecimal, ZERO_BI } from "../../../../../core/utils/Decimals";
 import { loadOrCreateTwaOracle } from "../../entities/TwaOracle";
+import { setPoolSnapshotTwa } from "../../entities/snapshots/Pool";
+import { PintoLaunch } from "../../../generated/Bean-ABIs/PintoLaunch";
+import { WellFunction } from "../../../generated/Bean-ABIs/WellFunction";
+import { v } from "../constants/Version";
+import { getLastSeasonDuration } from "../../entities/Season";
+import {
+  getProtocolToken,
+  getTokenDecimals,
+  getTokensForPool,
+  isStable2WellFn,
+  wellFnInfoForWell
+} from "../../../../../core/constants/RuntimeConstants";
 
 // Cumulative Well reserves are abi encoded as a bytes16[]. This decodes into BigInt[] in uint format
 export function decodeCumulativeWellReserves(data: Bytes): BigInt[] {
@@ -49,33 +59,45 @@ export function wellTwaReserves(currentReserves: BigInt[], pastReserves: BigInt[
 
 export function setWellTwa(wellAddress: Address, twaDeltaB: BigInt, block: ethereum.Block): void {
   const twaBalances = getTWAPrices(wellAddress, TWAType.WELL_PUMP, block.timestamp);
-  const twaResult = wellTwaDeltaBAndPrice(twaBalances, twaDeltaB);
+  const twaResult = wellTwaResults(wellAddress, twaBalances, twaDeltaB, block);
 
-  setPoolTwa(wellAddress, twaResult, block);
+  setPoolSnapshotTwa(wellAddress, twaResult);
 }
 
-function wellTwaDeltaBAndPrice(twaBalances: BigInt[], twaDeltaB: BigInt): DeltaBAndPrice {
-  // Use known twaDeltaB to infer the twa eth price
-  // This approach of determining price/token2Price is technically "incorrect", in that it is affected
-  // by the issue resolved in EBIP-11 https://github.com/BeanstalkFarms/Beanstalk-Governance-Proposals/blob/master/bip/ebip/ebip-11-upgrade-eth-usd-minting-oracle.md
-  // However, these were the values reported by the contract at the time, so we use those twa deltas/prices.
-  const twaEthPrice = cpToken2PriceFromDeltaB(
-    toDecimal(twaBalances[0]),
-    toDecimal(twaBalances[1], 18),
-    toDecimal(twaDeltaB)
+function wellTwaResults(
+  wellAddress: Address,
+  twaBalances: BigInt[],
+  twaDeltaB: BigInt,
+  block: ethereum.Block
+): TwaResults {
+  const poolTokens = getTokensForPool(v(), wellAddress);
+  const token2Idx = poolTokens[0] == getProtocolToken(v(), block.number) ? 1 : 0;
+  const decimals = poolTokens.map<i32>((a) => getTokenDecimals(v(), a));
+
+  const seasonDuration = getLastSeasonDuration();
+  const twaToken2Price = toDecimal(
+    PintoLaunch.bind(v().protocolAddress).getTokenUsdTwap(poolTokens[token2Idx], BigInt.fromI32(seasonDuration))
   );
 
-  return {
-    deltaB: twaDeltaB,
-    // TODO: solution for twa price on general well functions
-    price: constantProductPrice(toDecimal(twaBalances[0]), toDecimal(twaBalances[1], 18), twaEthPrice),
-    token2Price: twaEthPrice
-  };
-}
+  const wellFnInfo = wellFnInfoForWell(v(), wellAddress);
+  const beanRate = WellFunction.bind(wellFnInfo.address).calcRate(
+    twaBalances,
+    BigInt.fromI32(token2Idx),
+    BigInt.fromI32(1 - token2Idx),
+    wellFnInfo.data
+  );
+  // For CP wells, the given rate precision is quoteToken + 18 - baseToken
+  const beanRateAdjusted = toDecimal(
+    beanRate,
+    isStable2WellFn(v(), wellFnInfo.address) ? 6 : decimals[token2Idx] + 18 - decimals[1 - token2Idx]
+  );
+  const twaBeanPrice = beanRateAdjusted.times(twaToken2Price);
 
-// Calculates the price of the non-bean token in a constant product pool, when only the deltaB is known
-function cpToken2PriceFromDeltaB(beanReserves: BigDecimal, token2Reserves: BigDecimal, deltaB: BigDecimal): BigDecimal {
-  const constantProduct = beanReserves.times(token2Reserves);
-  const token2Price = pow(deltaB.plus(beanReserves), 2).div(constantProduct);
-  return token2Price;
+  return {
+    reserves: twaBalances,
+    deltaB: toDecimal(twaDeltaB),
+    beanPrice: twaBeanPrice.truncate(6),
+    token2Price: twaToken2Price.truncate(6),
+    liquidity: calcLiquidity(twaBalances, [twaBeanPrice, twaToken2Price], decimals, 1 - token2Idx)
+  };
 }
