@@ -29,6 +29,8 @@ dataSources:
           file: ../../../core/abis/Bean3CRV.json
         - name: Well
           file: ../../../core/abis/Well.json
+        - name: WellFunction
+          file: ../../../core/abis/WellFunction.json
         - name: PreReplant
           file: ../../../core/abis/Beanstalk/Beanstalk-Pre-Replant.json
         - name: Replanted

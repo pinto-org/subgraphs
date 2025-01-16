@@ -1,126 +1,56 @@
 import { BigDecimal, Address, ethereum, log } from "@graphprotocol/graph-ts";
 import { ONE_BD, toDecimal, ZERO_BD, ZERO_BI } from "../../../../core/utils/Decimals";
 import { BEAN_ERC20_V1 } from "../../../../core/constants/raw/BeanstalkEthConstants";
-import { loadOrCreatePool, loadOrCreatePoolDailySnapshot, loadOrCreatePoolHourlySnapshot } from "../entities/Pool";
-import { loadBean, loadOrCreateBeanDailySnapshot, loadOrCreateBeanHourlySnapshot } from "../entities/Bean";
-import { loadOrCreateBeanCross, loadOrCreatePoolCross } from "../entities/Cross";
+import { loadOrCreatePool, savePool } from "../entities/Pool";
+import { loadBean, saveBean } from "../entities/Bean";
+import { createBeanCross, createPoolCross } from "../entities/Cross";
 import { BeanstalkPrice_try_price } from "./price/BeanstalkPrice";
 import { updatePoolPrice, updatePoolValues } from "./Pool";
 import { updateBeanValues } from "./Bean";
 import { getProtocolToken } from "../../../../core/constants/RuntimeConstants";
 import { v } from "./constants/Version";
+import { takeBeanSnapshots } from "../entities/snapshots/Bean";
+import { takePoolSnapshots } from "../entities/snapshots/Pool";
 
 export function checkPoolCross(
-  pool: Address,
+  poolAddress: Address,
   oldPrice: BigDecimal,
   newPrice: BigDecimal,
   block: ethereum.Block
 ): boolean {
-  let poolInfo = loadOrCreatePool(pool, block.number);
+  let pool = loadOrCreatePool(poolAddress, block.number);
 
-  if (oldPrice >= ONE_BD && newPrice < ONE_BD) {
-    let cross = loadOrCreatePoolCross(poolInfo, block);
+  const crossedBelow = oldPrice >= ONE_BD && newPrice < ONE_BD;
+  const crossedAbove = oldPrice < ONE_BD && newPrice >= ONE_BD;
+  if (crossedBelow || crossedAbove) {
+    createPoolCross(pool, newPrice, crossedAbove, block);
 
-    cross.price = newPrice;
-    cross.timeSinceLastCross = block.timestamp.minus(poolInfo.lastCross);
-    cross.above = false;
-    cross.save();
-
-    poolInfo.lastCross = block.timestamp;
-    poolInfo.crosses += 1;
-    poolInfo.save();
-
-    let poolHourly = loadOrCreatePoolHourlySnapshot(pool, block);
-    let poolDaily = loadOrCreatePoolDailySnapshot(pool, block);
-
-    poolHourly.crosses += 1;
-    poolHourly.deltaCrosses += 1;
-    poolHourly.save();
-
-    poolDaily.crosses += 1;
-    poolDaily.deltaCrosses += 1;
-    poolDaily.save();
-    return true;
-  } else if (oldPrice < ONE_BD && newPrice >= ONE_BD) {
-    let cross = loadOrCreatePoolCross(poolInfo, block);
-
-    cross.price = newPrice;
-    cross.timeSinceLastCross = block.timestamp.minus(poolInfo.lastCross);
-    cross.above = true;
-    cross.save();
-
-    poolInfo.lastCross = block.timestamp;
-    poolInfo.crosses += 1;
-    poolInfo.save();
-
-    let poolHourly = loadOrCreatePoolHourlySnapshot(pool, block);
-    let poolDaily = loadOrCreatePoolDailySnapshot(pool, block);
-
-    poolHourly.crosses += 1;
-    poolHourly.deltaCrosses += 1;
-    poolHourly.save();
-
-    poolDaily.crosses += 1;
-    poolDaily.deltaCrosses += 1;
-    poolDaily.save();
+    pool.lastCross = block.timestamp;
+    pool.crosses += 1;
+    takePoolSnapshots(pool, block);
+    savePool(pool, block);
     return true;
   }
   return false;
 }
 
 export function checkBeanCross(
-  token: Address,
+  beanAddress: Address,
   oldPrice: BigDecimal,
   newPrice: BigDecimal,
   block: ethereum.Block
 ): boolean {
-  let bean = loadBean(token);
+  let bean = loadBean(beanAddress);
 
-  if (oldPrice >= ONE_BD && newPrice < ONE_BD) {
-    let cross = loadOrCreateBeanCross(bean, block);
-
-    cross.price = newPrice;
-    cross.timeSinceLastCross = block.timestamp.minus(bean.lastCross);
-    cross.above = false;
-    cross.save();
+  const crossedBelow = oldPrice >= ONE_BD && newPrice < ONE_BD;
+  const crossedAbove = oldPrice < ONE_BD && newPrice >= ONE_BD;
+  if (crossedBelow || crossedAbove) {
+    createBeanCross(bean, newPrice, crossedAbove, block);
 
     bean.lastCross = block.timestamp;
     bean.crosses += 1;
-    bean.save();
-
-    let beanHourly = loadOrCreateBeanHourlySnapshot(bean, block);
-    let beanDaily = loadOrCreateBeanDailySnapshot(bean, block);
-
-    beanHourly.crosses += 1;
-    beanHourly.deltaCrosses += 1;
-    beanHourly.save();
-
-    beanDaily.crosses += 1;
-    beanDaily.deltaCrosses += 1;
-    beanDaily.save();
-    return true;
-  } else if (oldPrice < ONE_BD && newPrice >= ONE_BD) {
-    let cross = loadOrCreateBeanCross(bean, block);
-
-    cross.price = newPrice;
-    cross.timeSinceLastCross = block.timestamp.minus(bean.lastCross);
-    cross.above = true;
-    cross.save();
-
-    bean.lastCross = block.timestamp;
-    bean.crosses += 1;
-    bean.save();
-
-    let beanHourly = loadOrCreateBeanHourlySnapshot(bean, block);
-    let beanDaily = loadOrCreateBeanDailySnapshot(bean, block);
-
-    beanHourly.crosses += 1;
-    beanHourly.deltaCrosses += 1;
-    beanHourly.save();
-
-    beanDaily.crosses += 1;
-    beanDaily.deltaCrosses += 1;
-    beanDaily.save();
+    takeBeanSnapshots(bean, block);
+    saveBean(bean, block);
     return true;
   }
   return false;
@@ -145,7 +75,7 @@ export function updatePoolPricesOnCross(priceOnlyOnCross: boolean, block: ethere
   }
   const beanToken = getProtocolToken(v(), block.number);
   const bean = loadBean(beanToken);
-  const prevPrice = bean.price;
+  const prevPrice = bean.lastPrice;
   const newPrice = toDecimal(priceResult.value.price);
 
   // Check for overall peg cross

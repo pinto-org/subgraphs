@@ -6,10 +6,9 @@ import {
   CURVE_PRICE
 } from "../../../../../core/constants/raw/BeanstalkEthConstants";
 import { toDecimal, ZERO_BD, ZERO_BI } from "../../../../../core/utils/Decimals";
-import { loadOrCreatePool } from "../../entities/Pool";
+import { getPoolLiquidityUSD, loadOrCreatePool } from "../../entities/Pool";
 import { manualTwa } from "../price/TwaOracle";
 import { CurvePrice } from "../../../generated/Bean-ABIs/CurvePrice";
-import { getPoolLiquidityUSD } from "../Pool";
 import { curveDeltaBUsingVPrice, curvePriceAndLp } from "../price/CurvePrice";
 import { Bean3CRV } from "../../../generated/Bean-ABIs/Bean3CRV";
 import { ERC20 } from "../../../generated/Bean-ABIs/ERC20";

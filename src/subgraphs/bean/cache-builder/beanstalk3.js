@@ -13,7 +13,7 @@ const subgraph = new GraphQLClient(url);
         volumeUSD
         crosses
         lastCross
-        lastSeason
+        currentSeason
       }
     }
   `);
@@ -30,7 +30,7 @@ const subgraph = new GraphQLClient(url);
       volumeUsd: BigDecimal;
       crosses: i32;
       lastCross: BigInt;
-      lastSeason: i32;
+      currentSeason: i32;
     }
 
     export const BEAN_INITIAL_VALUES: BeanInitialValues = {
@@ -38,7 +38,7 @@ const subgraph = new GraphQLClient(url);
       volumeUsd: BigDecimal.fromString('${l1Values.bean.volumeUSD}'),
       crosses: ${l1Values.bean.crosses},
       lastCross: BigInt.fromString('${l1Values.bean.lastCross}'),
-      lastSeason: ${l1Values.bean.lastSeason}
+      currentSeason: ${l1Values.bean.currentSeason}
     };
     `
   );

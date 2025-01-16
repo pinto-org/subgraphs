@@ -1,4 +1,5 @@
 import { Address, BigInt } from "@graphprotocol/graph-ts";
+import { PoolTokens, Token } from "../RuntimeConstants";
 
 // Token Addresses
 export const BEAN_ERC20_V1 = Address.fromString("0xDC59ac4FeFa32293A95889Dc396682858d52e5Db");
@@ -56,3 +57,57 @@ export const BEAN_WSTETH_UNRIPE_MIGRATION_BLOCK = BigInt.fromU32(20389706);
 
 export const PRICE_1_BLOCK = BigInt.fromU32(17978222);
 export const PRICE_2_BLOCK = BigInt.fromU32(20298142);
+
+export const POOL_TOKENS: PoolTokens[] = [
+  {
+    pool: BEAN_WETH_V1,
+    tokens: [BEAN_ERC20_V1, WETH]
+  },
+  {
+    pool: BEAN_3CRV_V1,
+    tokens: [BEAN_ERC20_V1, CRV3_TOKEN]
+  },
+  {
+    pool: BEAN_LUSD_V1,
+    tokens: [BEAN_ERC20_V1, LUSD]
+  },
+  {
+    pool: BEAN_3CRV,
+    tokens: [BEAN_ERC20, CRV3_TOKEN]
+  },
+  {
+    pool: BEAN_WETH_CP2_WELL,
+    tokens: [BEAN_ERC20, WETH]
+  },
+  {
+    pool: BEAN_WSTETH_CP2_WELL,
+    tokens: [BEAN_ERC20, WSTETH]
+  }
+];
+
+export const TOKEN_INFOS: Token[] = [
+  {
+    address: BEAN_ERC20_V1,
+    info: { name: "BEAN", decimals: BigInt.fromU32(6) }
+  },
+  {
+    address: BEAN_ERC20,
+    info: { name: "BEAN", decimals: BigInt.fromU32(6) }
+  },
+  {
+    address: WETH,
+    info: { name: "WETH", decimals: BigInt.fromU32(18) }
+  },
+  {
+    address: CRV3_TOKEN,
+    info: { name: "3CRV", decimals: BigInt.fromU32(18) }
+  },
+  {
+    address: LUSD,
+    info: { name: "LUSD", decimals: BigInt.fromU32(18) }
+  },
+  {
+    address: WSTETH,
+    info: { name: "wstETH", decimals: BigInt.fromU32(18) }
+  }
+];

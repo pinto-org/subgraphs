@@ -8,9 +8,10 @@ import {
   TokenExchangeUnderlying
 } from "../../../generated/Bean-ABIs/Bean3CRV";
 import { updateBeanAfterPoolSwap } from "../../utils/Bean";
-import { setPoolReserves, updatePoolPrice, updatePoolValues } from "../../utils/Pool";
+import { updatePoolPrice, updatePoolValues } from "../../utils/Pool";
 import { toDecimal, ZERO_BD, ZERO_BI } from "../../../../../core/utils/Decimals";
 import { calcPostSwapValues } from "../../utils/legacy/Curve";
+import { setPoolReserves } from "../../entities/Pool";
 
 export function handleTokenExchange(event: TokenExchange): void {
   handleSwap(

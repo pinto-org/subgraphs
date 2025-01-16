@@ -1,5 +1,5 @@
 import { ethereum } from "@graphprotocol/graph-ts";
-import { loadBean } from "../../entities/Bean";
+import { loadBean, saveBean } from "../../entities/Bean";
 import { getProtocolToken } from "../../../../../core/constants/RuntimeConstants";
 import { v } from "../constants/Version";
 import { createNewSeason } from "../../entities/Season";
@@ -8,6 +8,6 @@ import { createNewSeason } from "../../entities/Season";
 export function init(block: ethereum.Block): void {
   const season = createNewSeason(1, block);
   const bean = loadBean(getProtocolToken(v(), block.number));
-  bean.lastSeason = season.id;
-  bean.save();
+  bean.currentSeason = season.id;
+  saveBean(bean, block);
 }
