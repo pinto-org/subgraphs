@@ -455,7 +455,7 @@ type PoolCross @entity {
   "The price of bean in this pool at the time this cross occurred"
   price: BigDecimal!
 
-  "Time elapsed since the previous cross in this pool
+  "Time elapsed since the previous cross in this pool"
   timeSinceLastCross: BigInt!
 
   "Timestamp when this cross was identified"
