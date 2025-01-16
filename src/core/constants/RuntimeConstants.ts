@@ -5,7 +5,6 @@ import * as ConstantsArb from "./raw/BeanstalkArbConstants";
 import * as BeanstalkArb from "./BeanstalkArb";
 import * as ConstantsPintoBase from "./raw/PintoBaseConstants";
 import * as PintoBase from "./PintoBase";
-import { v } from "../../subgraphs/bean/src/utils/constants/Version";
 
 /// Used to determine the appropriate constants for subgraphs at runtime ///
 
@@ -191,8 +190,8 @@ export class PoolTokens {
   pool: Address;
   tokens: Address[];
 }
-export function getTokensForPool(pool: Address): Address[] {
-  const poolTokens = getPoolTokens(v());
+export function getTokensForPool(v: VersionDto, pool: Address): Address[] {
+  const poolTokens = getPoolTokens(v);
   for (let i = 0; i < poolTokens.length; ++i) {
     if (poolTokens[i].pool == pool) {
       return poolTokens[i].tokens;
@@ -210,8 +209,8 @@ export class TokenInfo {
   name: string;
   decimals: BigInt;
 }
-export function getTokenInfo(token: Address): TokenInfo {
-  const tokens = getTokenInfos(v());
+export function getTokenInfo(v: VersionDto, token: Address): TokenInfo {
+  const tokens = getTokenInfos(v);
   for (let i = 0; i < tokens.length; ++i) {
     if (tokens[i].address == token) {
       return tokens[i].info;

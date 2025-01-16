@@ -70,7 +70,7 @@ function wellTwaResults(
   twaDeltaB: BigInt,
   block: ethereum.Block
 ): TwaResults {
-  const poolTokens = getTokensForPool(wellAddress);
+  const poolTokens = getTokensForPool(v(), wellAddress);
   const token2Idx = poolTokens[0] == getProtocolToken(v(), block.number) ? 1 : 0;
   const decimals = poolTokens.map<i32>((a) => getTokenDecimals(v(), a));
 

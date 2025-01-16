@@ -16,7 +16,7 @@ export function loadOrCreatePool(poolAddress: Address, blockNumber: BigInt): Poo
     let bean = loadBean(beanAddress);
 
     pool = new Pool(poolAddress);
-    pool.tokens = toBytesArray(getTokensForPool(poolAddress));
+    pool.tokens = toBytesArray(getTokensForPool(v(), poolAddress));
     for (let i = 0; i < pool.tokens.length; ++i) {
       loadOrCreateToken(toAddress(pool.tokens[i]));
     }
