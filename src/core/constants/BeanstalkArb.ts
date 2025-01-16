@@ -18,7 +18,8 @@ import {
   POOL_TOKENS,
   TOKEN_INFOS
 } from "./raw/BeanstalkArbConstants";
-import { Token, PoolTokens } from "./RuntimeConstants";
+import { Token, PoolTokens, beanDecimals } from "./RuntimeConstants";
+import { BI_10 } from "../utils/Decimals";
 
 /// ADDRESSES ///
 
@@ -129,6 +130,10 @@ export function stalkDecimals(): i32 {
 }
 
 /// BASIN ///
+
+export function wellMinimumBeanBalance(): BigInt {
+  return BigInt.fromU32(10).times(BI_10.pow(<u8>beanDecimals()));
+}
 
 export function wellFnSupportsRate(wellFnAddress: Address): boolean {
   return true;

@@ -1,7 +1,7 @@
 import { BigInt, ethereum } from "@graphprotocol/graph-ts";
 import { getAllBeanPools, loadBean, saveBean } from "../entities/Bean";
 import { toAddress } from "../../../../core/utils/Bytes";
-import { beanDecimals, getProtocolToken } from "../../../../core/constants/RuntimeConstants";
+import { beanDecimals, getProtocolToken, wellMinimumBeanBalance } from "../../../../core/constants/RuntimeConstants";
 import { v } from "./constants/Version";
 import { createNewSeason, getSeason } from "../entities/Season";
 import { takeBeanSnapshots } from "../entities/snapshots/Bean";
@@ -50,7 +50,7 @@ export function wellOracle(event: WellOracle, isLegacy: boolean = false): void {
   // Ignore deltaB processing for wells with fewer than 1k beans (contract always reports zero)
   const pool = loadOrCreatePool(event.params.well, event.block.number);
   const beanIndex = pool.tokens.indexOf(getProtocolToken(v(), event.block.number));
-  if (pool.reserves[beanIndex] > BigInt.fromU32(1000).times(BI_10.pow(<u8>beanDecimals()))) {
+  if (pool.reserves[beanIndex] > wellMinimumBeanBalance(v())) {
     if (!isLegacy) {
       setWellTwa(event.params.well, event.params.deltaB, event.block);
     } else {

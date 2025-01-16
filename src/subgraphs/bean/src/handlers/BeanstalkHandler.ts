@@ -36,10 +36,6 @@ export function handleDewhitelistToken(event: DewhitelistToken): void {
 // POST REPLANT TWA DELTAB //
 
 export function handleWellOracle(event: WellOracle): void {
-  if (event.params.cumulativeReserves.length == 0) {
-    // Ignore emissions for wells with uninitialized reserves
-    return;
-  }
   wellOracle(event, false);
 }
 

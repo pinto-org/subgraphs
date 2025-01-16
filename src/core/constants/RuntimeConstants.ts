@@ -222,6 +222,17 @@ export function getTokenInfo(token: Address): TokenInfo {
 
 /// BASIN ///
 
+export function wellMinimumBeanBalance(v: VersionDto): BigInt {
+  if (v.chain == "ethereum" && v.protocolAddress == ConstantsEth.BEANSTALK) {
+    return BeanstalkEth.wellMinimumBeanBalance();
+  } else if (v.chain == "arbitrum" && v.protocolAddress == ConstantsArb.BEANSTALK) {
+    return BeanstalkArb.wellMinimumBeanBalance();
+  } else if (v.chain == "base" && v.protocolAddress == ConstantsPintoBase.BEANSTALK) {
+    return PintoBase.wellMinimumBeanBalance();
+  }
+  throw new Error("Unsupported protocol");
+}
+
 export function wellFnSupportsRate(v: VersionDto, wellFnAddress: Address): boolean {
   if (v.versionNumber == "TESTING") {
     return false;
