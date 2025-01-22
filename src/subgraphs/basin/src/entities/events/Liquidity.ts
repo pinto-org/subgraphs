@@ -7,7 +7,7 @@ import { loadWell } from "../Well";
 import { EventVolume } from "../../utils/Volume";
 
 export function getDepositEntityId(event: ethereum.Event, lpTokenAmount: BigInt, readonly: boolean = false): string {
-  let id = `${event.transaction.hash.toHexString()}-${event.address.toHexString()}-${lpTokenAmount.toString()}`;
+  let id = `ADD_LIQUIDITY-${event.transaction.hash.toHexString()}-${event.address.toHexString()}-${lpTokenAmount.toString()}`;
   if (!readonly && Deposit.load(id)) {
     id = `${id}-${event.logIndex.toI32()}`;
   }
@@ -15,7 +15,7 @@ export function getDepositEntityId(event: ethereum.Event, lpTokenAmount: BigInt,
 }
 
 export function getWithdrawEntityId(event: ethereum.Event, lpTokenAmount: BigInt, readonly: boolean = false): string {
-  let id = `${event.transaction.hash.toHexString()}-${event.address.toHexString()}-${lpTokenAmount.toString()}`;
+  let id = `REMOVE_LIQUIDITY-${event.transaction.hash.toHexString()}-${event.address.toHexString()}-${lpTokenAmount.toString()}`;
   if (!readonly && Withdraw.load(id)) {
     id = `${id}-${event.logIndex.toI32()}`;
   }
@@ -28,7 +28,7 @@ export function recordAddLiquidityEvent(event: AddLiquidity, volume: EventVolume
 
   deposit.hash = event.transaction.hash;
   deposit.logIndex = event.logIndex.toI32();
-  deposit.eventType = "ADD_LIQUIDITY";
+  deposit.eventType = "ADD_LIQUIDITY"; //TODO: unused, replace with event name?
   deposit.account = event.transaction.from;
   deposit.well = event.address;
   deposit.blockNumber = event.block.number;
