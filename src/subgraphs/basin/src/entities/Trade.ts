@@ -1,10 +1,8 @@
 import { ethereum, BigInt, BigDecimal } from "@graphprotocol/graph-ts";
-import { subBigIntArray } from "../../../../../core/utils/Decimals";
-import { loadWell } from "../Well";
-import { EventVolume } from "../../utils/Volume";
-import { Trade } from "../../../generated/schema";
-
-// TODO: consolidate into one Trade.ts file
+import { subBigIntArray } from "../../../../core/utils/Decimals";
+import { loadWell } from "./Well";
+import { EventVolume, SwapInfo } from "../utils/Volume";
+import { Trade } from "../../generated/schema";
 
 export function getLiquidityEntityId(
   tradeType: string,
@@ -13,6 +11,14 @@ export function getLiquidityEntityId(
   readonly: boolean = false
 ): string {
   let id = `${tradeType}-${event.transaction.hash.toHexString()}-${event.address.toHexString()}-${lpTokenAmount.toString()}`;
+  if (!readonly && Trade.load(id)) {
+    id = `${id}-${event.logIndex.toI32()}`;
+  }
+  return id;
+}
+
+export function getSwapEntityId(event: ethereum.Event, outTokenAmount: BigInt, readonly: boolean = false): string {
+  let id = `SWAP-${event.transaction.hash.toHexString()}-${event.address.toHexString()}-${outTokenAmount.toString()}`;
   if (!readonly && Trade.load(id)) {
     id = `${id}-${event.logIndex.toI32()}`;
   }
@@ -39,6 +45,46 @@ export function recordLiquidityEvent(
   trade.liqLpTokens = lpTokenAmount;
   trade.liqReserveTokens = deltaReserves; //TODO: apply absolute value here
   trade.isConvert = false;
+
+  trade.beforeReserves = subBigIntArray(well.reserves, deltaReserves);
+  trade.afterReserves = well.reserves;
+  trade.beforeTokenRates = initialRates;
+  trade.afterTokenRates = well.tokenRates;
+
+  trade.tradeVolumeReserves = volume.tradeVolumeReserves;
+  trade.tradeVolumeReservesUSD = volume.tradeVolumeReservesUSD;
+  trade.tradeVolumeUSD = volume.tradeVolumeUSD;
+  trade.biTradeVolumeReserves = volume.biTradeVolumeReserves;
+  trade.transferVolumeReserves = volume.transferVolumeReserves;
+  trade.transferVolumeReservesUSD = volume.transferVolumeReservesUSD;
+  trade.transferVolumeUSD = volume.transferVolumeUSD;
+  trade.hash = event.transaction.hash;
+  trade.blockNumber = event.block.number;
+  trade.logIndex = event.logIndex.toI32();
+  trade.timestamp = event.block.timestamp;
+  trade.save();
+}
+
+export function recordSwapEvent(
+  eventType: string,
+  event: ethereum.Event,
+  swapInfo: SwapInfo,
+  deltaReserves: BigInt[],
+  initialRates: BigDecimal[],
+  volume: EventVolume
+): void {
+  const trade = new Trade(getSwapEntityId(event, swapInfo.amountOut));
+  const well = loadWell(event.address);
+
+  trade.tradeType = "SWAP";
+  trade.eventType = eventType;
+  trade.well = event.address;
+  trade.account = event.transaction.from;
+
+  trade.swapFromToken = swapInfo.fromToken;
+  trade.swapAmountIn = swapInfo.amountIn;
+  trade.swapToToken = swapInfo.toToken;
+  trade.swapAmountOut = swapInfo.amountOut;
 
   trade.beforeReserves = subBigIntArray(well.reserves, deltaReserves);
   trade.afterReserves = well.reserves;

@@ -28,12 +28,16 @@ export class EventVolume {
   transferVolumeUSD: BigDecimal;
 }
 
+export class SwapInfo {
+  fromToken: Address;
+  amountIn: BigInt;
+  toToken: Address;
+  amountOut: BigInt;
+}
+
 export function updateWellVolumesAfterSwap(
   wellAddress: Address,
-  fromToken: Address,
-  amountIn: BigInt,
-  toToken: Address,
-  amountOut: BigInt,
+  swapInfo: SwapInfo,
   block: ethereum.Block
 ): EventVolume {
   let well = loadWell(wellAddress);
@@ -42,11 +46,11 @@ export function updateWellVolumesAfterSwap(
   const deltaTransferVolumeReserves = emptyBigIntArray(well.tokens.length);
 
   // Trade volume will ignore the selling end (negative)
-  deltaTradeVolumeReserves[well.tokens.indexOf(fromToken)] = amountIn.neg();
-  deltaTradeVolumeReserves[well.tokens.indexOf(toToken)] = amountOut;
+  deltaTradeVolumeReserves[well.tokens.indexOf(swapInfo.fromToken)] = swapInfo.amountIn.neg();
+  deltaTradeVolumeReserves[well.tokens.indexOf(swapInfo.toToken)] = swapInfo.amountOut;
   // Transfer volume is considered on both ends of the trade
-  deltaTransferVolumeReserves[well.tokens.indexOf(fromToken)] = amountIn;
-  deltaTransferVolumeReserves[well.tokens.indexOf(toToken)] = amountOut;
+  deltaTransferVolumeReserves[well.tokens.indexOf(swapInfo.fromToken)] = swapInfo.amountIn;
+  deltaTransferVolumeReserves[well.tokens.indexOf(swapInfo.toToken)] = swapInfo.amountOut;
 
   const transactionVolume = updateVolumeStats(well, deltaTradeVolumeReserves, deltaTransferVolumeReserves);
 

@@ -12,9 +12,10 @@ import { finalTradeProcessing, loadWell, updateWellLiquidityTokenBalance, update
 import { loadOrCreateAccount } from "../entities/Account";
 import { updateWellTokenUSDPrices } from "../utils/Well";
 import { updateWellVolumesAfterLiquidity, updateWellVolumesAfterSwap } from "../utils/Volume";
-import { recordLiquidityEvent } from "../entities/events/Liquidity";
-import { recordShiftEvent, recordSwapEvent } from "../entities/events/Swap";
+import { recordLiquidityEvent, recordSwapEvent } from "../entities/Trade";
 import { toAddress } from "../../../../core/utils/Bytes";
+
+// TODO: Parameterize refactor each handler to consolidate into LP/Swap util only
 
 export function handleAddLiquidity(event: AddLiquidity): void {
   const well = loadWell(event.address);
@@ -133,17 +134,16 @@ export function handleSwap(event: Swap): void {
 
   updateWellTokenUSDPrices(event.address, event.block.number);
 
-  const volume = updateWellVolumesAfterSwap(
-    event.address,
-    event.params.fromToken,
-    event.params.amountIn,
-    event.params.toToken,
-    event.params.amountOut,
-    event.block
-  );
+  const swapInfo = {
+    fromToken: event.params.fromToken,
+    amountIn: event.params.amountIn,
+    toToken: event.params.toToken,
+    amountOut: event.params.amountOut
+  };
+  const volume = updateWellVolumesAfterSwap(event.address, swapInfo, event.block);
 
   finalTradeProcessing(event.address, event.block);
-  recordSwapEvent(event, volume);
+  recordSwapEvent("Swap", event, swapInfo, deltaReserves, initialRates, volume);
 }
 
 export function handleShift(event: Shift): void {
@@ -162,15 +162,14 @@ export function handleShift(event: Shift): void {
 
   updateWellTokenUSDPrices(event.address, event.block.number);
 
-  const volume = updateWellVolumesAfterSwap(
-    event.address,
-    fromToken,
-    amountIn,
-    event.params.toToken,
-    event.params.amountOut,
-    event.block
-  );
+  const swapInfo = {
+    fromToken: fromToken,
+    amountIn: amountIn,
+    toToken: event.params.toToken,
+    amountOut: event.params.amountOut
+  };
+  const volume = updateWellVolumesAfterSwap(event.address, swapInfo, event.block);
 
   finalTradeProcessing(event.address, event.block);
-  recordShiftEvent(event, fromToken, amountIn, volume);
+  recordSwapEvent("Shift", event, swapInfo, deltaReserves, initialRates, volume);
 }
