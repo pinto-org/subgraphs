@@ -11,7 +11,7 @@ import { subBigIntArray, emptyBigIntArray, ZERO_BI } from "../../../../core/util
 import { finalTradeProcessing, loadWell, updateWellLiquidityTokenBalance, updateWellReserves } from "../entities/Well";
 import { loadOrCreateAccount } from "../entities/Account";
 import { updateWellTokenUSDPrices } from "../utils/Well";
-import { updateWellVolumesAfterLiquidity, updateWellVolumesAfterSwap } from "../utils/Volume";
+import { SwapInfo, updateWellVolumesAfterLiquidity, updateWellVolumesAfterSwap } from "../utils/Volume";
 import { recordLiquidityEvent, recordSwapEvent } from "../entities/Trade";
 import { toAddress } from "../../../../core/utils/Bytes";
 
@@ -134,7 +134,7 @@ export function handleSwap(event: Swap): void {
 
   updateWellTokenUSDPrices(event.address, event.block.number);
 
-  const swapInfo = {
+  const swapInfo: SwapInfo = {
     fromToken: event.params.fromToken,
     amountIn: event.params.amountIn,
     toToken: event.params.toToken,
@@ -162,7 +162,7 @@ export function handleShift(event: Shift): void {
 
   updateWellTokenUSDPrices(event.address, event.block.number);
 
-  const swapInfo = {
+  const swapInfo: SwapInfo = {
     fromToken: fromToken,
     amountIn: amountIn,
     toToken: event.params.toToken,

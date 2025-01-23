@@ -43,7 +43,7 @@ export function recordLiquidityEvent(
   trade.account = event.transaction.from;
 
   trade.liqLpTokens = lpTokenAmount;
-  trade.liqReserveTokens = deltaReserves; //TODO: apply absolute value here
+  trade.liqReserveTokens = deltaReserves.map<BigInt>((r) => r.abs());
   trade.isConvert = false;
 
   trade.beforeReserves = subBigIntArray(well.reserves, deltaReserves);
@@ -80,6 +80,7 @@ export function recordSwapEvent(
   trade.eventType = eventType;
   trade.well = event.address;
   trade.account = event.transaction.from;
+  trade.isConvert = false;
 
   trade.swapFromToken = swapInfo.fromToken;
   trade.swapAmountIn = swapInfo.amountIn;

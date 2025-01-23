@@ -1,5 +1,4 @@
 import { Address, BigDecimal, BigInt, Bytes, ethereum } from "@graphprotocol/graph-ts";
-import { Deposit, Withdraw } from "../../generated/schema";
 import { BASIN_BLOCK } from "../../../../core/constants/raw/BeanstalkEthConstants";
 import {
   handleAddLiquidity,
@@ -25,6 +24,7 @@ import { v } from "../../src/utils/constants/Version";
 import { createConvertEvent } from "./Beanstalk";
 import { Convert } from "../../generated/Basin-ABIs/PintoLaunch";
 import { handleConvert } from "../../src/handlers/BeanstalkHandler";
+import { Trade } from "../../generated/schema";
 
 export function mockAddLiquidity(
   tokenAmounts: BigInt[] = [BEAN_SWAP_AMOUNT, WETH_SWAP_AMOUNT],
@@ -160,10 +160,6 @@ function mockCalcLPTokenUnderlying_RemoveLiq(wellAddr: Address, lpDelta: BigInt)
   );
 }
 
-export function loadDeposit(id: string): Deposit {
-  return Deposit.load(id) as Deposit;
-}
-
-export function loadWithdraw(id: string): Withdraw {
-  return Withdraw.load(id) as Withdraw;
+export function loadTrade(id: string): Trade {
+  return Trade.load(id) as Trade;
 }

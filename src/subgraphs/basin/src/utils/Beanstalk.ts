@@ -1,9 +1,9 @@
 import { Address, ethereum, BigInt, BigDecimal } from "@graphprotocol/graph-ts";
 import { loadWell } from "../entities/Well";
 import { addBigDecimalArray, addBigIntArray } from "../../../../core/utils/Decimals";
-import { Deposit, Withdraw } from "../../generated/schema";
 import { toAddress } from "../../../../core/utils/Bytes";
 import { loadBeanstalk } from "../entities/Beanstalk";
+import { Trade } from "../../generated/schema";
 
 class ConvertParams {
   event: ethereum.Event;
@@ -25,42 +25,42 @@ export function convert(params: ConvertParams): void {
   // Both can exist in the case of LP->LP converts.
   let wellCount = 0;
 
-  const depositId = `${params.event.transaction.hash.toHexString()}-${params.toToken.toHexString()}-${params.toAmount.toString()}`;
-  const depositEntity = Deposit.load(depositId);
-  if (depositEntity != null) {
-    depositEntity.isConvert = true;
-    depositEntity.save();
+  const addId = `ADD_LIQUIDITY-${params.event.transaction.hash.toHexString()}-${params.toToken.toHexString()}-${params.toAmount.toString()}`;
+  const addEntity = Trade.load(addId);
+  if (addEntity != null) {
+    addEntity.isConvert = true;
+    addEntity.save();
     ++wellCount;
   }
 
-  const withdrawId = `${params.event.transaction.hash.toHexString()}-${params.fromToken.toHexString()}-${params.fromAmount.toString()}`;
-  const withdrawEntity = Withdraw.load(withdrawId);
-  if (withdrawEntity != null) {
-    withdrawEntity.isConvert = true;
-    withdrawEntity.save();
+  const removeId = `REMOVE_LIQUIDITY-${params.event.transaction.hash.toHexString()}-${params.fromToken.toHexString()}-${params.fromAmount.toString()}`;
+  const removeEntity = Trade.load(removeId);
+  if (removeEntity != null) {
+    removeEntity.isConvert = true;
+    removeEntity.save();
     ++wellCount;
   }
 
   // Deposit/Withdraw can involve the non-bean token, however this would only occur in NEUTRAL convert type,
   // thus assigning Deposit = DOWN/Withdraw = UP is correct for Converts involving a single Well.
-  if (depositEntity != null) {
+  if (addEntity != null) {
     addWellConvertStats(
-      toAddress(depositEntity.well),
-      depositEntity.tradeVolumeReserves,
-      depositEntity.tradeVolumeReservesUSD,
-      depositEntity.tradeVolumeUSD,
-      depositEntity.transferVolumeUSD,
+      toAddress(addEntity.well),
+      addEntity.tradeVolumeReserves,
+      addEntity.tradeVolumeReservesUSD,
+      addEntity.tradeVolumeUSD,
+      addEntity.transferVolumeUSD,
       wellCount == 1 ? ConvertDirection.DOWN : ConvertDirection.NEUTRAL
     );
   }
 
-  if (withdrawEntity != null) {
+  if (removeEntity != null) {
     addWellConvertStats(
-      toAddress(withdrawEntity.well),
-      withdrawEntity.tradeVolumeReserves,
-      withdrawEntity.tradeVolumeReservesUSD,
-      withdrawEntity.tradeVolumeUSD,
-      withdrawEntity.transferVolumeUSD,
+      toAddress(removeEntity.well),
+      removeEntity.tradeVolumeReserves,
+      removeEntity.tradeVolumeReservesUSD,
+      removeEntity.tradeVolumeUSD,
+      removeEntity.transferVolumeUSD,
       wellCount == 1 ? ConvertDirection.UP : ConvertDirection.NEUTRAL
     );
   }

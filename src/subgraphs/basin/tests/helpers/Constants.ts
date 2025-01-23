@@ -1,14 +1,6 @@
 import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
 import { toDecimal } from "../../../../core/utils/Decimals";
 
-export const WELL_ENTITY_TYPE = "Well";
-export const WELL_DAILY_ENTITY_TYPE = "WellDailySnapshot";
-export const WELL_HOURLY_ENTITY_TYPE = "WellHourlySnapshot";
-export const SWAP_ENTITY_TYPE = "Swap";
-export const ACCOUNT_ENTITY_TYPE = "Account";
-export const DEPOSIT_ENTITY_TYPE = "Deposit";
-export const WITHDRAW_ENTITY_TYPE = "Withdraw";
-
 export const WELL = Address.fromString("0xBEA0e11282e2bB5893bEcE110cF199501e872bAd");
 export const AQUIFER = Address.fromString("0xF6a8aD553b265405526030c2102fda2bDcdDC177");
 export const IMPLEMENTATION = Address.fromString("0x09120eAED8e4cD86D85a616680151DAA653880F2");

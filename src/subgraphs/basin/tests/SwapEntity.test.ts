@@ -1,10 +1,10 @@
 import { afterEach, assert, beforeEach, clearStore, describe, test } from "matchstick-as/assembly/index";
 import { BEAN_ERC20, WETH } from "../../../core/constants/raw/BeanstalkEthConstants";
 import {
-  ACCOUNT_ENTITY_TYPE,
+  "Account",
   BEAN_SWAP_AMOUNT,
   SWAP_ACCOUNT,
-  SWAP_ENTITY_TYPE,
+  TRADE_ENTITY_TYPE,
   WELL,
   WETH_SWAP_AMOUNT
 } from "./helpers/Constants";
@@ -14,9 +14,9 @@ import { mockAddLiquidity } from "./helpers/Liquidity";
 import { BigInt } from "@graphprotocol/graph-ts";
 import { BI_10 } from "../../../core/utils/Decimals";
 import { initL1Version } from "./entity-mocking/MockVersion";
-import { getSwapEntityId } from "../src/entities/events/Swap";
-import { Swap } from "../generated/schema";
 import { handleSwap } from "../src/handlers/WellHandler";
+import { getSwapEntityId } from "../src/entities/Trade";
+import { Trade } from "../generated/schema";
 
 describe("Swap Entity", () => {
   beforeEach(() => {
@@ -31,15 +31,15 @@ describe("Swap Entity", () => {
   test("Swap event", () => {
     const processedEvent = mockSwap();
     const id = getSwapEntityId(processedEvent, WETH_SWAP_AMOUNT, true);
-    assert.fieldEquals(SWAP_ENTITY_TYPE, id, "id", id);
-    assert.fieldEquals(SWAP_ENTITY_TYPE, id, "well", WELL.toHexString());
-    assert.fieldEquals(SWAP_ENTITY_TYPE, id, "fromToken", BEAN_ERC20.toHexString());
-    assert.fieldEquals(SWAP_ENTITY_TYPE, id, "amountIn", BEAN_SWAP_AMOUNT.toString());
-    assert.fieldEquals(SWAP_ENTITY_TYPE, id, "toToken", WETH.toHexString());
-    assert.fieldEquals(SWAP_ENTITY_TYPE, id, "amountOut", WETH_SWAP_AMOUNT.toString());
+    assert.fieldEquals(TRADE_ENTITY_TYPE, id, "id", id);
+    assert.fieldEquals(TRADE_ENTITY_TYPE, id, "well", WELL.toHexString());
+    assert.fieldEquals(TRADE_ENTITY_TYPE, id, "fromToken", BEAN_ERC20.toHexString());
+    assert.fieldEquals(TRADE_ENTITY_TYPE, id, "amountIn", BEAN_SWAP_AMOUNT.toString());
+    assert.fieldEquals(TRADE_ENTITY_TYPE, id, "toToken", WETH.toHexString());
+    assert.fieldEquals(TRADE_ENTITY_TYPE, id, "amountOut", WETH_SWAP_AMOUNT.toString());
 
     // Account entity exists
-    assert.fieldEquals(ACCOUNT_ENTITY_TYPE, SWAP_ACCOUNT.toHexString(), "id", SWAP_ACCOUNT.toHexString());
+    assert.fieldEquals("Account", SWAP_ACCOUNT.toHexString(), "id", SWAP_ACCOUNT.toHexString());
   });
 
   test("Shift event", () => {
@@ -52,25 +52,25 @@ describe("Swap Entity", () => {
     const processedEvent = mockShift(shiftedReserves, WETH, amountOut);
     const id = getSwapEntityId(processedEvent, amountOut, true);
 
-    assert.fieldEquals(SWAP_ENTITY_TYPE, id, "id", id);
-    assert.fieldEquals(SWAP_ENTITY_TYPE, id, "well", WELL.toHexString());
-    assert.fieldEquals(SWAP_ENTITY_TYPE, id, "fromToken", BEAN_ERC20.toHexString());
-    assert.fieldEquals(SWAP_ENTITY_TYPE, id, "amountIn", amountIn.toString());
-    assert.fieldEquals(SWAP_ENTITY_TYPE, id, "toToken", WETH.toHexString());
-    assert.fieldEquals(SWAP_ENTITY_TYPE, id, "amountOut", amountOut.toString());
+    assert.fieldEquals(TRADE_ENTITY_TYPE, id, "id", id);
+    assert.fieldEquals(TRADE_ENTITY_TYPE, id, "well", WELL.toHexString());
+    assert.fieldEquals(TRADE_ENTITY_TYPE, id, "fromToken", BEAN_ERC20.toHexString());
+    assert.fieldEquals(TRADE_ENTITY_TYPE, id, "amountIn", amountIn.toString());
+    assert.fieldEquals(TRADE_ENTITY_TYPE, id, "toToken", WETH.toHexString());
+    assert.fieldEquals(TRADE_ENTITY_TYPE, id, "amountOut", amountOut.toString());
 
     // Account entity exists
-    assert.fieldEquals(ACCOUNT_ENTITY_TYPE, SWAP_ACCOUNT.toHexString(), "id", SWAP_ACCOUNT.toHexString());
+    assert.fieldEquals("Account", SWAP_ACCOUNT.toHexString(), "id", SWAP_ACCOUNT.toHexString());
   });
 
   test("Entity id is assigned properly", () => {
     const processedEvent = mockSwap();
     const id = getSwapEntityId(processedEvent, WETH_SWAP_AMOUNT, true);
-    assert.entityCount("Swap", 1);
-    assert.assertNull(Swap.load(`${id}-${processedEvent.logIndex.toI32()}`));
+    assert.entityCount("Trade", 1);
+    assert.assertNull(Trade.load(`${id}-${processedEvent.logIndex.toI32()}`));
 
     handleSwap(processedEvent);
-    assert.entityCount("Swap", 2);
-    assert.assertNotNull(Swap.load(`${id}-${processedEvent.logIndex.toI32()}`));
+    assert.entityCount("Trade", 2);
+    assert.assertNotNull(Trade.load(`${id}-${processedEvent.logIndex.toI32()}`));
   });
 });

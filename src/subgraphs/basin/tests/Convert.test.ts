@@ -5,13 +5,13 @@ import { borePintoWells } from "./helpers/Aquifer";
 import { mockTransaction } from "../../../core/tests/event-mocking/Transaction";
 import { BEAN_SWAP_AMOUNT, WELL_LP_AMOUNT, WETH_SWAP_AMOUNT } from "./helpers/Constants";
 import { ONE_BD, ZERO_BD, ZERO_BI } from "../../../core/utils/Decimals";
-import { getDepositEntityId, getWithdrawEntityId } from "../src/entities/events/Liquidity";
-import { Deposit, Withdraw } from "../generated/schema";
 import * as PintoBase from "../../../core/constants/raw/PintoBaseConstants";
 import { mockPintoTokenPrices } from "./entity-mocking/MockToken";
 import { BigInt, Bytes } from "@graphprotocol/graph-ts";
 import { loadWell } from "../src/entities/Well";
 import { loadBeanstalk } from "../src/entities/Beanstalk";
+import { getLiquidityEntityId } from "../src/entities/Trade";
+import { Trade } from "../generated/schema";
 
 describe("Convert Tests", () => {
   beforeEach(() => {
@@ -33,19 +33,17 @@ describe("Convert Tests", () => {
       PintoBase.PINTO_CBBTC,
       transaction
     );
-    const depositId = getDepositEntityId(liquidityEvent, WELL_LP_AMOUNT, true);
-
-    const depositInitial = Deposit.load(depositId)!;
-    assert.assertTrue(depositInitial.tradeVolumeReserves[0] == ZERO_BI);
-    assert.assertTrue(depositInitial.tradeVolumeReserves[1].gt(ZERO_BI));
-    assert.assertTrue(depositInitial.tradeVolumeUSD.gt(ZERO_BD));
-    assert.assertTrue(!depositInitial.isConvert);
-    assert.entityCount("Deposit", 1);
-    assert.entityCount("Withdraw", 0);
+    const tradeId = getLiquidityEntityId("ADD_LIQUIDITY", liquidityEvent, WELL_LP_AMOUNT, true);
+    const tradeInitial = Trade.load(tradeId)!;
+    assert.assertTrue(tradeInitial.tradeVolumeReserves[0] == ZERO_BI);
+    assert.assertTrue(tradeInitial.tradeVolumeReserves[1].gt(ZERO_BI));
+    assert.assertTrue(tradeInitial.tradeVolumeUSD.gt(ZERO_BD));
+    assert.assertTrue(!tradeInitial.isConvert);
+    assert.entityCount("Trade", 1);
 
     mockConvert(PintoBase.BEAN_ERC20, PintoBase.PINTO_CBBTC, BEAN_SWAP_AMOUNT, WELL_LP_AMOUNT, transaction);
-    const depositedUpdated = Deposit.load(depositId)!;
-    assert.assertTrue(depositedUpdated.isConvert);
+    const tradeUpdated = Trade.load(tradeId)!;
+    assert.assertTrue(tradeUpdated.isConvert);
 
     const well = loadWell(PintoBase.PINTO_CBBTC);
     assert.assertTrue(well.convertVolumeReserves[0] == ZERO_BI);
@@ -73,18 +71,17 @@ describe("Convert Tests", () => {
     test("Identifies LP -> Pinto convert", () => {
       const transaction = mockTransaction();
       const liquidityEvent = mockRemoveLiquidityOneBean(WELL_LP_AMOUNT, PintoBase.PINTO_CBBTC, transaction);
-      const withdrawId = getWithdrawEntityId(liquidityEvent, WELL_LP_AMOUNT, true);
-      const withdrawInitial = Withdraw.load(withdrawId)!;
-      assert.assertTrue(withdrawInitial.tradeVolumeReserves[0].gt(ZERO_BI));
-      assert.assertTrue(withdrawInitial.tradeVolumeReserves[1] == ZERO_BI);
-      assert.assertTrue(withdrawInitial.tradeVolumeUSD.gt(ZERO_BD));
-      assert.assertTrue(!withdrawInitial.isConvert);
-      assert.entityCount("Deposit", 1);
-      assert.entityCount("Withdraw", 1);
+      const tradeId = getLiquidityEntityId("REMOVE_LIQUIDITY", liquidityEvent, WELL_LP_AMOUNT, true);
+      const tradeInitial = Trade.load(tradeId)!;
+      assert.assertTrue(tradeInitial.tradeVolumeReserves[0].gt(ZERO_BI));
+      assert.assertTrue(tradeInitial.tradeVolumeReserves[1] == ZERO_BI);
+      assert.assertTrue(tradeInitial.tradeVolumeUSD.gt(ZERO_BD));
+      assert.assertTrue(!tradeInitial.isConvert);
+      assert.entityCount("Trade", 2);
 
       mockConvert(PintoBase.PINTO_CBBTC, PintoBase.BEAN_ERC20, WELL_LP_AMOUNT, BEAN_SWAP_AMOUNT, transaction);
-      const withdrawUpdated = Withdraw.load(withdrawId)!;
-      assert.assertTrue(withdrawUpdated.isConvert);
+      const tradeUpdated = Trade.load(tradeId)!;
+      assert.assertTrue(tradeUpdated.isConvert);
 
       const well = loadWell(PintoBase.PINTO_CBBTC);
       assert.assertTrue(well.convertVolumeReserves[0].gt(ZERO_BI));
@@ -110,14 +107,18 @@ describe("Convert Tests", () => {
         PintoBase.PINTO_WETH,
         transaction
       );
-      const withdrawId = getWithdrawEntityId(firstEvent, WELL_LP_AMOUNT, true);
-      const depositId = getDepositEntityId(secondEvent, WELL_LP_AMOUNT.times(BigInt.fromString("2")), true);
-      const withdrawInitial = Withdraw.load(withdrawId)!;
-      const depositInitial = Deposit.load(depositId)!;
-      assert.assertTrue(!withdrawInitial.isConvert);
-      assert.assertTrue(!depositInitial.isConvert);
-      assert.entityCount("Deposit", 2);
-      assert.entityCount("Withdraw", 1);
+      const removeId = getLiquidityEntityId("REMOVE_LIQUIDITY", firstEvent, WELL_LP_AMOUNT, true);
+      const addId = getLiquidityEntityId(
+        "ADD_LIQUIDITY",
+        secondEvent,
+        WELL_LP_AMOUNT.times(BigInt.fromString("2")),
+        true
+      );
+      const removeInitial = Trade.load(removeId)!;
+      const addInitial = Trade.load(addId)!;
+      assert.assertTrue(!removeInitial.isConvert);
+      assert.assertTrue(!addInitial.isConvert);
+      assert.entityCount("Trade", 3);
 
       mockConvert(
         PintoBase.PINTO_CBBTC,
@@ -126,10 +127,10 @@ describe("Convert Tests", () => {
         WELL_LP_AMOUNT.times(BigInt.fromString("2")),
         transaction
       );
-      const depositedUpdated = Deposit.load(depositId)!;
-      const withdrawUpdated = Withdraw.load(withdrawId)!;
-      assert.assertTrue(depositedUpdated.isConvert);
+      const withdrawUpdated = Trade.load(removeId)!;
+      const addUpdated = Trade.load(addId)!;
       assert.assertTrue(withdrawUpdated.isConvert);
+      assert.assertTrue(addUpdated.isConvert);
 
       const wellUp = loadWell(PintoBase.PINTO_CBBTC);
       assert.assertTrue(wellUp.convertVolumeReserves[0].gt(ZERO_BI));
@@ -163,19 +164,19 @@ describe("Convert Tests", () => {
       PintoBase.PINTO_CBBTC,
       transaction1
     );
-    const depositId = getDepositEntityId(liquidityEvent, WELL_LP_AMOUNT, true);
+    const tradeId = getLiquidityEntityId("ADD_LIQUIDITY", liquidityEvent, WELL_LP_AMOUNT, true);
 
     const transaction2 = mockTransaction();
     transaction2.hash = Bytes.fromHexString("0xd0a947cdaf4b351da76a7bf051fe15560a4b3f2725a6db2d8b8663c27a11fbe5");
     mockConvert(PintoBase.BEAN_ERC20, PintoBase.PINTO_CBBTC, BEAN_SWAP_AMOUNT, WELL_LP_AMOUNT, transaction2);
-    const depositedUpdated = Deposit.load(depositId)!;
+    const depositedUpdated = Trade.load(tradeId)!;
     assert.assertTrue(!depositedUpdated.isConvert);
   });
 
   test("Convert ignores unrelated LP events within the same transaction", () => {
     const transaction = mockTransaction();
     const liquidityEvent = mockRemoveLiquidityOneBean(WELL_LP_AMOUNT, PintoBase.PINTO_CBBTC, transaction);
-    const withdrawId = getWithdrawEntityId(liquidityEvent, WELL_LP_AMOUNT, true);
+    const tradeId = getLiquidityEntityId("REMOVE_LIQUIDITY", liquidityEvent, WELL_LP_AMOUNT, true);
     mockConvert(PintoBase.PINTO_CBETH, PintoBase.BEAN_ERC20, WELL_LP_AMOUNT, BEAN_SWAP_AMOUNT, transaction);
     mockConvert(
       PintoBase.PINTO_CBBTC,
@@ -184,7 +185,7 @@ describe("Convert Tests", () => {
       BEAN_SWAP_AMOUNT,
       transaction
     );
-    const withdrawUpdated = Withdraw.load(withdrawId)!;
+    const withdrawUpdated = Trade.load(tradeId)!;
     assert.assertTrue(!withdrawUpdated.isConvert);
   });
 });

@@ -672,7 +672,6 @@ type Trade @entity {
   "Trade type discriminator"
   tradeType: TradeType!
   "Event type that was emitted"
-  # TODO: consider replacing this with the emitted event name instead?
   eventType: TradeEventType!
 
   "The well this trade occurred in"
