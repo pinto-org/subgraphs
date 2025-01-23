@@ -1,13 +1,6 @@
 import { afterEach, assert, beforeEach, clearStore, describe, test } from "matchstick-as/assembly/index";
 import { BEAN_ERC20, WETH } from "../../../core/constants/raw/BeanstalkEthConstants";
-import {
-  "Account",
-  BEAN_SWAP_AMOUNT,
-  SWAP_ACCOUNT,
-  TRADE_ENTITY_TYPE,
-  WELL,
-  WETH_SWAP_AMOUNT
-} from "./helpers/Constants";
+import { BEAN_SWAP_AMOUNT, SWAP_ACCOUNT, WELL, WETH_SWAP_AMOUNT } from "./helpers/Constants";
 import { boreDefaultWell } from "./helpers/Aquifer";
 import { mockShift, mockSwap } from "./helpers/Swap";
 import { mockAddLiquidity } from "./helpers/Liquidity";
@@ -31,12 +24,12 @@ describe("Swap Entity", () => {
   test("Swap event", () => {
     const processedEvent = mockSwap();
     const id = getSwapEntityId(processedEvent, WETH_SWAP_AMOUNT, true);
-    assert.fieldEquals(TRADE_ENTITY_TYPE, id, "id", id);
-    assert.fieldEquals(TRADE_ENTITY_TYPE, id, "well", WELL.toHexString());
-    assert.fieldEquals(TRADE_ENTITY_TYPE, id, "fromToken", BEAN_ERC20.toHexString());
-    assert.fieldEquals(TRADE_ENTITY_TYPE, id, "amountIn", BEAN_SWAP_AMOUNT.toString());
-    assert.fieldEquals(TRADE_ENTITY_TYPE, id, "toToken", WETH.toHexString());
-    assert.fieldEquals(TRADE_ENTITY_TYPE, id, "amountOut", WETH_SWAP_AMOUNT.toString());
+    assert.fieldEquals("Trade", id, "id", id);
+    assert.fieldEquals("Trade", id, "well", WELL.toHexString());
+    assert.fieldEquals("Trade", id, "swapFromToken", BEAN_ERC20.toHexString());
+    assert.fieldEquals("Trade", id, "swapAmountIn", BEAN_SWAP_AMOUNT.toString());
+    assert.fieldEquals("Trade", id, "swapToToken", WETH.toHexString());
+    assert.fieldEquals("Trade", id, "swapAmountOut", WETH_SWAP_AMOUNT.toString());
 
     // Account entity exists
     assert.fieldEquals("Account", SWAP_ACCOUNT.toHexString(), "id", SWAP_ACCOUNT.toHexString());
@@ -52,12 +45,12 @@ describe("Swap Entity", () => {
     const processedEvent = mockShift(shiftedReserves, WETH, amountOut);
     const id = getSwapEntityId(processedEvent, amountOut, true);
 
-    assert.fieldEquals(TRADE_ENTITY_TYPE, id, "id", id);
-    assert.fieldEquals(TRADE_ENTITY_TYPE, id, "well", WELL.toHexString());
-    assert.fieldEquals(TRADE_ENTITY_TYPE, id, "fromToken", BEAN_ERC20.toHexString());
-    assert.fieldEquals(TRADE_ENTITY_TYPE, id, "amountIn", amountIn.toString());
-    assert.fieldEquals(TRADE_ENTITY_TYPE, id, "toToken", WETH.toHexString());
-    assert.fieldEquals(TRADE_ENTITY_TYPE, id, "amountOut", amountOut.toString());
+    assert.fieldEquals("Trade", id, "id", id);
+    assert.fieldEquals("Trade", id, "well", WELL.toHexString());
+    assert.fieldEquals("Trade", id, "swapFromToken", BEAN_ERC20.toHexString());
+    assert.fieldEquals("Trade", id, "swapAmountIn", amountIn.toString());
+    assert.fieldEquals("Trade", id, "swapToToken", WETH.toHexString());
+    assert.fieldEquals("Trade", id, "swapAmountOut", amountOut.toString());
 
     // Account entity exists
     assert.fieldEquals("Account", SWAP_ACCOUNT.toHexString(), "id", SWAP_ACCOUNT.toHexString());

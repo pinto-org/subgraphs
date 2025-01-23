@@ -5,7 +5,6 @@ import {
   BEAN_SWAP_AMOUNT,
   BEAN_USD_AMOUNT,
   WELL,
-  WELL_ENTITY_TYPE,
   WELL_LP_AMOUNT,
   WETH_SWAP_AMOUNT,
   WETH_USD_AMOUNT
@@ -64,7 +63,7 @@ describe("Well Entity: Liquidity Event Tests", () => {
       assertBDClose(WETH_USD_AMOUNT.times(BigDecimal.fromString("2")), updatedStore.totalLiquidityUSD);
     });
     test("Liquidity Token balance", () => {
-      assert.fieldEquals(WELL_ENTITY_TYPE, WELL.toHexString(), "lpTokenSupply", WELL_LP_AMOUNT.toString());
+      assert.fieldEquals("Well", WELL.toHexString(), "lpTokenSupply", WELL_LP_AMOUNT.toString());
     });
     test("Zero trading volume", () => {
       const updatedStore = loadWell(WELL);
@@ -112,7 +111,7 @@ describe("Well Entity: Liquidity Event Tests", () => {
       assertBDClose(BEAN_USD_AMOUNT.plus(WETH_USD_AMOUNT), updatedStore.totalLiquidityUSD);
     });
     test("Liquidity Token balance", () => {
-      assert.fieldEquals(WELL_ENTITY_TYPE, WELL.toHexString(), "lpTokenSupply", WELL_LP_AMOUNT.times(BI_2).toString());
+      assert.fieldEquals("Well", WELL.toHexString(), "lpTokenSupply", WELL_LP_AMOUNT.times(BI_2).toString());
     });
     test("Nonzero trading volume", () => {
       const updatedStore = loadWell(WELL);
@@ -159,7 +158,7 @@ describe("Well Entity: Liquidity Event Tests", () => {
       assertBDClose(WETH_USD_AMOUNT.times(BigDecimal.fromString("2")), updatedStore.totalLiquidityUSD);
     });
     test("Liquidity Token balance", () => {
-      assert.fieldEquals(WELL_ENTITY_TYPE, WELL.toHexString(), "lpTokenSupply", WELL_LP_AMOUNT.plus(BI_10).toString());
+      assert.fieldEquals("Well", WELL.toHexString(), "lpTokenSupply", WELL_LP_AMOUNT.plus(BI_10).toString());
     });
     test("Zero trading volume", () => {
       const updatedStore = loadWell(WELL);
@@ -208,7 +207,7 @@ describe("Well Entity: Liquidity Event Tests", () => {
       assertBDClose(BEAN_USD_AMOUNT.plus(WETH_USD_AMOUNT), updatedStore.totalLiquidityUSD);
     });
     test("Liquidity Token balance", () => {
-      assert.fieldEquals(WELL_ENTITY_TYPE, WELL.toHexString(), "lpTokenSupply", WELL_LP_AMOUNT.plus(BI_10).toString());
+      assert.fieldEquals("Well", WELL.toHexString(), "lpTokenSupply", WELL_LP_AMOUNT.plus(BI_10).toString());
     });
     test("Nonzero trading volume", () => {
       const updatedStore = loadWell(WELL);
@@ -247,7 +246,7 @@ describe("Well Entity: Liquidity Event Tests", () => {
       assert.bigIntEquals(ZERO_BI, endingBalances[1]);
     });
     test("Liquidity Token balance", () => {
-      assert.fieldEquals(WELL_ENTITY_TYPE, WELL.toHexString(), "lpTokenSupply", "0");
+      assert.fieldEquals("Well", WELL.toHexString(), "lpTokenSupply", "0");
     });
     test("Zero trading volume", () => {
       const updatedStore = loadWell(WELL);
@@ -287,7 +286,7 @@ describe("Well Entity: Liquidity Event Tests", () => {
       assert.bigIntEquals(WETH_SWAP_AMOUNT.times(BI_2), endingBalances[1]);
     });
     test("Liquidity Token balance", () => {
-      assert.fieldEquals(WELL_ENTITY_TYPE, WELL.toHexString(), "lpTokenSupply", WELL_LP_AMOUNT.toString());
+      assert.fieldEquals("Well", WELL.toHexString(), "lpTokenSupply", WELL_LP_AMOUNT.toString());
     });
     test("Nonzero trading volume", () => {
       const updatedStore = loadWell(WELL);
@@ -327,7 +326,7 @@ describe("Well Entity: Liquidity Event Tests", () => {
       assert.bigIntEquals(WETH_SWAP_AMOUNT, endingBalances[1]);
     });
     test("Liquidity Token balance", () => {
-      assert.fieldEquals(WELL_ENTITY_TYPE, WELL.toHexString(), "lpTokenSupply", WELL_LP_AMOUNT.toString());
+      assert.fieldEquals("Well", WELL.toHexString(), "lpTokenSupply", WELL_LP_AMOUNT.toString());
     });
     test("Nonzero trading volume", () => {
       const updatedStore = loadWell(WELL);

@@ -32,11 +32,11 @@ describe("Deposit/Withdraw Entities", () => {
     const id = getLiquidityEntityId("ADD_LIQUIDITY", processedEvent, WELL_LP_AMOUNT, true);
     assert.fieldEquals("Trade", id, "id", id);
     assert.fieldEquals("Trade", id, "well", WELL.toHexString());
-    assert.fieldEquals("Trade", id, "liquidity", WELL_LP_AMOUNT.toString());
+    assert.fieldEquals("Trade", id, "liqLpTokens", WELL_LP_AMOUNT.toString());
     assert.fieldEquals(
       "Trade",
       id,
-      "reserves",
+      "liqReserveTokens",
       "[" + deltaLiquidity[0].toString() + ", " + deltaLiquidity[1].toString() + "]"
     );
 
@@ -61,11 +61,11 @@ describe("Deposit/Withdraw Entities", () => {
 
     assert.fieldEquals("Trade", id, "id", id);
     assert.fieldEquals("Trade", id, "well", WELL.toHexString());
-    assert.fieldEquals("Trade", id, "liquidity", lpAmount.toString());
+    assert.fieldEquals("Trade", id, "liqLpTokens", lpAmount.toString());
     assert.fieldEquals(
       "Trade",
       id,
-      "reserves",
+      "liqReserveTokens",
       "[" + deltaLiquidity[0].toString() + ", " + deltaLiquidity[1].toString() + "]"
     );
 
@@ -81,11 +81,11 @@ describe("Deposit/Withdraw Entities", () => {
     const id = getLiquidityEntityId("REMOVE_LIQUIDITY", processedEvent, WELL_LP_AMOUNT, true);
     assert.fieldEquals("Trade", id, "id", id);
     assert.fieldEquals("Trade", id, "well", WELL.toHexString());
-    assert.fieldEquals("Trade", id, "liquidity", WELL_LP_AMOUNT.toString());
+    assert.fieldEquals("Trade", id, "liqLpTokens", WELL_LP_AMOUNT.toString());
     assert.fieldEquals(
       "Trade",
       id,
-      "reserves",
+      "liqReserveTokens",
       "[" + deltaLiquidity[0].toString() + ", " + deltaLiquidity[1].toString() + "]"
     );
 
@@ -105,8 +105,8 @@ describe("Deposit/Withdraw Entities", () => {
     const id = getLiquidityEntityId("REMOVE_LIQUIDITY", processedEvent, WELL_LP_AMOUNT, true);
     assert.fieldEquals("Trade", id, "id", id);
     assert.fieldEquals("Trade", id, "well", WELL.toHexString());
-    assert.fieldEquals("Trade", id, "liquidity", WELL_LP_AMOUNT.toString());
-    assert.fieldEquals("Trade", id, "reserves", "[" + BEAN_SWAP_AMOUNT.toString() + ", 0]");
+    assert.fieldEquals("Trade", id, "liqLpTokens", WELL_LP_AMOUNT.toString());
+    assert.fieldEquals("Trade", id, "liqReserveTokens", "[" + BEAN_SWAP_AMOUNT.toString() + ", 0]");
 
     const updatedWell = loadWell(WELL);
     const wellReserves = updatedWell.reserves;
