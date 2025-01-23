@@ -18,15 +18,6 @@ enum TradeType {
   SWAP
 }
 
-enum TradeEventType {
-  AddLiquidity
-  Sync
-  RemoveLiquidity
-  RemoveLiquidityOneToken
-  Swap
-  Shift
-}
-
 type Account @entity {
   id: Bytes!
   trades: [Trade!]! @derivedFrom(field: "account")
@@ -671,8 +662,6 @@ type Trade @entity {
 
   "Trade type discriminator"
   tradeType: TradeType!
-  "Event type that was emitted"
-  eventType: TradeEventType!
 
   "The well this trade occurred in"
   well: Well!

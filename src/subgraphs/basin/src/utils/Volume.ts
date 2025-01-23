@@ -64,18 +64,15 @@ export function updateWellVolumesAfterSwap(
 // The current implementation of USD volumes may be incorrect for wells that have more than 2 tokens.
 export function updateWellVolumesAfterLiquidity(
   wellAddress: Address,
-  tokens: Address[],
   amounts: BigInt[],
   deltaLpSupply: BigInt,
   block: ethereum.Block
 ): EventVolume {
   let well = loadWell(wellAddress);
-  const wellTokens = well.tokens.map<Address>((t) => toAddress(t));
 
   // Determines which tokens were bough/sold and how much
-  const paddedAmounts = padTokenAmounts(wellTokens, tokens, amounts);
-  const tradeAmount = calcLiquidityVolume(well, paddedAmounts, deltaLpSupply);
-  const deltaTransferVolumeReserves = paddedAmounts;
+  const tradeAmount = calcLiquidityVolume(well, amounts, deltaLpSupply);
+  const deltaTransferVolumeReserves = amounts;
 
   const transactionVolume = updateVolumeStats(well, tradeAmount, deltaTransferVolumeReserves);
 

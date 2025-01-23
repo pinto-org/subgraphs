@@ -1,5 +1,5 @@
 import { ethereum, BigInt, BigDecimal } from "@graphprotocol/graph-ts";
-import { subBigIntArray } from "../../../../core/utils/Decimals";
+import { subBigIntArray, ZERO_BI } from "../../../../core/utils/Decimals";
 import { loadWell } from "./Well";
 import { EventVolume, SwapInfo } from "../utils/Volume";
 import { Trade } from "../../generated/schema";
@@ -26,23 +26,21 @@ export function getSwapEntityId(event: ethereum.Event, outTokenAmount: BigInt, r
 }
 
 export function recordLiquidityEvent(
-  eventType: string,
   event: ethereum.Event,
-  lpTokenAmount: BigInt,
+  deltaLpTokens: BigInt,
   deltaReserves: BigInt[],
   initialRates: BigDecimal[],
   volume: EventVolume
 ): void {
-  const tradeType = ["AddLiquidity", "Sync"].includes(eventType) ? "ADD_LIQUIDITY" : "REMOVE_LIQUIDITY";
-  const trade = new Trade(getLiquidityEntityId(tradeType, event, lpTokenAmount));
+  const tradeType = deltaLpTokens >= ZERO_BI ? "ADD_LIQUIDITY" : "REMOVE_LIQUIDITY";
+  const trade = new Trade(getLiquidityEntityId(tradeType, event, deltaLpTokens.abs()));
   const well = loadWell(event.address);
 
   trade.tradeType = tradeType;
-  trade.eventType = eventType;
   trade.well = event.address;
   trade.account = event.transaction.from;
 
-  trade.liqLpTokens = lpTokenAmount;
+  trade.liqLpTokens = deltaLpTokens.abs();
   trade.liqReserveTokens = deltaReserves.map<BigInt>((r) => r.abs());
   trade.isConvert = false;
 
@@ -66,7 +64,6 @@ export function recordLiquidityEvent(
 }
 
 export function recordSwapEvent(
-  eventType: string,
   event: ethereum.Event,
   swapInfo: SwapInfo,
   deltaReserves: BigInt[],
@@ -77,9 +74,9 @@ export function recordSwapEvent(
   const well = loadWell(event.address);
 
   trade.tradeType = "SWAP";
-  trade.eventType = eventType;
   trade.well = event.address;
   trade.account = event.transaction.from;
+
   trade.isConvert = false;
 
   trade.swapFromToken = swapInfo.fromToken;

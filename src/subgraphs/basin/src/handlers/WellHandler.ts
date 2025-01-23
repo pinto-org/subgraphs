@@ -7,132 +7,47 @@ import {
   Swap,
   Sync
 } from "../../generated/Basin-ABIs/Well";
-import { subBigIntArray, emptyBigIntArray, ZERO_BI } from "../../../../core/utils/Decimals";
-import { finalTradeProcessing, loadWell, updateWellLiquidityTokenBalance, updateWellReserves } from "../entities/Well";
+import { subBigIntArray, emptyBigIntArray } from "../../../../core/utils/Decimals";
+import { loadWell } from "../entities/Well";
 import { loadOrCreateAccount } from "../entities/Account";
-import { updateWellTokenUSDPrices } from "../utils/Well";
-import { SwapInfo, updateWellVolumesAfterLiquidity, updateWellVolumesAfterSwap } from "../utils/Volume";
-import { recordLiquidityEvent, recordSwapEvent } from "../entities/Trade";
+import { SwapInfo } from "../utils/Volume";
 import { toAddress } from "../../../../core/utils/Bytes";
-
-// TODO: Parameterize refactor each handler to consolidate into LP/Swap util only
+import { liquidity, swap } from "../utils/Exchange";
 
 export function handleAddLiquidity(event: AddLiquidity): void {
-  const well = loadWell(event.address);
-  const initialRates = well.tokenRates;
-  loadOrCreateAccount(event.transaction.from);
-
-  updateWellReserves(event.address, event.params.tokenAmountsIn, event.block);
-  updateWellLiquidityTokenBalance(event.address, event.params.lpAmountOut, event.block);
-
-  updateWellTokenUSDPrices(event.address, event.block.number);
-
-  const volume = updateWellVolumesAfterLiquidity(
-    event.address,
-    well.tokens.map<Address>((b) => toAddress(b)),
-    event.params.tokenAmountsIn,
-    event.params.lpAmountOut,
-    event.block
-  );
-
-  finalTradeProcessing(event.address, event.block);
-  recordLiquidityEvent(
-    "AddLiquidity",
-    event,
-    event.params.lpAmountOut,
-    event.params.tokenAmountsIn,
-    initialRates,
-    volume
-  );
+  liquidity(event.params.tokenAmountsIn, event.params.lpAmountOut, event);
 }
 
 export function handleSync(event: Sync): void {
   const well = loadWell(event.address);
-  const initialRates = well.tokenRates;
-  loadOrCreateAccount(event.transaction.from);
-
   const deltaReserves = subBigIntArray(event.params.reserves, well.reserves);
-  updateWellReserves(event.address, deltaReserves, event.block);
-  updateWellLiquidityTokenBalance(event.address, event.params.lpAmountOut, event.block);
-
-  updateWellTokenUSDPrices(event.address, event.block.number);
-
-  const volume = updateWellVolumesAfterLiquidity(
-    event.address,
-    well.tokens.map<Address>((b) => toAddress(b)),
-    deltaReserves,
-    event.params.lpAmountOut,
-    event.block
-  );
-
-  finalTradeProcessing(event.address, event.block);
-  recordLiquidityEvent("Sync", event, event.params.lpAmountOut, deltaReserves, initialRates, volume);
+  liquidity(deltaReserves, event.params.lpAmountOut, event);
 }
 
 export function handleRemoveLiquidity(event: RemoveLiquidity): void {
-  const well = loadWell(event.address);
-  const initialRates = well.tokenRates;
-  loadOrCreateAccount(event.transaction.from);
-
   // Event emits positive values
   const deltaReserves = event.params.tokenAmountsOut;
   for (let i = 0; i < deltaReserves.length; i++) {
     deltaReserves[i] = deltaReserves[i].neg();
   }
-
-  updateWellReserves(event.address, deltaReserves, event.block);
-  updateWellLiquidityTokenBalance(event.address, event.params.lpAmountIn.neg(), event.block);
-
-  updateWellTokenUSDPrices(event.address, event.block.number);
-
-  const volume = updateWellVolumesAfterLiquidity(
-    event.address,
-    well.tokens.map<Address>((b) => toAddress(b)),
-    subBigIntArray([ZERO_BI, ZERO_BI], event.params.tokenAmountsOut),
-    event.params.lpAmountIn.neg(),
-    event.block
-  );
-
-  finalTradeProcessing(event.address, event.block);
-  recordLiquidityEvent("RemoveLiquidity", event, event.params.lpAmountIn, deltaReserves, initialRates, volume);
+  liquidity(deltaReserves, event.params.lpAmountIn.neg(), event);
 }
 
 export function handleRemoveLiquidityOneToken(event: RemoveLiquidityOneToken): void {
   const well = loadWell(event.address);
-  const initialRates = well.tokenRates;
-  loadOrCreateAccount(event.transaction.from);
-
+  // Event emits positive values
   const deltaReserves = emptyBigIntArray(well.tokens.length);
   deltaReserves[well.tokens.indexOf(event.params.tokenOut)] = event.params.tokenAmountOut.neg();
-
-  updateWellReserves(event.address, deltaReserves, event.block);
-  updateWellLiquidityTokenBalance(event.address, event.params.lpAmountIn.neg(), event.block);
-
-  updateWellTokenUSDPrices(event.address, event.block.number);
-
-  const volume = updateWellVolumesAfterLiquidity(
-    event.address,
-    [event.params.tokenOut],
-    [event.params.tokenAmountOut.neg()],
-    event.params.lpAmountIn.neg(),
-    event.block
-  );
-
-  finalTradeProcessing(event.address, event.block);
-  recordLiquidityEvent("RemoveLiquidityOneToken", event, event.params.lpAmountIn, deltaReserves, initialRates, volume);
+  liquidity(deltaReserves, event.params.lpAmountIn.neg(), event);
 }
 
 export function handleSwap(event: Swap): void {
   const well = loadWell(event.address);
-  const initialRates = well.tokenRates;
   loadOrCreateAccount(event.transaction.from);
 
   const deltaReserves = emptyBigIntArray(well.tokens.length);
   deltaReserves[well.tokens.indexOf(event.params.fromToken)] = event.params.amountIn;
   deltaReserves[well.tokens.indexOf(event.params.toToken)] = event.params.amountOut.neg();
-  updateWellReserves(event.address, deltaReserves, event.block);
-
-  updateWellTokenUSDPrices(event.address, event.block.number);
 
   const swapInfo: SwapInfo = {
     fromToken: event.params.fromToken,
@@ -140,16 +55,11 @@ export function handleSwap(event: Swap): void {
     toToken: event.params.toToken,
     amountOut: event.params.amountOut
   };
-  const volume = updateWellVolumesAfterSwap(event.address, swapInfo, event.block);
-
-  finalTradeProcessing(event.address, event.block);
-  recordSwapEvent("Swap", event, swapInfo, deltaReserves, initialRates, volume);
+  swap(swapInfo, deltaReserves, event);
 }
 
 export function handleShift(event: Shift): void {
   const well = loadWell(event.address);
-  const initialRates = well.tokenRates;
-  loadOrCreateAccount(event.transaction.from);
 
   // Since the token in was already transferred before this event was emitted, we need to find the difference to record as the amountIn
   const fromTokenIndex = well.tokens.indexOf(event.params.toToken) == 0 ? 1 : 0;
@@ -158,18 +68,11 @@ export function handleShift(event: Shift): void {
   const deltaReserves = subBigIntArray(event.params.reserves, well.reserves);
   const amountIn = deltaReserves[fromTokenIndex];
 
-  updateWellReserves(event.address, deltaReserves, event.block);
-
-  updateWellTokenUSDPrices(event.address, event.block.number);
-
   const swapInfo: SwapInfo = {
     fromToken: fromToken,
     amountIn: amountIn,
     toToken: event.params.toToken,
     amountOut: event.params.amountOut
   };
-  const volume = updateWellVolumesAfterSwap(event.address, swapInfo, event.block);
-
-  finalTradeProcessing(event.address, event.block);
-  recordSwapEvent("Shift", event, swapInfo, deltaReserves, initialRates, volume);
+  swap(swapInfo, deltaReserves, event);
 }

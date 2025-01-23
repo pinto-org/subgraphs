@@ -10,8 +10,6 @@ import {
 } from "../../../../core/utils/Decimals";
 import { getCalculatedReserveUSDValues, getTokenRates } from "../utils/Well";
 import { loadBeanstalk } from "./Beanstalk";
-import { takeWellSnapshots } from "./snapshots/Well";
-import { takeBeanstalkSnapshots } from "./snapshots/Beanstalk";
 
 export function loadOrCreateWell(wellAddress: Address, inputTokens: Address[], block: ethereum.Block): Well {
   let well = Well.load(wellAddress);
@@ -158,16 +156,4 @@ export function updateWellLiquidityUSD(well: Well): void {
     beanstalk.totalLiquidityUSD = beanstalk.totalLiquidityUSD.plus(deltaLiquidityUSD);
     beanstalk.save();
   }
-}
-
-// Common functionality to process after specific event processing
-export function finalTradeProcessing(wellAddress: Address, block: ethereum.Block): void {
-  const well = loadWell(wellAddress);
-  well.tokenRates = getTokenRates(well);
-  takeWellSnapshots(well, block);
-  well.save();
-
-  const beanstalk = loadBeanstalk();
-  takeBeanstalkSnapshots(beanstalk, block);
-  beanstalk.save();
 }
