@@ -8,7 +8,7 @@ import {
   ZERO_BD,
   ZERO_BI
 } from "../../../../core/utils/Decimals";
-import { getCalculatedReserveUSDValues, getTokenPrices } from "../utils/Well";
+import { getCalculatedReserveUSDValues, getTokenRates } from "../utils/Well";
 import { loadBeanstalk } from "./Beanstalk";
 import { takeWellSnapshots } from "./snapshots/Well";
 import { takeBeanstalkSnapshots } from "./snapshots/Beanstalk";
@@ -49,7 +49,7 @@ export function loadOrCreateWell(wellAddress: Address, inputTokens: Address[], b
   well.isBeanstalk = false;
   well.lpTokenSupply = ZERO_BI;
   well.totalLiquidityUSD = ZERO_BD;
-  well.tokenPrice = [ZERO_BI, ZERO_BI];
+  well.tokenRates = [ZERO_BD, ZERO_BD];
   well.reserves = emptyBigIntArray(inputTokens.length);
   well.reservesUSD = emptyBigDecimalArray(inputTokens.length);
 
@@ -163,7 +163,7 @@ export function updateWellLiquidityUSD(well: Well): void {
 // Common functionality to process after specific event processing
 export function finalTradeProcessing(wellAddress: Address, block: ethereum.Block): void {
   const well = loadWell(wellAddress);
-  well.tokenPrice = getTokenPrices(well);
+  well.tokenRates = getTokenRates(well);
   takeWellSnapshots(well, block);
   well.save();
 

@@ -2,7 +2,6 @@ import { Shift, Swap } from "../../../generated/Basin-ABIs/Well";
 import { Swap as SwapEvent } from "../../../generated/schema";
 import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import { loadWell } from "../Well";
-import { getTokenPrices } from "../../utils/Well";
 import { EventVolume } from "../../utils/Volume";
 
 export function getSwapEntityId(event: ethereum.Event, outTokenAmount: BigInt, readonly: boolean = false): string {

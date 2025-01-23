@@ -3,9 +3,9 @@ import {
   allNonzero_BI,
   BI_10,
   emptyBigDecimalArray,
-  emptyBigIntArray,
   ONE_BI,
   toDecimal,
+  ZERO_BD,
   ZERO_BI
 } from "../../../../core/utils/Decimals";
 import { loadWell, updateWellLiquidityUSD } from "../entities/Well";
@@ -62,9 +62,11 @@ export function updateWellTokenUSDPrices(wellAddress: Address, blockNumber: BigI
 }
 
 // Value at index i is how much of token i is received in exchange for one of token 1 - i.
-export function getTokenPrices(well: Well): BigInt[] {
+// Returned value has appropriate decimal precision already applied, and may contain more decimals
+// than the actual token. This is required to properly represent exchange rates for very expensive tokens (btc)
+export function getTokenRates(well: Well): BigDecimal[] {
   if (!allNonzero_BI(well.reserves)) {
-    return emptyBigIntArray(well.reserves.length);
+    return emptyBigDecimalArray(well.reserves.length);
   }
 
   const wellFn = loadOrCreateWellFunction(toAddress(well.wellFunction));
@@ -72,6 +74,7 @@ export function getTokenPrices(well: Well): BigInt[] {
   const wellFnContract = WellFunction.bind(wellFnAddress);
 
   let rates: BigInt[] = [];
+  let decimalRates: BigDecimal[] = [];
   if (wellFnSupportsRate(v(), wellFnAddress)) {
     rates = [
       wellFnContract.calcRate(well.reserves, ZERO_BI, ONE_BI, well.wellFunctionData),
@@ -80,19 +83,21 @@ export function getTokenPrices(well: Well): BigInt[] {
     // Stable2 does not require transforming rates. Otherwise, the rates are given with this precision:
     // quoteToken + 18 - baseToken
     if (!isStable2WellFn(v(), wellFnAddress)) {
-      const decimalsToRemove = [
-        18 - getTokenDecimals(toAddress(well.tokens[1])),
-        18 - getTokenDecimals(toAddress(well.tokens[0]))
+      const decimals = [getTokenDecimals(toAddress(well.tokens[0])), getTokenDecimals(toAddress(well.tokens[1]))];
+      decimalRates = [
+        toDecimal(rates[0], decimals[0] + 18 - decimals[1]),
+        toDecimal(rates[1], decimals[1] + 18 - decimals[0])
       ];
-      rates[0] = rates[0].div(BI_10.pow(<u8>decimalsToRemove[0]));
-      rates[1] = rates[1].div(BI_10.pow(<u8>decimalsToRemove[1]));
+    } else {
+      decimalRates = rates.map<BigDecimal>((r) => toDecimal(r));
     }
   } else {
-    // In practice only the original constant product well does not support calcRate
+    // In practice only the original constant product well (beanstalk) does not support calcRate
     rates = calcRates(well.reserves, [
       getTokenDecimals(toAddress(well.tokens[0])),
       getTokenDecimals(toAddress(well.tokens[1]))
     ]);
+    decimalRates = rates.map<BigDecimal>((r) => toDecimal(r));
   }
-  return rates;
+  return decimalRates;
 }
