@@ -32,18 +32,18 @@ describe("Deposit/Withdraw Entities", () => {
     const id = getLiquidityEntityId("ADD_LIQUIDITY", processedEvent, WELL_LP_AMOUNT, true);
     assert.fieldEquals("Trade", id, "id", id);
     assert.fieldEquals("Trade", id, "well", WELL.toHexString());
-    assert.fieldEquals("Trade", id, "liqLpTokens", WELL_LP_AMOUNT.toString());
+    assert.fieldEquals("Trade", id, "liqLpTokenAmount", WELL_LP_AMOUNT.toString());
     assert.fieldEquals(
       "Trade",
       id,
-      "liqReserveTokens",
+      "liqReservesAmount",
       "[" + deltaLiquidity[0].toString() + ", " + deltaLiquidity[1].toString() + "]"
     );
 
     const updatedStore = loadTrade(id);
 
-    assert.bigIntEquals(deltaLiquidity[0], updatedStore.liqReserveTokens![0]);
-    assert.bigIntEquals(deltaLiquidity[1], updatedStore.liqReserveTokens![1]);
+    assert.bigIntEquals(deltaLiquidity[0], updatedStore.liqReservesAmount![0]);
+    assert.bigIntEquals(deltaLiquidity[1], updatedStore.liqReservesAmount![1]);
 
     // Account entity exists
     assert.fieldEquals("Account", SWAP_ACCOUNT.toHexString(), "id", SWAP_ACCOUNT.toHexString());
@@ -61,11 +61,11 @@ describe("Deposit/Withdraw Entities", () => {
 
     assert.fieldEquals("Trade", id, "id", id);
     assert.fieldEquals("Trade", id, "well", WELL.toHexString());
-    assert.fieldEquals("Trade", id, "liqLpTokens", lpAmount.toString());
+    assert.fieldEquals("Trade", id, "liqLpTokenAmount", lpAmount.toString());
     assert.fieldEquals(
       "Trade",
       id,
-      "liqReserveTokens",
+      "liqReservesAmount",
       "[" + deltaLiquidity[0].toString() + ", " + deltaLiquidity[1].toString() + "]"
     );
 
@@ -81,17 +81,17 @@ describe("Deposit/Withdraw Entities", () => {
     const id = getLiquidityEntityId("REMOVE_LIQUIDITY", processedEvent, WELL_LP_AMOUNT, true);
     assert.fieldEquals("Trade", id, "id", id);
     assert.fieldEquals("Trade", id, "well", WELL.toHexString());
-    assert.fieldEquals("Trade", id, "liqLpTokens", WELL_LP_AMOUNT.toString());
+    assert.fieldEquals("Trade", id, "liqLpTokenAmount", WELL_LP_AMOUNT.toString());
     assert.fieldEquals(
       "Trade",
       id,
-      "liqReserveTokens",
+      "liqReservesAmount",
       "[" + deltaLiquidity[0].toString() + ", " + deltaLiquidity[1].toString() + "]"
     );
 
     const updatedStore = loadTrade(id);
-    assert.bigIntEquals(BEAN_SWAP_AMOUNT, updatedStore.liqReserveTokens![0]);
-    assert.bigIntEquals(WETH_SWAP_AMOUNT, updatedStore.liqReserveTokens![1]);
+    assert.bigIntEquals(BEAN_SWAP_AMOUNT, updatedStore.liqReservesAmount![0]);
+    assert.bigIntEquals(WETH_SWAP_AMOUNT, updatedStore.liqReservesAmount![1]);
 
     // Account entity exists
     assert.fieldEquals("Account", SWAP_ACCOUNT.toHexString(), "id", SWAP_ACCOUNT.toHexString());
@@ -105,8 +105,8 @@ describe("Deposit/Withdraw Entities", () => {
     const id = getLiquidityEntityId("REMOVE_LIQUIDITY", processedEvent, WELL_LP_AMOUNT, true);
     assert.fieldEquals("Trade", id, "id", id);
     assert.fieldEquals("Trade", id, "well", WELL.toHexString());
-    assert.fieldEquals("Trade", id, "liqLpTokens", WELL_LP_AMOUNT.toString());
-    assert.fieldEquals("Trade", id, "liqReserveTokens", "[" + BEAN_SWAP_AMOUNT.toString() + ", 0]");
+    assert.fieldEquals("Trade", id, "liqLpTokenAmount", WELL_LP_AMOUNT.toString());
+    assert.fieldEquals("Trade", id, "liqReservesAmount", "[" + BEAN_SWAP_AMOUNT.toString() + ", 0]");
 
     const updatedWell = loadWell(WELL);
     const wellReserves = updatedWell.reserves;

@@ -669,9 +669,9 @@ type Trade @entity {
   account: Account!
 
   "[Add/Remove Liquidity] Amount of liquidity tokens minted/burned"
-  liqLpTokens: BigInt
+  liqLpTokenAmount: BigInt
   "[Add/Remove Liquidity] Amount of input/output tokens"
-  liqReserveTokens: [BigInt!]
+  liqReservesAmount: [BigInt!]
   "[Add/Remove Liquidity] Boolean indicating whether this liquidity addition is a Beanstalk convert"
   isConvert: Boolean!
 

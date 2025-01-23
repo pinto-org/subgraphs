@@ -40,8 +40,8 @@ export function recordLiquidityEvent(
   trade.well = event.address;
   trade.account = event.transaction.from;
 
-  trade.liqLpTokens = deltaLpTokens.abs();
-  trade.liqReserveTokens = deltaReserves.map<BigInt>((r) => r.abs());
+  trade.liqLpTokenAmount = deltaLpTokens.abs();
+  trade.liqReservesAmount = deltaReserves.map<BigInt>((r) => r.abs());
   trade.isConvert = false;
 
   trade.beforeReserves = subBigIntArray(well.reserves, deltaReserves);
