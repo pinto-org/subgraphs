@@ -6,8 +6,6 @@ import {
   BEAN_USD_AMOUNT,
   CURRENT_BLOCK_TIMESTAMP,
   WELL,
-  WELL_DAILY_ENTITY_TYPE,
-  WELL_HOURLY_ENTITY_TYPE,
   WETH_SWAP_AMOUNT,
   WETH_USD_AMOUNT
 } from "./helpers/Constants";
@@ -87,8 +85,8 @@ describe("Well Entity: Exchange Tests", () => {
       let day = dayFromTimestamp(CURRENT_BLOCK_TIMESTAMP, 8 * 60 * 60);
       let daySnapshotID = WELL.toHexString() + "-" + day.toString();
 
-      assert.fieldEquals(WELL_HOURLY_ENTITY_TYPE, hourSnapshotID, "hour", hour.toString());
-      assert.fieldEquals(WELL_DAILY_ENTITY_TYPE, daySnapshotID, "day", day.toString());
+      assert.fieldEquals("WellHourlySnapshot", hourSnapshotID, "hour", hour.toString());
+      assert.fieldEquals("WellDailySnapshot", daySnapshotID, "day", day.toString());
     });
   });
 

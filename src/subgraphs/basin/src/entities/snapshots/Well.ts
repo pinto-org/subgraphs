@@ -40,7 +40,7 @@ export function takeWellSnapshots(well: Well, block: ethereum.Block): void {
   hourly.well = well.id;
   hourly.lpTokenSupply = well.lpTokenSupply;
   hourly.totalLiquidityUSD = well.totalLiquidityUSD;
-  hourly.tokenPrice = well.tokenPrice;
+  hourly.tokenRates = well.tokenRates;
   hourly.cumulativeTradeVolumeReserves = well.cumulativeTradeVolumeReserves;
   hourly.cumulativeTradeVolumeReservesUSD = well.cumulativeTradeVolumeReservesUSD;
   hourly.cumulativeTradeVolumeUSD = well.cumulativeTradeVolumeUSD;
@@ -56,7 +56,7 @@ export function takeWellSnapshots(well: Well, block: ethereum.Block): void {
   if (baseHourly !== null) {
     hourly.deltaLpTokenSupply = hourly.lpTokenSupply.minus(baseHourly.lpTokenSupply);
     hourly.deltaLiquidityUSD = hourly.totalLiquidityUSD.minus(baseHourly.totalLiquidityUSD);
-    hourly.deltaTokenPrice = subBigIntArray(hourly.tokenPrice, baseHourly.tokenPrice);
+    hourly.deltaTokenRates = subBigDecimalArray(hourly.tokenRates, baseHourly.tokenRates);
     hourly.deltaTradeVolumeReserves = subBigIntArray(
       hourly.cumulativeTradeVolumeReserves,
       baseHourly.cumulativeTradeVolumeReserves
@@ -90,7 +90,7 @@ export function takeWellSnapshots(well: Well, block: ethereum.Block): void {
       // Add existing deltas
       hourly.deltaLpTokenSupply = hourly.deltaLpTokenSupply.plus(baseHourly.deltaLpTokenSupply);
       hourly.deltaLiquidityUSD = hourly.deltaLiquidityUSD.plus(baseHourly.deltaLiquidityUSD);
-      hourly.deltaTokenPrice = addBigIntArray(hourly.deltaTokenPrice, baseHourly.deltaTokenPrice);
+      hourly.deltaTokenRates = addBigDecimalArray(hourly.deltaTokenRates, baseHourly.deltaTokenRates);
       hourly.deltaTradeVolumeReserves = addBigIntArray(
         hourly.deltaTradeVolumeReserves,
         baseHourly.deltaTradeVolumeReserves
@@ -130,7 +130,7 @@ export function takeWellSnapshots(well: Well, block: ethereum.Block): void {
   } else {
     hourly.deltaLpTokenSupply = hourly.lpTokenSupply;
     hourly.deltaLiquidityUSD = hourly.totalLiquidityUSD;
-    hourly.deltaTokenPrice = hourly.tokenPrice;
+    hourly.deltaTokenRates = hourly.tokenRates;
     hourly.deltaTradeVolumeReserves = hourly.cumulativeTradeVolumeReserves;
     hourly.deltaTradeVolumeReservesUSD = hourly.cumulativeTradeVolumeReservesUSD;
     hourly.deltaTradeVolumeUSD = hourly.cumulativeTradeVolumeUSD;
@@ -166,7 +166,7 @@ export function takeWellSnapshots(well: Well, block: ethereum.Block): void {
   daily.well = well.id;
   daily.lpTokenSupply = well.lpTokenSupply;
   daily.totalLiquidityUSD = well.totalLiquidityUSD;
-  daily.tokenPrice = well.tokenPrice;
+  daily.tokenRates = well.tokenRates;
   daily.cumulativeTradeVolumeReserves = well.cumulativeTradeVolumeReserves;
   daily.cumulativeTradeVolumeReservesUSD = well.cumulativeTradeVolumeReservesUSD;
   daily.cumulativeTradeVolumeUSD = well.cumulativeTradeVolumeUSD;
@@ -182,7 +182,7 @@ export function takeWellSnapshots(well: Well, block: ethereum.Block): void {
   if (baseDaily !== null) {
     daily.deltaLpTokenSupply = daily.lpTokenSupply.minus(baseDaily.lpTokenSupply);
     daily.deltaLiquidityUSD = daily.totalLiquidityUSD.minus(baseDaily.totalLiquidityUSD);
-    daily.deltaTokenPrice = subBigIntArray(daily.tokenPrice, baseDaily.tokenPrice);
+    daily.deltaTokenRates = subBigDecimalArray(daily.tokenRates, baseDaily.tokenRates);
     daily.deltaTradeVolumeReserves = subBigIntArray(
       daily.cumulativeTradeVolumeReserves,
       baseDaily.cumulativeTradeVolumeReserves
@@ -216,7 +216,7 @@ export function takeWellSnapshots(well: Well, block: ethereum.Block): void {
       // Add existing deltas
       daily.deltaLpTokenSupply = daily.deltaLpTokenSupply.plus(baseDaily.deltaLpTokenSupply);
       daily.deltaLiquidityUSD = daily.deltaLiquidityUSD.plus(baseDaily.deltaLiquidityUSD);
-      daily.deltaTokenPrice = addBigIntArray(daily.deltaTokenPrice, baseDaily.deltaTokenPrice);
+      daily.deltaTokenRates = addBigDecimalArray(daily.deltaTokenRates, baseDaily.deltaTokenRates);
       daily.deltaTradeVolumeReserves = addBigIntArray(
         daily.deltaTradeVolumeReserves,
         baseDaily.deltaTradeVolumeReserves
@@ -252,7 +252,7 @@ export function takeWellSnapshots(well: Well, block: ethereum.Block): void {
   } else {
     daily.deltaLpTokenSupply = daily.lpTokenSupply;
     daily.deltaLiquidityUSD = daily.totalLiquidityUSD;
-    daily.deltaTokenPrice = daily.tokenPrice;
+    daily.deltaTokenRates = daily.tokenRates;
     daily.deltaTradeVolumeReserves = daily.cumulativeTradeVolumeReserves;
     daily.deltaTradeVolumeReservesUSD = daily.cumulativeTradeVolumeReservesUSD;
     daily.deltaTradeVolumeUSD = daily.cumulativeTradeVolumeUSD;

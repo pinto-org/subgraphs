@@ -12,25 +12,15 @@ type Version @entity {
   chain: String!
 }
 
-enum LiquidityEvent {
-  # Additions
+enum TradeType {
   ADD_LIQUIDITY
-  SYNC
-  # Removals
   REMOVE_LIQUIDITY
-  REMOVE_LIQUIDITY_ONE_TOKEN
-}
-
-enum SwapEvent {
   SWAP
-  SHIFT
 }
 
 type Account @entity {
   id: Bytes!
-  deposits: [Deposit!]! @derivedFrom(field: "account")
-  withdraws: [Withdraw!]! @derivedFrom(field: "account")
-  swaps: [Swap!]! @derivedFrom(field: "account")
+  trades: [Trade!]! @derivedFrom(field: "account")
 }
 
 type Token @entity {
@@ -390,8 +380,8 @@ type Well @entity {
   "The sum of all active and non-active liquidity in USD for this well."
   totalLiquidityUSD: BigDecimal!
 
-  "The current amount of each token needed to exchange for one of the other token."
-  tokenPrice: [BigInt!]!
+  "The current amount of each token needed to exchange for one of the other token, with token decimal precision applied. Resulting decimal value may have more digits than is possible to represent tokens on chain. This is necessary to calculate proper prices for highly expensive tokens like btc."
+  tokenRates: [BigDecimal!]!
 
   "Amount of each token in the well. The ordering should be the same as the well's `tokens` field."
   reserves: [BigInt!]!
@@ -481,21 +471,13 @@ type Well @entity {
   "Block number of the last time this entity was updated"
   lastUpdateBlockNumber: BigInt!
 
-  ##### Snapshots #####
+  ##### Relations #####
 
   hourlySnapshots: [WellHourlySnapshot!]! @derivedFrom(field: "well")
   dailySnapshots: [WellDailySnapshot!]! @derivedFrom(field: "well")
 
-  ##### Events #####
-
-  "All deposit (add liquidity) events occurred in this well"
-  deposits: [Deposit!]! @derivedFrom(field: "well")
-
-  "All withdraw (remove liquidity) events occurred in this well"
-  withdraws: [Withdraw!]! @derivedFrom(field: "well")
-
-  "All trade (swap) events occurred in this well"
-  swaps: [Swap!]! @derivedFrom(field: "well")
+  "All trade (add/remove liquidity, swaps) events occurred in this well"
+  trades: [Trade!]! @derivedFrom(field: "well")
 }
 
 type WellHourlySnapshot @entity {
@@ -523,10 +505,10 @@ type WellHourlySnapshot @entity {
   "Delta of totalLiquidityUSD"
   deltaLiquidityUSD: BigDecimal!
 
-  "The current amount of each token needed to exchange for one of the other token."
-  tokenPrice: [BigInt!]!
-  "Delta of tokenPrice"
-  deltaTokenPrice: [BigInt!]!
+  "The current amount of each token needed to exchange for one of the other token, with token decimal precision applied. Resulting decimal value may have more digits than is possible to represent tokens on chain. This is necessary to calculate proper prices for highly expensive tokens like btc."
+  tokenRates: [BigDecimal!]!
+  "Delta of tokenRates"
+  deltaTokenRates: [BigDecimal!]!
 
   "All trade volume occurred for a specific token, in native amount. Volume for an individual token is defined as a purchase of that token. This includes any net trading activity as a result of add/remove liquidity. The ordering should be the same as the well's `tokens` field."
   cumulativeTradeVolumeReserves: [BigInt!]!
@@ -611,10 +593,10 @@ type WellDailySnapshot @entity {
   "Delta of totalLiquidityUSD"
   deltaLiquidityUSD: BigDecimal!
 
-  "The current amount of each token needed to exchange for one of the other token."
-  tokenPrice: [BigInt!]!
-  "Delta of tokenPrice"
-  deltaTokenPrice: [BigInt!]!
+  "The current amount of each token needed to exchange for one of the other token, with token decimal precision applied. Resulting decimal value may have more digits than is possible to represent tokens on chain. This is necessary to calculate proper prices for highly expensive tokens like btc."
+  tokenRates: [BigDecimal!]!
+  "Delta of tokenRates"
+  deltaTokenRates: [BigDecimal!]!
 
   "All trade volume occurred for a specific token, in native amount. Volume for an individual token is defined as a purchase of that token. This includes any net trading activity as a result of add/remove liquidity. The ordering should be the same as the well's `tokens` field."
   cumulativeTradeVolumeReserves: [BigInt!]!
@@ -674,198 +656,65 @@ type WellDailySnapshot @entity {
   lastUpdateBlockNumber: BigInt!
 }
 
-##### EVENT LEVEL ENTITIES #####
-
-# This maps to the AddLiquidity and Sync events
-type Deposit @entity(immutable: true) {
-  "{Transaction hash}-{Well}-{LP token amount}(-{log index})? | The ID is constructed in this fashion to allow any subsequent event in the same transaction to identify this entity. (Adds log index if necessary to prevent collision)"
+type Trade @entity {
+  "{TradeType}-{Transaction hash}-{Well}-{LP token amount}(-{log index})? | The ID is constructed in this fashion to allow any subsequent event in the same transaction to identify this entity. (Adds log index if necessary to prevent collision)"
   id: ID!
 
-  "Transaction hash of the transaction that emitted this event"
-  hash: Bytes!
+  "Trade type discriminator"
+  tradeType: TradeType!
 
-  "Event log index."
-  logIndex: Int!
-
-  "The well involving this event"
+  "The well this trade occurred in"
   well: Well!
-
-  "Account that emitted this event"
+  "Account that sent this transaction"
   account: Account!
 
-  "Event type that was emitted"
-  eventType: LiquidityEvent!
-
-  "Amount of liquidity tokens minted"
-  liquidity: BigInt!
-
-  "Input tokens of the well. E.g. WETH and USDC to a WETH-USDC well"
-  tokens: [Token!]!
-
-  "Amount of input tokens in the token's native unit"
-  reserves: [BigInt!]!
-
-  "USD-normalized value of the transaction of the underlying (e.g. sum of tokens deposited into a well) "
-  amountUSD: BigDecimal!
-
-  "The current amount of each token needed to exchange for one of the other token, after this event."
-  tokenPrice: [BigInt!]!
-
-  "Boolean indicating whether this liquidity addition is a Beanstalk convert."
+  "[Add/Remove Liquidity] Amount of liquidity tokens minted/burned"
+  liqLpTokenAmount: BigInt
+  "[Add/Remove Liquidity] Amount of input/output tokens"
+  liqReservesAmount: [BigInt!]
+  "[Add/Remove Liquidity] Boolean indicating whether this liquidity addition is a Beanstalk convert"
   isConvert: Boolean!
 
-  "Trade volume for each token, in native amount, as a result of this liquidity addition. The ordering should be the same as the well's `tokens` field."
+  "[Swap] Token sold into the well"
+  swapFromToken: Token
+  "[Swap] Amount of token sold into the well"
+  swapAmountIn: BigInt
+  "[Swap] Token bought from the well"
+  swapToToken: Token
+  "[Swap] Amount of the token bought from the well"
+  swapAmountOut: BigInt
+
+  "Well.reserves before this event"
+  beforeReserves: [BigInt!]!
+  "Well.reserves after this event"
+  afterReserves: [BigInt!]!
+  "Well.tokenRates before this event"
+  beforeTokenRates: [BigDecimal!]!
+  "Well.tokenRates before this event"
+  afterTokenRates: [BigDecimal!]!
+
+  "Trade volume for each token, in native amount, as a result of this event. The ordering should be the same as the well's `tokens` field."
   tradeVolumeReserves: [BigInt!]!
-
-  "Trade volume for each token, in USD, as a result of this liquidity addition. The ordering should be the same as the well's `tokens` field."
+  "Trade volume for each token, in USD, as a result of this event. The ordering should be the same as the well's `tokens` field."
   tradeVolumeReservesUSD: [BigDecimal!]!
-
-  "Trade volume in USD as a result of this liquidity addition."
+  "Trade volume in USD as a result of this event."
   tradeVolumeUSD: BigDecimal!
-
   "Same as tradeVolumeReserves, but further includes absolute tokens on both sides of the effective trade."
   biTradeVolumeReserves: [BigInt!]!
 
   "Transfer volume for each token, in native amount. The ordering should be the same as the well's `tokens` field."
   transferVolumeReserves: [BigInt!]!
-
   "Transfer volume for each token, in USD. The ordering should be the same as the well's `tokens` field."
   transferVolumeReservesUSD: [BigDecimal!]!
-
-  "Transfer volume in USD as a result of this liquidity addition."
+  "Transfer volume in USD as a result of this event."
   transferVolumeUSD: BigDecimal!
-
-  "Block number of this event"
-  blockNumber: BigInt!
-
-  "Timestamp of this event"
-  timestamp: BigInt!
-}
-
-# This maps to RemoveLiquidity and RemoveLiquidityOneToken events
-type Withdraw @entity(immutable: true) {
-  "{Transaction hash}-{Well}-{LP token amount}(-{log index})? | The ID is constructed in this fashion to allow any subsequent event in the same transaction to identify this entity. (Adds log index if necessary to prevent collision)"
-  id: ID!
 
   "Transaction hash of the transaction that emitted this event"
   hash: Bytes!
-
+  "Block number of this event"
+  blockNumber: BigInt!
   "Event log index."
   logIndex: Int!
-
-  "The well involving this event"
-  well: Well!
-
-  "Account that emitted this event"
-  account: Account!
-
-  "Event type that was emitted"
-  eventType: LiquidityEvent!
-
-  "Amount of liquidity tokens burned"
-  liquidity: BigInt!
-
-  "Input tokens of the well (not input tokens of the event/transaction). E.g. WETH and USDC from a WETH-USDC well"
-  tokens: [Token!]!
-
-  "Amount of input tokens in the token's native unit"
-  reserves: [BigInt!]!
-
-  "USD-normalized value of the transaction of the underlying (e.g. sum of tokens withdrawn from a well) "
-  amountUSD: BigDecimal!
-
-  "The current amount of each token needed to exchange for one of the other token, after this event."
-  tokenPrice: [BigInt!]!
-
-  "Boolean indicating whether this liquidity removal is a Beanstalk convert."
-  isConvert: Boolean!
-
-  "Trade volume for each token, in native amount, as a result of this liquidity removal. The ordering should be the same as the well's `tokens` field."
-  tradeVolumeReserves: [BigInt!]!
-
-  "Trade volume for each token, in USD, as a result of this liquidity removal. The ordering should be the same as the well's `tokens` field."
-  tradeVolumeReservesUSD: [BigDecimal!]!
-
-  "Trade volume in USD as a result of this liquidity removal."
-  tradeVolumeUSD: BigDecimal!
-
-  "Same as tradeVolumeReserves, but further includes absolute tokens on both sides of the effective trade."
-  biTradeVolumeReserves: [BigInt!]!
-
-  "Transfer volume for each token, in native amount. The ordering should be the same as the well's `tokens` field."
-  transferVolumeReserves: [BigInt!]!
-
-  "Transfer volume for each token, in USD. The ordering should be the same as the well's `tokens` field."
-  transferVolumeReservesUSD: [BigDecimal!]!
-
-  "Transfer volume in USD as a result of this liquidity removal."
-  transferVolumeUSD: BigDecimal!
-
-  "Block number of this event"
-  blockNumber: BigInt!
-
-  "Timestamp of this event"
-  timestamp: BigInt!
-}
-
-type Swap @entity(immutable: true) {
-  "{Transaction hash}-{Well}-{Out token amount}(-{log index})? | The ID is constructed in this fashion to allow any subsequent event in the same transaction to identify this entity. (Adds log index if necessary to prevent collision)"
-  id: ID!
-
-  "Transaction hash of the event"
-  hash: Bytes!
-
-  "Log index of the event"
-  logIndex: Int!
-
-  "Well involving this event"
-  well: Well!
-
-  "Address that sent the transaction"
-  account: Account!
-
-  "Event type that was emitted"
-  eventType: SwapEvent!
-
-  "Token deposited into the well"
-  fromToken: Token!
-
-  "Amount of token deposited into the well in native units"
-  amountIn: BigInt!
-
-  "Token withdrawn from the well"
-  toToken: Token!
-
-  "Amount of the token withdrawn from the well in native units"
-  amountOut: BigInt!
-
-  "The current amount of each token needed to exchange for one of the other token, after this event."
-  tokenPrice: [BigInt!]!
-
-  "Trade volume for each token, in native amount, as a result of this swap. The ordering should be the same as the well's `tokens` field."
-  tradeVolumeReserves: [BigInt!]!
-
-  "Trade volume for each token, in USD, as a result of this swap. The ordering should be the same as the well's `tokens` field."
-  tradeVolumeReservesUSD: [BigDecimal!]!
-
-  "Trade volume in USD as a result of this swap."
-  tradeVolumeUSD: BigDecimal!
-
-  "Same as tradeVolumeReserves, but further includes absolute tokens on both sides of the trade."
-  biTradeVolumeReserves: [BigInt!]!
-
-  "Transfer volume for each token, in native amount. The ordering should be the same as the well's `tokens` field."
-  transferVolumeReserves: [BigInt!]!
-
-  "Transfer volume for each token, in USD. The ordering should be the same as the well's `tokens` field."
-  transferVolumeReservesUSD: [BigDecimal!]!
-
-  "Transfer volume in USD as a result of this swap."
-  transferVolumeUSD: BigDecimal!
-
-  "Block number of this event"
-  blockNumber: BigInt!
-
   "Timestamp of this event"
   timestamp: BigInt!
 }
