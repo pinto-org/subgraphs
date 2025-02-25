@@ -15,7 +15,7 @@ import {
 import { getCurrentSeason, getHarvestableIndex, loadFarmer, loadSeason } from "../../entities/Beanstalk";
 import { loadField, loadPlot } from "../../entities/Field";
 import { clearFieldDeltas, takeFieldSnapshots } from "../../entities/snapshots/Field";
-import { updateFarmTotals } from "../../utils/Farm";
+import { updateFarmTotals } from "../../utils/Token";
 import { podListingCreated, podOrderCreated } from "../../utils/Marketplace";
 import { addDeposits, updateStalkBalances } from "../../utils/Silo";
 import { loadFertilizer } from "../../entities/Fertilizer";

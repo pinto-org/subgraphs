@@ -279,7 +279,7 @@ dataSources:
           handler: handlePlentyWell_v1
       file: ../src/handlers/legacy/LegacySeasonHandler.ts
   ###
-  # BEAN ERC20
+  # ERC20
   ###
   - kind: ethereum/contract
     name: Bean
@@ -300,7 +300,27 @@ dataSources:
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
-      file: ../src/handlers/BeanHandler.ts
+      file: ../src/handlers/TokenHandler.ts
+  - kind: ethereum/contract
+    name: sBean
+    network: base
+    source:
+      address: "0x7F6A8E8bA3E4cFd92fA1e5Dcd89Ba8F7eF92aA12" # TODO: Need to update this to the sPinto address once known
+      abi: ERC20
+      startBlock: 27000000 # sPinto Deployment (Should update this once the actual block number is known)
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - SiloAsset
+      abis:
+        - name: ERC20
+          file: ../../../core/abis/ERC20.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+      file: ../src/handlers/TokenHandler.ts
   ###
   # FARM BALANCE
   ###
@@ -323,7 +343,7 @@ dataSources:
       eventHandlers:
         - event: InternalBalanceChanged(indexed address,indexed address,int256)
           handler: handleInternalBalanceChanged
-      file: ../src/handlers/FarmHandler.ts
+      file: ../src/handlers/TokenHandler.ts
 # features:
 #   - grafting
 # graft:

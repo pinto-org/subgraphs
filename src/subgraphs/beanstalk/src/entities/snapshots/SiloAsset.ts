@@ -110,6 +110,7 @@ export function clearSiloAssetDeltas(siloAsset: SiloAsset, block: ethereum.Block
     hourly.deltaDepositedBDV = ZERO_BI;
     hourly.deltaWithdrawnAmount = ZERO_BI;
     hourly.deltaFarmAmount = ZERO_BI;
+    hourly.deltaCirculatingAmount = ZERO_BI;
     hourly.save();
   }
   if (daily != null) {
@@ -117,6 +118,7 @@ export function clearSiloAssetDeltas(siloAsset: SiloAsset, block: ethereum.Block
     daily.deltaDepositedBDV = ZERO_BI;
     daily.deltaWithdrawnAmount = ZERO_BI;
     daily.deltaFarmAmount = ZERO_BI;
+    daily.deltaCirculatingAmount = ZERO_BI;
     daily.save();
   }
 }

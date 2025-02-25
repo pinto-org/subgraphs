@@ -412,7 +412,7 @@ dataSources:
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
-      file: ../src/handlers/BeanHandler.ts
+      file: ../src/handlers/TokenHandler.ts
   ###
   # FARM BALANCE
   ###
@@ -435,7 +435,7 @@ dataSources:
       eventHandlers:
         - event: InternalBalanceChanged(indexed address,indexed address,int256)
           handler: handleInternalBalanceChanged
-      file: ../src/handlers/FarmHandler.ts
+      file: ../src/handlers/TokenHandler.ts
 # features:
 #   - grafting
 # graft:

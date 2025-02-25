@@ -1,6 +1,6 @@
 import { InternalBalanceChanged } from "../../../generated/Beanstalk-ABIs/SeedGauge";
 import { loadFarmer } from "../../entities/Beanstalk";
-import { updateFarmTotals } from "../../utils/Farm";
+import { updateFarmTotals } from "../../utils/Token";
 
 // Replanted -> Reseed
 export function handleInternalBalanceChanged(event: InternalBalanceChanged): void {
