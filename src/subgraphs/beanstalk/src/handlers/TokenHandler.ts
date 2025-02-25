@@ -11,7 +11,7 @@ import { getProtocolToken, getSiloBeanToken } from "../../../../core/constants/R
 export function handleTransfer(event: Transfer): void {
   if (event.address == getProtocolToken(v(), event.block.number)) {
     beanTransfer(event);
-  } else if (event.address == getSiloBeanToken(v())) {
+  } else if (event.address === getSiloBeanToken(v())) {
     sBeanTransfer(event);
   }
 }

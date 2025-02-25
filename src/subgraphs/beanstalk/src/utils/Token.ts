@@ -5,7 +5,7 @@ import { Transfer } from "../../generated/Beanstalk-ABIs/ERC20";
 import { ADDRESS_ZERO } from "../../../../core/utils/Bytes";
 import { loadBeanstalk, loadSeason } from "../entities/Beanstalk";
 
-export function beanTransfer(event: Transfer) {
+export function beanTransfer(event: Transfer): void {
   // Track supply upon mint/burn
   if (event.params.from == ADDRESS_ZERO || event.params.to == ADDRESS_ZERO) {
     let beanstalk = loadBeanstalk();
@@ -22,7 +22,7 @@ export function beanTransfer(event: Transfer) {
   }
 }
 
-export function sBeanTransfer(event: Transfer) {
+export function sBeanTransfer(event: Transfer): void {
   //
 }
 
