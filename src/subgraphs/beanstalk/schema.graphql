@@ -268,6 +268,8 @@ type SiloAsset @entity {
   withdrawnAmount: BigInt!
   "Current internal (farm) balance of the asset"
   farmAmount: BigInt!
+  "Current circulating (wallet) balance of the asset. Not tracked for all assets. Please verify it is tracked for your asset before using this field."
+  circulatingAmount: BigInt!
   "Season when the previous hourly snapshot was taken/updated"
   lastHourlySnapshotSeason: Int
   "Day of when the previous daily snapshot was taken/updated"
@@ -293,11 +295,14 @@ type SiloAssetHourlySnapshot @entity {
   withdrawnAmount: BigInt!
   "Point in time current internal (farm) balance of the asset"
   farmAmount: BigInt!
+  "Point in time current circulating (wallet) balance of the asset. Not tracked for all assets. Please verify it is tracked for your asset before using this field."
+  circulatingAmount: BigInt!
 
   deltaDepositedBDV: BigInt!
   deltaDepositedAmount: BigInt!
   deltaWithdrawnAmount: BigInt!
   deltaFarmAmount: BigInt!
+  deltaCirculatingAmount: BigInt!
 
   "Timestamp of initial snapshot creation"
   createdAt: BigInt!
@@ -320,11 +325,14 @@ type SiloAssetDailySnapshot @entity {
   withdrawnAmount: BigInt!
   "Point in time current internal (farm) balance of the asset"
   farmAmount: BigInt!
+  "Point in time current circulating (wallet) balance of the asset. Not tracked for all assets. Please verify it is tracked for your asset before using this field."
+  circulatingAmount: BigInt!
 
   deltaDepositedBDV: BigInt!
   deltaDepositedAmount: BigInt!
   deltaWithdrawnAmount: BigInt!
   deltaFarmAmount: BigInt!
+  deltaCirculatingAmount: BigInt!
 
   "Timestamp of initial snapshot creation"
   createdAt: BigInt!

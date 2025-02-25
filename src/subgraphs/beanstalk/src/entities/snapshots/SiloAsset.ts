@@ -31,6 +31,7 @@ export function takeSiloAssetSnapshots(siloAsset: SiloAsset, block: ethereum.Blo
   hourly.depositedBDV = siloAsset.depositedBDV;
   hourly.withdrawnAmount = siloAsset.withdrawnAmount;
   hourly.farmAmount = siloAsset.farmAmount;
+  hourly.circulatingAmount = siloAsset.circulatingAmount;
 
   // Set deltas
   if (baseHourly !== null) {
@@ -38,6 +39,7 @@ export function takeSiloAssetSnapshots(siloAsset: SiloAsset, block: ethereum.Blo
     hourly.deltaDepositedBDV = hourly.depositedBDV.minus(baseHourly.depositedBDV);
     hourly.deltaWithdrawnAmount = hourly.withdrawnAmount.minus(baseHourly.withdrawnAmount);
     hourly.deltaFarmAmount = hourly.farmAmount.minus(baseHourly.farmAmount);
+    hourly.deltaCirculatingAmount = hourly.circulatingAmount.minus(baseHourly.circulatingAmount);
 
     if (hourly.id == baseHourly.id) {
       // Add existing deltas
@@ -45,12 +47,14 @@ export function takeSiloAssetSnapshots(siloAsset: SiloAsset, block: ethereum.Blo
       hourly.deltaDepositedBDV = hourly.deltaDepositedBDV.plus(baseHourly.deltaDepositedBDV);
       hourly.deltaWithdrawnAmount = hourly.deltaWithdrawnAmount.plus(baseHourly.deltaWithdrawnAmount);
       hourly.deltaFarmAmount = hourly.deltaFarmAmount.plus(baseHourly.deltaFarmAmount);
+      hourly.deltaCirculatingAmount = hourly.deltaCirculatingAmount.plus(baseHourly.deltaCirculatingAmount);
     }
   } else {
     hourly.deltaDepositedAmount = hourly.depositedAmount;
     hourly.deltaDepositedBDV = hourly.depositedBDV;
     hourly.deltaWithdrawnAmount = hourly.withdrawnAmount;
     hourly.deltaFarmAmount = hourly.farmAmount;
+    hourly.deltaCirculatingAmount = hourly.circulatingAmount;
   }
   hourly.createdAt = hour.times(BigInt.fromU32(3600));
   hourly.updatedAt = block.timestamp;
@@ -65,11 +69,13 @@ export function takeSiloAssetSnapshots(siloAsset: SiloAsset, block: ethereum.Blo
   daily.depositedBDV = siloAsset.depositedBDV;
   daily.withdrawnAmount = siloAsset.withdrawnAmount;
   daily.farmAmount = siloAsset.farmAmount;
+  daily.circulatingAmount = siloAsset.circulatingAmount;
   if (baseDaily !== null) {
     daily.deltaDepositedAmount = daily.depositedAmount.minus(baseDaily.depositedAmount);
     daily.deltaDepositedBDV = daily.depositedBDV.minus(baseDaily.depositedBDV);
     daily.deltaWithdrawnAmount = daily.withdrawnAmount.minus(baseDaily.withdrawnAmount);
     daily.deltaFarmAmount = daily.farmAmount.minus(baseDaily.farmAmount);
+    daily.deltaCirculatingAmount = daily.circulatingAmount.minus(baseDaily.circulatingAmount);
 
     if (daily.id == baseDaily.id) {
       // Add existing deltas
@@ -77,12 +83,14 @@ export function takeSiloAssetSnapshots(siloAsset: SiloAsset, block: ethereum.Blo
       daily.deltaDepositedBDV = daily.deltaDepositedBDV.plus(baseDaily.deltaDepositedBDV);
       daily.deltaWithdrawnAmount = daily.deltaWithdrawnAmount.plus(baseDaily.deltaWithdrawnAmount);
       daily.deltaFarmAmount = daily.deltaFarmAmount.plus(baseDaily.deltaFarmAmount);
+      daily.deltaCirculatingAmount = daily.deltaCirculatingAmount.plus(baseDaily.deltaCirculatingAmount);
     }
   } else {
     daily.deltaDepositedAmount = daily.depositedAmount;
     daily.deltaDepositedBDV = daily.depositedBDV;
     daily.deltaWithdrawnAmount = daily.withdrawnAmount;
     daily.deltaFarmAmount = daily.farmAmount;
+    daily.deltaCirculatingAmount = daily.circulatingAmount;
   }
   daily.createdAt = day.times(BigInt.fromU32(86400));
   daily.updatedAt = block.timestamp;
