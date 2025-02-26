@@ -136,11 +136,7 @@ export function handleBeanToMaxLpGpPerBdvRatioChange_bugged(event: BeanToMaxLpGp
   if (event.params.absChange == ZERO_BI) {
     silo.beanToMaxLpGpPerBdvRatio = ZERO_BI;
   } else {
-    if (silo.beanToMaxLpGpPerBdvRatio === null) {
-      silo.beanToMaxLpGpPerBdvRatio = event.params.absChange;
-    } else {
-      silo.beanToMaxLpGpPerBdvRatio = silo.beanToMaxLpGpPerBdvRatio!.plus(event.params.absChange);
-    }
+    silo.beanToMaxLpGpPerBdvRatio = silo.beanToMaxLpGpPerBdvRatio.plus(event.params.absChange);
   }
   takeSiloSnapshots(silo, event.block);
   setSiloHourlyCaseId(event.params.caseId, silo);

@@ -144,7 +144,7 @@ type Silo @entity {
   "[Seed Gauge] Stalk that is currently Germinating"
   germinatingStalk: BigInt!
   "[Seed Gauge] Current target ratio of Bean to LP deposits"
-  beanToMaxLpGpPerBdvRatio: BigInt
+  beanToMaxLpGpPerBdvRatio: BigInt!
   "Cumulative total for bean mints sent to the silo (only set on protocol-level Silo)"
   beanMints: BigInt!
   "Current number of active farmers deposited in the silo"
@@ -183,7 +183,7 @@ type SiloHourlySnapshot @entity {
   "[Seed Gauge] Stalk that is currently Germinating"
   germinatingStalk: BigInt!
   "[Seed Gauge] Current target ratio of Bean to LP deposits"
-  beanToMaxLpGpPerBdvRatio: BigInt
+  beanToMaxLpGpPerBdvRatio: BigInt!
   "Point in time cumulative total for bean mints sent to the silo"
   beanMints: BigInt!
   "Point in time current number of active farmers deposited in the silo"
@@ -197,7 +197,7 @@ type SiloHourlySnapshot @entity {
   deltaGrownStalkPerSeason: BigInt!
   deltaRoots: BigInt!
   deltaGerminatingStalk: BigInt!
-  deltaBeanToMaxLpGpPerBdvRatio: BigInt
+  deltaBeanToMaxLpGpPerBdvRatio: BigInt!
   deltaBeanMints: BigInt!
   deltaActiveFarmers: Int!
 
@@ -235,7 +235,7 @@ type SiloDailySnapshot @entity {
   "[Seed Gauge] Stalk that is currently Germinating"
   germinatingStalk: BigInt!
   "[Seed Gauge] Current target ratio of Bean to LP deposits"
-  beanToMaxLpGpPerBdvRatio: BigInt
+  beanToMaxLpGpPerBdvRatio: BigInt!
   "Point in time cumulative total for bean mints sent to the silo"
   beanMints: BigInt!
   "Point in time current number of active farmers deposited in the silo"
@@ -249,7 +249,7 @@ type SiloDailySnapshot @entity {
   deltaGrownStalkPerSeason: BigInt!
   deltaRoots: BigInt!
   deltaGerminatingStalk: BigInt!
-  deltaBeanToMaxLpGpPerBdvRatio: BigInt
+  deltaBeanToMaxLpGpPerBdvRatio: BigInt!
   deltaBeanMints: BigInt!
   deltaActiveFarmers: Int!
 

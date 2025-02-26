@@ -34,6 +34,7 @@ export function loadSilo(account: Address): Silo {
     silo.grownStalkPerSeason = ZERO_BI;
     silo.roots = ZERO_BI;
     silo.germinatingStalk = ZERO_BI;
+    silo.beanToMaxLpGpPerBdvRatio = ZERO_BI;
     silo.beanMints = ZERO_BI;
     silo.activeFarmers = 0;
     silo.save();
