@@ -71,8 +71,6 @@ type Season @entity {
   price: BigDecimal!
   "Total Bean supply"
   beans: BigInt!
-  "Total Silo'd bean supply"
-  sBeans: BigInt!
   "Beans from L1 which have not migrated yet"
   unmigratedL1Beans: BigInt
   "Bean Market Cap"
@@ -81,8 +79,6 @@ type Season @entity {
   deltaB: BigInt!
   "Delta of beans"
   deltaBeans: BigInt!
-  "Delta of sBeans"
-  deltaSBeans: BigInt!
   "Amount of Beans minted during sunrise from TWA. Does not include flood mints"
   rewardBeans: BigInt!
   "Amount of beans minted to the Field due to the flood"
@@ -339,6 +335,73 @@ type SiloAssetDailySnapshot @entity {
   deltaWithdrawnAmount: BigInt!
   deltaFarmAmount: BigInt!
   deltaCirculatingAmount: BigInt!
+
+  "Timestamp of initial snapshot creation"
+  createdAt: BigInt!
+  "Timestamp of last entity update"
+  updatedAt: BigInt!
+}
+
+type WrappedSiloERC20 @entity {
+  "Address of the wrapped silo token"
+  id: Bytes!
+  "Number of decimals for the token"
+  decimals: Int!
+  "The whitelisted silo deposit token that this erc20 is wrapping"
+  underlyingAsset: WhitelistTokenSetting!
+
+  "Total token supply"
+  supply: BigInt!
+  "Amount of underlying tokens redeemable for 1e(decimals) of this wrapped token"
+  redeemRate: BigInt!
+
+  "Link to hourly snapshot data"
+  hourlySnapshots: [WrappedSiloERC20HourlySnapshot!]! @derivedFrom(field: "token")
+  "Link to daily snapshot data"
+  dailySnapshots: [WrappedSiloERC20DailySnapshot!]! @derivedFrom(field: "token")
+}
+
+type WrappedSiloERC20HourlySnapshot @entity {
+  "Token address - Season"
+  id: ID!
+  "The season for this snapshot"
+  season: Int!
+  "WrappedSiloERC20 associated with this snapshot"
+  token: WrappedSiloERC20!
+
+  "Total token supply"
+  supply: BigInt!
+  "Amount of underlying tokens redeemable for 1e(decimals) of this wrapped token"
+  redeemRate: BigInt!
+
+  "Delta of supply"
+  deltaSupply: BigInt!
+  "Delta of redeemRate"
+  deltaRedeemRate: BigInt!
+
+  "Timestamp of initial snapshot creation"
+  createdAt: BigInt!
+  "Timestamp of last entity update"
+  updatedAt: BigInt!
+}
+
+type WrappedSiloERC20DailySnapshot @entity {
+  "Token address - Day"
+  id: ID!
+  "The season for this snapshot"
+  season: Int!
+  "WrappedSiloERC20 associated with this snapshot"
+  token: WrappedSiloERC20!
+
+  "Total token supply"
+  supply: BigInt!
+  "Amount of underlying tokens redeemable for 1e(decimals) of this wrapped token"
+  redeemRate: BigInt!
+
+  "Delta of supply"
+  deltaSupply: BigInt!
+  "Delta of redeemRate"
+  deltaRedeemRate: BigInt!
 
   "Timestamp of initial snapshot creation"
   createdAt: BigInt!
