@@ -355,6 +355,10 @@ type WrappedSiloERC20 @entity {
   "Amount of underlying tokens redeemable for 1e(decimals) of this wrapped token"
   redeemRate: BigInt!
 
+  "Season when the previous hourly snapshot was taken/updated"
+  lastHourlySnapshotSeason: Int
+  "Day of when the previous daily snapshot was taken/updated"
+  lastDailySnapshotDay: BigInt
   "Link to hourly snapshot data"
   hourlySnapshots: [WrappedSiloERC20HourlySnapshot!]! @derivedFrom(field: "token")
   "Link to daily snapshot data"
