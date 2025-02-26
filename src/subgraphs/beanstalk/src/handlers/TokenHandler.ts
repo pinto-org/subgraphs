@@ -2,7 +2,7 @@ import { BigDecimal, BigInt, ethereum, log } from "@graphprotocol/graph-ts";
 import { Transfer } from "../../generated/Beanstalk-ABIs/ERC20";
 import { loadBeanstalk, loadFarmer, loadSeason } from "../entities/Beanstalk";
 import { ZERO_BI } from "../../../../core/utils/Decimals";
-import { beanTransfer, sBeanTransfer, updateFarmTotals } from "../utils/Token";
+import { beanTransfer, sBeanTransfer, updateAssetTotals } from "../utils/Token";
 import { InternalBalanceChanged } from "../../generated/Beanstalk-ABIs/PintoPI5";
 import { v } from "../utils/constants/Version";
 import { getProtocolToken, getSiloBeanToken } from "../../../../core/constants/RuntimeConstants";
@@ -18,7 +18,7 @@ export function handleTransfer(event: Transfer): void {
 
 export function handleInternalBalanceChanged(event: InternalBalanceChanged): void {
   loadFarmer(event.params.account);
-  updateFarmTotals(event.address, event.params.account, event.params.token, event.params.delta, event.block);
+  updateAssetTotals(event.address, event.params.account, event.params.token, event.params.delta, ZERO_BI, event.block);
 }
 
 export function handleExploit(block: ethereum.Block): void {

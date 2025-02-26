@@ -15,7 +15,7 @@ import {
 import { getCurrentSeason, getHarvestableIndex, loadFarmer, loadSeason } from "../../entities/Beanstalk";
 import { loadField, loadPlot } from "../../entities/Field";
 import { clearFieldDeltas, takeFieldSnapshots } from "../../entities/snapshots/Field";
-import { updateFarmTotals } from "../../utils/Token";
+import { updateAssetTotals } from "../../utils/Token";
 import { podListingCreated, podOrderCreated } from "../../utils/Marketplace";
 import { addDeposits, updateStalkBalances } from "../../utils/Silo";
 import { loadFertilizer } from "../../entities/Fertilizer";
@@ -77,7 +77,7 @@ export function handleMigratedPodOrder(event: MigratedPodOrder): void {
 
 export function handleInternalBalanceMigrated(event: InternalBalanceMigrated): void {
   loadFarmer(event.params.account);
-  updateFarmTotals(event.address, event.params.account, event.params.token, event.params.delta, event.block);
+  updateAssetTotals(event.address, event.params.account, event.params.token, event.params.delta, ZERO_BI, event.block);
 }
 
 // isReseed: true for reseed scripts, false for contract account migration (see L1ReceiverFacet.sol)

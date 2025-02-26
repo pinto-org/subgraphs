@@ -4,6 +4,8 @@ import { takeSiloAssetSnapshots } from "../entities/snapshots/SiloAsset";
 import { Transfer } from "../../generated/Beanstalk-ABIs/ERC20";
 import { ADDRESS_ZERO } from "../../../../core/utils/Bytes";
 import { loadBeanstalk, loadSeason } from "../entities/Beanstalk";
+import { v } from "./constants/Version";
+import { ZERO_BI } from "../../../../core/utils/Decimals";
 
 export function beanTransfer(event: Transfer): void {
   // Track supply upon mint/burn
@@ -23,22 +25,68 @@ export function beanTransfer(event: Transfer): void {
 }
 
 export function sBeanTransfer(event: Transfer): void {
-  //
+  // Tracks at the sender/receiver level only, does not recur to protocol. This is because the protocol can also
+  // carry a circulating balance (likely will equal farm balance).
+  if (event.params.from == ADDRESS_ZERO) {
+    // Mint
+    updateAssetTotals(
+      v().protocolAddress,
+      event.params.to,
+      event.address,
+      ZERO_BI,
+      event.params.value,
+      event.block,
+      false
+    );
+  } else if (event.params.to == ADDRESS_ZERO) {
+    // Burn
+    updateAssetTotals(
+      v().protocolAddress,
+      event.params.from,
+      event.address,
+      ZERO_BI,
+      event.params.value.neg(),
+      event.block,
+      false
+    );
+  } else {
+    // Transfer between addresses
+    updateAssetTotals(
+      v().protocolAddress,
+      event.params.from,
+      event.address,
+      ZERO_BI,
+      event.params.value.neg(),
+      event.block,
+      false
+    );
+    updateAssetTotals(
+      v().protocolAddress,
+      event.params.to,
+      event.address,
+      ZERO_BI,
+      event.params.value,
+      event.block,
+      false
+    );
+  }
 }
 
-export function updateFarmTotals(
+export function updateAssetTotals(
   protocol: Address,
   account: Address,
   token: Address,
-  deltaAmount: BigInt,
+  deltaFarm: BigInt,
+  deltaCirculating: BigInt,
   block: ethereum.Block,
   recursive: boolean = true
 ): void {
   if (recursive && account != protocol) {
-    updateFarmTotals(protocol, protocol, token, deltaAmount, block);
+    updateAssetTotals(protocol, protocol, token, deltaFarm, deltaCirculating, block);
   }
-  let asset = loadSiloAsset(account, token);
-  asset.farmAmount = asset.farmAmount.plus(deltaAmount);
+  const asset = loadSiloAsset(account, token);
+  asset.farmAmount = asset.farmAmount.plus(deltaFarm);
+  asset.circulatingAmount = asset.circulatingAmount.plus(deltaCirculating);
   takeSiloAssetSnapshots(asset, block);
   asset.save();
 }

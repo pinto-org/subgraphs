@@ -193,6 +193,7 @@ type SiloHourlySnapshot @entity {
   deltaGrownStalkPerSeason: BigInt!
   deltaRoots: BigInt!
   deltaGerminatingStalk: BigInt!
+  deltaBeanToMaxLpGpPerBdvRatio: BigInt
   deltaBeanMints: BigInt!
   deltaActiveFarmers: Int!
 
@@ -244,6 +245,7 @@ type SiloDailySnapshot @entity {
   deltaGrownStalkPerSeason: BigInt!
   deltaRoots: BigInt!
   deltaGerminatingStalk: BigInt!
+  deltaBeanToMaxLpGpPerBdvRatio: BigInt
   deltaBeanMints: BigInt!
   deltaActiveFarmers: Int!
 
