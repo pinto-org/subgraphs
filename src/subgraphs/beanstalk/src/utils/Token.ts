@@ -10,22 +10,35 @@ import { ZERO_BI } from "../../../../core/utils/Decimals";
 export function beanTransfer(event: Transfer): void {
   // Track supply upon mint/burn
   if (event.params.from == ADDRESS_ZERO || event.params.to == ADDRESS_ZERO) {
-    let beanstalk = loadBeanstalk();
-    let season = loadSeason(BigInt.fromI32(beanstalk.lastSeason));
-
+    const beanstalk = loadBeanstalk();
+    const season = loadSeason(BigInt.fromI32(beanstalk.lastSeason));
     if (event.params.from == ADDRESS_ZERO) {
-      season.deltaBeans = season.deltaBeans.plus(event.params.value);
       season.beans = season.beans.plus(event.params.value);
+      season.deltaBeans = season.deltaBeans.plus(event.params.value);
     } else {
-      season.deltaBeans = season.deltaBeans.minus(event.params.value);
       season.beans = season.beans.minus(event.params.value);
+      season.deltaBeans = season.deltaBeans.minus(event.params.value);
     }
     season.save();
   }
 }
 
 export function sBeanTransfer(event: Transfer): void {
-  // Tracks at the sender/receiver level only, does not recur to protocol. This is because the protocol can also
+  // Track overall supply
+  if (event.params.from == ADDRESS_ZERO || event.params.to == ADDRESS_ZERO) {
+    const beanstalk = loadBeanstalk();
+    const season = loadSeason(BigInt.fromI32(beanstalk.lastSeason));
+    if (event.params.from == ADDRESS_ZERO) {
+      season.sBeans = season.sBeans.plus(event.params.value);
+      season.deltaSBeans = season.deltaSBeans.plus(event.params.value);
+    } else {
+      season.sBeans = season.sBeans.minus(event.params.value);
+      season.deltaSBeans = season.deltaSBeans.minus(event.params.value);
+    }
+    season.save();
+  }
+
+  // Tracks balances at the sender/receiver level only, does not recur to protocol. This is because the protocol can also
   // carry a circulating balance (likely will equal farm balance).
   if (event.params.from == ADDRESS_ZERO) {
     // Mint

@@ -71,14 +71,18 @@ type Season @entity {
   price: BigDecimal!
   "Total Bean supply"
   beans: BigInt!
+  "Total Silo'd bean supply"
+  sBeans: BigInt!
   "Beans from L1 which have not migrated yet"
   unmigratedL1Beans: BigInt
   "Bean Market Cap"
   marketCap: BigDecimal!
   "Time weighted deltaB"
   deltaB: BigInt!
-  "Change in Bean supply"
+  "Delta of beans"
   deltaBeans: BigInt!
+  "Delta of sBeans"
+  deltaSBeans: BigInt!
   "Amount of Beans minted during sunrise from TWA. Does not include flood mints"
   rewardBeans: BigInt!
   "Amount of beans minted to the Field due to the flood"
