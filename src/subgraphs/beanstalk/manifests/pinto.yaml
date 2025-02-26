@@ -299,27 +299,30 @@ dataSources:
           file: ../../../core/abis/ERC20.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
-          handler: handleTransfer
+          handler: handleBeanTransfer
       file: ../src/handlers/TokenHandler.ts
+  ###
+  # Wrapped Deposit ERC20
+  ###
   - kind: ethereum/contract
-    name: sBean
+    name: sPinto
     network: base
     source:
-      address: "0x7F6A8E8bA3E4cFd92fA1e5Dcd89Ba8F7eF92aA12" # TODO: Need to update this to the sPinto address once known
-      abi: ERC20
+      address: "0x00b174d66adA7d63789087F50A9b9e0e48446dc1"
+      abi: WrappedSiloERC20
       startBlock: 27000000 # sPinto Deployment (Should update this once the actual block number is known)
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
-        - SiloAsset
+        - WrappedSiloERC20
       abis:
-        - name: ERC20
-          file: ../../../core/abis/ERC20.json
+        - name: WrappedSiloERC20
+          file: ../../../core/abis/WrappedSiloERC20.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
-          handler: handleTransfer
+          handler: handleWrappedDepositTransfer
       file: ../src/handlers/TokenHandler.ts
   ###
   # FARM BALANCE

@@ -342,7 +342,7 @@ type SiloAssetDailySnapshot @entity {
   updatedAt: BigInt!
 }
 
-type WrappedSiloERC20 @entity {
+type WrappedDepositERC20 @entity {
   "Address of the wrapped silo token"
   id: Bytes!
   "Number of decimals for the token"
@@ -360,18 +360,18 @@ type WrappedSiloERC20 @entity {
   "Day of when the previous daily snapshot was taken/updated"
   lastDailySnapshotDay: BigInt
   "Link to hourly snapshot data"
-  hourlySnapshots: [WrappedSiloERC20HourlySnapshot!]! @derivedFrom(field: "token")
+  hourlySnapshots: [WrappedDepositERC20HourlySnapshot!]! @derivedFrom(field: "token")
   "Link to daily snapshot data"
-  dailySnapshots: [WrappedSiloERC20DailySnapshot!]! @derivedFrom(field: "token")
+  dailySnapshots: [WrappedDepositERC20DailySnapshot!]! @derivedFrom(field: "token")
 }
 
-type WrappedSiloERC20HourlySnapshot @entity {
+type WrappedDepositERC20HourlySnapshot @entity {
   "Token address - Season"
   id: ID!
   "The season for this snapshot"
   season: Int!
-  "WrappedSiloERC20 associated with this snapshot"
-  token: WrappedSiloERC20!
+  "WrappedDepositERC20 associated with this snapshot"
+  token: WrappedDepositERC20!
 
   "Total token supply"
   supply: BigInt!
@@ -389,13 +389,13 @@ type WrappedSiloERC20HourlySnapshot @entity {
   updatedAt: BigInt!
 }
 
-type WrappedSiloERC20DailySnapshot @entity {
+type WrappedDepositERC20DailySnapshot @entity {
   "Token address - Day"
   id: ID!
   "The season for this snapshot"
   season: Int!
-  "WrappedSiloERC20 associated with this snapshot"
-  token: WrappedSiloERC20!
+  "WrappedDepositERC20 associated with this snapshot"
+  token: WrappedDepositERC20!
 
   "Total token supply"
   supply: BigInt!

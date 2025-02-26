@@ -1,41 +1,41 @@
 import { BigInt, ethereum } from "@graphprotocol/graph-ts";
 import {
-  WrappedSiloERC20,
-  WrappedSiloERC20DailySnapshot,
-  WrappedSiloERC20HourlySnapshot
+  WrappedDepositERC20,
+  WrappedDepositERC20DailySnapshot,
+  WrappedDepositERC20HourlySnapshot
 } from "../../../generated/schema";
 import { getCurrentSeason } from "../Beanstalk";
 import { dayFromTimestamp, hourFromTimestamp } from "../../../../../core/utils/Dates";
 
-export function takeWrappedSiloSnapshots(wrappedSilo: WrappedSiloERC20, block: ethereum.Block): void {
+export function takeWrappedDepositSnapshots(wrappedDeposit: WrappedDepositERC20, block: ethereum.Block): void {
   const currentSeason = getCurrentSeason();
 
   const hour = BigInt.fromI32(hourFromTimestamp(block.timestamp));
   const day = BigInt.fromI32(dayFromTimestamp(block.timestamp));
 
   // Load the snapshot for this season/day
-  const hourlyId = wrappedSilo.id.toHexString() + "-" + currentSeason.toString();
-  const dailyId = wrappedSilo.id.toHexString() + "-" + day.toString();
-  let baseHourly = WrappedSiloERC20HourlySnapshot.load(hourlyId);
-  let baseDaily = WrappedSiloERC20DailySnapshot.load(dailyId);
-  if (baseHourly == null && wrappedSilo.lastHourlySnapshotSeason !== 0) {
-    baseHourly = WrappedSiloERC20HourlySnapshot.load(
-      wrappedSilo.id.toHexString() + "-" + wrappedSilo.lastHourlySnapshotSeason.toString()
+  const hourlyId = wrappedDeposit.id.toHexString() + "-" + currentSeason.toString();
+  const dailyId = wrappedDeposit.id.toHexString() + "-" + day.toString();
+  let baseHourly = WrappedDepositERC20HourlySnapshot.load(hourlyId);
+  let baseDaily = WrappedDepositERC20DailySnapshot.load(dailyId);
+  if (baseHourly == null && wrappedDeposit.lastHourlySnapshotSeason !== 0) {
+    baseHourly = WrappedDepositERC20HourlySnapshot.load(
+      wrappedDeposit.id.toHexString() + "-" + wrappedDeposit.lastHourlySnapshotSeason.toString()
     );
   }
-  if (baseDaily == null && wrappedSilo.lastDailySnapshotDay !== null) {
-    baseDaily = WrappedSiloERC20DailySnapshot.load(
-      wrappedSilo.id.toHexString() + "-" + wrappedSilo.lastDailySnapshotDay!.toString()
+  if (baseDaily == null && wrappedDeposit.lastDailySnapshotDay !== null) {
+    baseDaily = WrappedDepositERC20DailySnapshot.load(
+      wrappedDeposit.id.toHexString() + "-" + wrappedDeposit.lastDailySnapshotDay!.toString()
     );
   }
-  const hourly = new WrappedSiloERC20HourlySnapshot(hourlyId);
-  const daily = new WrappedSiloERC20DailySnapshot(dailyId);
+  const hourly = new WrappedDepositERC20HourlySnapshot(hourlyId);
+  const daily = new WrappedDepositERC20DailySnapshot(dailyId);
 
   // Set current values
   hourly.season = currentSeason;
-  hourly.token = wrappedSilo.id;
-  hourly.supply = wrappedSilo.supply;
-  hourly.redeemRate = wrappedSilo.redeemRate;
+  hourly.token = wrappedDeposit.id;
+  hourly.supply = wrappedDeposit.supply;
+  hourly.redeemRate = wrappedDeposit.redeemRate;
 
   // Set deltas
   if (baseHourly !== null) {
@@ -58,9 +58,9 @@ export function takeWrappedSiloSnapshots(wrappedSilo: WrappedSiloERC20, block: e
   // Duplicate code is preferred to type coercion, the codegen doesnt provide a common interface.
 
   daily.season = currentSeason;
-  daily.token = wrappedSilo.id;
-  daily.supply = wrappedSilo.supply;
-  daily.redeemRate = wrappedSilo.redeemRate;
+  daily.token = wrappedDeposit.id;
+  daily.supply = wrappedDeposit.supply;
+  daily.redeemRate = wrappedDeposit.redeemRate;
   if (baseDaily !== null) {
     daily.deltaSupply = daily.supply.minus(baseDaily.supply);
     daily.deltaRedeemRate = daily.redeemRate.minus(baseDaily.redeemRate);
@@ -77,6 +77,6 @@ export function takeWrappedSiloSnapshots(wrappedSilo: WrappedSiloERC20, block: e
   daily.updatedAt = block.timestamp;
   daily.save();
 
-  wrappedSilo.lastHourlySnapshotSeason = currentSeason;
-  wrappedSilo.lastDailySnapshotDay = day;
+  wrappedDeposit.lastHourlySnapshotSeason = currentSeason;
+  wrappedDeposit.lastDailySnapshotDay = day;
 }

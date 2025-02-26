@@ -10,8 +10,7 @@ import {
   PINTO_WETH,
   WELL_STABLE2,
   POOL_TOKENS,
-  TOKEN_INFOS,
-  SILOED_BEAN
+  TOKEN_INFOS
 } from "./raw/PintoBaseConstants";
 import { beanDecimals, PoolTokens, Token, WellFnInfo } from "./RuntimeConstants";
 import { BI_10 } from "../utils/Decimals";
@@ -20,10 +19,6 @@ import { BI_10 } from "../utils/Decimals";
 
 export function getProtocolToken(): Address {
   return BEAN_ERC20;
-}
-
-export function getSiloBeanToken(): Address {
-  return SILOED_BEAN;
 }
 
 export function getProtocolFertilizer(): Address | null {

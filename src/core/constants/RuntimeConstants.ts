@@ -26,17 +26,6 @@ export function getProtocolToken(v: VersionDto, blockNumber: BigInt): Address {
   throw new Error("Unsupported protocol");
 }
 
-export function getSiloBeanToken(v: VersionDto): Address | null {
-  if (v.chain == "ethereum" && v.protocolAddress == ConstantsEth.BEANSTALK) {
-    return null;
-  } else if (v.chain == "arbitrum" && v.protocolAddress == ConstantsArb.BEANSTALK) {
-    return null;
-  } else if (v.chain == "base" && v.protocolAddress == ConstantsPintoBase.BEANSTALK) {
-    return PintoBase.getSiloBeanToken();
-  }
-  throw new Error("Unsupported protocol");
-}
-
 export function getProtocolFertilizer(v: VersionDto): Address | null {
   if (v.chain == "ethereum" && v.protocolAddress == ConstantsEth.BEANSTALK) {
     return BeanstalkEth.getProtocolFertilizer();

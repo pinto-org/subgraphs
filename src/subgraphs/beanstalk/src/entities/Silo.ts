@@ -8,11 +8,13 @@ import {
   WhitelistTokenSetting,
   TokenYield,
   UnripeToken,
-  WellPlenty
+  WellPlenty,
+  WrappedDepositERC20
 } from "../../generated/schema";
 import { ZERO_BD, ZERO_BI } from "../../../../core/utils/Decimals";
 import { getTokenDecimals, getUnripeUnderlying } from "../../../../core/constants/RuntimeConstants";
 import { v } from "../utils/constants/Version";
+import { WrappedSiloERC20 } from "../../generated/Beanstalk-ABIs/WrappedSiloERC20";
 
 /* ===== Base Silo Entities ===== */
 
@@ -86,6 +88,24 @@ export function loadWhitelistTokenSetting(token: Address): WhitelistTokenSetting
     setting.save();
   }
   return setting as WhitelistTokenSetting;
+}
+
+/* ===== Wrapped Silo ERC20 Entities ===== */
+
+export function loadWrappedDeposit(token: Address): WrappedDepositERC20 {
+  let wrappedDeposit = WrappedDepositERC20.load(token);
+  if (wrappedDeposit == null) {
+    wrappedDeposit = new WrappedDepositERC20(token);
+
+    const contract = WrappedSiloERC20.bind(token);
+    wrappedDeposit.decimals = contract.decimals();
+    wrappedDeposit.underlyingAsset = contract.asset();
+
+    wrappedDeposit.supply = ZERO_BI;
+    wrappedDeposit.redeemRate = ZERO_BI;
+    wrappedDeposit.save();
+  }
+  return wrappedDeposit as WrappedDepositERC20;
 }
 
 /* ===== Plenty Entities ===== */
