@@ -51,9 +51,7 @@ export function takeSiloSnapshots(silo: Silo, block: ethereum.Block): void {
     hourly.deltaGrownStalkPerSeason = hourly.grownStalkPerSeason.minus(baseHourly.grownStalkPerSeason);
     hourly.deltaRoots = hourly.roots.minus(baseHourly.roots);
     hourly.deltaGerminatingStalk = hourly.germinatingStalk.minus(baseHourly.germinatingStalk);
-    hourly.deltaBeanToMaxLpGpPerBdvRatio = hourly.beanToMaxLpGpPerBdvRatio.minus(
-      baseHourly.deltaBeanToMaxLpGpPerBdvRatio
-    );
+    hourly.deltaBeanToMaxLpGpPerBdvRatio = hourly.beanToMaxLpGpPerBdvRatio.minus(baseHourly.beanToMaxLpGpPerBdvRatio);
     hourly.deltaBeanMints = hourly.beanMints.minus(baseHourly.beanMints);
     hourly.deltaActiveFarmers = hourly.activeFarmers - baseHourly.activeFarmers;
     if (hourly.id == baseHourly.id) {
@@ -120,7 +118,7 @@ export function takeSiloSnapshots(silo: Silo, block: ethereum.Block): void {
     daily.deltaGrownStalkPerSeason = daily.grownStalkPerSeason.minus(baseDaily.grownStalkPerSeason);
     daily.deltaRoots = daily.roots.minus(baseDaily.roots);
     daily.deltaGerminatingStalk = daily.germinatingStalk.minus(baseDaily.germinatingStalk);
-    daily.deltaBeanToMaxLpGpPerBdvRatio = daily.beanToMaxLpGpPerBdvRatio.minus(baseDaily.deltaBeanToMaxLpGpPerBdvRatio);
+    daily.deltaBeanToMaxLpGpPerBdvRatio = daily.beanToMaxLpGpPerBdvRatio.minus(baseDaily.beanToMaxLpGpPerBdvRatio);
     daily.deltaBeanMints = daily.beanMints.minus(baseDaily.beanMints);
     daily.deltaActiveFarmers = daily.activeFarmers - baseDaily.activeFarmers;
     if (daily.id == baseDaily.id) {

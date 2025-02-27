@@ -323,7 +323,9 @@ dataSources:
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleWrappedDepositERC20Transfer
-      file: ../src/handlers/TokenHandler.ts
+        - event: Update(uint256,uint256)
+          handler: handleUpdate
+      file: ../src/handlers/WrappedSiloHandler.ts
 # features:
 #   - grafting
 # graft:
