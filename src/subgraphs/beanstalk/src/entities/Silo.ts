@@ -57,8 +57,6 @@ export function loadSiloAsset(account: Address, token: Address): SiloAsset {
     asset.depositedBDV = ZERO_BI;
     asset.depositedAmount = ZERO_BI;
     asset.withdrawnAmount = ZERO_BI;
-    asset.farmAmount = ZERO_BI;
-    asset.circulatingAmount = ZERO_BI;
     asset.save();
   }
   return asset as SiloAsset;

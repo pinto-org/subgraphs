@@ -79,6 +79,7 @@ export function takeFieldSnapshots(field: Field, block: ethereum.Block): void {
       hourly.seasonBlock = baseHourly.seasonBlock;
       hourly.caseId = baseHourly.caseId;
       hourly.soilSoldOut = baseHourly.soilSoldOut;
+      hourly.deltaPodDemand = baseHourly.deltaPodDemand;
       hourly.blocksToSoldOutSoil = baseHourly.blocksToSoldOutSoil;
     } else {
       // Sets initial values, assuming no sunrise has occurred
@@ -86,6 +87,7 @@ export function takeFieldSnapshots(field: Field, block: ethereum.Block): void {
       hourly.deltaIssuedSoil = ZERO_BI.minus(baseHourly.issuedSoil);
       hourly.seasonBlock = block.number;
       hourly.soilSoldOut = false;
+      hourly.deltaPodDemand = ZERO_BI; // View function always returns 0 at start of season
     }
 
     if (block.number == sunriseBlock) {
@@ -94,6 +96,7 @@ export function takeFieldSnapshots(field: Field, block: ethereum.Block): void {
       hourly.deltaIssuedSoil = field.soil.minus(baseHourly.issuedSoil);
       hourly.seasonBlock = block.number;
       hourly.soilSoldOut = false;
+      hourly.deltaPodDemand = ZERO_BI; // View function always returns 0 at start of season
     }
   } else {
     hourly.deltaTemperature = hourly.temperature;
@@ -114,6 +117,7 @@ export function takeFieldSnapshots(field: Field, block: ethereum.Block): void {
     hourly.deltaIssuedSoil = field.soil;
     hourly.seasonBlock = block.number;
     hourly.soilSoldOut = false;
+    hourly.deltaPodDemand = ZERO_BI; // View function always returns 0 at start of season
   }
   hourly.createdAt = hour.times(BigInt.fromU32(3600));
   hourly.updatedAt = block.timestamp;
@@ -257,5 +261,12 @@ export function setHourlySoilSoldOut(soldOutBlock: BigInt, field: Field): void {
   const hourly = FieldHourlySnapshot.load(field.id.toHexString() + "-" + field.lastHourlySnapshotSeason.toString())!;
   hourly.blocksToSoldOutSoil = soldOutBlock.minus(hourly.seasonBlock);
   hourly.soilSoldOut = true;
+  hourly.save();
+}
+
+// Sets delta pod demand. Should be set after each sow, and will be correct by the end of each season
+export function setDeltaPodDemand(deltaPodDemand: BigInt, field: Field): void {
+  const hourly = FieldHourlySnapshot.load(field.id.toHexString() + "-" + field.lastHourlySnapshotSeason.toString())!;
+  hourly.deltaPodDemand = deltaPodDemand;
   hourly.save();
 }

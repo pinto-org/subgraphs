@@ -41,11 +41,9 @@ export function loadSeason(id: BigInt): Season {
     season.createdAt = ZERO_BI;
     season.price = ZERO_BD;
     season.beans = ZERO_BI;
-    season.sBeans = ZERO_BI;
     season.marketCap = ZERO_BD;
     season.deltaB = ZERO_BI;
     season.deltaBeans = ZERO_BI;
-    season.deltaSBeans = ZERO_BI;
     season.rewardBeans = ZERO_BI;
     season.floodFieldBeans = ZERO_BI;
     season.floodSiloBeans = ZERO_BI;
@@ -55,7 +53,6 @@ export function loadSeason(id: BigInt): Season {
     let lastSeason = Season.load(id.minus(ONE_BI).toString());
     if (lastSeason != null) {
       season.beans = lastSeason.beans;
-      season.sBeans = lastSeason.sBeans;
       season.unmigratedL1Beans = lastSeason.unmigratedL1Beans;
     }
     season.save();

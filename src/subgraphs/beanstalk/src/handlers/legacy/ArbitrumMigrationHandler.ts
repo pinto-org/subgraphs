@@ -2,7 +2,6 @@ import { BigInt, Address, ethereum } from "@graphprotocol/graph-ts";
 import { ZERO_BI } from "../../../../../core/utils/Decimals";
 import {
   AddMigratedDeposit,
-  InternalBalanceMigrated,
   L1BeansMigrated,
   L1DepositsMigrated,
   L1FertilizerMigrated,
@@ -15,7 +14,6 @@ import {
 import { getCurrentSeason, getHarvestableIndex, loadFarmer, loadSeason } from "../../entities/Beanstalk";
 import { loadField, loadPlot } from "../../entities/Field";
 import { clearFieldDeltas, takeFieldSnapshots } from "../../entities/snapshots/Field";
-import { updateAssetTotals } from "../../utils/Token";
 import { podListingCreated, podOrderCreated } from "../../utils/Marketplace";
 import { addDeposits, updateStalkBalances } from "../../utils/Silo";
 import { loadFertilizer } from "../../entities/Fertilizer";
@@ -73,11 +71,6 @@ export function handleMigratedPodOrder(event: MigratedPodOrder): void {
     pricingFunction: null,
     pricingType: 0
   });
-}
-
-export function handleInternalBalanceMigrated(event: InternalBalanceMigrated): void {
-  loadFarmer(event.params.account);
-  updateAssetTotals(event.address, event.params.account, event.params.token, event.params.delta, ZERO_BI, event.block);
 }
 
 // isReseed: true for reseed scripts, false for contract account migration (see L1ReceiverFacet.sol)

@@ -268,10 +268,7 @@ type SiloAsset @entity {
   depositedBDV: BigInt!
   "Current Token amount of silo withdrawals"
   withdrawnAmount: BigInt!
-  "Current internal (farm) balance of the asset"
-  farmAmount: BigInt!
-  "Current circulating (wallet) balance of the asset. Not tracked for all assets. Please verify it is tracked for your asset before using this field."
-  circulatingAmount: BigInt!
+
   "Season when the previous hourly snapshot was taken/updated"
   lastHourlySnapshotSeason: Int
   "Day of when the previous daily snapshot was taken/updated"
@@ -295,16 +292,10 @@ type SiloAssetHourlySnapshot @entity {
   depositedAmount: BigInt!
   "Point in time current Token amount of silo withdrawals"
   withdrawnAmount: BigInt!
-  "Point in time current internal (farm) balance of the asset"
-  farmAmount: BigInt!
-  "Point in time current circulating (wallet) balance of the asset. Not tracked for all assets. Please verify it is tracked for your asset before using this field."
-  circulatingAmount: BigInt!
 
   deltaDepositedBDV: BigInt!
   deltaDepositedAmount: BigInt!
   deltaWithdrawnAmount: BigInt!
-  deltaFarmAmount: BigInt!
-  deltaCirculatingAmount: BigInt!
 
   "Timestamp of initial snapshot creation"
   createdAt: BigInt!
@@ -325,16 +316,10 @@ type SiloAssetDailySnapshot @entity {
   depositedAmount: BigInt!
   "Point in time current Token amount of silo withdrawals"
   withdrawnAmount: BigInt!
-  "Point in time current internal (farm) balance of the asset"
-  farmAmount: BigInt!
-  "Point in time current circulating (wallet) balance of the asset. Not tracked for all assets. Please verify it is tracked for your asset before using this field."
-  circulatingAmount: BigInt!
 
   deltaDepositedBDV: BigInt!
   deltaDepositedAmount: BigInt!
   deltaWithdrawnAmount: BigInt!
-  deltaFarmAmount: BigInt!
-  deltaCirculatingAmount: BigInt!
 
   "Timestamp of initial snapshot creation"
   createdAt: BigInt!
@@ -354,6 +339,8 @@ type WrappedDepositERC20 @entity {
   supply: BigInt!
   "Amount of underlying tokens redeemable for 1e(decimals) of this wrapped token"
   redeemRate: BigInt!
+
+  # TODO: consider for this/the snapshots, association to the silo/silo snapshots for the token contract
 
   "Season when the previous hourly snapshot was taken/updated"
   lastHourlySnapshotSeason: Int
@@ -673,6 +660,8 @@ type FieldHourlySnapshot @entity {
   blocksToSoldOutSoil: BigInt
   "Bool flag if soil sold out for the season"
   soilSoldOut: Boolean!
+  "Result of getDeltaPodDemand for this season. Refer to protocol codebase to understand how to interpret this value"
+  deltaPodDemand: BigInt!
 }
 
 type FieldDailySnapshot @entity {

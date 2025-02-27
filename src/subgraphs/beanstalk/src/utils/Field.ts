@@ -1,11 +1,17 @@
 import { Address, BigInt, BigDecimal, ethereum } from "@graphprotocol/graph-ts";
 import { BeanstalkPrice_priceOnly } from "./contracts/BeanstalkPrice";
 import { BI_10, ONE_BD, toDecimal, ZERO_BD, ZERO_BI } from "../../../../core/utils/Decimals";
-import { setFieldHourlyCaseId, setHourlySoilSoldOut, takeFieldSnapshots } from "../entities/snapshots/Field";
+import {
+  setDeltaPodDemand,
+  setFieldHourlyCaseId,
+  setHourlySoilSoldOut,
+  takeFieldSnapshots
+} from "../entities/snapshots/Field";
 import { getCurrentSeason, getHarvestableIndex, loadBeanstalk, loadFarmer, loadSeason } from "../entities/Beanstalk";
 import { loadField, loadPlot } from "../entities/Field";
 import { expirePodListingIfExists } from "./Marketplace";
 import { toAddress } from "../../../../core/utils/Bytes";
+import { PintoPI5 } from "../../generated/Beanstalk-ABIs/PintoPI5";
 
 class SowParams {
   event: ethereum.Event;
@@ -77,6 +83,10 @@ export function sow(params: SowParams): void {
   plot.save();
 
   incrementSows(protocol, params.account, params.event.block);
+
+  const beanstalk = PintoPI5.bind(protocol);
+  const deltaPodDemand = beanstalk.getDeltaPodDemand();
+  setDeltaPodDemand(deltaPodDemand, field);
 }
 
 export function harvest(params: HarvestParams): void {

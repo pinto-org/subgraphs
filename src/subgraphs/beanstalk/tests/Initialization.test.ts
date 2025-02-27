@@ -20,7 +20,6 @@ import {
 } from "../cache-builder/results/B3Migration_arb";
 import {
   handleAddMigratedDeposit,
-  handleInternalBalanceMigrated,
   handleL1PlotsMigrated,
   handleMigratedAccountStatus,
   handleMigratedPlot,
@@ -29,7 +28,6 @@ import {
 } from "../src/handlers/legacy/ArbitrumMigrationHandler";
 import {
   createAddMigratedDepositEvent,
-  createInternalBalanceMigratedEvent,
   createL1PlotsMigratedEvent,
   createMigratedAccountStatus,
   createMigratedPlotEvent,
@@ -209,16 +207,6 @@ describe("Beanstalk 3 Migration", () => {
         )
       );
       assert.fieldEquals("PodOrder", orderId.toHexString(), "beanAmount", beanAmount.toString());
-    });
-    test("InternalBalanceMigrated", () => {
-      const beanAmount = BigInt.fromU32(2500).times(BI_10.pow(6));
-      handleInternalBalanceMigrated(createInternalBalanceMigratedEvent(account, BEAN_ERC20, beanAmount));
-      assert.fieldEquals(
-        "SiloAsset",
-        account.toHexString() + "-" + BEAN_ERC20.toHexString(),
-        "farmAmount",
-        beanAmount.toString()
-      );
     });
   });
   test("Barn - Fertilizer Minted during Reseed (no contract view functions available)", () => {

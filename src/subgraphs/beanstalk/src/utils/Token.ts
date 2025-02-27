@@ -20,22 +20,3 @@ export function beanTransfer(event: Transfer): void {
     season.save();
   }
 }
-
-export function updateAssetTotals(
-  protocol: Address,
-  account: Address,
-  token: Address,
-  deltaFarm: BigInt,
-  deltaCirculating: BigInt,
-  block: ethereum.Block,
-  recursive: boolean = true
-): void {
-  if (recursive && account != protocol) {
-    updateAssetTotals(protocol, protocol, token, deltaFarm, deltaCirculating, block);
-  }
-  const asset = loadSiloAsset(account, token);
-  asset.farmAmount = asset.farmAmount.plus(deltaFarm);
-  asset.circulatingAmount = asset.circulatingAmount.plus(deltaCirculating);
-  takeSiloAssetSnapshots(asset, block);
-  asset.save();
-}

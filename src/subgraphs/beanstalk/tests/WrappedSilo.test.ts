@@ -55,12 +55,12 @@ describe("Token Transfer Events", () => {
       assert.notInStore("SiloAsset", `${v().protocolAddress.toHexString()}-${sBean.toHexString()}`);
 
       handleWrappedDepositERC20Transfer(transferEvt(sBean, ADDRESS_ZERO, ADDR1, BigInt.fromString("5000")));
-      assert.fieldEquals("SiloAsset", `${ADDR1.toHexString()}-${sBean.toHexString()}`, "circulatingAmount", "5000");
-      assert.fieldEquals("Season", "1", "sBeans", "5000");
+      // assert.fieldEquals("SiloAsset", `${ADDR1.toHexString()}-${sBean.toHexString()}`, "circulatingAmount", "5000");
+      assert.fieldEquals("WrappedDepositERC20", sBean.toHexString(), "supply", "5000");
 
       handleWrappedDepositERC20Transfer(transferEvt(sBean, ADDRESS_ZERO, ADDR1, BigInt.fromString("7000")));
-      assert.fieldEquals("SiloAsset", `${ADDR1.toHexString()}-${sBean.toHexString()}`, "circulatingAmount", "12000");
-      assert.fieldEquals("Season", "1", "sBeans", "12000");
+      // assert.fieldEquals("SiloAsset", `${ADDR1.toHexString()}-${sBean.toHexString()}`, "circulatingAmount", "12000");
+      assert.fieldEquals("WrappedDepositERC20", sBean.toHexString(), "supply", "12000");
     });
 
     test("Burn", () => {
@@ -69,8 +69,8 @@ describe("Token Transfer Events", () => {
 
       // Burns
       handleWrappedDepositERC20Transfer(transferEvt(sBean, ADDR1, ADDRESS_ZERO, BigInt.fromString("2000")));
-      assert.fieldEquals("SiloAsset", `${ADDR1.toHexString()}-${sBean.toHexString()}`, "circulatingAmount", "3000");
-      assert.fieldEquals("Season", "1", "sBeans", "3000");
+      // assert.fieldEquals("SiloAsset", `${ADDR1.toHexString()}-${sBean.toHexString()}`, "circulatingAmount", "3000");
+      assert.fieldEquals("WrappedDepositERC20", sBean.toHexString(), "supply", "3000");
     });
 
     test("Transfer - moves tracked balance between farmers", () => {
@@ -79,15 +79,15 @@ describe("Token Transfer Events", () => {
 
       // Transfers
       handleWrappedDepositERC20Transfer(transferEvt(sBean, ADDR1, ADDR2, BigInt.fromString("2000")));
-      assert.fieldEquals("SiloAsset", `${ADDR1.toHexString()}-${sBean.toHexString()}`, "circulatingAmount", "3000");
-      assert.fieldEquals("SiloAsset", `${ADDR2.toHexString()}-${sBean.toHexString()}`, "circulatingAmount", "2000");
+      // assert.fieldEquals("SiloAsset", `${ADDR1.toHexString()}-${sBean.toHexString()}`, "circulatingAmount", "3000");
+      // assert.fieldEquals("SiloAsset", `${ADDR2.toHexString()}-${sBean.toHexString()}`, "circulatingAmount", "2000");
 
       handleWrappedDepositERC20Transfer(transferEvt(sBean, ADDR1, ADDR3, BigInt.fromString("1000")));
-      assert.fieldEquals("SiloAsset", `${ADDR1.toHexString()}-${sBean.toHexString()}`, "circulatingAmount", "2000");
-      assert.fieldEquals("SiloAsset", `${ADDR2.toHexString()}-${sBean.toHexString()}`, "circulatingAmount", "2000");
-      assert.fieldEquals("SiloAsset", `${ADDR3.toHexString()}-${sBean.toHexString()}`, "circulatingAmount", "1000");
+      // assert.fieldEquals("SiloAsset", `${ADDR1.toHexString()}-${sBean.toHexString()}`, "circulatingAmount", "2000");
+      // assert.fieldEquals("SiloAsset", `${ADDR2.toHexString()}-${sBean.toHexString()}`, "circulatingAmount", "2000");
+      // assert.fieldEquals("SiloAsset", `${ADDR3.toHexString()}-${sBean.toHexString()}`, "circulatingAmount", "1000");
 
-      assert.fieldEquals("Season", "1", "sBeans", "5000");
+      assert.fieldEquals("WrappedDepositERC20", sBean.toHexString(), "supply", "5000");
     });
   });
 });
