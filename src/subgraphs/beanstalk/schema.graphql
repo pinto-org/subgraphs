@@ -330,6 +330,8 @@ type SiloAssetDailySnapshot @entity {
 type WrappedDepositERC20 @entity {
   "Address of the wrapped silo token"
   id: Bytes!
+  "Silo stats for this wrapped deposit contract"
+  silo: Silo!
   "Number of decimals for the token"
   decimals: Int!
   "The whitelisted silo deposit token that this erc20 is wrapping"
@@ -339,8 +341,6 @@ type WrappedDepositERC20 @entity {
   supply: BigInt!
   "Amount of underlying tokens redeemable for 1e(decimals) of this wrapped token"
   redeemRate: BigInt!
-
-  # TODO: consider for this/the snapshots, association to the silo/silo snapshots for the token contract
 
   "Season when the previous hourly snapshot was taken/updated"
   lastHourlySnapshotSeason: Int
@@ -359,6 +359,8 @@ type WrappedDepositERC20HourlySnapshot @entity {
   season: Int!
   "WrappedDepositERC20 associated with this snapshot"
   token: WrappedDepositERC20!
+  "Hourly Silo stats for this wrapped deposit contract"
+  siloHourlySnapshot: SiloHourlySnapshot!
 
   "Total token supply"
   supply: BigInt!
@@ -383,6 +385,8 @@ type WrappedDepositERC20DailySnapshot @entity {
   season: Int!
   "WrappedDepositERC20 associated with this snapshot"
   token: WrappedDepositERC20!
+  "Daily Silo stats for this wrapped deposit contract"
+  siloDailySnapshot: SiloHourlySnapshot!
 
   "Total token supply"
   supply: BigInt!

@@ -32,6 +32,7 @@ export function takeWrappedDepositSnapshots(wrappedDeposit: WrappedDepositERC20,
   const daily = new WrappedDepositERC20DailySnapshot(dailyId);
 
   // Set current values
+  hourly.siloHourlySnapshot = hourlyId; // Should be a fair assumption that the silo snapshot was already created
   hourly.season = currentSeason;
   hourly.token = wrappedDeposit.id;
   hourly.supply = wrappedDeposit.supply;
@@ -57,6 +58,7 @@ export function takeWrappedDepositSnapshots(wrappedDeposit: WrappedDepositERC20,
   // Repeat for daily snapshot.
   // Duplicate code is preferred to type coercion, the codegen doesnt provide a common interface.
 
+  daily.siloDailySnapshot = dailyId; // Should be a fair assumption that the silo snapshot was already created
   daily.season = currentSeason;
   daily.token = wrappedDeposit.id;
   daily.supply = wrappedDeposit.supply;

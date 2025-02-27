@@ -94,6 +94,7 @@ export function loadWrappedDeposit(token: Address): WrappedDepositERC20 {
   let wrappedDeposit = WrappedDepositERC20.load(token);
   if (wrappedDeposit == null) {
     wrappedDeposit = new WrappedDepositERC20(token);
+    wrappedDeposit.silo = loadSilo(token).id;
 
     const contract = WrappedSiloERC20.bind(token);
     wrappedDeposit.decimals = contract.decimals();
