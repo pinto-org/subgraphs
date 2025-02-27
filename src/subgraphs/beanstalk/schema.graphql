@@ -819,6 +819,8 @@ type Plot @entity {
   pods: BigInt!
   "Number of beans spent for each pod, whether through sowing or on the marketplace"
   beansPerPod: BigInt!
+  "The harvestable index at the time the plot was sown or exchanged on the marketplace"
+  initialHarvestableIndex: BigInt!
   "Number of pods harvestable"
   harvestablePods: BigInt!
   "Number of pods harvested"

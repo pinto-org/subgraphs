@@ -10,6 +10,9 @@ import { handleHarvest, handlePlotTransfer, handleSow } from "../../src/handlers
 const account = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266".toLowerCase();
 
 export function sow(account: string, index: BigInt, beans: BigInt, pods: BigInt): void {
+  createMockedFunction(BEANSTALK, "getDeltaPodDemand", "getDeltaPodDemand():(uint256)").returns([
+    ethereum.Value.fromUnsignedBigInt(ZERO_BI)
+  ]);
   handleSow(createSowEvent(account, index, beans, pods));
 }
 

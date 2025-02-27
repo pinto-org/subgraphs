@@ -134,6 +134,7 @@ function addMigratedPlot(
   plot.updatedAtBlock = event.block.number;
   plot.pods = amount;
   plot.beansPerPod = ZERO_BI;
+  plot.initialHarvestableIndex = ZERO_BI;
   plot.save();
 }
 
