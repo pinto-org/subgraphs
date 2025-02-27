@@ -322,30 +322,7 @@ dataSources:
           file: ../../../core/abis/WrappedSiloERC20.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
-          handler: handleWrappedDepositTransfer
-      file: ../src/handlers/TokenHandler.ts
-  ###
-  # FARM BALANCE
-  ###
-  - kind: ethereum/contract
-    name: Farm
-    network: base
-    source:
-      address: "0xD1A0D188E861ed9d15773a2F3574a2e94134bA8f"
-      abi: PintoPI5
-      startBlock: 22622961 # Pintostalk Deployment
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.6
-      language: wasm/assemblyscript
-      entities:
-        - SiloAsset
-      abis:
-        - name: PintoPI5
-          file: ../../../core/abis/Beanstalk/Pinto-PI5.json
-      eventHandlers:
-        - event: InternalBalanceChanged(indexed address,indexed address,int256)
-          handler: handleInternalBalanceChanged
+          handler: handleWrappedDepositERC20Transfer
       file: ../src/handlers/TokenHandler.ts
 # features:
 #   - grafting
