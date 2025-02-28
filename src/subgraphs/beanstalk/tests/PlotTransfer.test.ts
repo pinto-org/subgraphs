@@ -1,14 +1,6 @@
 /// <reference path="../../../node_modules/assemblyscript/dist/assemblyscript.d.ts" />
 
-import {
-  beforeEach,
-  afterEach,
-  assert,
-  clearStore,
-  describe,
-  test,
-  createMockedFunction
-} from "matchstick-as/assembly/index";
+import { beforeEach, afterEach, assert, clearStore, describe, test } from "matchstick-as/assembly/index";
 import { log } from "matchstick-as/assembly/log";
 import { BigInt, Bytes } from "@graphprotocol/graph-ts";
 
@@ -62,7 +54,7 @@ const initialPlots: Plot[] = [
 describe("Field: Plot Transfer", () => {
   beforeEach(() => {
     initL1Version();
-    mockSeasonStruct();
+    mockSeasonStruct(BEANSTALK);
 
     // Create two equally sized plots next to each other
     for (let i = 0; i < initialPlots.length; ++i) {

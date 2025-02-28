@@ -1,4 +1,4 @@
-import { BigInt, ethereum, log } from "@graphprotocol/graph-ts";
+import { Address, BigInt, ethereum, log } from "@graphprotocol/graph-ts";
 import { assert, createMockedFunction } from "matchstick-as/assembly/index";
 import { createHarvestEvent, createPlotTransferEvent, createSowEvent } from "../event-mocking/Field";
 import { createIncentivizationEvent } from "../event-mocking/Season";
@@ -33,6 +33,15 @@ export function setHarvestable(harvestableIndex: BigInt): BigInt {
   handleIncentive(createIncentivizationEvent(account, BigInt.fromI32(123456)));
 
   return harvestableIndex;
+}
+export function mockHarvestableIndexWithFieldId(
+  protocolAddress: Address,
+  harvestableIndex: BigInt,
+  fieldId: BigInt
+): void {
+  createMockedFunction(protocolAddress, "harvestableIndex", "harvestableIndex(uint256):(uint256)")
+    .withArgs([ethereum.Value.fromUnsignedBigInt(fieldId)])
+    .returns([ethereum.Value.fromUnsignedBigInt(harvestableIndex)]);
 }
 
 export function assertFarmerHasPlot(

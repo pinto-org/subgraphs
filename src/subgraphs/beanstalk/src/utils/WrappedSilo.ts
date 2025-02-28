@@ -1,10 +1,11 @@
-import { Address, BigDecimal, BigInt, ethereum } from "@graphprotocol/graph-ts";
+import { Address, BigDecimal, BigInt, ethereum, log } from "@graphprotocol/graph-ts";
 import { loadWrappedDeposit } from "../entities/Silo";
 import {
   findPreviousWrappedDepositSnapshot,
   takeWrappedDepositSnapshots
 } from "../entities/snapshots/WrappedSiloERC20";
 import { loadBeanstalk } from "../entities/Beanstalk";
+import { toAddress } from "../../../../core/utils/Bytes";
 
 // Updates calculated yields for all wrapped silo tokens. Should be invoked seasonally.
 export function updateAllWrappedDepositYields(block: ethereum.Block): void {
@@ -12,7 +13,7 @@ export function updateAllWrappedDepositYields(block: ethereum.Block): void {
 
   const wrappedDepositTokens = beanstalk.wrappedDepositTokens.load();
   for (let i = 0; i < wrappedDepositTokens.length; ++i) {
-    updateWrappedDepositYields(wrappedDepositTokens[i].id, block);
+    updateWrappedDepositYields(toAddress(wrappedDepositTokens[i].id), block);
   }
 }
 

@@ -16,6 +16,7 @@ import {
 import { harvest, setHarvestable, sow } from "./utils/Field";
 import { initL1Version } from "./entity-mocking/MockVersion";
 import { mockSeasonStruct } from "./utils/Season";
+import { BEANSTALK } from "../../../core/constants/raw/BeanstalkEthConstants";
 
 const account = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266".toLowerCase();
 const account2 = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8".toLowerCase();
@@ -36,7 +37,7 @@ describe("Marketplace", () => {
   beforeEach(() => {
     initL1Version();
 
-    mockSeasonStruct();
+    mockSeasonStruct(BEANSTALK);
     setHarvestable(currentHarvestable);
     sow(account, listingIndex, sowedBeans, sowedPods);
   });
@@ -121,7 +122,7 @@ describe("Marketplace", () => {
 
       // Line advances 1m before fill
       let newHarvestable = currentHarvestable.plus(podlineMil_BI(1));
-      setHarvestable(newHarvestable);
+      setHarvestable(BEANSTALK, newHarvestable);
       placeInLine = placeInLine.minus(podlineMil_BI(1));
       const filledPods = listedPods.div(BigInt.fromString("4"));
       const filledBeans = beans_BI(2000);
