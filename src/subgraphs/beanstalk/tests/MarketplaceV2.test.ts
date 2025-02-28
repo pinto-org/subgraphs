@@ -122,7 +122,7 @@ describe("Marketplace", () => {
 
       // Line advances 1m before fill
       let newHarvestable = currentHarvestable.plus(podlineMil_BI(1));
-      setHarvestable(BEANSTALK, newHarvestable);
+      setHarvestable(newHarvestable);
       placeInLine = placeInLine.minus(podlineMil_BI(1));
       const filledPods = listedPods.div(BigInt.fromString("4"));
       const filledBeans = beans_BI(2000);
