@@ -21,6 +21,7 @@ import { plentyWell, siloReceipt, sunrise } from "../utils/Season";
 import { isGaugeDeployed, isReplanted } from "../../../../core/constants/RuntimeConstants";
 import { v } from "../utils/constants/Version";
 import { Beanstalk_harvestableIndex, Beanstalk_isRaining } from "../utils/contracts/Beanstalk";
+import { updateAllWrappedDepositYields } from "../utils/WrappedSilo";
 
 export function handleSunrise(event: Sunrise): void {
   sunrise(event.address, event.params.season, event.block);
@@ -93,4 +94,6 @@ export function handleIncentive(event: Incentivization): void {
 
   updateExpiredPlots(field.harvestableIndex, event.block);
   updateHarvestablePlots(event.address, field.harvestableIndex, event.block);
+
+  updateAllWrappedDepositYields(event.block);
 }

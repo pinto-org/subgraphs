@@ -3,6 +3,7 @@ import { BI_10 } from "../../../../core/utils/Decimals";
 import { Transfer, Update, WrappedSiloERC20 } from "../../generated/Beanstalk-ABIs/WrappedSiloERC20";
 import { loadWrappedDeposit } from "../entities/Silo";
 import { takeWrappedDepositSnapshots } from "../entities/snapshots/WrappedSiloERC20";
+import { updateWrappedDepositYields } from "../utils/WrappedSilo";
 
 export function handleWrappedDepositERC20Transfer(event: Transfer): void {
   // Track overall supply
@@ -25,4 +26,6 @@ export function handleUpdate(event: Update): void {
   wrappedDeposit.redeemRate = contract.previewRedeem(BI_10.pow(<u8>wrappedDeposit.decimals));
   takeWrappedDepositSnapshots(wrappedDeposit, event.block);
   wrappedDeposit.save();
+
+  updateWrappedDepositYields(event.address, event.block);
 }

@@ -40,6 +40,8 @@ type Beanstalk @entity {
   id: ID!
   "Bean token address of the protocol"
   token: Bytes!
+  "Supported wrapped deposit tokens"
+  wrappedDepositTokens: [WrappedDepositERC20!]! @derivedFrom(field: "beanstalk")
   "Address of the fertilizer contract"
   fertilizer1155: Bytes
   "Season specific data"
@@ -330,6 +332,8 @@ type SiloAssetDailySnapshot @entity {
 type WrappedDepositERC20 @entity {
   "Address of the wrapped silo token"
   id: Bytes!
+  "'beanstalk'"
+  beanstalk: Beanstalk!
   "Silo stats for this wrapped deposit contract"
   silo: Silo!
   "Number of decimals for the token"
@@ -341,6 +345,15 @@ type WrappedDepositERC20 @entity {
   supply: BigInt!
   "Amount of underlying tokens redeemable for 1e(decimals) of this wrapped token"
   redeemRate: BigInt!
+
+  "Projected apy from percent change in redeem rate over the past 24h"
+  apy24h: BigDecimal
+  "Projected apy from percent change in redeem rate over the past 7d"
+  apy7d: BigDecimal
+  "Projected apy from percent change in redeem rate over the past 30d"
+  apy30d: BigDecimal
+  "Projected apy from percent change in redeem rate over the past 90d"
+  apy90d: BigDecimal
 
   "Season when the previous hourly snapshot was taken/updated"
   lastHourlySnapshotSeason: Int
@@ -372,6 +385,15 @@ type WrappedDepositERC20HourlySnapshot @entity {
   "Delta of redeemRate"
   deltaRedeemRate: BigInt!
 
+  "Projected apy from percent change in redeem rate over the past 24h"
+  apy24h: BigDecimal
+  "Projected apy from percent change in redeem rate over the past 7d"
+  apy7d: BigDecimal
+  "Projected apy from percent change in redeem rate over the past 30d"
+  apy30d: BigDecimal
+  "Projected apy from percent change in redeem rate over the past 90d"
+  apy90d: BigDecimal
+
   "Timestamp of initial snapshot creation"
   createdAt: BigInt!
   "Timestamp of last entity update"
@@ -397,6 +419,15 @@ type WrappedDepositERC20DailySnapshot @entity {
   deltaSupply: BigInt!
   "Delta of redeemRate"
   deltaRedeemRate: BigInt!
+
+  "Projected apy from percent change in redeem rate over the past 24h"
+  apy24h: BigDecimal
+  "Projected apy from percent change in redeem rate over the past 7d"
+  apy7d: BigDecimal
+  "Projected apy from percent change in redeem rate over the past 30d"
+  apy30d: BigDecimal
+  "Projected apy from percent change in redeem rate over the past 90d"
+  apy90d: BigDecimal
 
   "Timestamp of initial snapshot creation"
   createdAt: BigInt!

@@ -91,4 +91,22 @@ describe("Wrapped Silo Token", () => {
 
     assert.fieldEquals("WrappedDepositERC20", sBean.toHexString(), "redeemRate", "123456");
   });
+
+  describe("Wrapped deposit vAPYs", () => {
+    test("Does nothing if too few datapoints", () => {
+      //
+    });
+
+    test("Computes available apys", () => {
+      //
+    });
+
+    test("Computes all apys", () => {
+      //
+    });
+
+    test("Updates apy at the start of new seasons", () => {
+      //
+    });
+  });
 });

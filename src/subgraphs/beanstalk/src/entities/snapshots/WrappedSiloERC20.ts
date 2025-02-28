@@ -37,6 +37,10 @@ export function takeWrappedDepositSnapshots(wrappedDeposit: WrappedDepositERC20,
   hourly.token = wrappedDeposit.id;
   hourly.supply = wrappedDeposit.supply;
   hourly.redeemRate = wrappedDeposit.redeemRate;
+  hourly.apy24h = wrappedDeposit.apy24h;
+  hourly.apy7d = wrappedDeposit.apy7d;
+  hourly.apy30d = wrappedDeposit.apy30d;
+  hourly.apy90d = wrappedDeposit.apy90d;
 
   // Set deltas
   if (baseHourly !== null) {
@@ -63,6 +67,10 @@ export function takeWrappedDepositSnapshots(wrappedDeposit: WrappedDepositERC20,
   daily.token = wrappedDeposit.id;
   daily.supply = wrappedDeposit.supply;
   daily.redeemRate = wrappedDeposit.redeemRate;
+  daily.apy24h = wrappedDeposit.apy24h;
+  daily.apy7d = wrappedDeposit.apy7d;
+  daily.apy30d = wrappedDeposit.apy30d;
+  daily.apy90d = wrappedDeposit.apy90d;
   if (baseDaily !== null) {
     daily.deltaSupply = daily.supply.minus(baseDaily.supply);
     daily.deltaRedeemRate = daily.redeemRate.minus(baseDaily.redeemRate);
@@ -81,4 +89,13 @@ export function takeWrappedDepositSnapshots(wrappedDeposit: WrappedDepositERC20,
 
   wrappedDeposit.lastHourlySnapshotSeason = currentSeason;
   wrappedDeposit.lastDailySnapshotDay = day;
+}
+
+export function findPreviousWrappedDepositSnapshot(
+  wrappedDeposit: WrappedDepositERC20,
+  lookbackSeasons: i32
+): WrappedDepositERC20HourlySnapshot | null {
+  const currentSeason = getCurrentSeason();
+  const snapshotId = wrappedDeposit.id.toHexString() + "-" + (currentSeason - lookbackSeasons).toString();
+  return WrappedDepositERC20HourlySnapshot.load(snapshotId);
 }
