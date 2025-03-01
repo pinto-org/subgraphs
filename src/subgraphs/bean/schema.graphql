@@ -16,14 +16,105 @@ type Token @entity {
   "Smart contract address of the token"
   id: Bytes!
 
-  "Name of the token, i.e. BEAN, WETH"
+  "Name of the token"
   name: String!
-
   "Number of decimals"
   decimals: BigInt!
 
+  "Total supply of this token. Isn't calculated for all tokens, in those cases will be zero."
+  supply: BigInt!
+  "Amount of tokens in individual wallets. Isn't calculated for all tokens, in those cases will be zero."
+  walletBalance: BigInt!
+  "Amount of tokens in farm balances. Isn't calculated for all tokens, in those cases will be zero."
+  farmBalance: BigInt!
+  "Amount of tokens in whitelisted LP pools. Isn't calculated for all tokens, in those cases will be zero."
+  pooledBalance: BigInt!
+
   "Last USD price calculated. Isn't calculated for all tokens, in those cases will be zero."
   lastPriceUSD: BigDecimal!
+
+  "Season when the previous hourly snapshot was taken/updated"
+  lastHourlySnapshotSeason: Int
+  "Day of when the previous daily snapshot was taken/updated"
+  lastDailySnapshotDay: Int
+
+  hourlySnapshots: [TokenHourlySnapshot!]! @derivedFrom(field: "token")
+  dailySnapshots: [TokenDailySnapshot!]! @derivedFrom(field: "token")
+}
+
+type TokenHourlySnapshot @entity {
+  "{Token address}-{Season}"
+  id: ID!
+
+  seasonNumber: Int!
+  season: Season!
+  token: Token!
+
+  "Name of the token"
+  name: String!
+  "Number of decimals"
+  decimals: BigInt!
+
+  "Total supply of this token. Isn't calculated for all tokens, in those cases will be zero."
+  supply: BigInt!
+  "Amount of tokens in individual wallets. Isn't calculated for all tokens, in those cases will be zero."
+  walletBalance: BigInt!
+  "Amount of tokens in farm balances. Isn't calculated for all tokens, in those cases will be zero."
+  farmBalance: BigInt!
+  "Amount of tokens in whitelisted LP pools. Isn't calculated for all tokens, in those cases will be zero."
+  pooledBalance: BigInt!
+
+  "Last USD price calculated. Isn't calculated for all tokens, in those cases will be zero."
+  lastPriceUSD: BigDecimal!
+
+  "Delta of supply"
+  deltaSupply: BigInt!
+  "Delta of walletBalance"
+  deltaWalletBalance: BigInt!
+  "Delta of farmBalance"
+  deltaFarmBalance: BigInt!
+  "Delta of pooledBalance"
+  deltaPooledBalance: BigInt!
+  "Delta of lastPriceUSD"
+  deltaLastPriceUSD: BigDecimal!
+}
+
+type TokenDailySnapshot @entity {
+  "{Token address}-{Unix day}"
+  id: ID!
+
+  "Unix day"
+  day: Int!
+  season: Season!
+  token: Token!
+
+  "Name of the token"
+  name: String!
+  "Number of decimals"
+  decimals: BigInt!
+
+  "Total supply of this token. Isn't calculated for all tokens, in those cases will be zero."
+  supply: BigInt!
+  "Amount of tokens in individual wallets. Isn't calculated for all tokens, in those cases will be zero."
+  walletBalance: BigInt!
+  "Amount of tokens in farm balances. Isn't calculated for all tokens, in those cases will be zero."
+  farmBalance: BigInt!
+  "Amount of tokens in whitelisted LP pools. Isn't calculated for all tokens, in those cases will be zero."
+  pooledBalance: BigInt!
+
+  "Last USD price calculated. Isn't calculated for all tokens, in those cases will be zero."
+  lastPriceUSD: BigDecimal!
+
+  "Delta of supply"
+  deltaSupply: BigInt!
+  "Delta of walletBalance"
+  deltaWalletBalance: BigInt!
+  "Delta of farmBalance"
+  deltaFarmBalance: BigInt!
+  "Delta of pooledBalance"
+  deltaPooledBalance: BigInt!
+  "Delta of lastPriceUSD"
+  deltaLastPriceUSD: BigDecimal!
 }
 
 type Season @entity {
