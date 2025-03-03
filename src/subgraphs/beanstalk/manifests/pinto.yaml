@@ -239,6 +239,8 @@ dataSources:
           file: ../../../core/abis/Beanstalk/Pinto-PI5.json
         - name: BeanstalkPrice
           file: ../../../core/abis/PintostalkPrice.json
+        - name: WrappedSiloERC20
+          file: ../../../core/abis/WrappedSiloERC20.json
       eventHandlers:
         - event: Sunrise(indexed uint256)
           handler: handleSunrise
