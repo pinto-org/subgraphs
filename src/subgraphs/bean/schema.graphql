@@ -23,7 +23,7 @@ type Token @entity {
 
   "Total supply of this token. Isn't calculated for all tokens, in those cases will be zero."
   supply: BigInt!
-  "Amount of tokens in individual wallets. Isn't calculated for all tokens, in those cases will be zero."
+  "Amount of tokens in individual wallets/contracts (includes silo). Isn't calculated for all tokens, in those cases will be zero."
   walletBalance: BigInt!
   "Amount of tokens in farm balances. Isn't calculated for all tokens, in those cases will be zero."
   farmBalance: BigInt!
@@ -57,7 +57,7 @@ type TokenHourlySnapshot @entity {
 
   "Total supply of this token. Isn't calculated for all tokens, in those cases will be zero."
   supply: BigInt!
-  "Amount of tokens in individual wallets. Isn't calculated for all tokens, in those cases will be zero."
+  "Amount of tokens in individual wallets/contracts (includes silo). Isn't calculated for all tokens, in those cases will be zero."
   walletBalance: BigInt!
   "Amount of tokens in farm balances. Isn't calculated for all tokens, in those cases will be zero."
   farmBalance: BigInt!
@@ -77,6 +77,13 @@ type TokenHourlySnapshot @entity {
   deltaPooledBalance: BigInt!
   "Delta of lastPriceUSD"
   deltaLastPriceUSD: BigDecimal!
+
+  "Timestamp of entity creation"
+  createdTimestamp: BigInt!
+  "Timestamp of the last time this entity was updated"
+  lastUpdateTimestamp: BigInt!
+  "Block number of the last time this entity was updated"
+  lastUpdateBlockNumber: BigInt!
 }
 
 type TokenDailySnapshot @entity {
@@ -95,7 +102,7 @@ type TokenDailySnapshot @entity {
 
   "Total supply of this token. Isn't calculated for all tokens, in those cases will be zero."
   supply: BigInt!
-  "Amount of tokens in individual wallets. Isn't calculated for all tokens, in those cases will be zero."
+  "Amount of tokens in individual wallets/contracts (includes silo). Isn't calculated for all tokens, in those cases will be zero."
   walletBalance: BigInt!
   "Amount of tokens in farm balances. Isn't calculated for all tokens, in those cases will be zero."
   farmBalance: BigInt!
@@ -115,6 +122,13 @@ type TokenDailySnapshot @entity {
   deltaPooledBalance: BigInt!
   "Delta of lastPriceUSD"
   deltaLastPriceUSD: BigDecimal!
+
+  "Timestamp of entity creation"
+  createdTimestamp: BigInt!
+  "Timestamp of the last time this entity was updated"
+  lastUpdateTimestamp: BigInt!
+  "Block number of the last time this entity was updated"
+  lastUpdateBlockNumber: BigInt!
 }
 
 type Season @entity {

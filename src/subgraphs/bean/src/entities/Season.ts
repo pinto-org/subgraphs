@@ -27,3 +27,8 @@ export function getLastSeasonDuration(): i32 {
   const prevSeason = getSeason(currentSeason.season - 1);
   return currentSeason.timestamp.minus(prevSeason.timestamp).toI32();
 }
+
+export function getCurrentSeason(block: ethereum.Block): Season {
+  const bean = loadBean(getProtocolToken(v(), block.number));
+  return Season.load(bean.currentSeason)!;
+}
