@@ -38,7 +38,7 @@ jobs:
         run: npm run codegen bean
 
       - name: Build Subgraph
-        run: npm run build bean arbitrum
+        run: npm run build bean pinto
   test:
     runs-on: ubuntu-latest
     name: Test

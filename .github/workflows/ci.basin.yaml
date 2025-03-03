@@ -38,7 +38,7 @@ jobs:
         run: npm run codegen basin
 
       - name: Build Subgraph
-        run: npm run build basin arbitrum
+        run: npm run build basin pinto
   test:
     runs-on: ubuntu-latest
     name: Test
