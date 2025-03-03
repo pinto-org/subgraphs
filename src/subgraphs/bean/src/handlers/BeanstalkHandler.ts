@@ -1,6 +1,13 @@
 import { updateBeanSupplyPegPercent, updateSnapshotInst } from "../utils/Bean";
 import { Chop } from "../../generated/Bean-ABIs/Reseed";
-import { Convert, DewhitelistToken, Shipped, Sunrise, WellOracle } from "../../generated/Bean-ABIs/PintoLaunch";
+import {
+  Convert,
+  DewhitelistToken,
+  InternalBalanceChanged,
+  Shipped,
+  Sunrise,
+  WellOracle
+} from "../../generated/Bean-ABIs/PintoLaunch";
 import { loadBean, saveBean } from "../entities/Bean";
 import { updateSeason, wellOracle } from "../utils/Beanstalk";
 import { updatePoolPricesOnCross } from "../utils/Cross";
@@ -61,4 +68,8 @@ export function handleConvert(event: Convert): void {
 export function handleShipped(event: Shipped): void {
   let beanToken = getProtocolToken(v(), event.block.number);
   updateBeanSupplyPegPercent(beanToken, event.block);
+}
+
+export function handleInternalBalanceChanged(event: InternalBalanceChanged): void {
+  //
 }

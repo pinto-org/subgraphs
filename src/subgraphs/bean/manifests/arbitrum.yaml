@@ -73,7 +73,7 @@ dataSources:
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
-      file: ../src/handlers/BeanHandler.ts
+      file: ../src/handlers/TokenHandler.ts
   ###
   # BEANSTALK PROTOCOL
   ###

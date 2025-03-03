@@ -50,7 +50,7 @@ dataSources:
             kind: once
       file: ../src/utils/init/PintoInit.ts
   ###
-  # BEAN TOKEN
+  # TOKENS
   ###
   - kind: ethereum/contract
     name: BeanToken
@@ -73,7 +73,7 @@ dataSources:
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
-      file: ../src/handlers/BeanHandler.ts
+      file: ../src/handlers/TokenHandler.ts
   ###
   # BEANSTALK PROTOCOL
   ###
@@ -106,6 +106,8 @@ dataSources:
           handler: handleSunrise
         - event: Shipped(indexed uint32,uint256)
           handler: handleShipped
+        - event: internal
+          handler: handleInternalBalanceChanged
       file: ../src/handlers/BeanstalkHandler.ts
   - kind: ethereum/contract
     name: WellTWAP
