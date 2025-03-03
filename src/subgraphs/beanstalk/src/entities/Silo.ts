@@ -11,7 +11,7 @@ import {
   WellPlenty,
   WrappedDepositERC20
 } from "../../generated/schema";
-import { ZERO_BD, ZERO_BI } from "../../../../core/utils/Decimals";
+import { BI_10, ZERO_BD, ZERO_BI } from "../../../../core/utils/Decimals";
 import { getTokenDecimals, getUnripeUnderlying } from "../../../../core/constants/RuntimeConstants";
 import { v } from "../utils/constants/Version";
 import { WrappedSiloERC20 } from "../../generated/Beanstalk-ABIs/WrappedSiloERC20";
@@ -102,7 +102,7 @@ export function loadWrappedDeposit(token: Address): WrappedDepositERC20 {
     wrappedDeposit.underlyingAsset = contract.asset();
 
     wrappedDeposit.supply = ZERO_BI;
-    wrappedDeposit.redeemRate = ZERO_BI;
+    wrappedDeposit.redeemRate = contract.previewRedeem(BI_10.pow(<u8>wrappedDeposit.decimals));
     wrappedDeposit.save();
   }
   return wrappedDeposit as WrappedDepositERC20;
