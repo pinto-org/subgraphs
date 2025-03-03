@@ -1,4 +1,4 @@
-import { Address, BigDecimal, BigInt, ethereum, log } from "@graphprotocol/graph-ts";
+import { Address, BigDecimal, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import { loadWrappedDeposit } from "../entities/Silo";
 import {
   findPreviousWrappedDepositSnapshot,
@@ -6,9 +6,11 @@ import {
 } from "../entities/snapshots/WrappedSiloERC20";
 import { loadBeanstalk } from "../entities/Beanstalk";
 import { toAddress } from "../../../../core/utils/Bytes";
+import { WrappedSiloERC20 } from "../../generated/Beanstalk-ABIs/WrappedSiloERC20";
+import { BI_10 } from "../../../../core/utils/Decimals";
 
-// Updates calculated yields for all wrapped silo tokens. Should be invoked seasonally.
-export function updateAllWrappedDepositYields(block: ethereum.Block): void {
+// Updates redemption rates/yields for all wrapped silo tokens. Should be invoked seasonally.
+export function updateAllWrappedDeposits(block: ethereum.Block): void {
   const beanstalk = loadBeanstalk();
 
   const wrappedDepositTokens = beanstalk.wrappedDepositTokens.load();
@@ -17,9 +19,11 @@ export function updateAllWrappedDepositYields(block: ethereum.Block): void {
   }
 }
 
-// Updates calculated yields for this wrapped silo token
-export function updateWrappedDepositYields(token: Address, block: ethereum.Block): void {
+function updateWrappedDepositYields(token: Address, block: ethereum.Block): void {
   const wrappedDeposit = loadWrappedDeposit(token);
+
+  const contract = WrappedSiloERC20.bind(token);
+  wrappedDeposit.redeemRate = contract.previewRedeem(BI_10.pow(<u8>wrappedDeposit.decimals));
 
   const snapshot24h = findPreviousWrappedDepositSnapshot(wrappedDeposit, 24 * 1);
   if (snapshot24h !== null) {

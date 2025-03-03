@@ -310,7 +310,7 @@ dataSources:
     source:
       address: "0x00b174d66adA7d63789087F50A9b9e0e48446dc1"
       abi: WrappedSiloERC20
-      startBlock: 27000000 # sPinto Deployment (Should update this once the actual block number is known)
+      startBlock: 27068608 # sPinto Deployment
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -323,8 +323,6 @@ dataSources:
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleWrappedDepositERC20Transfer
-        - event: Update(uint256,uint256)
-          handler: handleUpdate
       file: ../src/handlers/WrappedSiloHandler.ts
 # features:
 #   - grafting

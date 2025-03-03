@@ -15,9 +15,8 @@ import { ADDRESS_ZERO } from "../../../core/utils/Bytes";
 import { initPintoVersion } from "./entity-mocking/MockVersion";
 import { getProtocolToken } from "../../../core/constants/RuntimeConstants";
 import { BEAN_ERC20, BEANSTALK } from "../../../core/constants/raw/PintoBaseConstants";
-import { handleUpdate, handleWrappedDepositERC20Transfer } from "../src/handlers/WrappedSiloHandler";
+import { handleWrappedDepositERC20Transfer } from "../src/handlers/WrappedSiloHandler";
 import { Transfer } from "../generated/Beanstalk-ABIs/WrappedSiloERC20";
-import { createUpdateEvent } from "./event-mocking/WrappedSiloERC20";
 import { WrappedDepositERC20HourlySnapshot } from "../generated/schema";
 import { loadSeason } from "../src/entities/Beanstalk";
 import { loadWrappedDeposit } from "../src/entities/Silo";
@@ -38,6 +37,12 @@ const transferEvt = (token: Address, from: Address, to: Address, amount: BigInt)
 // Sets the current beanstalk level season
 const setSeason = (seasonNumber: i32): void => {
   loadSeason(BigInt.fromI32(seasonNumber)).season;
+};
+
+const advanceSeason = (): void => {
+  mockSeasonStruct(BEANSTALK);
+  mockHarvestableIndexWithFieldId(BEANSTALK, BigInt.fromString("25000"), ZERO_BI);
+  handleIncentive(createIncentivizationEvent(ADDR1.toHexString(), BigInt.fromString("123456")));
 };
 
 // Creates an hourly snapshot with the requested redemption rate
@@ -110,77 +115,80 @@ describe("Wrapped Silo Token", () => {
     });
   });
 
-  test("Update redeem rate", () => {
-    createMockedFunction(sBean, "previewRedeem", "previewRedeem(uint256):(uint256)")
-      .withArgs([ethereum.Value.fromUnsignedBigInt(BigInt.fromString("1000000000000000000"))])
-      .returns([ethereum.Value.fromUnsignedBigInt(BigInt.fromString("123456"))]);
-
-    handleUpdate(createUpdateEvent(sBean, ZERO_BI, ZERO_BI));
-
-    assert.fieldEquals("WrappedDepositERC20", sBean.toHexString(), "redeemRate", "123456");
-  });
-
-  describe("Wrapped deposit vAPYs", () => {
+  describe("Precreates entity via transfer", () => {
     beforeEach(() => {
+      handleWrappedDepositERC20Transfer(transferEvt(sBean, ADDRESS_ZERO, ADDR1, BigInt.fromString("5000")));
+    });
+
+    test("Update redeem rate", () => {
       createMockedFunction(sBean, "previewRedeem", "previewRedeem(uint256):(uint256)")
         .withArgs([ethereum.Value.fromUnsignedBigInt(BigInt.fromString("1000000000000000000"))])
-        .returns([ethereum.Value.fromUnsignedBigInt(BigInt.fromString("100000"))]);
+        .returns([ethereum.Value.fromUnsignedBigInt(BigInt.fromString("123456"))]);
+
+      advanceSeason();
+
+      assert.fieldEquals("WrappedDepositERC20", sBean.toHexString(), "redeemRate", "123456");
     });
 
-    test("Does nothing if too few datapoints", () => {
-      handleUpdate(createUpdateEvent(sBean, ZERO_BI, ZERO_BI));
+    describe("Wrapped deposit vAPYs", () => {
+      beforeEach(() => {
+        createMockedFunction(sBean, "previewRedeem", "previewRedeem(uint256):(uint256)")
+          .withArgs([ethereum.Value.fromUnsignedBigInt(BigInt.fromString("1000000000000000000"))])
+          .returns([ethereum.Value.fromUnsignedBigInt(BigInt.fromString("100000"))]);
+      });
 
-      const entity = loadWrappedDeposit(sBean);
-      assert.assertTrue(entity.apy24h === null);
-      assert.assertTrue(entity.apy7d === null);
-      assert.assertTrue(entity.apy30d === null);
-      assert.assertTrue(entity.apy90d === null);
-    });
+      test("Does nothing if too few datapoints", () => {
+        advanceSeason();
 
-    test("Computes available apys", () => {
-      setSeason(200);
-      setRateForSeason(200 - 24, BigInt.fromString("90000"));
-      setRateForSeason(200 - 168, BigInt.fromString("80000"));
+        const entity = loadWrappedDeposit(sBean);
+        assert.assertTrue(entity.apy24h === null);
+        assert.assertTrue(entity.apy7d === null);
+        assert.assertTrue(entity.apy30d === null);
+        assert.assertTrue(entity.apy90d === null);
+      });
 
-      handleUpdate(createUpdateEvent(sBean, ZERO_BI, ZERO_BI));
+      test("Computes available apys", () => {
+        setSeason(200);
+        setRateForSeason(200 - 24, BigInt.fromString("90000"));
+        setRateForSeason(200 - 168, BigInt.fromString("80000"));
 
-      assert.fieldEquals("WrappedDepositERC20", sBean.toHexString(), "apy24h", "50290280116686499");
-      assert.fieldEquals("WrappedDepositERC20", sBean.toHexString(), "apy7d", "113021.51419660976");
-      const entity = loadWrappedDeposit(sBean);
-      assert.assertTrue(entity.apy30d === null);
-      assert.assertTrue(entity.apy90d === null);
-    });
+        advanceSeason();
 
-    test("Computes all apys", () => {
-      setSeason(3000);
-      setRateForSeason(3000 - 24, BigInt.fromString("95000"));
-      setRateForSeason(3000 - 168, BigInt.fromString("90000"));
-      setRateForSeason(3000 - 720, BigInt.fromString("80000"));
-      setRateForSeason(3000 - 2160, BigInt.fromString("70000"));
+        assert.fieldEquals("WrappedDepositERC20", sBean.toHexString(), "apy24h", "50290280116686499");
+        assert.fieldEquals("WrappedDepositERC20", sBean.toHexString(), "apy7d", "113021.51419660976");
+        const entity = loadWrappedDeposit(sBean);
+        assert.assertTrue(entity.apy30d === null);
+        assert.assertTrue(entity.apy90d === null);
+      });
 
-      handleUpdate(createUpdateEvent(sBean, ZERO_BI, ZERO_BI));
+      test("Computes all apys", () => {
+        setSeason(3000);
+        setRateForSeason(3000 - 24, BigInt.fromString("95000"));
+        setRateForSeason(3000 - 168, BigInt.fromString("90000"));
+        setRateForSeason(3000 - 720, BigInt.fromString("80000"));
+        setRateForSeason(3000 - 2160, BigInt.fromString("70000"));
 
-      assert.fieldEquals("WrappedDepositERC20", sBean.toHexString(), "apy24h", "135171167.95466224");
-      assert.fieldEquals("WrappedDepositERC20", sBean.toHexString(), "apy7d", "242.17912615260756");
-      assert.fieldEquals("WrappedDepositERC20", sBean.toHexString(), "apy30d", "14.103299164274551");
-      assert.fieldEquals("WrappedDepositERC20", sBean.toHexString(), "apy90d", "3.2482836334693996");
-    });
+        advanceSeason();
 
-    test("Updates apy at the start of new seasons", () => {
-      setSeason(50);
-      setRateForSeason(50 - 24, BigInt.fromString("95000"));
-      handleUpdate(createUpdateEvent(sBean, ZERO_BI, ZERO_BI));
+        assert.fieldEquals("WrappedDepositERC20", sBean.toHexString(), "apy24h", "135171167.95466224");
+        assert.fieldEquals("WrappedDepositERC20", sBean.toHexString(), "apy7d", "242.17912615260756");
+        assert.fieldEquals("WrappedDepositERC20", sBean.toHexString(), "apy30d", "14.103299164274551");
+        assert.fieldEquals("WrappedDepositERC20", sBean.toHexString(), "apy90d", "3.2482836334693996");
+      });
 
-      assert.fieldEquals("WrappedDepositERC20", sBean.toHexString(), "apy24h", "135171167.95466224");
+      test("Updates apy at the start of new seasons", () => {
+        setSeason(50);
+        setRateForSeason(50 - 24, BigInt.fromString("95000"));
+        advanceSeason();
 
-      setSeason(51);
-      setRateForSeason(51 - 24, BigInt.fromString("96000"));
+        assert.fieldEquals("WrappedDepositERC20", sBean.toHexString(), "apy24h", "135171167.95466224");
 
-      mockSeasonStruct(BEANSTALK);
-      mockHarvestableIndexWithFieldId(BEANSTALK, BigInt.fromString("25000"), ZERO_BI);
-      handleIncentive(createIncentivizationEvent(ADDR1.toHexString(), BigInt.fromString("123456")));
+        setSeason(51);
+        setRateForSeason(51 - 24, BigInt.fromString("96000"));
+        advanceSeason();
 
-      assert.fieldEquals("WrappedDepositERC20", sBean.toHexString(), "apy24h", "2958011.0616844987");
+        assert.fieldEquals("WrappedDepositERC20", sBean.toHexString(), "apy24h", "2958011.0616844987");
+      });
     });
   });
 });
