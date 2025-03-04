@@ -106,7 +106,7 @@ dataSources:
           handler: handleSunrise
         - event: Shipped(indexed uint32,uint256)
           handler: handleShipped
-        - event: internal
+        - event: InternalBalanceChanged(indexed address,indexed address,int256)
           handler: handleInternalBalanceChanged
       file: ../src/handlers/BeanstalkHandler.ts
   - kind: ethereum/contract
