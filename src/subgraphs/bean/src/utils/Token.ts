@@ -68,9 +68,15 @@ export function internalBalanceChanged(params: InternalBalanceChangedParams): vo
     farmerBalance.farmBalance = farmerBalance.farmBalance.plus(params.delta);
     farmerBalance.totalBalance = farmerBalance.totalBalance.plus(params.delta);
     // Any changes to wallet balance are reflected in a corresponding Transfer event
-
     takeFarmerBalanceSnapshots(farmerBalance, params.event.block);
     farmerBalance.save();
+
+    // Tokens are in the beanstalk contract, but should be removed from such balance
+    const beanstalkBalance = loadOrCreateFarmerBalance(params.event.address, params.token);
+    beanstalkBalance.walletBalance = beanstalkBalance.walletBalance.minus(params.delta);
+    beanstalkBalance.totalBalance = beanstalkBalance.totalBalance.minus(params.delta);
+    takeFarmerBalanceSnapshots(beanstalkBalance, params.event.block);
+    beanstalkBalance.save();
   }
 }
 

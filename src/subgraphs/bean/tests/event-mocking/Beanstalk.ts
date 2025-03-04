@@ -9,8 +9,6 @@ import {
 import { mockBeanstalkEvent, mockContractEvent } from "../../../../core/tests/event-mocking/Util";
 import { MetapoolOracle } from "../../generated/Bean-ABIs/Replanted";
 import { v } from "../../src/utils/constants/Version";
-import { getProtocolToken } from "../../../../core/constants/RuntimeConstants";
-import { BI_MAX } from "../../../../core/utils/Decimals";
 
 export function createSunriseEvent(season: i32, block: ethereum.Block | null = null): Sunrise {
   let event = changetype<Sunrise>(mockBeanstalkEvent());
@@ -112,7 +110,7 @@ export function createInternalBalanceChangedEvent(
   token: Address,
   delta: BigInt
 ): InternalBalanceChanged {
-  let event = changetype<InternalBalanceChanged>(mockContractEvent(getProtocolToken(v(), BI_MAX)));
+  let event = changetype<InternalBalanceChanged>(mockContractEvent(v().protocolAddress));
   event.parameters = new Array();
 
   let param1 = new ethereum.EventParam("account", ethereum.Value.fromAddress(account));
