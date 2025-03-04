@@ -3,6 +3,7 @@ import { PoolTokens, Token } from "../RuntimeConstants";
 
 // Protocol tokens
 export const BEAN_ERC20 = Address.fromString("0xb170000aeeFa790fa61D6e837d1035906839a3c8");
+export const SILOED_BEAN = Address.fromString("0x00b174d66adA7d63789087F50A9b9e0e48446dc1");
 export const PINTO_WETH = Address.fromString("0x3e11001CfbB6dE5737327c59E10afAB47B82B5d3");
 export const PINTO_CBETH = Address.fromString("0x3e111115A82dF6190e36ADf0d552880663A4dBF1");
 export const PINTO_CBBTC = Address.fromString("0x3e11226fe3d85142B734ABCe6e58918d5828d1b4");
@@ -58,6 +59,10 @@ export const TOKEN_INFOS: Token[] = [
     info: { name: "PINTO", decimals: BigInt.fromU32(6) }
   },
   {
+    address: SILOED_BEAN,
+    info: { name: "sPinto", decimals: BigInt.fromU32(18) }
+  },
+  {
     address: WETH,
     info: { name: "WETH", decimals: BigInt.fromU32(18) }
   },
@@ -76,5 +81,25 @@ export const TOKEN_INFOS: Token[] = [
   {
     address: USDC,
     info: { name: "USDC", decimals: BigInt.fromU32(6) }
+  },
+  {
+    address: PINTO_WETH,
+    info: { name: "PINTOWETH LP", decimals: BigInt.fromU32(18) }
+  },
+  {
+    address: PINTO_CBETH,
+    info: { name: "PINTOCBETH LP", decimals: BigInt.fromU32(18) }
+  },
+  {
+    address: PINTO_CBBTC,
+    info: { name: "PINTOCBBTC LP", decimals: BigInt.fromU32(18) }
+  },
+  {
+    address: PINTO_WSOL,
+    info: { name: "PINTOWSOL LP", decimals: BigInt.fromU32(18) }
+  },
+  {
+    address: PINTO_USDC,
+    info: { name: "PINTOUSDC LP", decimals: BigInt.fromU32(18) }
   }
 ];
