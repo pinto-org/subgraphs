@@ -3,6 +3,7 @@ import { handleInitVersion } from "../../src/utils/constants/Version";
 import { mockBlock } from "../../../../core/tests/event-mocking/Block";
 import { Version } from "../../generated/schema";
 import { PINTOSTALK_BLOCK } from "../../../../core/constants/raw/PintoBaseConstants";
+import { mockPintoSeasons } from "./MockSeason";
 
 export function initL1Version(): void {
   handleInitVersion(mockBlock(BigInt.fromU32(12974075)));
@@ -16,4 +17,6 @@ export function initPintoVersion(): void {
   const versionEntity = Version.load("subgraph")!;
   versionEntity.versionNumber = "TESTING";
   versionEntity.save();
+
+  mockPintoSeasons();
 }

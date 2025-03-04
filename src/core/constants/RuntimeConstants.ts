@@ -268,7 +268,7 @@ export function wellFnInfoForWell(v: VersionDto, wellAddress: Address): WellFnIn
   throw new Error("Unsupported protocol");
 }
 
-function getPoolTokens(v: VersionDto): PoolTokens[] {
+export function getPoolTokens(v: VersionDto): PoolTokens[] {
   if (v.chain == "ethereum" && v.protocolAddress == ConstantsEth.BEANSTALK) {
     return BeanstalkEth.getPoolTokens();
   } else if (v.chain == "arbitrum" && v.protocolAddress == ConstantsArb.BEANSTALK) {

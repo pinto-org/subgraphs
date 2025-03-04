@@ -133,7 +133,7 @@ type TokenDailySnapshot @entity {
 
 type FarmerBalance @entity {
   "{Farmer address}-{Token address}"
-  id: Bytes!
+  id: ID!
 
   "Farmer address"
   farmer: Bytes!
@@ -158,7 +158,7 @@ type FarmerBalance @entity {
 
 type FarmerBalanceHourlySnapshot @entity {
   "{FarmerBalance ID}-{Season}"
-  id: Bytes!
+  id: ID!
 
   seasonNumber: Int!
   season: Season!
@@ -188,7 +188,7 @@ type FarmerBalanceHourlySnapshot @entity {
 
 type FarmerBalanceDailySnapshot @entity {
   "{FarmerBalance ID}-{Unix day}"
-  id: Bytes!
+  id: ID!
 
   "Unix day"
   day: Int!

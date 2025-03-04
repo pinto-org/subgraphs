@@ -1,5 +1,5 @@
 import { Address, BigInt } from "@graphprotocol/graph-ts";
-import { BEAN_ERC20 } from "../../../../core/constants/raw/BeanstalkEthConstants";
+import { BEAN_ERC20, BEANSTALK_PRICE_1 } from "../../../../core/constants/raw/BeanstalkEthConstants";
 import { loadBean } from "../../src/entities/Bean";
 import { toBytesArray } from "../../../../core/utils/Bytes";
 import { setMockBeanPrice } from "../../../../core/tests/event-mocking/Price";
@@ -11,11 +11,14 @@ export function mockWhitelistedPools(pools: Address[]): void {
   bean.save();
 }
 
-export function mockPriceBelow(): void {
-  setMockBeanPrice({
-    price: BigInt.fromString("950000"),
-    liquidity: BigInt.fromString("123456"),
-    deltaB: ONE_BI,
-    ps: []
-  });
+export function mockPriceBelow(contract: Address = BEANSTALK_PRICE_1): void {
+  setMockBeanPrice(
+    {
+      price: BigInt.fromString("950000"),
+      liquidity: BigInt.fromString("123456"),
+      deltaB: ONE_BI,
+      ps: []
+    },
+    contract
+  );
 }

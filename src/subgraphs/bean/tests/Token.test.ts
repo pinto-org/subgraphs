@@ -11,7 +11,7 @@ import { getProtocolToken } from "../../../core/constants/RuntimeConstants";
 import { v } from "../src/utils/constants/Version";
 import { BI_MAX } from "../../../core/utils/Decimals";
 
-const token = Address.fromString("0x00b174d66adA7d63789087F50A9b9e0e48446dc1");
+const token = Address.fromString("0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf");
 const ADDR1 = Address.fromString("0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266");
 const ADDR2 = Address.fromString("0x70997970c51812dc3a010c7d01b50e0d17dc79c8");
 
