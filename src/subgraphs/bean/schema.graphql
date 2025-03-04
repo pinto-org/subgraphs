@@ -131,6 +131,92 @@ type TokenDailySnapshot @entity {
   lastUpdateBlockNumber: BigInt!
 }
 
+type FarmerBalance @entity {
+  "{Farmer address}-{Token address}"
+  id: Bytes!
+
+  "Farmer address"
+  farmer: Bytes!
+  "Token address"
+  token: Bytes!
+
+  "Amount of this token held by the farmer"
+  totalBalance: BigInt!
+  "Amount of this token in the wallet"
+  walletBalance: BigInt!
+  "Amount of this token in farm balances"
+  farmBalance: BigInt!
+
+  "Season when the previous hourly snapshot was taken/updated"
+  lastHourlySnapshotSeason: Int
+  "Day of when the previous daily snapshot was taken/updated"
+  lastDailySnapshotDay: Int
+
+  hourlySnapshots: [FarmerBalanceHourlySnapshot!]! @derivedFrom(field: "farmerBalance")
+  dailySnapshots: [FarmerBalanceDailySnapshot!]! @derivedFrom(field: "farmerBalance")
+}
+
+type FarmerBalanceHourlySnapshot @entity {
+  "{FarmerBalance ID}-{Season}"
+  id: Bytes!
+
+  seasonNumber: Int!
+  season: Season!
+  farmerBalance: FarmerBalance!
+
+  "Amount of this token held by the farmer"
+  totalBalance: BigInt!
+  "Amount of this token in the wallet"
+  walletBalance: BigInt!
+  "Amount of this token in farm balances"
+  farmBalance: BigInt!
+
+  "Delta of totalBalance"
+  deltaTotalBalance: BigInt!
+  "Delta of walletBalance"
+  deltaWalletBalance: BigInt!
+  "Delta of farmBalance"
+  deltaFarmBalance: BigInt!
+
+  "Timestamp of entity creation"
+  createdTimestamp: BigInt!
+  "Timestamp of the last time this entity was updated"
+  lastUpdateTimestamp: BigInt!
+  "Block number of the last time this entity was updated"
+  lastUpdateBlockNumber: BigInt!
+}
+
+type FarmerBalanceDailySnapshot @entity {
+  "{FarmerBalance ID}-{Unix day}"
+  id: Bytes!
+
+  "Unix day"
+  day: Int!
+  season: Season!
+  farmerBalance: FarmerBalance!
+
+  "Amount of this token held by the farmer"
+  totalBalance: BigInt!
+  "Amount of this token in the wallet"
+  walletBalance: BigInt!
+  "Amount of this token in farm balances"
+  farmBalance: BigInt!
+
+  "Delta of totalBalance"
+  deltaTotalBalance: BigInt!
+  "Delta of walletBalance"
+  deltaWalletBalance: BigInt!
+  "Delta of farmBalance"
+  deltaFarmBalance: BigInt!
+
+  "Timestamp of entity creation"
+  createdTimestamp: BigInt!
+  "Timestamp of the last time this entity was updated"
+  lastUpdateTimestamp: BigInt!
+  "Block number of the last time this entity was updated"
+  lastUpdateBlockNumber: BigInt!
+}
+
 type Season @entity {
   "Season number (string)"
   id: ID!
@@ -202,7 +288,7 @@ type Bean @entity {
 }
 
 type BeanHourlySnapshot @entity {
-  "{Token address}-{Season}"
+  "{Bean ID}-{Season}"
   id: ID!
 
   seasonNumber: Int!
@@ -270,12 +356,11 @@ type BeanHourlySnapshot @entity {
 }
 
 type BeanDailySnapshot @entity {
-  "{Token address}-{Unix day}"
+  "{Bean ID}-{Unix day}"
   id: ID!
 
   "Unix day"
   day: Int!
-
   season: Season!
   bean: Bean!
 
@@ -386,7 +471,7 @@ type Pool @entity {
 }
 
 type PoolHourlySnapshot @entity {
-  "{Token address}-{Season}"
+  "{Pool ID}-{Season}"
   id: ID!
 
   seasonNumber: Int!
@@ -451,12 +536,11 @@ type PoolHourlySnapshot @entity {
 }
 
 type PoolDailySnapshot @entity {
-  "{Token address}-{Unix day}"
+  "{Pool ID}-{Unix day}"
   id: ID!
 
   "Unix day"
   day: Int!
-
   season: Season!
   pool: Pool!
 

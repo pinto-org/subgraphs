@@ -5,8 +5,8 @@ import { ONE_BD, toDecimal, ZERO_BD, ZERO_BI } from "../../../../core/utils/Deci
 import { checkBeanCross } from "./Cross";
 import { BeanstalkPrice_try_price, BeanstalkPriceResult } from "./price/BeanstalkPrice";
 import { calcLockedBeans } from "./LockedBeans";
-import { getAllBeanPools, loadBean, saveBean } from "../entities/Bean";
-import { getPool, loadOrCreatePool } from "../entities/Pool";
+import { loadBean, saveBean } from "../entities/Bean";
+import { loadOrCreatePool } from "../entities/Pool";
 import { externalUpdatePoolPrice as univ2_externalUpdatePoolPrice } from "../handlers/legacy/LegacyUniswapV2Handler";
 import { updateBeanSupplyPegPercent_v1 } from "./legacy/LegacyBean";
 import { toAddress } from "../../../../core/utils/Bytes";

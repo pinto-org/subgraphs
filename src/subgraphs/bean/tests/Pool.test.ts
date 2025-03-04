@@ -14,7 +14,7 @@ import { initL1Version } from "./entity-mocking/MockVersion";
 import { mockBeanSeasons } from "./entity-mocking/MockSeason";
 import { mockPriceBelow } from "./entity-mocking/MockBean";
 
-describe("Token", () => {
+describe("Pool", () => {
   beforeEach(() => {
     initL1Version();
     mockPriceBelow();

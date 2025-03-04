@@ -1,7 +1,16 @@
 import { BigInt, ethereum, Address, Bytes } from "@graphprotocol/graph-ts";
-import { WellOracle, Convert, DewhitelistToken, Sunrise } from "../../generated/Bean-ABIs/PintoLaunch";
-import { mockBeanstalkEvent } from "../../../../core/tests/event-mocking/Util";
+import {
+  WellOracle,
+  Convert,
+  DewhitelistToken,
+  Sunrise,
+  InternalBalanceChanged
+} from "../../generated/Bean-ABIs/PintoLaunch";
+import { mockBeanstalkEvent, mockContractEvent } from "../../../../core/tests/event-mocking/Util";
 import { MetapoolOracle } from "../../generated/Bean-ABIs/Replanted";
+import { v } from "../../src/utils/constants/Version";
+import { getProtocolToken } from "../../../../core/constants/RuntimeConstants";
+import { BI_MAX } from "../../../../core/utils/Decimals";
 
 export function createSunriseEvent(season: i32, block: ethereum.Block | null = null): Sunrise {
   let event = changetype<Sunrise>(mockBeanstalkEvent());
@@ -96,4 +105,23 @@ export function createConvertEvent(
   event.parameters.push(param5);
 
   return event as Convert;
+}
+
+export function createInternalBalanceChangedEvent(
+  account: Address,
+  token: Address,
+  delta: BigInt
+): InternalBalanceChanged {
+  let event = changetype<InternalBalanceChanged>(mockContractEvent(getProtocolToken(v(), BI_MAX)));
+  event.parameters = new Array();
+
+  let param1 = new ethereum.EventParam("account", ethereum.Value.fromAddress(account));
+  let param2 = new ethereum.EventParam("token", ethereum.Value.fromAddress(token));
+  let param3 = new ethereum.EventParam("delta", ethereum.Value.fromUnsignedBigInt(delta));
+
+  event.parameters.push(param1);
+  event.parameters.push(param2);
+  event.parameters.push(param3);
+
+  return event as InternalBalanceChanged;
 }
