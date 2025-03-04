@@ -66,6 +66,9 @@ describe("Wrapped Silo Token", () => {
     initPintoVersion();
     createMockedFunction(sBean, "decimals", "decimals():(uint8)").returns([ethereum.Value.fromI32(18)]);
     createMockedFunction(sBean, "asset", "asset():(address)").returns([ethereum.Value.fromAddress(BEAN_ERC20)]);
+    createMockedFunction(sBean, "previewRedeem", "previewRedeem(uint256):(uint256)")
+      .withArgs([ethereum.Value.fromUnsignedBigInt(BigInt.fromString("1000000000000000000"))])
+      .returns([ethereum.Value.fromUnsignedBigInt(BigInt.fromString("100000"))]);
   });
   afterEach(() => {
     clearStore();
@@ -131,12 +134,6 @@ describe("Wrapped Silo Token", () => {
     });
 
     describe("Wrapped deposit vAPYs", () => {
-      beforeEach(() => {
-        createMockedFunction(sBean, "previewRedeem", "previewRedeem(uint256):(uint256)")
-          .withArgs([ethereum.Value.fromUnsignedBigInt(BigInt.fromString("1000000000000000000"))])
-          .returns([ethereum.Value.fromUnsignedBigInt(BigInt.fromString("100000"))]);
-      });
-
       test("Does nothing if too few datapoints", () => {
         advanceSeason();
 
