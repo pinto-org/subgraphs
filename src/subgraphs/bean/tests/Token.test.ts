@@ -57,28 +57,43 @@ describe("Token", () => {
 
   test("Tracks farm balances (neutralizes transfer)", () => {
     handleTransfer(createERC20TransferEvent(token, ADDRESS_ZERO, BEANSTALK, BigInt.fromString("6000")));
+
+    assert.fieldEquals("Token", token.toHexString(), "supply", "6000");
+    assert.fieldEquals("Token", token.toHexString(), "walletBalance", "6000");
+    assert.fieldEquals("Token", token.toHexString(), "farmBalance", "0");
+    assert.fieldEquals("Token", token.toHexString(), "pooledBalance", "0");
+    assert.fieldEquals("FarmerBalance", `${BEANSTALK.toHexString()}-${token.toHexString()}`, "totalBalance", "6000");
+    assert.fieldEquals("FarmerBalance", `${BEANSTALK.toHexString()}-${token.toHexString()}`, "walletBalance", "6000");
+
     handleInternalBalanceChanged(createInternalBalanceChangedEvent(ADDR1, token, BigInt.fromString("6000")));
 
     assert.fieldEquals("Token", token.toHexString(), "supply", "6000");
     assert.fieldEquals("Token", token.toHexString(), "walletBalance", "0");
     assert.fieldEquals("Token", token.toHexString(), "farmBalance", "6000");
     assert.fieldEquals("Token", token.toHexString(), "pooledBalance", "0");
-    assert.notInStore("FarmerBalance", `${BEANSTALK.toHexString()}-${token.toHexString()}`);
+    assert.fieldEquals("FarmerBalance", `${BEANSTALK.toHexString()}-${token.toHexString()}`, "totalBalance", "0");
+    assert.fieldEquals("FarmerBalance", `${BEANSTALK.toHexString()}-${token.toHexString()}`, "walletBalance", "0");
     assert.fieldEquals("FarmerBalance", `${ADDR1.toHexString()}-${token.toHexString()}`, "totalBalance", "6000");
     assert.fieldEquals("FarmerBalance", `${ADDR1.toHexString()}-${token.toHexString()}`, "farmBalance", "6000");
   });
 
   test("Tracks combined balances", () => {
     handleTransfer(createERC20TransferEvent(token, ADDRESS_ZERO, ADDR1, BigInt.fromString("8000")));
-    handleTransfer(createERC20TransferEvent(token, ADDR1, PINTO_WETH, BigInt.fromString("3000")));
+    handleTransfer(createERC20TransferEvent(token, ADDR1, PINTO_WETH, BigInt.fromString("2000")));
+    handleTransfer(createERC20TransferEvent(token, ADDR1, BEANSTALK, BigInt.fromString("1000")));
+    handleInternalBalanceChanged(createInternalBalanceChangedEvent(ADDR1, token, BigInt.fromString("1000")));
+    handleTransfer(createERC20TransferEvent(token, ADDR1, ADDRESS_ZERO, BigInt.fromString("1000")));
 
-    assert.fieldEquals("Token", token.toHexString(), "supply", "8000");
-    assert.fieldEquals("Token", token.toHexString(), "walletBalance", "5000");
-    assert.fieldEquals("Token", token.toHexString(), "farmBalance", "0");
-    assert.fieldEquals("Token", token.toHexString(), "pooledBalance", "3000");
+    assert.fieldEquals("Token", token.toHexString(), "supply", "7000");
+    assert.fieldEquals("Token", token.toHexString(), "walletBalance", "4000");
+    assert.fieldEquals("Token", token.toHexString(), "farmBalance", "1000");
+    assert.fieldEquals("Token", token.toHexString(), "pooledBalance", "2000");
     assert.fieldEquals("FarmerBalance", `${ADDR1.toHexString()}-${token.toHexString()}`, "totalBalance", "5000");
-    assert.fieldEquals("FarmerBalance", `${ADDR1.toHexString()}-${token.toHexString()}`, "walletBalance", "5000");
+    assert.fieldEquals("FarmerBalance", `${ADDR1.toHexString()}-${token.toHexString()}`, "walletBalance", "4000");
+    assert.fieldEquals("FarmerBalance", `${ADDR1.toHexString()}-${token.toHexString()}`, "farmBalance", "1000");
     assert.notInStore("FarmerBalance", `${PINTO_WETH.toHexString()}-${token.toHexString()}`);
+    assert.fieldEquals("FarmerBalance", `${BEANSTALK.toHexString()}-${token.toHexString()}`, "totalBalance", "0");
+    assert.fieldEquals("FarmerBalance", `${BEANSTALK.toHexString()}-${token.toHexString()}`, "walletBalance", "0");
   });
 
   test("Does not initiate token tracking via internal balance changed", () => {
