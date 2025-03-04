@@ -21,6 +21,10 @@ export function loadOrCreateToken(address: Address): Token {
   return token as Token;
 }
 
+export function findToken(address: Address): Token | null {
+  return Token.load(address);
+}
+
 export function updateTokenPrice(address: Address, price: BigDecimal): void {
   let token = loadOrCreateToken(address);
   token.lastPriceUSD = price;

@@ -1,6 +1,6 @@
 import { BigInt, Address, ethereum } from "@graphprotocol/graph-ts";
 import { Transfer } from "../../generated/Bean-ABIs/ERC20";
-import { loadOrCreateToken } from "../entities/Token";
+import { findToken, loadOrCreateToken } from "../entities/Token";
 import { ADDRESS_ZERO } from "../../../../core/utils/Bytes";
 import { getPoolTokens } from "../../../../core/constants/RuntimeConstants";
 import { v } from "./constants/Version";
@@ -51,9 +51,27 @@ export function erc20Transfer(event: Transfer): void {
   applyLocationDelta(event.params.to, event.address, event.params.value, event.block);
 }
 
-// emitted for all tokens, should ignore processing for those which aren't already tracking balances
+// Emitted for all tokens, should ignore processing for those which aren't already tracking balances
 export function internalBalanceChanged(params: InternalBalanceChangedParams): void {
-  //
+  const tokenEntity = findToken(params.token);
+  if (tokenEntity !== null) {
+    tokenEntity.farmBalance = tokenEntity.farmBalance.plus(params.delta);
+    // Adding to the farm balance necessitates removing it from the beanstalk contract's wallet balance
+    // so its not double counted upon transfer. The same logic holds even if there is no actual Transfer event
+    // (i.e. harvesting pods into farm balance)
+    tokenEntity.walletBalance = tokenEntity.walletBalance.minus(params.delta);
+
+    takeTokenSnapshots(tokenEntity, params.event.block);
+    tokenEntity.save();
+
+    const farmerBalance = loadOrCreateFarmerBalance(params.account, params.token);
+    farmerBalance.farmBalance = farmerBalance.farmBalance.plus(params.delta);
+    farmerBalance.totalBalance = farmerBalance.totalBalance.plus(params.delta);
+    // Any changes to wallet balance are reflected in a corresponding Transfer event
+
+    takeFarmerBalanceSnapshots(farmerBalance, params.event.block);
+    farmerBalance.save();
+  }
 }
 
 function identifyTokenLocation(address: Address): TokenLocation {

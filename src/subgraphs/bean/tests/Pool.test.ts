@@ -7,7 +7,7 @@ import {
   CRV3_TOKEN,
   WETH
 } from "../../../core/constants/raw/BeanstalkEthConstants";
-import { BigInt, Address } from "@graphprotocol/graph-ts";
+import { BigInt } from "@graphprotocol/graph-ts";
 import { loadOrCreatePool } from "../src/entities/Pool";
 import { toAddress } from "../../../core/utils/Bytes";
 import { initL1Version } from "./entity-mocking/MockVersion";

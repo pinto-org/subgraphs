@@ -96,6 +96,22 @@ describe("Token", () => {
     assert.fieldEquals("FarmerBalance", `${BEANSTALK.toHexString()}-${token.toHexString()}`, "walletBalance", "0");
   });
 
+  test("Excess tokens transferred to beanstalk contract that do not get credited to a farm balance", () => {
+    handleTransfer(createERC20TransferEvent(token, ADDRESS_ZERO, BEANSTALK, BigInt.fromString("5000")));
+    handleInternalBalanceChanged(createInternalBalanceChangedEvent(ADDR1, token, BigInt.fromString("4000")));
+
+    assert.fieldEquals("Token", token.toHexString(), "supply", "5000");
+    assert.fieldEquals("Token", token.toHexString(), "walletBalance", "1000");
+    assert.fieldEquals("Token", token.toHexString(), "farmBalance", "4000");
+    assert.fieldEquals("Token", token.toHexString(), "pooledBalance", "0");
+    assert.fieldEquals("FarmerBalance", `${BEANSTALK.toHexString()}-${token.toHexString()}`, "totalBalance", "1000");
+    assert.fieldEquals("FarmerBalance", `${BEANSTALK.toHexString()}-${token.toHexString()}`, "walletBalance", "1000");
+    assert.fieldEquals("FarmerBalance", `${BEANSTALK.toHexString()}-${token.toHexString()}`, "farmBalance", "0");
+    assert.fieldEquals("FarmerBalance", `${ADDR1.toHexString()}-${token.toHexString()}`, "totalBalance", "4000");
+    assert.fieldEquals("FarmerBalance", `${ADDR1.toHexString()}-${token.toHexString()}`, "walletBalance", "0");
+    assert.fieldEquals("FarmerBalance", `${ADDR1.toHexString()}-${token.toHexString()}`, "farmBalance", "4000");
+  });
+
   test("Does not initiate token tracking via internal balance changed", () => {
     handleInternalBalanceChanged(createInternalBalanceChangedEvent(ADDR1, token, BigInt.fromString("6000")));
 
