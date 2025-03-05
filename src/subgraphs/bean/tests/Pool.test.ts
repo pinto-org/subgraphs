@@ -7,14 +7,14 @@ import {
   CRV3_TOKEN,
   WETH
 } from "../../../core/constants/raw/BeanstalkEthConstants";
-import { BigInt, Address } from "@graphprotocol/graph-ts";
+import { BigInt } from "@graphprotocol/graph-ts";
 import { loadOrCreatePool } from "../src/entities/Pool";
 import { toAddress } from "../../../core/utils/Bytes";
 import { initL1Version } from "./entity-mocking/MockVersion";
 import { mockBeanSeasons } from "./entity-mocking/MockSeason";
 import { mockPriceBelow } from "./entity-mocking/MockBean";
 
-describe("Token", () => {
+describe("Pool", () => {
   beforeEach(() => {
     initL1Version();
     mockPriceBelow();

@@ -50,10 +50,10 @@ dataSources:
             kind: once
       file: ../src/utils/init/PintoInit.ts
   ###
-  # BEAN TOKEN
+  # TOKENS
   ###
   - kind: ethereum/contract
-    name: BeanToken
+    name: PintoToken
     network: base
     source:
       address: "0xb170000aeeFa790fa61D6e837d1035906839a3c8"
@@ -73,7 +73,127 @@ dataSources:
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
-      file: ../src/handlers/BeanHandler.ts
+      file: ../src/handlers/TokenHandler.ts
+  - kind: ethereum/contract
+    name: PintoWethToken
+    network: base
+    source:
+      address: "0x3e11001cfbb6de5737327c59e10afab47b82b5d3"
+      abi: ERC20
+      startBlock: 22622961 # Pintostalk Deployment
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Bean
+      abis:
+        - name: ERC20
+          file: ../../../core/abis/ERC20.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+      file: ../src/handlers/TokenHandler.ts
+  - kind: ethereum/contract
+    name: PintoCbethToken
+    network: base
+    source:
+      address: "0x3e111115a82df6190e36adf0d552880663a4dbf1"
+      abi: ERC20
+      startBlock: 22622961 # Pintostalk Deployment
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Bean
+      abis:
+        - name: ERC20
+          file: ../../../core/abis/ERC20.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+      file: ../src/handlers/TokenHandler.ts
+  - kind: ethereum/contract
+    name: PintoCbbtcToken
+    network: base
+    source:
+      address: "0x3e11226fe3d85142b734abce6e58918d5828d1b4"
+      abi: ERC20
+      startBlock: 22622961 # Pintostalk Deployment
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Bean
+      abis:
+        - name: ERC20
+          file: ../../../core/abis/ERC20.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+      file: ../src/handlers/TokenHandler.ts
+  - kind: ethereum/contract
+    name: PintoWsolToken
+    network: base
+    source:
+      address: "0x3e11444c7650234c748d743d8d374fce2ee5e6c9"
+      abi: ERC20
+      startBlock: 22622961 # Pintostalk Deployment
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Bean
+      abis:
+        - name: ERC20
+          file: ../../../core/abis/ERC20.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+      file: ../src/handlers/TokenHandler.ts
+  - kind: ethereum/contract
+    name: PintoUsdcToken
+    network: base
+    source:
+      address: "0x3e1133ac082716ddc3114bbefeed8b1731ea9cb1"
+      abi: ERC20
+      startBlock: 22622961 # Pintostalk Deployment
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Bean
+      abis:
+        - name: ERC20
+          file: ../../../core/abis/ERC20.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+      file: ../src/handlers/TokenHandler.ts
+  - kind: ethereum/contract
+    name: sPintoToken
+    network: base
+    source:
+      address: "0x00b174d66ada7d63789087f50a9b9e0e48446dc1"
+      abi: ERC20
+      startBlock: 27068608 # sPinto deployment
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Bean
+      abis:
+        - name: ERC20
+          file: ../../../core/abis/ERC20.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+      file: ../src/handlers/TokenHandler.ts
   ###
   # BEANSTALK PROTOCOL
   ###
@@ -106,6 +226,8 @@ dataSources:
           handler: handleSunrise
         - event: Shipped(indexed uint32,uint256)
           handler: handleShipped
+        - event: InternalBalanceChanged(indexed address,indexed address,int256)
+          handler: handleInternalBalanceChanged
       file: ../src/handlers/BeanstalkHandler.ts
   - kind: ethereum/contract
     name: WellTWAP

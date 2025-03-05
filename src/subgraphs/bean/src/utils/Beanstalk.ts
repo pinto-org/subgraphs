@@ -1,7 +1,7 @@
-import { BigInt, ethereum } from "@graphprotocol/graph-ts";
+import { ethereum } from "@graphprotocol/graph-ts";
 import { getAllBeanPools, loadBean, saveBean } from "../entities/Bean";
 import { toAddress } from "../../../../core/utils/Bytes";
-import { beanDecimals, getProtocolToken, wellMinimumBeanBalance } from "../../../../core/constants/RuntimeConstants";
+import { getProtocolToken, wellMinimumBeanBalance } from "../../../../core/constants/RuntimeConstants";
 import { v } from "./constants/Version";
 import { createNewSeason, getSeason } from "../entities/Season";
 import { takeBeanSnapshots } from "../entities/snapshots/Bean";
@@ -10,7 +10,6 @@ import { WellOracle } from "../../generated/Bean-ABIs/PintoLaunch";
 import { setRawWellReserves, setTwaLast } from "./price/TwaOracle";
 import { decodeCumulativeWellReserves, setWellTwa } from "./price/WellPrice";
 import { loadOrCreateTwaOracle } from "../entities/TwaOracle";
-import { BI_10 } from "../../../../core/utils/Decimals";
 import { updateBeanTwa } from "./Bean";
 import { legacy_setWellTwa } from "./legacy/LegacyWellPrice";
 

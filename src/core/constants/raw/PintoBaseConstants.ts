@@ -59,6 +59,10 @@ export const TOKEN_INFOS: Token[] = [
     info: { name: "PINTO", decimals: BigInt.fromU32(6) }
   },
   {
+    address: SILOED_BEAN,
+    info: { name: "sPinto", decimals: BigInt.fromU32(18) }
+  },
+  {
     address: WETH,
     info: { name: "WETH", decimals: BigInt.fromU32(18) }
   },
@@ -77,5 +81,25 @@ export const TOKEN_INFOS: Token[] = [
   {
     address: USDC,
     info: { name: "USDC", decimals: BigInt.fromU32(6) }
+  },
+  {
+    address: PINTO_WETH,
+    info: { name: "PINTOWETH LP", decimals: BigInt.fromU32(18) }
+  },
+  {
+    address: PINTO_CBETH,
+    info: { name: "PINTOCBETH LP", decimals: BigInt.fromU32(18) }
+  },
+  {
+    address: PINTO_CBBTC,
+    info: { name: "PINTOCBBTC LP", decimals: BigInt.fromU32(18) }
+  },
+  {
+    address: PINTO_WSOL,
+    info: { name: "PINTOWSOL LP", decimals: BigInt.fromU32(18) }
+  },
+  {
+    address: PINTO_USDC,
+    info: { name: "PINTOUSDC LP", decimals: BigInt.fromU32(18) }
   }
 ];

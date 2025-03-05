@@ -19,6 +19,7 @@ export function updatePreReplantPriceETH(): BigDecimal {
   }
 
   token.lastPriceUSD = price;
+  // takeTokenSnapshots(token, block) (this is unnecessary to implement, but should occur if this method becomes relevant again)
   token.save();
   return token.lastPriceUSD;
 }

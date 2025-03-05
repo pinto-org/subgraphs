@@ -49,7 +49,7 @@ dataSources:
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer_v1
-      file: ../src/handlers/legacy/LegacyBeanHandler.ts
+      file: ../src/handlers/legacy/LegacyTokenHandler.ts
   - kind: ethereum/contract
     name: BeanV2
     network: mainnet
@@ -71,7 +71,7 @@ dataSources:
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
-      file: ../src/handlers/BeanHandler.ts
+      file: ../src/handlers/TokenHandler.ts
   ###
   # BEANSTALK PROTOCOL
   ###

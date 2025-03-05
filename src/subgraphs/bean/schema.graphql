@@ -16,14 +16,205 @@ type Token @entity {
   "Smart contract address of the token"
   id: Bytes!
 
-  "Name of the token, i.e. BEAN, WETH"
+  "Name of the token"
   name: String!
-
   "Number of decimals"
   decimals: BigInt!
 
+  "Total supply of this token. Isn't calculated for all tokens, in those cases will be zero."
+  supply: BigInt!
+  "Amount of tokens in individual wallets/contracts (includes silo). Isn't calculated for all tokens, in those cases will be zero."
+  walletBalance: BigInt!
+  "Amount of tokens in farm balances. Isn't calculated for all tokens, in those cases will be zero."
+  farmBalance: BigInt!
+  "Amount of tokens in whitelisted LP pools. Isn't calculated for all tokens, in those cases will be zero."
+  pooledBalance: BigInt!
+
   "Last USD price calculated. Isn't calculated for all tokens, in those cases will be zero."
   lastPriceUSD: BigDecimal!
+
+  "Season when the previous hourly snapshot was taken/updated"
+  lastHourlySnapshotSeason: Int
+  "Day of when the previous daily snapshot was taken/updated"
+  lastDailySnapshotDay: Int
+
+  hourlySnapshots: [TokenHourlySnapshot!]! @derivedFrom(field: "token")
+  dailySnapshots: [TokenDailySnapshot!]! @derivedFrom(field: "token")
+}
+
+type TokenHourlySnapshot @entity {
+  "{Token address}-{Season}"
+  id: ID!
+
+  seasonNumber: Int!
+  season: Season!
+  token: Token!
+
+  "Name of the token"
+  name: String!
+  "Number of decimals"
+  decimals: BigInt!
+
+  "Total supply of this token. Isn't calculated for all tokens, in those cases will be zero."
+  supply: BigInt!
+  "Amount of tokens in individual wallets/contracts (includes silo). Isn't calculated for all tokens, in those cases will be zero."
+  walletBalance: BigInt!
+  "Amount of tokens in farm balances. Isn't calculated for all tokens, in those cases will be zero."
+  farmBalance: BigInt!
+  "Amount of tokens in whitelisted LP pools. Isn't calculated for all tokens, in those cases will be zero."
+  pooledBalance: BigInt!
+
+  "Last USD price calculated. Isn't calculated for all tokens, in those cases will be zero."
+  lastPriceUSD: BigDecimal!
+
+  "Delta of supply"
+  deltaSupply: BigInt!
+  "Delta of walletBalance"
+  deltaWalletBalance: BigInt!
+  "Delta of farmBalance"
+  deltaFarmBalance: BigInt!
+  "Delta of pooledBalance"
+  deltaPooledBalance: BigInt!
+  "Delta of lastPriceUSD"
+  deltaLastPriceUSD: BigDecimal!
+
+  "Timestamp of entity creation"
+  createdTimestamp: BigInt!
+  "Timestamp of the last time this entity was updated"
+  lastUpdateTimestamp: BigInt!
+  "Block number of the last time this entity was updated"
+  lastUpdateBlockNumber: BigInt!
+}
+
+type TokenDailySnapshot @entity {
+  "{Token address}-{Unix day}"
+  id: ID!
+
+  "Unix day"
+  day: Int!
+  season: Season!
+  token: Token!
+
+  "Name of the token"
+  name: String!
+  "Number of decimals"
+  decimals: BigInt!
+
+  "Total supply of this token. Isn't calculated for all tokens, in those cases will be zero."
+  supply: BigInt!
+  "Amount of tokens in individual wallets/contracts (includes silo). Isn't calculated for all tokens, in those cases will be zero."
+  walletBalance: BigInt!
+  "Amount of tokens in farm balances. Isn't calculated for all tokens, in those cases will be zero."
+  farmBalance: BigInt!
+  "Amount of tokens in whitelisted LP pools. Isn't calculated for all tokens, in those cases will be zero."
+  pooledBalance: BigInt!
+
+  "Last USD price calculated. Isn't calculated for all tokens, in those cases will be zero."
+  lastPriceUSD: BigDecimal!
+
+  "Delta of supply"
+  deltaSupply: BigInt!
+  "Delta of walletBalance"
+  deltaWalletBalance: BigInt!
+  "Delta of farmBalance"
+  deltaFarmBalance: BigInt!
+  "Delta of pooledBalance"
+  deltaPooledBalance: BigInt!
+  "Delta of lastPriceUSD"
+  deltaLastPriceUSD: BigDecimal!
+
+  "Timestamp of entity creation"
+  createdTimestamp: BigInt!
+  "Timestamp of the last time this entity was updated"
+  lastUpdateTimestamp: BigInt!
+  "Block number of the last time this entity was updated"
+  lastUpdateBlockNumber: BigInt!
+}
+
+type FarmerBalance @entity {
+  "{Farmer address}-{Token address}"
+  id: ID!
+
+  "Farmer address"
+  farmer: Bytes!
+  "Token address"
+  token: Bytes!
+
+  "Amount of this token held by the farmer"
+  totalBalance: BigInt!
+  "Amount of this token in the wallet"
+  walletBalance: BigInt!
+  "Amount of this token in farm balances"
+  farmBalance: BigInt!
+
+  "Season when the previous hourly snapshot was taken/updated"
+  lastHourlySnapshotSeason: Int
+  "Day of when the previous daily snapshot was taken/updated"
+  lastDailySnapshotDay: Int
+
+  hourlySnapshots: [FarmerBalanceHourlySnapshot!]! @derivedFrom(field: "farmerBalance")
+  dailySnapshots: [FarmerBalanceDailySnapshot!]! @derivedFrom(field: "farmerBalance")
+}
+
+type FarmerBalanceHourlySnapshot @entity {
+  "{FarmerBalance ID}-{Season}"
+  id: ID!
+
+  seasonNumber: Int!
+  season: Season!
+  farmerBalance: FarmerBalance!
+
+  "Amount of this token held by the farmer"
+  totalBalance: BigInt!
+  "Amount of this token in the wallet"
+  walletBalance: BigInt!
+  "Amount of this token in farm balances"
+  farmBalance: BigInt!
+
+  "Delta of totalBalance"
+  deltaTotalBalance: BigInt!
+  "Delta of walletBalance"
+  deltaWalletBalance: BigInt!
+  "Delta of farmBalance"
+  deltaFarmBalance: BigInt!
+
+  "Timestamp of entity creation"
+  createdTimestamp: BigInt!
+  "Timestamp of the last time this entity was updated"
+  lastUpdateTimestamp: BigInt!
+  "Block number of the last time this entity was updated"
+  lastUpdateBlockNumber: BigInt!
+}
+
+type FarmerBalanceDailySnapshot @entity {
+  "{FarmerBalance ID}-{Unix day}"
+  id: ID!
+
+  "Unix day"
+  day: Int!
+  season: Season!
+  farmerBalance: FarmerBalance!
+
+  "Amount of this token held by the farmer"
+  totalBalance: BigInt!
+  "Amount of this token in the wallet"
+  walletBalance: BigInt!
+  "Amount of this token in farm balances"
+  farmBalance: BigInt!
+
+  "Delta of totalBalance"
+  deltaTotalBalance: BigInt!
+  "Delta of walletBalance"
+  deltaWalletBalance: BigInt!
+  "Delta of farmBalance"
+  deltaFarmBalance: BigInt!
+
+  "Timestamp of entity creation"
+  createdTimestamp: BigInt!
+  "Timestamp of the last time this entity was updated"
+  lastUpdateTimestamp: BigInt!
+  "Block number of the last time this entity was updated"
+  lastUpdateBlockNumber: BigInt!
 }
 
 type Season @entity {
@@ -97,7 +288,7 @@ type Bean @entity {
 }
 
 type BeanHourlySnapshot @entity {
-  "{Token address}-{Season}"
+  "{Bean ID}-{Season}"
   id: ID!
 
   seasonNumber: Int!
@@ -165,12 +356,11 @@ type BeanHourlySnapshot @entity {
 }
 
 type BeanDailySnapshot @entity {
-  "{Token address}-{Unix day}"
+  "{Bean ID}-{Unix day}"
   id: ID!
 
   "Unix day"
   day: Int!
-
   season: Season!
   bean: Bean!
 
@@ -281,7 +471,7 @@ type Pool @entity {
 }
 
 type PoolHourlySnapshot @entity {
-  "{Token address}-{Season}"
+  "{Pool ID}-{Season}"
   id: ID!
 
   seasonNumber: Int!
@@ -346,12 +536,11 @@ type PoolHourlySnapshot @entity {
 }
 
 type PoolDailySnapshot @entity {
-  "{Token address}-{Unix day}"
+  "{Pool ID}-{Unix day}"
   id: ID!
 
   "Unix day"
   day: Int!
-
   season: Season!
   pool: Pool!
 

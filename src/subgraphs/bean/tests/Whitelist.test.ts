@@ -1,4 +1,4 @@
-import { beforeEach, beforeAll, afterEach, assert, clearStore, describe, test } from "matchstick-as/assembly/index";
+import { beforeEach, afterEach, assert, clearStore, describe, test } from "matchstick-as/assembly/index";
 import {
   BEAN_3CRV,
   BEAN_ERC20,
