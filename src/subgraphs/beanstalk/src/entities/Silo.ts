@@ -8,11 +8,13 @@ import {
   WhitelistTokenSetting,
   TokenYield,
   UnripeToken,
-  WellPlenty
+  WellPlenty,
+  WrappedDepositERC20
 } from "../../generated/schema";
-import { ZERO_BD, ZERO_BI } from "../../../../core/utils/Decimals";
+import { BI_10, ZERO_BD, ZERO_BI } from "../../../../core/utils/Decimals";
 import { getTokenDecimals, getUnripeUnderlying } from "../../../../core/constants/RuntimeConstants";
 import { v } from "../utils/constants/Version";
+import { WrappedSiloERC20 } from "../../generated/Beanstalk-ABIs/WrappedSiloERC20";
 
 /* ===== Base Silo Entities ===== */
 
@@ -34,6 +36,7 @@ export function loadSilo(account: Address): Silo {
     silo.grownStalkPerSeason = ZERO_BI;
     silo.roots = ZERO_BI;
     silo.germinatingStalk = ZERO_BI;
+    silo.beanToMaxLpGpPerBdvRatio = ZERO_BI;
     silo.beanMints = ZERO_BI;
     silo.activeFarmers = 0;
     silo.save();
@@ -54,7 +57,6 @@ export function loadSiloAsset(account: Address, token: Address): SiloAsset {
     asset.depositedBDV = ZERO_BI;
     asset.depositedAmount = ZERO_BI;
     asset.withdrawnAmount = ZERO_BI;
-    asset.farmAmount = ZERO_BI;
     asset.save();
   }
   return asset as SiloAsset;
@@ -84,6 +86,26 @@ export function loadWhitelistTokenSetting(token: Address): WhitelistTokenSetting
     setting.save();
   }
   return setting as WhitelistTokenSetting;
+}
+
+/* ===== Wrapped Silo ERC20 Entities ===== */
+
+export function loadWrappedDeposit(token: Address): WrappedDepositERC20 {
+  let wrappedDeposit = WrappedDepositERC20.load(token);
+  if (wrappedDeposit == null) {
+    wrappedDeposit = new WrappedDepositERC20(token);
+    wrappedDeposit.beanstalk = "beanstalk";
+    wrappedDeposit.silo = loadSilo(token).id;
+
+    const contract = WrappedSiloERC20.bind(token);
+    wrappedDeposit.decimals = contract.decimals();
+    wrappedDeposit.underlyingAsset = contract.asset();
+
+    wrappedDeposit.supply = ZERO_BI;
+    wrappedDeposit.redeemRate = contract.previewRedeem(BI_10.pow(<u8>wrappedDeposit.decimals));
+    wrappedDeposit.save();
+  }
+  return wrappedDeposit as WrappedDepositERC20;
 }
 
 /* ===== Plenty Entities ===== */

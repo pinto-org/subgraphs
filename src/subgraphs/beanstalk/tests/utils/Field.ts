@@ -1,4 +1,4 @@
-import { BigInt, ethereum, log } from "@graphprotocol/graph-ts";
+import { Address, BigInt, ethereum, log } from "@graphprotocol/graph-ts";
 import { assert, createMockedFunction } from "matchstick-as/assembly/index";
 import { createHarvestEvent, createPlotTransferEvent, createSowEvent } from "../event-mocking/Field";
 import { createIncentivizationEvent } from "../event-mocking/Season";
@@ -10,6 +10,9 @@ import { handleHarvest, handlePlotTransfer, handleSow } from "../../src/handlers
 const account = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266".toLowerCase();
 
 export function sow(account: string, index: BigInt, beans: BigInt, pods: BigInt): void {
+  createMockedFunction(BEANSTALK, "getDeltaPodDemand", "getDeltaPodDemand():(uint256)").returns([
+    ethereum.Value.fromUnsignedBigInt(ZERO_BI)
+  ]);
   handleSow(createSowEvent(account, index, beans, pods));
 }
 
@@ -30,6 +33,15 @@ export function setHarvestable(harvestableIndex: BigInt): BigInt {
   handleIncentive(createIncentivizationEvent(account, BigInt.fromI32(123456)));
 
   return harvestableIndex;
+}
+export function mockHarvestableIndexWithFieldId(
+  protocolAddress: Address,
+  harvestableIndex: BigInt,
+  fieldId: BigInt
+): void {
+  createMockedFunction(protocolAddress, "harvestableIndex", "harvestableIndex(uint256):(uint256)")
+    .withArgs([ethereum.Value.fromUnsignedBigInt(fieldId)])
+    .returns([ethereum.Value.fromUnsignedBigInt(harvestableIndex)]);
 }
 
 export function assertFarmerHasPlot(

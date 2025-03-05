@@ -1,11 +1,17 @@
 import { Address, BigInt, BigDecimal, ethereum } from "@graphprotocol/graph-ts";
 import { BeanstalkPrice_priceOnly } from "./contracts/BeanstalkPrice";
 import { BI_10, ONE_BD, toDecimal, ZERO_BD, ZERO_BI } from "../../../../core/utils/Decimals";
-import { setFieldHourlyCaseId, setHourlySoilSoldOut, takeFieldSnapshots } from "../entities/snapshots/Field";
+import {
+  setDeltaPodDemand,
+  setFieldHourlyCaseId,
+  setHourlySoilSoldOut,
+  takeFieldSnapshots
+} from "../entities/snapshots/Field";
 import { getCurrentSeason, getHarvestableIndex, loadBeanstalk, loadFarmer, loadSeason } from "../entities/Beanstalk";
 import { loadField, loadPlot } from "../entities/Field";
 import { expirePodListingIfExists } from "./Marketplace";
 import { toAddress } from "../../../../core/utils/Bytes";
+import { PintoPI5 } from "../../generated/Beanstalk-ABIs/PintoPI5";
 
 class SowParams {
   event: ethereum.Event;
@@ -55,28 +61,33 @@ export function sow(params: SowParams): void {
     params.event.block
   );
 
-  let field = loadField(protocol);
+  let protocolField = loadField(protocol);
   loadFarmer(params.account);
   let plot = loadPlot(protocol, params.index);
 
-  let newIndexes = field.plotIndexes;
+  let newIndexes = protocolField.plotIndexes;
   newIndexes.push(plot.index);
-  field.plotIndexes = newIndexes;
-  field.save();
+  protocolField.plotIndexes = newIndexes;
+  protocolField.save();
 
   plot.farmer = params.account;
   plot.source = "SOW";
   plot.sourceHash = params.event.transaction.hash;
-  plot.season = field.season;
+  plot.season = protocolField.season;
   plot.creationHash = params.event.transaction.hash;
   plot.createdAt = params.event.block.timestamp;
   plot.updatedAt = params.event.block.timestamp;
   plot.updatedAtBlock = params.event.block.number;
   plot.pods = params.pods;
   plot.beansPerPod = params.beans.times(BI_10.pow(6)).div(plot.pods);
+  plot.initialHarvestableIndex = protocolField.harvestableIndex;
   plot.save();
 
   incrementSows(protocol, params.account, params.event.block);
+
+  const beanstalk = PintoPI5.bind(protocol);
+  const deltaPodDemand = beanstalk.getDeltaPodDemand();
+  setDeltaPodDemand(deltaPodDemand, protocolField);
 }
 
 export function harvest(params: HarvestParams): void {
@@ -142,6 +153,7 @@ export function harvest(params: HarvestParams): void {
       remainingPlot.index = remainingIndex;
       remainingPlot.pods = remainingPods;
       remainingPlot.beansPerPod = plot.beansPerPod;
+      remainingPlot.initialHarvestableIndex = plot.initialHarvestableIndex;
       remainingPlot.save();
 
       plot.harvestedPods = harvestablePods;
@@ -227,6 +239,7 @@ export function plotTransfer(params: PlotTransferParams): void {
       sourcePlot.source = "TRANSFER";
       sourcePlot.sourceHash = params.event.transaction.hash;
       sourcePlot.beansPerPod = sourcePlot.beansPerPod;
+      sourcePlot.initialHarvestableIndex = sourcePlot.initialHarvestableIndex;
     }
     sourcePlot.farmer = params.to;
     sourcePlot.updatedAt = params.event.block.timestamp;
@@ -246,6 +259,7 @@ export function plotTransfer(params: PlotTransferParams): void {
       remainderPlot.source = sourcePlot.source;
       remainderPlot.sourceHash = sourcePlot.sourceHash;
       remainderPlot.beansPerPod = sourcePlot.beansPerPod;
+      remainderPlot.initialHarvestableIndex = sourcePlot.initialHarvestableIndex;
       remainderPlot.preTransferSource = sourcePlot.preTransferSource;
       remainderPlot.preTransferOwner = sourcePlot.preTransferOwner;
 
@@ -256,6 +270,7 @@ export function plotTransfer(params: PlotTransferParams): void {
       sourcePlot.source = "TRANSFER";
       sourcePlot.sourceHash = params.event.transaction.hash;
       sourcePlot.beansPerPod = sourcePlot.beansPerPod;
+      sourcePlot.initialHarvestableIndex = sourcePlot.initialHarvestableIndex;
     }
     sourcePlot.farmer = params.to;
     sourcePlot.updatedAt = params.event.block.timestamp;
@@ -291,6 +306,7 @@ export function plotTransfer(params: PlotTransferParams): void {
       toPlot.source = "TRANSFER";
       toPlot.sourceHash = params.event.transaction.hash;
       toPlot.beansPerPod = sourcePlot.beansPerPod;
+      toPlot.initialHarvestableIndex = sourcePlot.initialHarvestableIndex;
       // Passthrough if possible, otherwise init
       toPlot.preTransferSource =
         sourcePlot.preTransferSource !== null ? sourcePlot.preTransferSource : sourcePlot.source;
@@ -326,6 +342,7 @@ export function plotTransfer(params: PlotTransferParams): void {
       toPlot.source = "TRANSFER";
       toPlot.sourceHash = params.event.transaction.hash;
       toPlot.beansPerPod = sourcePlot.beansPerPod;
+      toPlot.initialHarvestableIndex = sourcePlot.initialHarvestableIndex;
       // Passthrough if possible, otherwise init
       toPlot.preTransferSource =
         sourcePlot.preTransferSource !== null ? sourcePlot.preTransferSource : sourcePlot.source;
@@ -356,6 +373,7 @@ export function plotTransfer(params: PlotTransferParams): void {
     remainderPlot.pods = sourceEndIndex.minus(transferEndIndex);
     remainderPlot.harvestablePods = calcHarvestable(remainderPlot.index, remainderPlot.pods, currentHarvestable);
     remainderPlot.beansPerPod = sourcePlot.beansPerPod;
+    remainderPlot.initialHarvestableIndex = sourcePlot.initialHarvestableIndex;
     remainderPlot.save();
   }
   sortedPlots.sort();

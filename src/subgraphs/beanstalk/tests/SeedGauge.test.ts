@@ -41,7 +41,6 @@ describe("Seed Gauge", () => {
     initL1Version();
   });
   afterEach(() => {
-    log.debug("clearing the store", []);
     clearStore();
   });
 

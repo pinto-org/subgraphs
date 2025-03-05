@@ -38,7 +38,7 @@ jobs:
         run: npm run codegen beanstalk
 
       - name: Build Subgraph
-        run: npm run build beanstalk arbitrum
+        run: npm run build beanstalk pinto
   test:
     runs-on: ubuntu-latest
     name: Test

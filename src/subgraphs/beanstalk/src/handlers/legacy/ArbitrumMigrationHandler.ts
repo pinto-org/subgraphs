@@ -2,7 +2,6 @@ import { BigInt, Address, ethereum } from "@graphprotocol/graph-ts";
 import { ZERO_BI } from "../../../../../core/utils/Decimals";
 import {
   AddMigratedDeposit,
-  InternalBalanceMigrated,
   L1BeansMigrated,
   L1DepositsMigrated,
   L1FertilizerMigrated,
@@ -15,7 +14,6 @@ import {
 import { getCurrentSeason, getHarvestableIndex, loadFarmer, loadSeason } from "../../entities/Beanstalk";
 import { loadField, loadPlot } from "../../entities/Field";
 import { clearFieldDeltas, takeFieldSnapshots } from "../../entities/snapshots/Field";
-import { updateFarmTotals } from "../../utils/Farm";
 import { podListingCreated, podOrderCreated } from "../../utils/Marketplace";
 import { addDeposits, updateStalkBalances } from "../../utils/Silo";
 import { loadFertilizer } from "../../entities/Fertilizer";
@@ -73,11 +71,6 @@ export function handleMigratedPodOrder(event: MigratedPodOrder): void {
     pricingFunction: null,
     pricingType: 0
   });
-}
-
-export function handleInternalBalanceMigrated(event: InternalBalanceMigrated): void {
-  loadFarmer(event.params.account);
-  updateFarmTotals(event.address, event.params.account, event.params.token, event.params.delta, event.block);
 }
 
 // isReseed: true for reseed scripts, false for contract account migration (see L1ReceiverFacet.sol)
@@ -141,6 +134,7 @@ function addMigratedPlot(
   plot.updatedAtBlock = event.block.number;
   plot.pods = amount;
   plot.beansPerPod = ZERO_BI;
+  plot.initialHarvestableIndex = ZERO_BI;
   plot.save();
 }
 

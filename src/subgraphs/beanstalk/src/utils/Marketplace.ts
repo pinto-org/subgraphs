@@ -1,5 +1,5 @@
 import { Address, BigInt, Bytes, ethereum, log } from "@graphprotocol/graph-ts";
-import { loadPlot } from "../entities/Field";
+import { loadField, loadPlot } from "../entities/Field";
 import { BI_10, ZERO_BI } from "../../../../core/utils/Decimals";
 import { loadPodFill, loadPodMarketplace } from "../entities/PodMarketplace";
 import { createHistoricalPodOrder, loadPodOrder } from "../entities/PodMarketplace";
@@ -479,6 +479,7 @@ function setBeansPerPodAfterFill(
   length: BigInt,
   costInBeans: BigInt
 ): void {
+  const protocolField = loadField(event.address);
   // Load the plot that is being sent. It may or may not have been created already, depending
   // on whether the PlotTransfer event has already been processed (sometims its emitted after the market transfer).
   let fillPlot = loadPlot(event.address, plotIndex.plus(start));
@@ -493,6 +494,7 @@ function setBeansPerPodAfterFill(
       remainderPlot.source = fillPlot.source;
       remainderPlot.sourceHash = fillPlot.sourceHash;
       remainderPlot.beansPerPod = fillPlot.beansPerPod;
+      remainderPlot.initialHarvestableIndex = fillPlot.initialHarvestableIndex;
       remainderPlot.preTransferSource = fillPlot.preTransferSource;
       remainderPlot.preTransferOwner = fillPlot.preTransferOwner;
       remainderPlot.save();
@@ -501,6 +503,7 @@ function setBeansPerPodAfterFill(
 
   // Update values on the sold plot
   fillPlot.beansPerPod = costInBeans.times(BI_10.pow(6)).div(length);
+  fillPlot.initialHarvestableIndex = protocolField.harvestableIndex;
   fillPlot.source = "MARKET";
   fillPlot.sourceHash = event.transaction.hash;
   fillPlot.preTransferSource = null;

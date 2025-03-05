@@ -206,7 +206,6 @@ describe("APY Calculations", () => {
 
       // Nondeposited silo asset, should not have any effect
       let farmAsset = loadSiloAsset(BEANSTALK, LUSD_3POOL);
-      farmAsset.farmAmount = BigInt.fromString("1234567890000");
       farmAsset.save();
 
       // Individual farmer's silo asset, should not have any effect

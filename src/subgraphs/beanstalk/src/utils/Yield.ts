@@ -139,7 +139,7 @@ export function updateSiloVAPYs(protocol: Address, timestamp: BigInt, window: i3
     let nonGaugeDepositedBdv = ZERO_BD;
     let depositedBeanBdv = ZERO_BD;
 
-    let initialR = toDecimal(silo.beanToMaxLpGpPerBdvRatio!, 20);
+    let initialR = toDecimal(silo.beanToMaxLpGpPerBdvRatio, 20);
     let siloStalk = toDecimal(silo.stalk, stalkDecimals(v()));
 
     let germinatingBeanBdv: BigDecimal[] = [];

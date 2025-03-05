@@ -239,6 +239,8 @@ dataSources:
           file: ../../../core/abis/Beanstalk/Pinto-PI5.json
         - name: BeanstalkPrice
           file: ../../../core/abis/PintostalkPrice.json
+        - name: WrappedSiloERC20
+          file: ../../../core/abis/WrappedSiloERC20.json
       eventHandlers:
         - event: Sunrise(indexed uint256)
           handler: handleSunrise
@@ -279,7 +281,7 @@ dataSources:
           handler: handlePlentyWell_v1
       file: ../src/handlers/legacy/LegacySeasonHandler.ts
   ###
-  # BEAN ERC20
+  # ERC20
   ###
   - kind: ethereum/contract
     name: Bean
@@ -299,33 +301,33 @@ dataSources:
           file: ../../../core/abis/ERC20.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
-          handler: handleTransfer
-      file: ../src/handlers/BeanHandler.ts
+          handler: handleBeanTransfer
+      file: ../src/handlers/TokenHandler.ts
   ###
-  # FARM BALANCE
+  # Wrapped Deposit ERC20
   ###
   - kind: ethereum/contract
-    name: Farm
+    name: sPinto
     network: base
     source:
-      address: "0xD1A0D188E861ed9d15773a2F3574a2e94134bA8f"
-      abi: PintoPI5
-      startBlock: 22622961 # Pintostalk Deployment
+      address: "0x00b174d66adA7d63789087F50A9b9e0e48446dc1"
+      abi: WrappedSiloERC20
+      startBlock: 27068608 # sPinto Deployment
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
-        - SiloAsset
+        - WrappedSiloERC20
       abis:
-        - name: PintoPI5
-          file: ../../../core/abis/Beanstalk/Pinto-PI5.json
+        - name: WrappedSiloERC20
+          file: ../../../core/abis/WrappedSiloERC20.json
       eventHandlers:
-        - event: InternalBalanceChanged(indexed address,indexed address,int256)
-          handler: handleInternalBalanceChanged
-      file: ../src/handlers/FarmHandler.ts
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleWrappedDepositERC20Transfer
+      file: ../src/handlers/WrappedSiloHandler.ts
 # features:
 #   - grafting
 # graft:
-#   base: QmUqT47H7o3gcZ2mHRJf2J5hpitWDYxsMmacGeuvo1wKU7
-#   block: 19927630
+#   base: QmaiSMSyNS2ACLJ5gXoMbqqYFennPzcHZj7ZYeGQFVJk5L
+#   block: 27058608
