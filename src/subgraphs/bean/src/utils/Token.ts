@@ -7,6 +7,7 @@ import { v } from "./constants/Version";
 import { loadOrCreateFarmerBalance } from "../entities/FarmerBalance";
 import { takeFarmerBalanceSnapshots } from "../entities/snapshots/FarmerBalance";
 import { takeTokenSnapshots } from "../entities/snapshots/Token";
+import { ZERO_BI } from "../../../../core/utils/Decimals";
 
 enum TokenLocation {
   NULL,
@@ -54,7 +55,7 @@ export function erc20Transfer(event: Transfer): void {
 // Emitted for all tokens, should ignore processing for those which aren't already tracking balances
 export function internalBalanceChanged(params: InternalBalanceChangedParams): void {
   const tokenEntity = findToken(params.token);
-  if (tokenEntity !== null) {
+  if (tokenEntity !== null && tokenEntity.supply > ZERO_BI) {
     tokenEntity.farmBalance = tokenEntity.farmBalance.plus(params.delta);
     // Adding to the farm balance necessitates removing it from the beanstalk contract's wallet balance
     // so its not double counted upon transfer. The same logic holds even if there is no actual Transfer event
