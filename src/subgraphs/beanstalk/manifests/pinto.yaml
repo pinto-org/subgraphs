@@ -49,6 +49,28 @@ dataSources:
           filter:
             kind: once
       file: ../src/utils/init/PintoInit.ts
+  - kind: ethereum/contract
+    name: PI6Adjustment
+    network: base
+    source:
+      address: "0xD1A0D188E861ed9d15773a2F3574a2e94134bA8f"
+      abi: PintoLaunch
+      startBlock: 27514420 # PI-6
+      endBlock: 27514420 # PI-6
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Beanstalk
+      abis:
+        - name: PintoLaunch
+          file: ../../../core/abis/Beanstalk/Pinto-Launch.json
+      blockHandlers:
+        - handler: processMissingEvents
+          filter:
+            kind: once
+      file: ../src/utils/init/PI6Adjustment.ts
   ###
   # SILO
   ###
