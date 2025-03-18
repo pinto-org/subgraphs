@@ -597,6 +597,8 @@ type Field @entity {
   season: Int!
   "Current temperature, in percent (i.e. 50.5 = 50.5% temperature)"
   temperature: BigDecimal!
+  "PI-6 Cultivation Factor, in percent (i.e. 20.5 = 20.5% cultivation factor)"
+  cultivationFactor: BigDecimal
   "Rate of return: Temperature / Bean Price"
   realRateOfReturn: BigDecimal!
   "Cumulative number of unique sowers"
@@ -642,6 +644,8 @@ type FieldHourlySnapshot @entity {
   season: Int!
   "Point in time temperature"
   temperature: BigDecimal!
+  "Point in time PI-6 Cultivation Factor"
+  cultivationFactor: BigDecimal
   "Point in time rate of return: Temperature / Bean Price"
   realRateOfReturn: BigDecimal!
   "Point in time cumulative number of unique sowers"
@@ -668,6 +672,7 @@ type FieldHourlySnapshot @entity {
   podRate: BigDecimal!
 
   deltaTemperature: BigDecimal!
+  deltaCultivationFactor: BigDecimal
   deltaRealRateOfReturn: BigDecimal!
   deltaNumberOfSowers: Int!
   deltaNumberOfSows: Int!
@@ -708,6 +713,8 @@ type FieldDailySnapshot @entity {
   season: Int!
   "Point in time temperature"
   temperature: BigDecimal!
+  "Point in time PI-6 Cultivation Factor"
+  cultivationFactor: BigDecimal
   "Point in time rate of return: Temperature / Bean Price"
   realRateOfReturn: BigDecimal!
   "Point in time cumulative number of unique sowers"
@@ -734,6 +741,7 @@ type FieldDailySnapshot @entity {
   podRate: BigDecimal!
 
   deltaTemperature: BigDecimal!
+  deltaCultivationFactor: BigDecimal
   deltaRealRateOfReturn: BigDecimal!
   deltaNumberOfSowers: Int!
   deltaNumberOfSows: Int!
