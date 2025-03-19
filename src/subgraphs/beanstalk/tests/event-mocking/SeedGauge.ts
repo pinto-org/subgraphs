@@ -7,7 +7,7 @@ import {
   TotalGerminatingBalanceChanged,
   TotalGerminatingStalkChanged,
   TotalStalkChangedFromGermination
-} from "../../generated/Beanstalk-ABIs/PintoPI5";
+} from "../../generated/Beanstalk-ABIs/PintoPI6";
 import { mockBeanstalkEvent } from "../../../../core/tests/event-mocking/Util";
 import { UpdateGaugeSettings } from "../../generated/Beanstalk-ABIs/SeedGauge";
 

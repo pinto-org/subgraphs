@@ -79,7 +79,7 @@ dataSources:
     network: base
     source:
       address: "0xD1A0D188E861ed9d15773a2F3574a2e94134bA8f"
-      abi: PintoPI5
+      abi: PintoPI6
       startBlock: 22622961 # Pintostalk Deployment
     mapping:
       kind: ethereum/events
@@ -88,8 +88,8 @@ dataSources:
       entities:
         - Silo
       abis:
-        - name: PintoPI5
-          file: ../../../core/abis/Beanstalk/Pinto-PI5.json
+        - name: PintoPI6
+          file: ../../../core/abis/Beanstalk/Pinto-PI6.json
       eventHandlers:
         - event: AddDeposit(indexed address,indexed address,int96,uint256,uint256)
           handler: handleAddDeposit
@@ -122,7 +122,7 @@ dataSources:
     network: base
     source:
       address: "0xD1A0D188E861ed9d15773a2F3574a2e94134bA8f"
-      abi: PintoPI5
+      abi: PintoPI6
       startBlock: 22622961 # Pintostalk Deployment
     mapping:
       kind: ethereum/events
@@ -131,8 +131,8 @@ dataSources:
       entities:
         - SeedGauge
       abis:
-        - name: PintoPI5
-          file: ../../../core/abis/Beanstalk/Pinto-PI5.json
+        - name: PintoPI6
+          file: ../../../core/abis/Beanstalk/Pinto-PI6.json
         - name: BeanstalkPrice
           file: ../../../core/abis/PintostalkPrice.json
       eventHandlers:
@@ -161,7 +161,7 @@ dataSources:
     network: base
     source:
       address: "0xD1A0D188E861ed9d15773a2F3574a2e94134bA8f"
-      abi: PintoPI5
+      abi: PintoPI6
       startBlock: 22622961 # Pintostalk Deployment
     mapping:
       kind: ethereum/events
@@ -170,8 +170,8 @@ dataSources:
       entities:
         - Field
       abis:
-        - name: PintoPI5
-          file: ../../../core/abis/Beanstalk/Pinto-PI5.json
+        - name: PintoPI6
+          file: ../../../core/abis/Beanstalk/Pinto-PI6.json
         - name: BeanstalkPrice
           file: ../../../core/abis/PintostalkPrice.json
       eventHandlers:
@@ -215,7 +215,7 @@ dataSources:
     network: base
     source:
       address: "0xD1A0D188E861ed9d15773a2F3574a2e94134bA8f"
-      abi: PintoPI5
+      abi: PintoPI6
       startBlock: 22622961 # Pintostalk Deployment
     mapping:
       kind: ethereum/events
@@ -224,8 +224,8 @@ dataSources:
       entities:
         - PodMarketplace
       abis:
-        - name: PintoPI5
-          file: ../../../core/abis/Beanstalk/Pinto-PI5.json
+        - name: PintoPI6
+          file: ../../../core/abis/Beanstalk/Pinto-PI6.json
       eventHandlers:
         - event: PodListingCreated(indexed address,uint256,uint256,uint256,uint256,uint24,uint256,uint256,uint8)
           handler: handlePodListingCreated
@@ -248,7 +248,7 @@ dataSources:
     network: base
     source:
       address: "0xD1A0D188E861ed9d15773a2F3574a2e94134bA8f"
-      abi: PintoPI5
+      abi: PintoPI6
       startBlock: 22622961 # Pintostalk Deployment
     mapping:
       kind: ethereum/events
@@ -257,8 +257,8 @@ dataSources:
       entities:
         - Season
       abis:
-        - name: PintoPI5
-          file: ../../../core/abis/Beanstalk/Pinto-PI5.json
+        - name: PintoPI6
+          file: ../../../core/abis/Beanstalk/Pinto-PI6.json
         - name: BeanstalkPrice
           file: ../../../core/abis/PintostalkPrice.json
         - name: WrappedSiloERC20
