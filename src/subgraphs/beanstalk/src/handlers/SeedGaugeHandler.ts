@@ -22,7 +22,7 @@ import { takeWhitelistTokenSettingSnapshots } from "../entities/snapshots/Whitel
 import { getCurrentSeason } from "../entities/Beanstalk";
 import { updateStalkBalances } from "../utils/Silo";
 import { beanDecimals } from "../../../../core/constants/RuntimeConstants";
-import { handleBeanToMaxLpGpPerBdvRatioChange_bugged } from "./legacy/LegacyGaugeHandler";
+import { handleBeanToMaxLpGpPerBdvRatioChange_bugged } from "./legacy/LegacySeedGaugeHandler";
 import { PI_1_BLOCK } from "../../../../core/constants/raw/PintoBaseConstants";
 
 // SEED GAUGE SEASONAL ADJUSTMENTS //

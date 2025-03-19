@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, assert, clearStore, describe, test } from "matchstick-as/assembly/index";
-import { log } from "matchstick-as/assembly/log";
 import { BigInt } from "@graphprotocol/graph-ts";
 import {
   handleBeanToMaxLpGpPerBdvRatioChange,
@@ -8,7 +7,7 @@ import {
   handleFarmerGerminatingStalkBalanceChanged,
   handleTotalGerminatingStalkChanged,
   handleTotalStalkChangedFromGermination
-} from "../src/handlers/GaugeHandler";
+} from "../src/handlers/SeedGaugeHandler";
 import { BEAN_ERC20, BEANSTALK } from "../../../core/constants/raw/BeanstalkEthConstants";
 import {
   createBeanToMaxLpGpPerBdvRatioChangeEvent,
@@ -28,7 +27,7 @@ import { dayFromTimestamp } from "../../../core/utils/Dates";
 import { loadSilo } from "../src/entities/Silo";
 import { initL1Version } from "./entity-mocking/MockVersion";
 import { handleWhitelistToken_v4 } from "../src/handlers/legacy/LegacySiloHandler";
-import { handleUpdateGaugeSettings } from "../src/handlers/legacy/LegacyGaugeHandler";
+import { handleUpdateGaugeSettings } from "../src/handlers/legacy/LegacySeedGaugeHandler";
 import { BI_10 } from "../../../core/utils/Decimals";
 import { handleTemperatureChange } from "../src/handlers/FieldHandler";
 

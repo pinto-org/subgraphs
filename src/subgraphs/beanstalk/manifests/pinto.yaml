@@ -1,6 +1,8 @@
 specVersion: 0.0.9
 schema:
   file: ../schema.graphql
+indexerHints:
+  prune: never
 dataSources:
   ###
   # INITIALIZATION
@@ -152,7 +154,7 @@ dataSources:
           handler: handleTotalStalkChangedFromGermination
         - event: UpdatedOptimalPercentDepositedBdvForToken(indexed address,uint64)
           handler: handleUpdatedOptimalPercentDepositedBdvForToken
-      file: ../src/handlers/GaugeHandler.ts
+      file: ../src/handlers/SeedGaugeHandler.ts
   ###
   # FIELD
   ###
@@ -302,6 +304,29 @@ dataSources:
         - event: SeasonOfPlentyWell(indexed uint256,address,address,uint256)
           handler: handlePlentyWell_v1
       file: ../src/handlers/legacy/LegacySeasonHandler.ts
+  ###
+  # Gen Gauge
+  ###
+  - kind: ethereum/contract
+    name: GenGauge
+    network: base
+    source:
+      address: "0xD1A0D188E861ed9d15773a2F3574a2e94134bA8f"
+      abi: PintoPI6
+      startBlock: 27514420 # PI-6 Deployment
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - GenGauge
+      abis:
+        - name: PintoPI6
+          file: ../../../core/abis/Beanstalk/Pinto-PI6.json
+      eventHandlers:
+        - event: Engaged()
+          handler: handleEngaged
+      file: ../src/handlers/GenGaugeHandler.ts
   ###
   # ERC20
   ###
