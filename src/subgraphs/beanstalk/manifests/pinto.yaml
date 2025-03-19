@@ -324,7 +324,7 @@ dataSources:
         - name: PintoPI6
           file: ../../../core/abis/Beanstalk/Pinto-PI6.json
       eventHandlers:
-        - event: Engaged()
+        - event: Engaged(uint8,bytes)
           handler: handleEngaged
       file: ../src/handlers/GenGaugeHandler.ts
   ###
