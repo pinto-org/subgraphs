@@ -28,17 +28,17 @@ describe("Gen Gauge", () => {
     test("Assigns initial value", () => {
       initCultivationFactorGauge();
 
-      assert.fieldEquals("Field", v().protocolAddress.toHexString(), "cultivationFactor", "50000000");
+      assert.fieldEquals("Field", v().protocolAddress.toHexString(), "cultivationFactor", "50");
     });
 
     test("Updates value", () => {
       initCultivationFactorGauge();
 
-      const value = Bytes.fromHexString("0x00000000000000000000000000000000000000000000000000000000000f4240");
+      const value = Bytes.fromHexString("0x000000000000000000000000000000000000000000000000000000000016e360");
       const engagedEvent = createEngagedEvent(0, value);
       handleEngaged(engagedEvent);
 
-      assert.fieldEquals("Field", v().protocolAddress.toHexString(), "cultivationFactor", "1000000");
+      assert.fieldEquals("Field", v().protocolAddress.toHexString(), "cultivationFactor", "1.5");
     });
   });
 });
