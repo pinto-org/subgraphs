@@ -3,7 +3,7 @@ import { Transfer } from "../../generated/Beanstalk-ABIs/ERC20";
 import { loadBeanstalk, loadFarmer, loadSeason } from "../entities/Beanstalk";
 import { ZERO_BI } from "../../../../core/utils/Decimals";
 import { beanTransfer } from "../utils/Token";
-import { InternalBalanceChanged } from "../../generated/Beanstalk-ABIs/PintoPI5";
+import { InternalBalanceChanged } from "../../generated/Beanstalk-ABIs/PintoPI6";
 
 export function handleBeanTransfer(event: Transfer): void {
   beanTransfer(event);

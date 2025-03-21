@@ -265,7 +265,7 @@ dataSources:
         # events were bugged and resolved on Reseed, they are handled in legacy:
         # FarmerGerminatingStalkBalanceChanged
         # TotalGerminatingBalanceChanged
-      file: ../src/handlers/GaugeHandler.ts
+      file: ../src/handlers/SeedGaugeHandler.ts
   - kind: ethereum/contract
     name: LegacySeedGauge-SeedGauge-Reseed
     network: mainnet
@@ -292,7 +292,7 @@ dataSources:
           handler: handleTotalGerminatingBalanceChanged_bugged
         - event: UpdateGaugeSettings(indexed address,bytes4,bytes4,uint64)
           handler: handleUpdateGaugeSettings
-      file: ../src/handlers/legacy/LegacyGaugeHandler.ts
+      file: ../src/handlers/legacy/LegacySeedGaugeHandler.ts
   ###
   # FIELD
   ###

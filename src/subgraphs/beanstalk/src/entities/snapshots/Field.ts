@@ -43,6 +43,8 @@ export function takeFieldSnapshots(field: Field, block: ethereum.Block): void {
   hourly.harvestableIndex = field.harvestableIndex;
   hourly.podRate = field.podRate;
 
+  hourly.cultivationFactor = field.cultivationFactor;
+
   // Set deltas
   if (baseHourly !== null) {
     hourly.deltaTemperature = hourly.temperature.minus(baseHourly.temperature);
@@ -59,6 +61,13 @@ export function takeFieldSnapshots(field: Field, block: ethereum.Block): void {
     hourly.deltaHarvestableIndex = hourly.harvestableIndex.minus(baseHourly.harvestableIndex);
     hourly.deltaPodRate = hourly.podRate.minus(baseHourly.podRate);
 
+    if (baseHourly.cultivationFactor !== null) {
+      // Implies current is also not null
+      hourly.deltaCultivationFactor = hourly.cultivationFactor!.minus(baseHourly.cultivationFactor!);
+    } else {
+      hourly.deltaCultivationFactor = hourly.cultivationFactor;
+    }
+
     if (hourly.id == baseHourly.id) {
       // Add existing deltas
       hourly.deltaTemperature = hourly.deltaTemperature.plus(baseHourly.deltaTemperature);
@@ -73,6 +82,12 @@ export function takeFieldSnapshots(field: Field, block: ethereum.Block): void {
       hourly.deltaPodIndex = hourly.deltaPodIndex.plus(baseHourly.deltaPodIndex);
       hourly.deltaHarvestableIndex = hourly.deltaHarvestableIndex.plus(baseHourly.deltaHarvestableIndex);
       hourly.deltaPodRate = hourly.deltaPodRate.plus(baseHourly.deltaPodRate);
+
+      if (baseHourly.deltaCultivationFactor !== null) {
+        // Implies current is also not null
+        hourly.deltaCultivationFactor = hourly.deltaCultivationFactor!.plus(baseHourly.deltaCultivationFactor!);
+      }
+
       // Carry over unset values that would otherwise get erased
       hourly.issuedSoil = baseHourly.issuedSoil;
       hourly.deltaIssuedSoil = baseHourly.deltaIssuedSoil;
@@ -112,6 +127,8 @@ export function takeFieldSnapshots(field: Field, block: ethereum.Block): void {
     hourly.deltaHarvestableIndex = hourly.harvestableIndex;
     hourly.deltaPodRate = hourly.podRate;
 
+    hourly.deltaCultivationFactor = hourly.cultivationFactor;
+
     // Sets initial sunrise values
     hourly.issuedSoil = field.soil;
     hourly.deltaIssuedSoil = field.soil;
@@ -141,6 +158,9 @@ export function takeFieldSnapshots(field: Field, block: ethereum.Block): void {
   daily.podIndex = field.podIndex;
   daily.harvestableIndex = field.harvestableIndex;
   daily.podRate = field.podRate;
+
+  daily.cultivationFactor = field.cultivationFactor;
+
   if (baseDaily !== null) {
     daily.deltaTemperature = daily.temperature.minus(baseDaily.temperature);
     daily.deltaRealRateOfReturn = daily.realRateOfReturn.minus(baseDaily.realRateOfReturn);
@@ -156,6 +176,13 @@ export function takeFieldSnapshots(field: Field, block: ethereum.Block): void {
     daily.deltaHarvestableIndex = daily.harvestableIndex.minus(baseDaily.harvestableIndex);
     daily.deltaPodRate = daily.podRate.minus(baseDaily.podRate);
 
+    if (baseDaily.cultivationFactor !== null) {
+      // Implies current is also not null
+      daily.deltaCultivationFactor = daily.cultivationFactor!.minus(baseDaily.cultivationFactor!);
+    } else {
+      daily.deltaCultivationFactor = daily.cultivationFactor;
+    }
+
     if (daily.id == baseDaily.id) {
       // Add existing deltas
       daily.deltaTemperature = daily.deltaTemperature.plus(baseDaily.deltaTemperature);
@@ -170,6 +197,12 @@ export function takeFieldSnapshots(field: Field, block: ethereum.Block): void {
       daily.deltaPodIndex = daily.deltaPodIndex.plus(baseDaily.deltaPodIndex);
       daily.deltaHarvestableIndex = daily.deltaHarvestableIndex.plus(baseDaily.deltaHarvestableIndex);
       daily.deltaPodRate = daily.deltaPodRate.plus(baseDaily.deltaPodRate);
+
+      if (baseDaily.deltaCultivationFactor !== null) {
+        // Implies current is also not null
+        daily.deltaCultivationFactor = daily.deltaCultivationFactor!.plus(baseDaily.deltaCultivationFactor!);
+      }
+
       // Carry over existing values
       daily.issuedSoil = baseDaily.issuedSoil;
       daily.deltaIssuedSoil = baseDaily.deltaIssuedSoil;
@@ -197,6 +230,8 @@ export function takeFieldSnapshots(field: Field, block: ethereum.Block): void {
     daily.deltaPodIndex = daily.podIndex;
     daily.deltaHarvestableIndex = daily.harvestableIndex;
     daily.deltaPodRate = daily.podRate;
+
+    daily.deltaCultivationFactor = daily.cultivationFactor;
 
     // Sets issued soil here since this is the initial creation
     daily.issuedSoil = field.soil;

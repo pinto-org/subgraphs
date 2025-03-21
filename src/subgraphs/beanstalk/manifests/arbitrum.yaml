@@ -241,7 +241,7 @@ dataSources:
           handler: handleTotalStalkChangedFromGermination
         - event: UpdatedOptimalPercentDepositedBdvForToken(indexed address,uint64)
           handler: handleUpdatedOptimalPercentDepositedBdvForToken
-      file: ../src/handlers/GaugeHandler.ts
+      file: ../src/handlers/SeedGaugeHandler.ts
   ###
   # FIELD
   ###

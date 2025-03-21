@@ -6,7 +6,7 @@ import {
   PodOrderFilled,
   PodListingCancelled,
   PodOrderCancelled
-} from "../../generated/Beanstalk-ABIs/PintoPI5";
+} from "../../generated/Beanstalk-ABIs/PintoPI6";
 import {
   podListingCancelled,
   podListingCreated,

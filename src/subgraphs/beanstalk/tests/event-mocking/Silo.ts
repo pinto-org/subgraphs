@@ -5,7 +5,7 @@ import {
   RemoveDeposits as RemoveDepositsV2
 } from "../../generated/Beanstalk-ABIs/Replanted";
 import { mockBeanstalkEvent } from "../../../../core/tests/event-mocking/Util";
-import { AddDeposit, RemoveDeposits, RemoveDeposit } from "../../generated/Beanstalk-ABIs/PintoPI5";
+import { AddDeposit, RemoveDeposits, RemoveDeposit } from "../../generated/Beanstalk-ABIs/PintoPI6";
 export function createAddDepositV2Event(
   account: string,
   token: string,
