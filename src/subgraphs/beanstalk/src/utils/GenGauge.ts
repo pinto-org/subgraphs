@@ -22,3 +22,11 @@ export function engagedCultivationFactor(value: Bytes, block: ethereum.Block): v
   takeFieldSnapshots(field, block);
   field.save();
 }
+
+export function convertDownPenalty(initial: AddedGaugeGaugeStruct, block: ethereum.Block): void {
+  //
+}
+
+export function engagedConvertDownPenalty(value: Bytes, block: ethereum.Block): void {
+  //
+}

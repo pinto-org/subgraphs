@@ -186,26 +186,29 @@ export function updateStalkBalances(
   silo.roots = silo.roots.plus(deltaRoots);
 
   takeSiloSnapshots(silo, block);
+  silo.save();
 
   // Add account to active list if needed
   if (account !== protocol) {
     let beanstalk = loadBeanstalk();
+    let protocolSilo = loadSilo(protocol);
     let farmerIndex = beanstalk.activeFarmers.indexOf(account);
     if (farmerIndex == -1) {
       let newFarmers = beanstalk.activeFarmers;
       newFarmers.push(account);
       beanstalk.activeFarmers = newFarmers;
+      protocolSilo.activeFarmers += 1;
       beanstalk.save();
-      silo.activeFarmers += 1;
+      protocolSilo.save();
     } else if (silo.stalk == ZERO_BI) {
       let newFarmers = beanstalk.activeFarmers;
       newFarmers.splice(farmerIndex, 1);
       beanstalk.activeFarmers = newFarmers;
+      protocolSilo.activeFarmers -= 1;
       beanstalk.save();
-      silo.activeFarmers -= 1;
+      protocolSilo.save();
     }
   }
-  silo.save();
 }
 
 export function setWhitelistTokenSettings(params: WhitelistTokenParams, forceEnableGauge: boolean = false): void {
