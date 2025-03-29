@@ -1,4 +1,4 @@
-import { BigInt } from "@graphprotocol/graph-ts";
+import { Address, BigInt } from "@graphprotocol/graph-ts";
 import { afterEach, beforeEach, assert, clearStore, describe, test } from "matchstick-as/assembly/index";
 import {
   BEAN_3CRV,
@@ -13,6 +13,7 @@ import {
 import {
   createAddDepositV2Event,
   createAddDepositV3Event,
+  createConvertDownPenaltyEvent,
   createRemoveDepositsV2Event,
   createRemoveDepositV2Event,
   createRemoveDepositV3Event
@@ -33,9 +34,15 @@ import {
   handleWhitelistToken_v2,
   handleWhitelistToken_v3
 } from "../src/handlers/legacy/LegacySiloHandler";
-import { handleAddDeposit, handleDewhitelistToken, handleRemoveDeposit } from "../src/handlers/SiloHandler";
-import { initL1Version } from "./entity-mocking/MockVersion";
+import {
+  handleAddDeposit,
+  handleConvertDownPenalty,
+  handleDewhitelistToken,
+  handleRemoveDeposit
+} from "../src/handlers/SiloHandler";
+import { initL1Version, initPintoVersion } from "./entity-mocking/MockVersion";
 import { stemFromSeason } from "../src/utils/legacy/LegacySilo";
+import { v } from "../src/utils/constants/Version";
 
 describe("Silo Events", () => {
   beforeEach(() => {
@@ -324,6 +331,38 @@ describe("Silo Events", () => {
       );
       assert.fieldEquals("Silo", BEANSTALK.toHexString(), "dewhitelistedTokens", "[" + BEAN_ERC20.toHexString() + "]");
     });
+  });
+});
+
+const ADDR1 = Address.fromString("0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266");
+const ADDR2 = Address.fromString("0x70997970c51812dc3a010c7d01b50e0d17dc79c8");
+
+describe("Pinto Events", () => {
+  beforeEach(() => {
+    initPintoVersion();
+  });
+  afterEach(() => {
+    clearStore();
+  });
+
+  test("Convert down penalty", () => {
+    handleConvertDownPenalty(
+      createConvertDownPenaltyEvent(ADDR1, BigInt.fromString("1000"), BigInt.fromString("4000"))
+    );
+
+    assert.fieldEquals("Silo", ADDR1.toHexString(), "penalizedStalkConvertDown", "1000");
+    assert.fieldEquals("Silo", ADDR1.toHexString(), "avgConvertDownPenalty", "0.2");
+    assert.fieldEquals("Silo", v().protocolAddress.toHexString(), "penalizedStalkConvertDown", "1000");
+    assert.fieldEquals("Silo", v().protocolAddress.toHexString(), "avgConvertDownPenalty", "0.2");
+
+    handleConvertDownPenalty(
+      createConvertDownPenaltyEvent(ADDR2, BigInt.fromString("2000"), BigInt.fromString("3000"))
+    );
+
+    assert.fieldEquals("Silo", ADDR2.toHexString(), "penalizedStalkConvertDown", "2000");
+    assert.fieldEquals("Silo", ADDR2.toHexString(), "avgConvertDownPenalty", "0.4");
+    assert.fieldEquals("Silo", v().protocolAddress.toHexString(), "penalizedStalkConvertDown", "3000");
+    assert.fieldEquals("Silo", v().protocolAddress.toHexString(), "avgConvertDownPenalty", "0.3");
   });
 });
 

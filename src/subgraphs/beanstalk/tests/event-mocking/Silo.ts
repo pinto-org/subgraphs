@@ -4,8 +4,9 @@ import {
   RemoveDeposit as RemoveDepositV2,
   RemoveDeposits as RemoveDepositsV2
 } from "../../generated/Beanstalk-ABIs/Replanted";
-import { mockBeanstalkEvent } from "../../../../core/tests/event-mocking/Util";
-import { AddDeposit, RemoveDeposits, RemoveDeposit } from "../../generated/Beanstalk-ABIs/PintoPI8";
+import { mockBeanstalkEvent, mockContractEvent } from "../../../../core/tests/event-mocking/Util";
+import { AddDeposit, RemoveDeposits, RemoveDeposit, ConvertDownPenalty } from "../../generated/Beanstalk-ABIs/PintoPI8";
+import { v } from "../../src/utils/constants/Version";
 export function createAddDepositV2Event(
   account: string,
   token: string,
@@ -189,4 +190,23 @@ export function createRemoveDepositsV3Event(
   event.parameters.push(param6);
 
   return event as RemoveDeposits;
+}
+
+export function createConvertDownPenaltyEvent(
+  account: Address,
+  stalkLost: BigInt,
+  stalkKept: BigInt
+): ConvertDownPenalty {
+  let event = changetype<ConvertDownPenalty>(mockContractEvent(v().protocolAddress));
+  event.parameters = new Array();
+
+  let param1 = new ethereum.EventParam("account", ethereum.Value.fromAddress(account));
+  let param2 = new ethereum.EventParam("stalkLost", ethereum.Value.fromUnsignedBigInt(stalkLost));
+  let param3 = new ethereum.EventParam("stalkKept", ethereum.Value.fromUnsignedBigInt(stalkKept));
+
+  event.parameters.push(param1);
+  event.parameters.push(param2);
+  event.parameters.push(param3);
+
+  return event as ConvertDownPenalty;
 }
