@@ -32,6 +32,9 @@ export function takeSiloSnapshots(silo: Silo, block: ethereum.Block): void {
   hourly.plantedBeans = silo.plantedBeans;
   hourly.roots = silo.roots;
   hourly.germinatingStalk = silo.germinatingStalk;
+  hourly.penalizedStalkConvertDown = silo.penalizedStalkConvertDown;
+  hourly.unpenalizedStalkConvertDown = silo.unpenalizedStalkConvertDown;
+  hourly.avgConvertDownPenalty = silo.avgConvertDownPenalty;
   hourly.beanMints = silo.beanMints;
   hourly.plantableStalk = silo.plantableStalk;
   hourly.beanToMaxLpGpPerBdvRatio = silo.beanToMaxLpGpPerBdvRatio;
@@ -48,6 +51,13 @@ export function takeSiloSnapshots(silo: Silo, block: ethereum.Block): void {
     hourly.deltaPlantedBeans = hourly.plantedBeans.minus(baseHourly.plantedBeans);
     hourly.deltaRoots = hourly.roots.minus(baseHourly.roots);
     hourly.deltaGerminatingStalk = hourly.germinatingStalk.minus(baseHourly.germinatingStalk);
+    hourly.deltaPenalizedStalkConvertDown = hourly.penalizedStalkConvertDown.minus(
+      baseHourly.penalizedStalkConvertDown
+    );
+    hourly.deltaUnpenalizedStalkConvertDown = hourly.unpenalizedStalkConvertDown.minus(
+      baseHourly.unpenalizedStalkConvertDown
+    );
+    hourly.deltaAvgConvertDownPenalty = hourly.avgConvertDownPenalty.minus(baseHourly.avgConvertDownPenalty);
     hourly.deltaBeanMints = hourly.beanMints.minus(baseHourly.beanMints);
     hourly.deltaPlantableStalk = hourly.plantableStalk.minus(baseHourly.plantableStalk);
     hourly.deltaBeanToMaxLpGpPerBdvRatio = hourly.beanToMaxLpGpPerBdvRatio.minus(baseHourly.beanToMaxLpGpPerBdvRatio);
@@ -71,6 +81,13 @@ export function takeSiloSnapshots(silo: Silo, block: ethereum.Block): void {
       hourly.deltaPlantedBeans = hourly.deltaPlantedBeans.plus(baseHourly.deltaPlantedBeans);
       hourly.deltaRoots = hourly.deltaRoots.plus(baseHourly.deltaRoots);
       hourly.deltaGerminatingStalk = hourly.deltaGerminatingStalk.plus(baseHourly.deltaGerminatingStalk);
+      hourly.deltaPenalizedStalkConvertDown = hourly.deltaPenalizedStalkConvertDown.plus(
+        baseHourly.deltaPenalizedStalkConvertDown
+      );
+      hourly.deltaUnpenalizedStalkConvertDown = hourly.deltaUnpenalizedStalkConvertDown.plus(
+        baseHourly.deltaUnpenalizedStalkConvertDown
+      );
+      hourly.deltaAvgConvertDownPenalty = hourly.deltaAvgConvertDownPenalty.plus(baseHourly.deltaAvgConvertDownPenalty);
       hourly.deltaBeanMints = hourly.deltaBeanMints.plus(baseHourly.deltaBeanMints);
       hourly.deltaPlantableStalk = hourly.deltaPlantableStalk.plus(baseHourly.deltaPlantableStalk);
       hourly.deltaBeanToMaxLpGpPerBdvRatio = hourly.deltaBeanToMaxLpGpPerBdvRatio.plus(
@@ -96,6 +113,9 @@ export function takeSiloSnapshots(silo: Silo, block: ethereum.Block): void {
     hourly.deltaPlantedBeans = hourly.plantedBeans;
     hourly.deltaRoots = hourly.roots;
     hourly.deltaGerminatingStalk = hourly.germinatingStalk;
+    hourly.deltaPenalizedStalkConvertDown = hourly.penalizedStalkConvertDown;
+    hourly.deltaUnpenalizedStalkConvertDown = hourly.unpenalizedStalkConvertDown;
+    hourly.deltaAvgConvertDownPenalty = hourly.avgConvertDownPenalty;
     hourly.deltaBeanMints = hourly.beanMints;
     hourly.deltaPlantableStalk = hourly.plantableStalk;
     hourly.deltaBeanToMaxLpGpPerBdvRatio = hourly.beanToMaxLpGpPerBdvRatio;
@@ -119,6 +139,9 @@ export function takeSiloSnapshots(silo: Silo, block: ethereum.Block): void {
   daily.plantedBeans = silo.plantedBeans;
   daily.roots = silo.roots;
   daily.germinatingStalk = silo.germinatingStalk;
+  daily.penalizedStalkConvertDown = silo.penalizedStalkConvertDown;
+  daily.unpenalizedStalkConvertDown = silo.unpenalizedStalkConvertDown;
+  daily.avgConvertDownPenalty = silo.avgConvertDownPenalty;
   daily.beanMints = silo.beanMints;
   daily.plantableStalk = silo.plantableStalk;
   daily.beanToMaxLpGpPerBdvRatio = silo.beanToMaxLpGpPerBdvRatio;
@@ -134,6 +157,11 @@ export function takeSiloSnapshots(silo: Silo, block: ethereum.Block): void {
     daily.deltaPlantedBeans = daily.plantedBeans.minus(baseDaily.plantedBeans);
     daily.deltaRoots = daily.roots.minus(baseDaily.roots);
     daily.deltaGerminatingStalk = daily.germinatingStalk.minus(baseDaily.germinatingStalk);
+    daily.deltaPenalizedStalkConvertDown = daily.penalizedStalkConvertDown.minus(baseDaily.penalizedStalkConvertDown);
+    daily.deltaUnpenalizedStalkConvertDown = daily.unpenalizedStalkConvertDown.minus(
+      baseDaily.unpenalizedStalkConvertDown
+    );
+    daily.deltaAvgConvertDownPenalty = daily.avgConvertDownPenalty.minus(baseDaily.avgConvertDownPenalty);
     daily.deltaBeanMints = daily.beanMints.minus(baseDaily.beanMints);
     daily.deltaPlantableStalk = daily.plantableStalk.minus(baseDaily.plantableStalk);
     daily.deltaBeanToMaxLpGpPerBdvRatio = daily.beanToMaxLpGpPerBdvRatio.minus(baseDaily.beanToMaxLpGpPerBdvRatio);
@@ -157,6 +185,13 @@ export function takeSiloSnapshots(silo: Silo, block: ethereum.Block): void {
       daily.deltaPlantedBeans = daily.deltaPlantedBeans.plus(baseDaily.deltaPlantedBeans);
       daily.deltaRoots = daily.deltaRoots.plus(baseDaily.deltaRoots);
       daily.deltaGerminatingStalk = daily.deltaGerminatingStalk.plus(baseDaily.deltaGerminatingStalk);
+      daily.deltaPenalizedStalkConvertDown = daily.deltaPenalizedStalkConvertDown.plus(
+        baseDaily.deltaPenalizedStalkConvertDown
+      );
+      daily.deltaUnpenalizedStalkConvertDown = daily.deltaUnpenalizedStalkConvertDown.plus(
+        baseDaily.deltaUnpenalizedStalkConvertDown
+      );
+      daily.deltaAvgConvertDownPenalty = daily.deltaAvgConvertDownPenalty.plus(baseDaily.deltaAvgConvertDownPenalty);
       daily.deltaBeanMints = daily.deltaBeanMints.plus(baseDaily.deltaBeanMints);
       daily.deltaPlantableStalk = daily.deltaPlantableStalk.plus(baseDaily.deltaPlantableStalk);
       daily.deltaBeanToMaxLpGpPerBdvRatio = daily.deltaBeanToMaxLpGpPerBdvRatio.plus(
@@ -179,6 +214,9 @@ export function takeSiloSnapshots(silo: Silo, block: ethereum.Block): void {
     daily.deltaPlantedBeans = daily.plantedBeans;
     daily.deltaRoots = daily.roots;
     daily.deltaGerminatingStalk = daily.germinatingStalk;
+    daily.deltaPenalizedStalkConvertDown = daily.penalizedStalkConvertDown;
+    daily.deltaUnpenalizedStalkConvertDown = daily.unpenalizedStalkConvertDown;
+    daily.deltaAvgConvertDownPenalty = daily.avgConvertDownPenalty;
     daily.deltaBeanMints = daily.beanMints;
     daily.deltaPlantableStalk = daily.plantableStalk;
     daily.deltaBeanToMaxLpGpPerBdvRatio = daily.beanToMaxLpGpPerBdvRatio;

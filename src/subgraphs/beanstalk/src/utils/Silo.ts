@@ -1,4 +1,4 @@
-import { Address, BigInt, ethereum, Bytes, log } from "@graphprotocol/graph-ts";
+import { Address, BigInt, ethereum, Bytes, log, BigDecimal } from "@graphprotocol/graph-ts";
 import { takeSiloSnapshots } from "../entities/snapshots/Silo";
 import { loadSilo, loadSiloAsset, loadSiloDeposit, loadWhitelistTokenSetting, updateDeposit } from "../entities/Silo";
 import { takeSiloAssetSnapshots } from "../entities/snapshots/SiloAsset";
@@ -226,4 +226,27 @@ export function setWhitelistTokenSettings(params: WhitelistTokenParams, forceEna
 
   takeWhitelistTokenSettingSnapshots(siloSettings, params.block);
   siloSettings.save();
+}
+
+export function applyConvertDownPenalty(
+  protocol: Address,
+  account: Address,
+  penaltyAmount: BigInt,
+  unpenalizedAmount: BigInt,
+  block: ethereum.Block,
+  recurs: boolean = true
+): void {
+  if (recurs && account != protocol) {
+    applyConvertDownPenalty(protocol, protocol, penaltyAmount, unpenalizedAmount, block);
+  }
+
+  const silo = loadSilo(account);
+  silo.penalizedStalkConvertDown = silo.penalizedStalkConvertDown.plus(penaltyAmount);
+  silo.unpenalizedStalkConvertDown = silo.unpenalizedStalkConvertDown.plus(unpenalizedAmount);
+  silo.avgConvertDownPenalty = new BigDecimal(silo.penalizedStalkConvertDown).div(
+    new BigDecimal(silo.penalizedStalkConvertDown.plus(silo.unpenalizedStalkConvertDown))
+  );
+
+  takeSiloSnapshots(silo, block);
+  silo.save();
 }

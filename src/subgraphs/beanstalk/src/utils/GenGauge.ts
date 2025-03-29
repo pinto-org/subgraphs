@@ -1,5 +1,5 @@
 import { BigDecimal, Bytes, ethereum } from "@graphprotocol/graph-ts";
-import { AddedGaugeGaugeStruct } from "../../generated/Beanstalk-ABIs/PintoPI6";
+import { AddedGaugeGaugeStruct } from "../../generated/Beanstalk-ABIs/PintoPI8";
 import { loadField } from "../entities/Field";
 import { v } from "./constants/Version";
 import { takeFieldSnapshots } from "../entities/snapshots/Field";
@@ -27,13 +27,13 @@ function setCultivationFactor(value: BigDecimal, block: ethereum.Block): void {
 export function initConvertDownPenalty(initial: AddedGaugeGaugeStruct, block: ethereum.Block): void {
   const initValue = ethereum.decode("(uint256, uint256)", initial.value)!.toTuple();
   const initPenalty = initValue[0].toBigInt();
-  setConvertDownPenalty(toDecimal(initPenalty, 18 - 2), block);
+  setConvertDownPenalty(toDecimal(initPenalty, 18), block);
 }
 
 export function engagedConvertDownPenalty(value: Bytes, block: ethereum.Block): void {
   const newValue = ethereum.decode("(uint256, uint256)", value)!.toTuple();
   const newPenalty = newValue[0].toBigInt();
-  setConvertDownPenalty(toDecimal(newPenalty, 18 - 2), block);
+  setConvertDownPenalty(toDecimal(newPenalty, 18), block);
 }
 
 function setConvertDownPenalty(value: BigDecimal, block: ethereum.Block): void {

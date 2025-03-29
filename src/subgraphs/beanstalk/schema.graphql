@@ -126,6 +126,12 @@ type Silo @entity {
   roots: BigInt!
   "[Seed Gauge] Stalk that is currently Germinating"
   germinatingStalk: BigInt!
+  "Total stalk amount that has been penalized by the convert down penalty"
+  penalizedStalkConvertDown: BigInt!
+  "Total amount of stalk that was not penalized during the application of a down convert penalty. Needed to compute the avg penalty rate"
+  unpenalizedStalkConvertDown: BigInt!
+  "Average convert down penalty that has been assessed, in percent"
+  avgConvertDownPenalty: BigDecimal!
 
   "(protocol) Tokens whitelisted for deposit within the silo"
   whitelistedTokens: [Bytes!]!
@@ -141,7 +147,7 @@ type Silo @entity {
   avgGrownStalkPerBdvPerSeason: BigInt!
   "(protocol) Current grown stalk per season according to avgGrownStalkPerBdvPerSeason"
   grownStalkPerSeason: BigInt!
-  "(protocol) PI-7 Convert down penalty, in percent (i.e. 40.5 = 40.5%)"
+  "(protocol) PI-7 Convert down penalty"
   convertDownPenalty: BigDecimal
   "(protocol) Current number of active farmers deposited in the silo"
   activeFarmers: Int!
@@ -175,6 +181,12 @@ type SiloHourlySnapshot @entity {
   roots: BigInt!
   "[Seed Gauge] Stalk that is currently Germinating"
   germinatingStalk: BigInt!
+  "Point in time total stalk that has been penalized by the convert down penalty"
+  penalizedStalkConvertDown: BigInt!
+  "Point in time totalstalk that was not penalized during the application of a down convert penalty"
+  unpenalizedStalkConvertDown: BigInt!
+  "Average convert down penalty that has been assessed, in percent. 20.5 = 20.5%"
+  avgConvertDownPenalty: BigDecimal!
 
   "Point in time cumulative total for bean mints sent to the silo"
   beanMints: BigInt!
@@ -196,6 +208,9 @@ type SiloHourlySnapshot @entity {
   deltaPlantedBeans: BigInt!
   deltaRoots: BigInt!
   deltaGerminatingStalk: BigInt!
+  deltaPenalizedStalkConvertDown: BigInt!
+  deltaUnpenalizedStalkConvertDown: BigInt!
+  deltaAvgConvertDownPenalty: BigDecimal!
   deltaBeanMints: BigInt!
   deltaPlantableStalk: BigInt!
   deltaBeanToMaxLpGpPerBdvRatio: BigInt!
@@ -231,6 +246,12 @@ type SiloDailySnapshot @entity {
   roots: BigInt!
   "[Seed Gauge] Stalk that is currently Germinating"
   germinatingStalk: BigInt!
+  "Point in time total stalk that has been penalized by the convert down penalty"
+  penalizedStalkConvertDown: BigInt!
+  "Point in time totalstalk that was not penalized during the application of a down convert penalty"
+  unpenalizedStalkConvertDown: BigInt!
+  "Average convert down penalty that has been assessed, in percent. 20.5 = 20.5%"
+  avgConvertDownPenalty: BigDecimal!
 
   "Point in time cumulative total for bean mints sent to the silo"
   beanMints: BigInt!
@@ -252,6 +273,9 @@ type SiloDailySnapshot @entity {
   deltaPlantedBeans: BigInt!
   deltaRoots: BigInt!
   deltaGerminatingStalk: BigInt!
+  deltaPenalizedStalkConvertDown: BigInt!
+  deltaUnpenalizedStalkConvertDown: BigInt!
+  deltaAvgConvertDownPenalty: BigDecimal!
   deltaBeanMints: BigInt!
   deltaPlantableStalk: BigInt!
   deltaBeanToMaxLpGpPerBdvRatio: BigInt!

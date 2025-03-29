@@ -26,19 +26,24 @@ export function loadSilo(account: Address): Silo {
     if (account !== v().protocolAddress) {
       silo.farmer = account;
     }
-    silo.whitelistedTokens = [];
-    silo.dewhitelistedTokens = [];
-    silo.depositedBDV = ZERO_BI;
     silo.stalk = ZERO_BI;
-    silo.plantableStalk = ZERO_BI;
+    silo.depositedBDV = ZERO_BI;
     silo.plantedBeans = ZERO_BI;
-    silo.avgGrownStalkPerBdvPerSeason = ZERO_BI;
-    silo.grownStalkPerSeason = ZERO_BI;
     silo.roots = ZERO_BI;
     silo.germinatingStalk = ZERO_BI;
-    silo.beanToMaxLpGpPerBdvRatio = ZERO_BI;
+    silo.penalizedStalkConvertDown = ZERO_BI;
+    silo.unpenalizedStalkConvertDown = ZERO_BI;
+    silo.avgConvertDownPenalty = ZERO_BD;
+
+    silo.whitelistedTokens = [];
+    silo.dewhitelistedTokens = [];
     silo.beanMints = ZERO_BI;
+    silo.plantableStalk = ZERO_BI;
+    silo.beanToMaxLpGpPerBdvRatio = ZERO_BI;
+    silo.avgGrownStalkPerBdvPerSeason = ZERO_BI;
+    silo.grownStalkPerSeason = ZERO_BI;
     silo.activeFarmers = 0;
+    silo;
     silo.save();
   }
   return silo as Silo;

@@ -71,7 +71,7 @@ describe("Gen Gauge", () => {
       const engagedEvent = createEngagedEvent(1, value);
       handleEngaged(engagedEvent);
 
-      assert.fieldEquals("Silo", v().protocolAddress.toHexString(), "convertDownPenalty", "40.7");
+      assert.fieldEquals("Silo", v().protocolAddress.toHexString(), "convertDownPenalty", "0.407");
     });
   });
 });

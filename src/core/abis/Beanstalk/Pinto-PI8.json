@@ -6285,6 +6285,11 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "T",
+    "type": "error"
+  },
+  {
     "anonymous": false,
     "inputs": [
       {
@@ -6319,6 +6324,31 @@
       }
     ],
     "name": "Convert",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "stalkLost",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "stalkKept",
+        "type": "uint256"
+      }
+    ],
+    "name": "ConvertDownPenalty",
     "type": "event"
   },
   {
@@ -6396,11 +6426,6 @@
     ],
     "stateMutability": "payable",
     "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "T",
-    "type": "error"
   },
   {
     "inputs": [
@@ -6531,6 +6556,40 @@
         "internalType": "int256",
         "name": "deltaB",
         "type": "int256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "well",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "bdvToConvert",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "grownStalkToConvert",
+        "type": "uint256"
+      }
+    ],
+    "name": "downPenalizedGrownStalk",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "newGrownStalk",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "grownStalkLost",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -9533,6 +9592,51 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "x",
+        "type": "uint256"
+      }
+    ],
+    "name": "PRBMathUD60x18__LogInputTooSmall",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes",
+        "name": "value",
+        "type": "bytes"
+      },
+      {
+        "internalType": "bytes",
+        "name": "systemData",
+        "type": "bytes"
+      },
+      {
+        "internalType": "bytes",
+        "name": "gaugeData",
+        "type": "bytes"
+      }
+    ],
+    "name": "convertDownPenaltyGauge",
+    "outputs": [
+      {
+        "internalType": "bytes",
+        "name": "",
+        "type": "bytes"
+      },
+      {
+        "internalType": "bytes",
+        "name": "",
+        "type": "bytes"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "bytes",
         "name": "value",
         "type": "bytes"
@@ -9672,6 +9776,25 @@
         "internalType": "struct Gauge",
         "name": "",
         "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "enum GaugeId",
+        "name": "gaugeId",
+        "type": "uint8"
+      }
+    ],
+    "name": "getGaugeData",
+    "outputs": [
+      {
+        "internalType": "bytes",
+        "name": "",
+        "type": "bytes"
       }
     ],
     "stateMutability": "view",

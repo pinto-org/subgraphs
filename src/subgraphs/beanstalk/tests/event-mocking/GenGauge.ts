@@ -1,6 +1,6 @@
 import { Address, Bytes, ethereum } from "@graphprotocol/graph-ts";
 import { mockContractEvent } from "../../../../core/tests/event-mocking/Util";
-import { AddedGauge, Engaged } from "../../generated/Beanstalk-ABIs/PintoPI6";
+import { AddedGauge, Engaged } from "../../generated/Beanstalk-ABIs/PintoPI8";
 import { v } from "../../src/utils/constants/Version";
 
 export function createAddedGaugeEvent(

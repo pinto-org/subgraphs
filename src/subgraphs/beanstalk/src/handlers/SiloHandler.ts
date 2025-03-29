@@ -1,5 +1,6 @@
 import {
   addDeposits,
+  applyConvertDownPenalty,
   removeDeposits,
   setWhitelistTokenSettings,
   updateDepositInSiloAsset,
@@ -19,8 +20,9 @@ import {
   StalkBalanceChanged,
   UpdatedStalkPerBdvPerSeason,
   UpdateWhitelistStatus,
-  ClaimPlenty
-} from "../../generated/Beanstalk-ABIs/PintoPI6";
+  ClaimPlenty,
+  ConvertDownPenalty
+} from "../../generated/Beanstalk-ABIs/PintoPI8";
 import { unripeChopped } from "../utils/Barn";
 import { beanDecimals, getProtocolToken, isUnripe, stalkDecimals } from "../../../../core/constants/RuntimeConstants";
 import { v } from "../utils/constants/Version";
@@ -118,6 +120,16 @@ export function handlePlant(event: Plant): void {
   farmerSilo.plantedBeans = farmerSilo.plantedBeans.plus(event.params.beans);
   takeSiloSnapshots(farmerSilo, event.block);
   farmerSilo.save();
+}
+
+export function handleConvertDownPenalty(event: ConvertDownPenalty): void {
+  applyConvertDownPenalty(
+    event.address,
+    event.params.account,
+    event.params.stalkLost,
+    event.params.stalkKept,
+    event.block
+  );
 }
 
 export function handleWhitelistToken(event: WhitelistToken): void {
