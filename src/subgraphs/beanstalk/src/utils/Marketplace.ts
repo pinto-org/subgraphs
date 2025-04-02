@@ -85,6 +85,7 @@ export function podListingCreated(params: PodListingCreatedParams): void {
   if (plot == null) {
     return;
   }
+  loadFarmer(params.account, params.event.block);
 
   /// Upsert PodListing
   let listing = loadPodListing(params.account, params.index);
@@ -161,6 +162,7 @@ export function podListingCreated(params: PodListingCreatedParams): void {
 
 export function podListingFilled(params: MarketFillParams): void {
   let listing = loadPodListing(params.from, params.index);
+  loadFarmer(params.to, params.event.block);
 
   updateMarketListingBalances(ZERO_BI, ZERO_BI, params.amount, params.costInBeans, params.event.block);
 
@@ -285,7 +287,7 @@ export function podListingCancelled(params: PodListingCancelledParams): void {
 
 export function podOrderCreated(params: PodOrderCreatedParams): void {
   let order = loadPodOrder(params.id);
-  loadFarmer(params.account);
+  loadFarmer(params.account, params.event.block);
 
   if (order.status != "") {
     createHistoricalPodOrder(order);
@@ -332,6 +334,7 @@ export function podOrderCreated(params: PodOrderCreatedParams): void {
 export function podOrderFilled(params: MarketFillParams): void {
   let order = loadPodOrder(params.id!);
   let fill = loadPodFill(params.event.address, params.index, params.event.transaction.hash.toHexString());
+  loadFarmer(params.to, params.event.block);
 
   order.updatedAt = params.event.block.timestamp;
   order.beanAmountFilled = order.beanAmountFilled.plus(params.costInBeans);

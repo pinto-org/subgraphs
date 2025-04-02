@@ -103,7 +103,7 @@ function addMigratedPlot(
   field.unharvestablePods = field.unharvestablePods.plus(unharvestablePods);
   field.harvestablePods = field.harvestablePods.plus(harvestablePods);
 
-  loadFarmer(account);
+  loadFarmer(account, event.block);
   let plot = loadPlot(event.address, index);
 
   let newIndexes = field.plotIndexes;

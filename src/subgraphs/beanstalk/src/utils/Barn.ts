@@ -37,11 +37,18 @@ export function getFertilizerInfo(fertId: BigInt): FertilizerTokenInfo {
   };
 }
 
-export function transfer(fertilizer1155: Address, from: Address, to: Address, id: BigInt, amount: BigInt): void {
+export function transfer(
+  fertilizer1155: Address,
+  from: Address,
+  to: Address,
+  id: BigInt,
+  amount: BigInt,
+  block: ethereum.Block
+): void {
   let fertilizer = loadFertilizer(fertilizer1155);
   let fertilizerToken = loadFertilizerToken(fertilizer, id);
   if (from != ADDRESS_ZERO) {
-    let fromFarmer = loadFarmer(from);
+    let fromFarmer = loadFarmer(from, block);
     let fromFertilizerBalance = loadFertilizerBalance(fertilizerToken, fromFarmer);
     fromFertilizerBalance.amount = fromFertilizerBalance.amount.minus(amount);
     fromFertilizerBalance.save();
@@ -52,7 +59,7 @@ export function transfer(fertilizer1155: Address, from: Address, to: Address, id
     fertilizerToken.save();
   }
 
-  let toFarmer = loadFarmer(to);
+  let toFarmer = loadFarmer(to, block);
   let toFertilizerBalance = loadFertilizerBalance(fertilizerToken, toFarmer);
   toFertilizerBalance.amount = toFertilizerBalance.amount.plus(amount);
   toFertilizerBalance.save();

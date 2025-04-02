@@ -31,6 +31,7 @@ class WhitelistTokenParams {
 }
 
 export function addDeposits(params: AddRemoveDepositsParams): void {
+  loadFarmer(params.account, params.event.block);
   for (let i = 0; i < params.amounts.length; ++i) {
     let deposit = loadSiloDeposit({
       account: params.account,
@@ -55,9 +56,6 @@ export function addDeposits(params: AddRemoveDepositsParams): void {
     deposit = updateDeposit(deposit, params.amounts[i], params.bdvs![i], params.event)!;
     deposit.save();
 
-    // Ensure that a Farmer entity is set up for this account.
-    loadFarmer(params.account);
-
     updateDepositInSilo(
       params.event.address,
       params.account,
@@ -70,6 +68,7 @@ export function addDeposits(params: AddRemoveDepositsParams): void {
 }
 
 export function removeDeposits(params: AddRemoveDepositsParams): void {
+  loadFarmer(params.account, params.event.block);
   for (let i = 0; i < params.amounts.length; ++i) {
     let deposit = loadSiloDeposit({
       account: params.account,

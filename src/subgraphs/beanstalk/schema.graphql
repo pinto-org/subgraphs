@@ -799,6 +799,8 @@ type FieldDailySnapshot @entity {
 type Farmer @entity {
   "Address for the farmer"
   id: Bytes!
+  "Block number in which this entity was created"
+  creationBlock: BigInt!
   silo: Silo @derivedFrom(field: "farmer")
   deposits: [SiloDeposit!]! @derivedFrom(field: "farmer")
   withdraws: [SiloWithdraw!]! @derivedFrom(field: "farmer")
