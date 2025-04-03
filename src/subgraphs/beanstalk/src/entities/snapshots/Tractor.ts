@@ -1,52 +1,51 @@
 import { BigInt, ethereum, log } from "@graphprotocol/graph-ts";
-import { SiloAsset, SiloAssetDailySnapshot, SiloAssetHourlySnapshot } from "../../../generated/schema";
+import { Tractor, TractorDailySnapshot, TractorHourlySnapshot } from "../../../generated/schema";
 import { dayFromTimestamp, hourFromTimestamp } from "../../../../../core/utils/Dates";
 import { getCurrentSeason } from "../Beanstalk";
 
-// TODO: implement this for Tractor
-export function takeTractorSnapshots(siloAsset: SiloAsset, block: ethereum.Block): void {
+export function takeTractorSnapshots(tractor: Tractor, block: ethereum.Block): void {
   const currentSeason = getCurrentSeason();
 
   const hour = BigInt.fromI32(hourFromTimestamp(block.timestamp));
   const day = BigInt.fromI32(dayFromTimestamp(block.timestamp));
 
   // Load the snapshot for this season/day
-  const hourlyId = siloAsset.id + "-" + currentSeason.toString();
-  const dailyId = siloAsset.id + "-" + day.toString();
-  let baseHourly = SiloAssetHourlySnapshot.load(hourlyId);
-  let baseDaily = SiloAssetDailySnapshot.load(dailyId);
-  if (baseHourly == null && siloAsset.lastHourlySnapshotSeason !== 0) {
-    baseHourly = SiloAssetHourlySnapshot.load(siloAsset.id + "-" + siloAsset.lastHourlySnapshotSeason.toString());
+  const hourlyId = tractor.id + "-" + currentSeason.toString();
+  const dailyId = tractor.id + "-" + day.toString();
+  let baseHourly = TractorHourlySnapshot.load(hourlyId);
+  let baseDaily = TractorDailySnapshot.load(dailyId);
+  if (baseHourly == null && tractor.lastHourlySnapshotSeason !== 0) {
+    baseHourly = TractorHourlySnapshot.load(tractor.id + "-" + tractor.lastHourlySnapshotSeason.toString());
   }
-  if (baseDaily == null && siloAsset.lastDailySnapshotDay !== null) {
-    baseDaily = SiloAssetDailySnapshot.load(siloAsset.id + "-" + siloAsset.lastDailySnapshotDay!.toString());
+  if (baseDaily == null && tractor.lastDailySnapshotDay !== null) {
+    baseDaily = TractorDailySnapshot.load(tractor.id + "-" + tractor.lastDailySnapshotDay!.toString());
   }
-  const hourly = new SiloAssetHourlySnapshot(hourlyId);
-  const daily = new SiloAssetDailySnapshot(dailyId);
+  const hourly = new TractorHourlySnapshot(hourlyId);
+  const daily = new TractorDailySnapshot(dailyId);
 
   // Set current values
   hourly.season = currentSeason;
-  hourly.siloAsset = siloAsset.id;
-  hourly.depositedAmount = siloAsset.depositedAmount;
-  hourly.depositedBDV = siloAsset.depositedBDV;
-  hourly.withdrawnAmount = siloAsset.withdrawnAmount;
+  hourly.tractor = tractor.id;
+  hourly.totalExecutions = tractor.totalExecutions;
+  hourly.totalPosBeanTips = tractor.totalPosBeanTips;
+  hourly.totalNegBeanTips = tractor.totalNegBeanTips;
 
   // Set deltas
   if (baseHourly !== null) {
-    hourly.deltaDepositedAmount = hourly.depositedAmount.minus(baseHourly.depositedAmount);
-    hourly.deltaDepositedBDV = hourly.depositedBDV.minus(baseHourly.depositedBDV);
-    hourly.deltaWithdrawnAmount = hourly.withdrawnAmount.minus(baseHourly.withdrawnAmount);
+    hourly.deltaTotalExecutions = hourly.totalExecutions - baseHourly.totalExecutions;
+    hourly.deltaTotalPosBeanTips = hourly.totalPosBeanTips.minus(baseHourly.totalPosBeanTips);
+    hourly.deltaTotalNegBeanTips = hourly.totalNegBeanTips.minus(baseHourly.totalNegBeanTips);
 
     if (hourly.id == baseHourly.id) {
       // Add existing deltas
-      hourly.deltaDepositedAmount = hourly.deltaDepositedAmount.plus(baseHourly.deltaDepositedAmount);
-      hourly.deltaDepositedBDV = hourly.deltaDepositedBDV.plus(baseHourly.deltaDepositedBDV);
-      hourly.deltaWithdrawnAmount = hourly.deltaWithdrawnAmount.plus(baseHourly.deltaWithdrawnAmount);
+      hourly.deltaTotalExecutions = hourly.deltaTotalExecutions + baseHourly.deltaTotalExecutions;
+      hourly.deltaTotalPosBeanTips = hourly.deltaTotalPosBeanTips.plus(baseHourly.deltaTotalPosBeanTips);
+      hourly.deltaTotalNegBeanTips = hourly.deltaTotalNegBeanTips.plus(baseHourly.deltaTotalNegBeanTips);
     }
   } else {
-    hourly.deltaDepositedAmount = hourly.depositedAmount;
-    hourly.deltaDepositedBDV = hourly.depositedBDV;
-    hourly.deltaWithdrawnAmount = hourly.withdrawnAmount;
+    hourly.deltaTotalExecutions = hourly.totalExecutions;
+    hourly.deltaTotalPosBeanTips = hourly.totalPosBeanTips;
+    hourly.deltaTotalNegBeanTips = hourly.totalNegBeanTips;
   }
   hourly.createdAt = hour.times(BigInt.fromU32(3600));
   hourly.updatedAt = block.timestamp;
@@ -56,30 +55,32 @@ export function takeTractorSnapshots(siloAsset: SiloAsset, block: ethereum.Block
   // Duplicate code is preferred to type coercion, the codegen doesnt provide a common interface.
 
   daily.season = currentSeason;
-  daily.siloAsset = siloAsset.id;
-  daily.depositedAmount = siloAsset.depositedAmount;
-  daily.depositedBDV = siloAsset.depositedBDV;
-  daily.withdrawnAmount = siloAsset.withdrawnAmount;
+  daily.tractor = tractor.id;
+  daily.totalExecutions = tractor.totalExecutions;
+  daily.totalPosBeanTips = tractor.totalPosBeanTips;
+  daily.totalNegBeanTips = tractor.totalNegBeanTips;
+
+  // Set deltas
   if (baseDaily !== null) {
-    daily.deltaDepositedAmount = daily.depositedAmount.minus(baseDaily.depositedAmount);
-    daily.deltaDepositedBDV = daily.depositedBDV.minus(baseDaily.depositedBDV);
-    daily.deltaWithdrawnAmount = daily.withdrawnAmount.minus(baseDaily.withdrawnAmount);
+    daily.deltaTotalExecutions = daily.totalExecutions - baseDaily.totalExecutions;
+    daily.deltaTotalPosBeanTips = daily.totalPosBeanTips.minus(baseDaily.totalPosBeanTips);
+    daily.deltaTotalNegBeanTips = daily.totalNegBeanTips.minus(baseDaily.totalNegBeanTips);
 
     if (daily.id == baseDaily.id) {
       // Add existing deltas
-      daily.deltaDepositedAmount = daily.deltaDepositedAmount.plus(baseDaily.deltaDepositedAmount);
-      daily.deltaDepositedBDV = daily.deltaDepositedBDV.plus(baseDaily.deltaDepositedBDV);
-      daily.deltaWithdrawnAmount = daily.deltaWithdrawnAmount.plus(baseDaily.deltaWithdrawnAmount);
+      daily.deltaTotalExecutions = daily.deltaTotalExecutions + baseDaily.deltaTotalExecutions;
+      daily.deltaTotalPosBeanTips = daily.deltaTotalPosBeanTips.plus(baseDaily.deltaTotalPosBeanTips);
+      daily.deltaTotalNegBeanTips = daily.deltaTotalNegBeanTips.plus(baseDaily.deltaTotalNegBeanTips);
     }
   } else {
-    daily.deltaDepositedAmount = daily.depositedAmount;
-    daily.deltaDepositedBDV = daily.depositedBDV;
-    daily.deltaWithdrawnAmount = daily.withdrawnAmount;
+    daily.deltaTotalExecutions = daily.totalExecutions;
+    daily.deltaTotalPosBeanTips = daily.totalPosBeanTips;
+    daily.deltaTotalNegBeanTips = daily.totalNegBeanTips;
   }
   daily.createdAt = day.times(BigInt.fromU32(86400));
   daily.updatedAt = block.timestamp;
   daily.save();
 
-  siloAsset.lastHourlySnapshotSeason = currentSeason;
-  siloAsset.lastDailySnapshotDay = day;
+  tractor.lastHourlySnapshotSeason = currentSeason;
+  tractor.lastDailySnapshotDay = day;
 }

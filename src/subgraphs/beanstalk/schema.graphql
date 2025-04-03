@@ -1676,8 +1676,15 @@ type PrevFarmerGerminatingEvent @entity {
 }
 
 type TractorReward @entity {
-  "{account}-{rewardType}-{token}"
+  "{farmer}-{rewardType}-{rewardToken}"
   id: ID!
+
+  "The farmer associated to this reward"
+  farmer: Farmer!
+  "The type of this reward"
+  rewardType: Int!
+  "The token given for this reward"
+  rewardToken: Bytes!
 
   "For account=publisher - Total executed orders with these reward settings."
   publisherExecutions: Int!
