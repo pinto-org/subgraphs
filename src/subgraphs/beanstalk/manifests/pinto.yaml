@@ -375,6 +375,49 @@ dataSources:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleWrappedDepositERC20Transfer
       file: ../src/handlers/WrappedSiloHandler.ts
+  ###
+  # Tractor
+  ###
+  - kind: ethereum/contract
+    name: Tractor
+    network: base
+    source:
+      address: "0xD1A0D188E861ed9d15773a2F3574a2e94134bA8f"
+      abi: PintoPI8
+      startBlock: 27514420 # (TODO) PI-8 Deployment
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Tractor
+      abis:
+        - name: PintoPI8
+          file: ../../../core/abis/Beanstalk/Pinto-PI8.json
+      eventHandlers:
+        - event: Tractor(indexed address,indexed address,bytes32)
+          handler: handleTractor
+      file: ../src/handlers/TractorHandler.ts
+  - kind: ethereum/contract
+    name: SiloHelpers
+    network: base
+    source:
+      address: "0xD1A0D188E861ed9d15773a2F3574a2e94134bA8f" # TODO address is TBD
+      abi: SiloHelpers
+      startBlock: 27514420 # (TODO) SiloHelpers deployment
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Tractor
+      abis:
+        - name: SiloHelpers
+          file: ../../../core/abis/SiloHelpers.json
+      eventHandlers:
+        - event: OperatorReward(uint8,address,indexed address,token)
+          handler: handleOperatorReward
+      file: ../src/handlers/TractorHandler.ts
 # features:
 #   - grafting
 # graft:

@@ -5,17 +5,27 @@ import { v } from "../src/utils/constants/Version";
 import { getProtocolToken } from "../../../core/constants/RuntimeConstants";
 import { BI_MAX, ZERO_BI } from "../../../core/utils/Decimals";
 import { createOperatorRewardEvent, createTractorEvent } from "./event-mocking/Tractor";
+import { handleOperatorReward, handleTractor } from "../src/handlers/TractorHandler";
 
 const ADDR1 = Address.fromString("0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266");
 const ADDR2 = Address.fromString("0x70997970c51812dc3a010c7d01b50e0d17dc79c8");
 
-const executeTractor = (publisher: Address, operator: Address, reward: BigInt): void => {
+const executeTractor = (
+  publisher: Address,
+  operator: Address,
+  reward: BigInt = ZERO_BI,
+  token: Address | null = null
+): void => {
+  if (token === null) {
+    token = getProtocolToken(v(), BI_MAX);
+  }
   const tractorEvent = createTractorEvent(operator, publisher, Bytes.fromI32(5));
-  const rewardEvent = createOperatorRewardEvent(0, publisher, operator, getProtocolToken(v(), BI_MAX), reward);
-  // TODO
+  const rewardEvent = createOperatorRewardEvent(0, publisher, operator, token, reward);
+  handleOperatorReward(rewardEvent);
+  handleTractor(tractorEvent);
 };
 
-describe("Wrapped Silo Token", () => {
+describe("Tractor", () => {
   beforeEach(() => {
     initPintoVersion();
   });
@@ -24,9 +34,9 @@ describe("Wrapped Silo Token", () => {
   });
 
   test("Tractor execution counter", () => {
-    executeTractor(ADDR1, ADDR2, ZERO_BI);
-    executeTractor(ADDR2, ADDR1, ZERO_BI);
-    executeTractor(ADDR2, ADDR1, ZERO_BI);
+    executeTractor(ADDR1, ADDR2);
+    executeTractor(ADDR2, ADDR1);
+    executeTractor(ADDR2, ADDR1);
 
     assert.fieldEquals(
       "TractorReward",
@@ -55,16 +65,53 @@ describe("Wrapped Silo Token", () => {
     assert.fieldEquals("Tractor", "tractor", "totalExecutions", "3");
   });
 
-  test("Tracks Publisher paid rewards", () => {
-    //
+  test("Tracks paid/received rewards", () => {
+    executeTractor(ADDR1, ADDR2, BigInt.fromString("5000"));
+    executeTractor(ADDR1, ADDR2, BigInt.fromString("8000"));
+    executeTractor(ADDR1, ADDR2, BigInt.fromString("-2000"));
+
+    assert.fieldEquals(
+      "TractorReward",
+      `${ADDR1.toHexString()}-0-${getProtocolToken(v(), BI_MAX)}`,
+      "publisherPosAmount",
+      "13000"
+    );
+    assert.fieldEquals(
+      "TractorReward",
+      `${ADDR1.toHexString()}-0-${getProtocolToken(v(), BI_MAX)}`,
+      "publisherNegAmount",
+      "2000"
+    );
+    assert.fieldEquals(
+      "TractorReward",
+      `${ADDR2.toHexString()}-0-${getProtocolToken(v(), BI_MAX)}`,
+      "operatorPosAmount",
+      "13000"
+    );
+    assert.fieldEquals(
+      "TractorReward",
+      `${ADDR2.toHexString()}-0-${getProtocolToken(v(), BI_MAX)}`,
+      "operatorNegAmount",
+      "2000"
+    );
+    assert.fieldEquals("Tractor", "tractor", "totalPosBeanTips", "13000");
+    assert.fieldEquals("Tractor", "tractor", "totalNegBeanTips", "2000");
   });
 
-  test("Tracks Operator received rewards", () => {
-    //
-  });
+  test("Global tractor rewards does not include non-bean tokens", () => {
+    executeTractor(ADDR1, ADDR2, BigInt.fromString("5000"));
+    assert.fieldEquals("Tractor", "tractor", "totalPosBeanTips", "5000");
+    assert.fieldEquals("Tractor", "tractor", "totalNegBeanTips", "0");
+    assert.fieldEquals("Tractor", "tractor", "totalExecutions", "1");
 
-  test("Global tractor rewards does not track non-bean tokens", () => {
-    //
+    executeTractor(ADDR1, ADDR2, BigInt.fromString("12000"), ADDR2);
+
+    assert.fieldEquals("Tractor", "tractor", "totalPosBeanTips", "5000");
+    assert.fieldEquals("Tractor", "tractor", "totalNegBeanTips", "0");
+    assert.fieldEquals("Tractor", "tractor", "totalExecutions", "2");
+
+    assert.fieldEquals("TractorReward", `${ADDR1.toHexString()}-0-${ADDR2}`, "publisherPosAmount", "12000");
+    assert.fieldEquals("TractorReward", `${ADDR2.toHexString()}-0-${ADDR2}`, "operatorPosAmount", "12000");
   });
 
   test("(not working) Test blueprint data decoding logic", () => {
