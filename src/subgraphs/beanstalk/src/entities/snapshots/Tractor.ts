@@ -1,0 +1,85 @@
+import { BigInt, ethereum, log } from "@graphprotocol/graph-ts";
+import { SiloAsset, SiloAssetDailySnapshot, SiloAssetHourlySnapshot } from "../../../generated/schema";
+import { dayFromTimestamp, hourFromTimestamp } from "../../../../../core/utils/Dates";
+import { getCurrentSeason } from "../Beanstalk";
+
+// TODO: implement this for Tractor
+export function takeTractorSnapshots(siloAsset: SiloAsset, block: ethereum.Block): void {
+  const currentSeason = getCurrentSeason();
+
+  const hour = BigInt.fromI32(hourFromTimestamp(block.timestamp));
+  const day = BigInt.fromI32(dayFromTimestamp(block.timestamp));
+
+  // Load the snapshot for this season/day
+  const hourlyId = siloAsset.id + "-" + currentSeason.toString();
+  const dailyId = siloAsset.id + "-" + day.toString();
+  let baseHourly = SiloAssetHourlySnapshot.load(hourlyId);
+  let baseDaily = SiloAssetDailySnapshot.load(dailyId);
+  if (baseHourly == null && siloAsset.lastHourlySnapshotSeason !== 0) {
+    baseHourly = SiloAssetHourlySnapshot.load(siloAsset.id + "-" + siloAsset.lastHourlySnapshotSeason.toString());
+  }
+  if (baseDaily == null && siloAsset.lastDailySnapshotDay !== null) {
+    baseDaily = SiloAssetDailySnapshot.load(siloAsset.id + "-" + siloAsset.lastDailySnapshotDay!.toString());
+  }
+  const hourly = new SiloAssetHourlySnapshot(hourlyId);
+  const daily = new SiloAssetDailySnapshot(dailyId);
+
+  // Set current values
+  hourly.season = currentSeason;
+  hourly.siloAsset = siloAsset.id;
+  hourly.depositedAmount = siloAsset.depositedAmount;
+  hourly.depositedBDV = siloAsset.depositedBDV;
+  hourly.withdrawnAmount = siloAsset.withdrawnAmount;
+
+  // Set deltas
+  if (baseHourly !== null) {
+    hourly.deltaDepositedAmount = hourly.depositedAmount.minus(baseHourly.depositedAmount);
+    hourly.deltaDepositedBDV = hourly.depositedBDV.minus(baseHourly.depositedBDV);
+    hourly.deltaWithdrawnAmount = hourly.withdrawnAmount.minus(baseHourly.withdrawnAmount);
+
+    if (hourly.id == baseHourly.id) {
+      // Add existing deltas
+      hourly.deltaDepositedAmount = hourly.deltaDepositedAmount.plus(baseHourly.deltaDepositedAmount);
+      hourly.deltaDepositedBDV = hourly.deltaDepositedBDV.plus(baseHourly.deltaDepositedBDV);
+      hourly.deltaWithdrawnAmount = hourly.deltaWithdrawnAmount.plus(baseHourly.deltaWithdrawnAmount);
+    }
+  } else {
+    hourly.deltaDepositedAmount = hourly.depositedAmount;
+    hourly.deltaDepositedBDV = hourly.depositedBDV;
+    hourly.deltaWithdrawnAmount = hourly.withdrawnAmount;
+  }
+  hourly.createdAt = hour.times(BigInt.fromU32(3600));
+  hourly.updatedAt = block.timestamp;
+  hourly.save();
+
+  // Repeat for daily snapshot.
+  // Duplicate code is preferred to type coercion, the codegen doesnt provide a common interface.
+
+  daily.season = currentSeason;
+  daily.siloAsset = siloAsset.id;
+  daily.depositedAmount = siloAsset.depositedAmount;
+  daily.depositedBDV = siloAsset.depositedBDV;
+  daily.withdrawnAmount = siloAsset.withdrawnAmount;
+  if (baseDaily !== null) {
+    daily.deltaDepositedAmount = daily.depositedAmount.minus(baseDaily.depositedAmount);
+    daily.deltaDepositedBDV = daily.depositedBDV.minus(baseDaily.depositedBDV);
+    daily.deltaWithdrawnAmount = daily.withdrawnAmount.minus(baseDaily.withdrawnAmount);
+
+    if (daily.id == baseDaily.id) {
+      // Add existing deltas
+      daily.deltaDepositedAmount = daily.deltaDepositedAmount.plus(baseDaily.deltaDepositedAmount);
+      daily.deltaDepositedBDV = daily.deltaDepositedBDV.plus(baseDaily.deltaDepositedBDV);
+      daily.deltaWithdrawnAmount = daily.deltaWithdrawnAmount.plus(baseDaily.deltaWithdrawnAmount);
+    }
+  } else {
+    daily.deltaDepositedAmount = daily.depositedAmount;
+    daily.deltaDepositedBDV = daily.depositedBDV;
+    daily.deltaWithdrawnAmount = daily.withdrawnAmount;
+  }
+  daily.createdAt = day.times(BigInt.fromU32(86400));
+  daily.updatedAt = block.timestamp;
+  daily.save();
+
+  siloAsset.lastHourlySnapshotSeason = currentSeason;
+  siloAsset.lastDailySnapshotDay = day;
+}

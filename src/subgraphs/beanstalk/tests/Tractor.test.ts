@@ -1,6 +1,19 @@
 import { afterEach, beforeEach, assert, clearStore, describe, test, log } from "matchstick-as/assembly/index";
-import { Bytes, BigInt, ethereum } from "@graphprotocol/graph-ts";
+import { Bytes, BigInt, ethereum, Address } from "@graphprotocol/graph-ts";
 import { initPintoVersion } from "./entity-mocking/MockVersion";
+import { v } from "../src/utils/constants/Version";
+import { getProtocolToken } from "../../../core/constants/RuntimeConstants";
+import { BI_MAX, ZERO_BI } from "../../../core/utils/Decimals";
+import { createOperatorRewardEvent, createTractorEvent } from "./event-mocking/Tractor";
+
+const ADDR1 = Address.fromString("0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266");
+const ADDR2 = Address.fromString("0x70997970c51812dc3a010c7d01b50e0d17dc79c8");
+
+const executeTractor = (publisher: Address, operator: Address, reward: BigInt): void => {
+  const tractorEvent = createTractorEvent(operator, publisher, Bytes.fromI32(5));
+  const rewardEvent = createOperatorRewardEvent(0, publisher, operator, getProtocolToken(v(), BI_MAX), reward);
+  // TODO
+};
 
 describe("Wrapped Silo Token", () => {
   beforeEach(() => {
@@ -8,6 +21,50 @@ describe("Wrapped Silo Token", () => {
   });
   afterEach(() => {
     clearStore();
+  });
+
+  test("Tractor execution counter", () => {
+    executeTractor(ADDR1, ADDR2, ZERO_BI);
+    executeTractor(ADDR2, ADDR1, ZERO_BI);
+    executeTractor(ADDR2, ADDR1, ZERO_BI);
+
+    assert.fieldEquals(
+      "TractorReward",
+      `${ADDR1.toHexString()}-0-${getProtocolToken(v(), BI_MAX)}`,
+      "publisherExecutions",
+      "1"
+    );
+    assert.fieldEquals(
+      "TractorReward",
+      `${ADDR1.toHexString()}-0-${getProtocolToken(v(), BI_MAX)}`,
+      "operatorExecutions",
+      "2"
+    );
+    assert.fieldEquals(
+      "TractorReward",
+      `${ADDR2.toHexString()}-0-${getProtocolToken(v(), BI_MAX)}`,
+      "publisherExecutions",
+      "2"
+    );
+    assert.fieldEquals(
+      "TractorReward",
+      `${ADDR2.toHexString()}-0-${getProtocolToken(v(), BI_MAX)}`,
+      "operatorExecutions",
+      "1"
+    );
+    assert.fieldEquals("Tractor", "tractor", "totalExecutions", "3");
+  });
+
+  test("Tracks Publisher paid rewards", () => {
+    //
+  });
+
+  test("Tracks Operator received rewards", () => {
+    //
+  });
+
+  test("Global tractor rewards does not track non-bean tokens", () => {
+    //
   });
 
   test("(not working) Test blueprint data decoding logic", () => {

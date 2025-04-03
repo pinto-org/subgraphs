@@ -1675,6 +1675,97 @@ type PrevFarmerGerminatingEvent @entity {
   deltaGerminatingStalk: BigInt!
 }
 
+type TractorReward @entity {
+  "{account}-{rewardType}-{token}"
+  id: ID!
+
+  "For account=publisher - Total executed orders with these reward settings."
+  publisherExecutions: Int!
+  "For account=publisher - Total amount paid to the operator for executed orders."
+  publisherPosAmount: BigInt!
+  "For account=publisher - Total amount received from the operator for executed orders."
+  publisherNegAmount: BigInt!
+
+  "For account=operator - Total executed orders with these reward settings."
+  operatorExecutions: Int!
+  "For account=operator - Total amount received from the publisher for executed orders."
+  operatorPosAmount: BigInt!
+  "For account=operator - Total amount paid to the publisher for executed orders."
+  operatorNegAmount: BigInt!
+}
+
+type Tractor @entity {
+  "'tractor'"
+  id: ID!
+  "Total number of tractor executions (# times the `Tractor` event is emitted)"
+  totalExecutions: Int!
+  "Total amount of Bean tips paid from publisher to operator. Does not include any other tokens."
+  totalPosBeanTips: BigInt!
+  "Total amount of Bean tips paid from operator to publisher. Does not include any other tokens."
+  totalNegBeanTips: BigInt!
+
+  "Season when the previous hourly snapshot was taken/updated"
+  lastHourlySnapshotSeason: Int
+  "Day of when the previous daily snapshot was taken/updated"
+  lastDailySnapshotDay: BigInt
+  "Link to hourly snapshot data"
+  hourlySnapshots: [TractorHourlySnapshot!]! @derivedFrom(field: "tractor")
+  "Link to daily snapshot data"
+  dailySnapshots: [TractorDailySnapshot!]! @derivedFrom(field: "tractor")
+}
+
+type TractorHourlySnapshot @entity {
+  "Tractor ID - Season"
+  id: ID!
+  "Season for the snapshot"
+  season: Int!
+  "Tractor associated with this snapshot"
+  tractor: Tractor!
+
+  "Point in time totalExecutions"
+  totalExecutions: Int!
+  "Point in time totalPosBeanTips"
+  totalPosBeanTips: BigInt!
+  "Point in time totalNegBeanTips"
+  totalNegBeanTips: BigInt!
+
+  deltaTotalExecutions: Int!
+  deltaTotalPosBeanTips: BigInt!
+  deltaTotalNegBeanTips: BigInt!
+
+  "Timestamp of initial snapshot creation"
+  createdAt: BigInt!
+  "Timestamp of last entity update"
+  updatedAt: BigInt!
+}
+
+type TractorDailySnapshot @entity {
+  "Tractor ID - Day"
+  id: ID!
+  "Season for the snapshot"
+  season: Int!
+  "Tractor associated with this snapshot"
+  tractor: Tractor!
+
+  "Point in time totalExecutions"
+  totalExecutions: Int!
+  "Point in time totalPosBeanTips"
+  totalPosBeanTips: BigInt!
+  "Point in time totalNegBeanTips"
+  totalNegBeanTips: BigInt!
+
+  deltaTotalExecutions: Int!
+  deltaTotalPosBeanTips: BigInt!
+  deltaTotalNegBeanTips: BigInt!
+
+  "Timestamp of initial snapshot creation"
+  createdAt: BigInt!
+  "Timestamp of last entity update"
+  updatedAt: BigInt!
+}
+
+### LEGACY/BEANSTALK ###
+
 type UnripeToken @entity {
   "Token Address"
   id: Bytes!
