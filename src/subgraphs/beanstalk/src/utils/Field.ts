@@ -475,7 +475,7 @@ export function updateFieldTotals(
   field.save();
 
   // Set extra info on the hourly snapshot
-  if (account == protocol && field.soil == ZERO_BI) {
+  if (account == protocol && field.soil == ZERO_BI && sownBeans > ZERO_BI) {
     setHourlySoilSoldOut(block.number, field);
   }
 }
