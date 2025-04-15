@@ -52,8 +52,8 @@ dataSources:
           file: ../../../core/abis/Fertilizer.json
         - name: WrappedSiloERC20
           file: ../../../core/abis/WrappedSiloERC20.json
-        - name: SiloHelpers
-          file: ../../../core/abis/SiloHelpers.json
+        - name: TractorHelpers
+          file: ../../../core/abis/TractorHelpers.json
       blockHandlers:
         - handler: handleInitVersion
           filter:

@@ -399,12 +399,12 @@ dataSources:
           handler: handleTractor
       file: ../src/handlers/TractorHandler.ts
   - kind: ethereum/contract
-    name: SiloHelpers
+    name: TractorHelpers
     network: base
     source:
-      address: "0xD1A0D188E861ed9d15773a2F3574a2e94134bA8f" # TODO address is TBD
-      abi: SiloHelpers
-      startBlock: 27514420 # (TODO) SiloHelpers deployment
+      address: "0x2808b14d287F8CA77eb25B16575aF187d5A05119"
+      abi: TractorHelpers
+      startBlock: 28930873 # TractorHelpers deployment
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -412,8 +412,8 @@ dataSources:
       entities:
         - Tractor
       abis:
-        - name: SiloHelpers
-          file: ../../../core/abis/SiloHelpers.json
+        - name: TractorHelpers
+          file: ../../../core/abis/TractorHelpers.json
       eventHandlers:
         - event: OperatorReward(uint8,address,indexed address,token)
           handler: handleOperatorReward

@@ -2,7 +2,7 @@ import { BigInt, Address, Bytes, ethereum } from "@graphprotocol/graph-ts";
 import { mockContractEvent } from "../../../../core/tests/event-mocking/Util";
 import { Tractor } from "../../generated/Beanstalk-ABIs/PintoPI8";
 import { v } from "../../src/utils/constants/Version";
-import { OperatorReward } from "../../generated/Beanstalk-ABIs/SiloHelpers";
+import { OperatorReward } from "../../generated/Beanstalk-ABIs/TractorHelpers";
 
 export function createTractorEvent(operator: Address, publisher: Address, blueprintHash: Bytes): Tractor {
   let event = changetype<Tractor>(mockContractEvent(v().protocolAddress));
