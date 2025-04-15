@@ -2,7 +2,6 @@ import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
 import {
   AQUIFER,
   BEAN_ERC20,
-  BEANSTALK_PRICE,
   PINTO_CBBTC,
   PINTO_CBETH,
   PINTO_WSOL,
@@ -10,7 +9,10 @@ import {
   PINTO_WETH,
   WELL_STABLE2,
   POOL_TOKENS,
-  TOKEN_INFOS
+  TOKEN_INFOS,
+  PRICE_2_BLOCK,
+  BEANSTALK_PRICE_1,
+  BEANSTALK_PRICE_2
 } from "./raw/PintoBaseConstants";
 import { beanDecimals, PoolTokens, Token, WellFnInfo } from "./RuntimeConstants";
 import { BI_10 } from "../utils/Decimals";
@@ -95,7 +97,11 @@ export function getUnripeUnderlying(unripeToken: Address, blockNumber: BigInt): 
 }
 
 export function getBeanstalkPriceAddress(blockNumber: BigInt): Address {
-  return BEANSTALK_PRICE;
+  if (blockNumber < PRICE_2_BLOCK) {
+    return BEANSTALK_PRICE_1;
+  } else {
+    return BEANSTALK_PRICE_2;
+  }
 }
 
 export function minEMASeason(): i32 {

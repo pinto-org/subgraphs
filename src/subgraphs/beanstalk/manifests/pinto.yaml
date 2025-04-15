@@ -115,7 +115,7 @@ dataSources:
           handler: handleUpdatedStalkPerBdvPerSeason
         - event: ClaimPlenty(indexed address,address,uint256)
           handler: handleClaimPlenty
-        - event: ConvertDownPenalty(indexed address,uint256,uint256)
+        - event: ConvertDownPenalty(address,uint256,uint256)
           handler: handleConvertDownPenalty
       file: ../src/handlers/SiloHandler.ts
   ###
@@ -384,7 +384,7 @@ dataSources:
     source:
       address: "0xD1A0D188E861ed9d15773a2F3574a2e94134bA8f"
       abi: PintoPI8
-      startBlock: 27514420 # (TODO) PI-8 Deployment
+      startBlock: 28949876 # (TODO, can be set exact later/in future version) PI-8 Deployment
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -395,7 +395,7 @@ dataSources:
         - name: PintoPI8
           file: ../../../core/abis/Beanstalk/Pinto-PI8.json
       eventHandlers:
-        - event: Tractor(indexed address,indexed address,bytes32)
+        - event: Tractor(indexed address,indexed address,indexed bytes32,uint256,uint256)
           handler: handleTractor
       file: ../src/handlers/TractorHandler.ts
   - kind: ethereum/contract
@@ -415,7 +415,7 @@ dataSources:
         - name: TractorHelpers
           file: ../../../core/abis/TractorHelpers.json
       eventHandlers:
-        - event: OperatorReward(uint8,address,indexed address,token)
+        - event: OperatorReward(uint8,indexed address,indexed address,address,int256)
           handler: handleOperatorReward
       file: ../src/handlers/TractorHandler.ts
 # features:

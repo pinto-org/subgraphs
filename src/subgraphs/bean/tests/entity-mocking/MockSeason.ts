@@ -3,7 +3,7 @@ import { mockBlock } from "../../../../core/tests/event-mocking/Block";
 import { handleSunrise } from "../../src/handlers/BeanstalkHandler";
 import { createSunriseEvent } from "../event-mocking/Beanstalk";
 import { mockPriceBelow } from "./MockBean";
-import { BEANSTALK_PRICE } from "../../../../core/constants/raw/PintoBaseConstants";
+import { BEANSTALK_PRICE_1 } from "../../../../core/constants/raw/PintoBaseConstants";
 
 export function mockSeason(seasonNumber: i32 = 1, block: ethereum.Block = s1Block): void {
   handleSunrise(createSunriseEvent(seasonNumber, block));
@@ -20,6 +20,6 @@ export function mockBeanSeasons(block1: ethereum.Block = s1Block, block2: ethere
 }
 
 export function mockPintoSeasons(): void {
-  mockPriceBelow(BEANSTALK_PRICE);
+  mockPriceBelow(BEANSTALK_PRICE_1);
   mockSeason();
 }

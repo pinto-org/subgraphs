@@ -19,7 +19,8 @@ export const USDC = Address.fromString("0x833589fCD6eDb6E08f4c7C32D4f71b54bdA029
 
 // Contracts
 export const BEANSTALK = Address.fromString("0xD1A0D188E861ed9d15773a2F3574a2e94134bA8f");
-export const BEANSTALK_PRICE = Address.fromString("0xD0fd333F7B30c7925DEBD81B7b7a4DFE106c3a5E");
+export const BEANSTALK_PRICE_1 = Address.fromString("0xD0fd333F7B30c7925DEBD81B7b7a4DFE106c3a5E");
+export const BEANSTALK_PRICE_2 = Address.fromString("0x13D25ABCB6a19948d35654715c729c6501230b49");
 export const AQUIFER = Address.fromString("0xBA51AA60B3b8d9A36cc748a62Aa56801060183f8");
 export const WELL_CP2 = Address.fromString("0xBA510C289fD067EBbA41335afa11F0591940d6fe");
 export const WELL_STABLE2 = Address.fromString("0xBA51055a97b40d7f41f3F64b57469b5D45B67c87");
@@ -29,6 +30,7 @@ export const WELL_STABLE2 = Address.fromString("0xBA51055a97b40d7f41f3F64b57469b
 export const PINTOSTALK_BLOCK = BigInt.fromU32(22622961);
 export const BASIN_BLOCK = BigInt.fromU64(22622966);
 export const PI_1_BLOCK = BigInt.fromU64(22948714);
+export const PRICE_2_BLOCK = BigInt.fromU32(28930862);
 
 export const POOL_TOKENS: PoolTokens[] = [
   {

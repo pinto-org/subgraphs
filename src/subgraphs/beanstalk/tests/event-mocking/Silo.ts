@@ -201,8 +201,8 @@ export function createConvertDownPenaltyEvent(
   event.parameters = new Array();
 
   let param1 = new ethereum.EventParam("account", ethereum.Value.fromAddress(account));
-  let param2 = new ethereum.EventParam("stalkLost", ethereum.Value.fromUnsignedBigInt(stalkLost));
-  let param3 = new ethereum.EventParam("stalkKept", ethereum.Value.fromUnsignedBigInt(stalkKept));
+  let param2 = new ethereum.EventParam("grownStalkLost", ethereum.Value.fromUnsignedBigInt(stalkLost));
+  let param3 = new ethereum.EventParam("grownStalkKept", ethereum.Value.fromUnsignedBigInt(stalkKept));
 
   event.parameters.push(param1);
   event.parameters.push(param2);

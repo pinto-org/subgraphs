@@ -126,8 +126,8 @@ export function handleConvertDownPenalty(event: ConvertDownPenalty): void {
   applyConvertDownPenalty(
     event.address,
     event.params.account,
-    event.params.stalkLost,
-    event.params.stalkKept,
+    event.params.grownStalkLost,
+    event.params.grownStalkKept,
     event.block
   );
 }
