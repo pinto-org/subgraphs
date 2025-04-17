@@ -384,7 +384,7 @@ dataSources:
     source:
       address: "0xD1A0D188E861ed9d15773a2F3574a2e94134bA8f"
       abi: PintoPI8
-      startBlock: 28949876 # (TODO, can be set exact later/in future version) PI-8 Deployment
+      startBlock: 29064231 # PI-8 Deployment
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
