@@ -5,7 +5,13 @@ import {
   RemoveDeposits as RemoveDepositsV2
 } from "../../generated/Beanstalk-ABIs/Replanted";
 import { mockBeanstalkEvent, mockContractEvent } from "../../../../core/tests/event-mocking/Util";
-import { AddDeposit, RemoveDeposits, RemoveDeposit, ConvertDownPenalty } from "../../generated/Beanstalk-ABIs/PintoPI8";
+import {
+  AddDeposit,
+  RemoveDeposits,
+  RemoveDeposit,
+  ConvertDownPenalty,
+  StalkBalanceChanged
+} from "../../generated/Beanstalk-ABIs/PintoPI8";
 import { v } from "../../src/utils/constants/Version";
 export function createAddDepositV2Event(
   account: string,
@@ -190,6 +196,25 @@ export function createRemoveDepositsV3Event(
   event.parameters.push(param6);
 
   return event as RemoveDeposits;
+}
+
+export function createStalkBalanceChangedEvent(
+  account: string,
+  delta: BigInt,
+  deltaRoots: BigInt
+): StalkBalanceChanged {
+  let event = changetype<StalkBalanceChanged>(mockContractEvent(v().protocolAddress));
+  event.parameters = new Array();
+
+  let param1 = new ethereum.EventParam("account", ethereum.Value.fromAddress(Address.fromString(account)));
+  let param2 = new ethereum.EventParam("delta", ethereum.Value.fromSignedBigInt(delta));
+  let param3 = new ethereum.EventParam("deltaRoots", ethereum.Value.fromSignedBigInt(deltaRoots));
+
+  event.parameters.push(param1);
+  event.parameters.push(param2);
+  event.parameters.push(param3);
+
+  return event as StalkBalanceChanged;
 }
 
 export function createConvertDownPenaltyEvent(

@@ -16,7 +16,8 @@ import {
   createConvertDownPenaltyEvent,
   createRemoveDepositsV2Event,
   createRemoveDepositV2Event,
-  createRemoveDepositV3Event
+  createRemoveDepositV3Event,
+  createStalkBalanceChangedEvent
 } from "./event-mocking/Silo";
 import {
   createDewhitelistTokenEvent,
@@ -38,11 +39,15 @@ import {
   handleAddDeposit,
   handleConvertDownPenalty,
   handleDewhitelistToken,
-  handleRemoveDeposit
+  handleRemoveDeposit,
+  handleStalkBalanceChanged
 } from "../src/handlers/SiloHandler";
 import { initL1Version, initPintoVersion } from "./entity-mocking/MockVersion";
 import { stemFromSeason } from "../src/utils/legacy/LegacySilo";
 import { v } from "../src/utils/constants/Version";
+
+let account1 = "0x1234567890abcdef1234567890abcdef12345678".toLowerCase();
+let account2 = "0x1234567890abcdef1234567890abcdef12345679".toLowerCase();
 
 describe("Silo Events", () => {
   beforeEach(() => {
@@ -54,96 +59,90 @@ describe("Silo Events", () => {
 
   describe("Deposit/Withdraw", () => {
     test("AddDeposit - Silo v2", () => {
-      let account = "0x1234567890abcdef1234567890abcdef12345678".toLowerCase();
       let token = BEAN_ERC20.toHexString().toLowerCase();
 
-      let newAddDepositEvent = createAddDepositV2Event(account, token, 6100, 1000, 6, 1000);
+      let newAddDepositEvent = createAddDepositV2Event(account1, token, 6100, 1000, 6, 1000);
       handleAddDeposit_v2(newAddDepositEvent);
 
-      assert.fieldEquals("Silo", account, "depositedBDV", "1000000000");
-      assert.fieldEquals("SiloDeposit", account + "-" + token + "-season-6100", "season", "6100");
-      assert.fieldEquals("SiloDeposit", account + "-" + token + "-season-6100", "depositVersion", "season");
-      assert.fieldEquals("SiloDeposit", account + "-" + token + "-season-6100", "stem", "null");
-      assert.fieldEquals("SiloDeposit", account + "-" + token + "-season-6100", "stemV31", "-16220000000");
-      assert.fieldEquals("SiloDeposit", account + "-" + token + "-season-6100", "depositedAmount", "1000000000");
-      assert.fieldEquals("SiloAsset", account + "-" + token, "depositedBDV", "1000000000");
+      assert.fieldEquals("Silo", account1, "depositedBDV", "1000000000");
+      assert.fieldEquals("SiloDeposit", account1 + "-" + token + "-season-6100", "season", "6100");
+      assert.fieldEquals("SiloDeposit", account1 + "-" + token + "-season-6100", "depositVersion", "season");
+      assert.fieldEquals("SiloDeposit", account1 + "-" + token + "-season-6100", "stem", "null");
+      assert.fieldEquals("SiloDeposit", account1 + "-" + token + "-season-6100", "stemV31", "-16220000000");
+      assert.fieldEquals("SiloDeposit", account1 + "-" + token + "-season-6100", "depositedAmount", "1000000000");
+      assert.fieldEquals("SiloAsset", account1 + "-" + token, "depositedBDV", "1000000000");
     });
 
     test("AddDeposit - Silo v3", () => {
-      let account = "0x1234567890abcdef1234567890abcdef12345678".toLowerCase();
       let token = BEAN_ERC20.toHexString().toLowerCase();
 
-      let newAddDepositEvent = createAddDepositV3Event(account, token, BigInt.fromU32(1500), 1000, 6, 1000);
+      let newAddDepositEvent = createAddDepositV3Event(account1, token, BigInt.fromU32(1500), 1000, 6, 1000);
       handleAddDeposit(newAddDepositEvent);
 
-      assert.fieldEquals("Silo", account, "depositedBDV", "1000000000");
-      assert.fieldEquals("SiloDeposit", account + "-" + token + "-stem-1500", "stem", "1500");
-      assert.fieldEquals("SiloDeposit", account + "-" + token + "-stem-1500", "depositVersion", "v3");
-      assert.fieldEquals("SiloDeposit", account + "-" + token + "-stem-1500", "stemV31", "1500000000");
-      assert.fieldEquals("SiloDeposit", account + "-" + token + "-stem-1500", "depositedAmount", "1000000000");
-      assert.fieldEquals("SiloAsset", account + "-" + token, "depositedBDV", "1000000000");
+      assert.fieldEquals("Silo", account1, "depositedBDV", "1000000000");
+      assert.fieldEquals("SiloDeposit", account1 + "-" + token + "-stem-1500", "stem", "1500");
+      assert.fieldEquals("SiloDeposit", account1 + "-" + token + "-stem-1500", "depositVersion", "v3");
+      assert.fieldEquals("SiloDeposit", account1 + "-" + token + "-stem-1500", "stemV31", "1500000000");
+      assert.fieldEquals("SiloDeposit", account1 + "-" + token + "-stem-1500", "depositedAmount", "1000000000");
+      assert.fieldEquals("SiloAsset", account1 + "-" + token, "depositedBDV", "1000000000");
 
       // with V3.1 stem
-      let addDeposit31 = createAddDepositV3Event(account, token, BigInt.fromI64(5700000000), 2500, 6, 2500);
+      let addDeposit31 = createAddDepositV3Event(account1, token, BigInt.fromI64(5700000000), 2500, 6, 2500);
       addDeposit31.block = mockBlock(GAUGE_BIP45_BLOCK.plus(ONE_BI));
       handleAddDeposit(addDeposit31);
 
-      assert.fieldEquals("Silo", account, "depositedBDV", "3500000000");
-      assert.fieldEquals("SiloDeposit", account + "-" + token + "-stem-5700000000", "stem", "5700000000");
-      assert.fieldEquals("SiloDeposit", account + "-" + token + "-stem-5700000000", "depositVersion", "v3.1");
-      assert.fieldEquals("SiloDeposit", account + "-" + token + "-stem-5700000000", "stemV31", "5700000000");
-      assert.fieldEquals("SiloDeposit", account + "-" + token + "-stem-5700000000", "depositedAmount", "2500000000");
-      assert.fieldEquals("SiloAsset", account + "-" + token, "depositedBDV", "3500000000");
+      assert.fieldEquals("Silo", account1, "depositedBDV", "3500000000");
+      assert.fieldEquals("SiloDeposit", account1 + "-" + token + "-stem-5700000000", "stem", "5700000000");
+      assert.fieldEquals("SiloDeposit", account1 + "-" + token + "-stem-5700000000", "depositVersion", "v3.1");
+      assert.fieldEquals("SiloDeposit", account1 + "-" + token + "-stem-5700000000", "stemV31", "5700000000");
+      assert.fieldEquals("SiloDeposit", account1 + "-" + token + "-stem-5700000000", "depositedAmount", "2500000000");
+      assert.fieldEquals("SiloAsset", account1 + "-" + token, "depositedBDV", "3500000000");
     });
 
     test("RemoveDeposit - 80% removed", () => {
-      let account = "0x1234567890abcdef1234567890abcdef12345678".toLowerCase();
       let token = BEAN_ERC20.toHexString().toLowerCase();
 
-      let newAddDepositEvent = createAddDepositV2Event(account, token, 6100, 1000, 6, 1000);
+      let newAddDepositEvent = createAddDepositV2Event(account1, token, 6100, 1000, 6, 1000);
       handleAddDeposit_v2(newAddDepositEvent);
 
-      let newRemoveDepositEvent = createRemoveDepositV2Event(account, token, 6100, BigInt.fromString("800000000"));
+      let newRemoveDepositEvent = createRemoveDepositV2Event(account1, token, 6100, BigInt.fromString("800000000"));
       handleRemoveDeposit_v2(newRemoveDepositEvent);
 
-      assert.fieldEquals("Silo", account, "depositedBDV", "200000000");
-      assert.fieldEquals("SiloDeposit", account + "-" + token + "-season-6100", "depositedAmount", "200000000");
-      assert.fieldEquals("SiloDeposit", account + "-" + token + "-season-6100", "depositedBDV", "200000000");
-      assert.fieldEquals("SiloAsset", account + "-" + token, "depositedBDV", "200000000");
-      assert.fieldEquals("SiloAsset", account + "-" + token, "depositedAmount", "200000000");
+      assert.fieldEquals("Silo", account1, "depositedBDV", "200000000");
+      assert.fieldEquals("SiloDeposit", account1 + "-" + token + "-season-6100", "depositedAmount", "200000000");
+      assert.fieldEquals("SiloDeposit", account1 + "-" + token + "-season-6100", "depositedBDV", "200000000");
+      assert.fieldEquals("SiloAsset", account1 + "-" + token, "depositedBDV", "200000000");
+      assert.fieldEquals("SiloAsset", account1 + "-" + token, "depositedAmount", "200000000");
     });
 
     test("RemoveDeposit - Multiple removals", () => {
-      let account = "0x1234567890abcdef1234567890abcdef12345678".toLowerCase();
       let token = BEAN_ERC20.toHexString().toLowerCase();
 
-      let newAddDepositEvent = createAddDepositV2Event(account, token, 6100, 1000, 6, 1000);
+      let newAddDepositEvent = createAddDepositV2Event(account1, token, 6100, 1000, 6, 1000);
       handleAddDeposit_v2(newAddDepositEvent);
 
-      let removeEvent = createRemoveDepositV2Event(account, token, 6100, BigInt.fromString("500000000"));
+      let removeEvent = createRemoveDepositV2Event(account1, token, 6100, BigInt.fromString("500000000"));
       handleRemoveDeposit_v2(removeEvent);
 
-      let removeEvent2 = createRemoveDepositV2Event(account, token, 6100, BigInt.fromString("200000000"));
+      let removeEvent2 = createRemoveDepositV2Event(account1, token, 6100, BigInt.fromString("200000000"));
       handleRemoveDeposit_v2(removeEvent2);
 
-      assert.fieldEquals("Silo", account, "depositedBDV", "300000000");
-      assert.fieldEquals("SiloDeposit", account + "-" + token + "-season-6100", "depositedAmount", "300000000");
-      assert.fieldEquals("SiloDeposit", account + "-" + token + "-season-6100", "depositedBDV", "300000000");
-      assert.fieldEquals("SiloAsset", account + "-" + token, "depositedBDV", "300000000");
-      assert.fieldEquals("SiloAsset", account + "-" + token, "depositedAmount", "300000000");
+      assert.fieldEquals("Silo", account1, "depositedBDV", "300000000");
+      assert.fieldEquals("SiloDeposit", account1 + "-" + token + "-season-6100", "depositedAmount", "300000000");
+      assert.fieldEquals("SiloDeposit", account1 + "-" + token + "-season-6100", "depositedBDV", "300000000");
+      assert.fieldEquals("SiloAsset", account1 + "-" + token, "depositedBDV", "300000000");
+      assert.fieldEquals("SiloAsset", account1 + "-" + token, "depositedAmount", "300000000");
 
       // Remove the deposit completely
-      let removeEvent3 = createRemoveDepositV2Event(account, token, 6100, BigInt.fromString("300000000"));
+      let removeEvent3 = createRemoveDepositV2Event(account1, token, 6100, BigInt.fromString("300000000"));
       handleRemoveDeposit_v2(removeEvent3);
 
-      assert.fieldEquals("Silo", account, "depositedBDV", "0");
-      assert.notInStore("SiloDeposit", account + "-" + token + "-season-6100");
-      assert.fieldEquals("SiloAsset", account + "-" + token, "depositedBDV", "0");
+      assert.fieldEquals("Silo", account1, "depositedBDV", "0");
+      assert.notInStore("SiloDeposit", account1 + "-" + token + "-season-6100");
+      assert.fieldEquals("SiloAsset", account1 + "-" + token, "depositedBDV", "0");
     });
 
     test("Adding/Removing multiple tokens/types - Silo/Asset balance totals", () => {
-      let account1 = "0x1234567890abcdef1234567890abcdef12345678".toLowerCase();
-      let account2 = "0x1234567890abcdef1234567890abcdef12345679".toLowerCase();
       let token1 = BEAN_ERC20.toHexString().toLowerCase();
       let token2 = BEAN_3CRV.toHexString().toLowerCase();
 
@@ -192,69 +191,79 @@ describe("Silo Events", () => {
       assert.fieldEquals("SiloAsset", account2 + "-" + token2, "depositedBDV", "2500000000");
     });
 
+    test("Counts number of active farmers", () => {
+      handleStalkBalanceChanged(createStalkBalanceChangedEvent(account1, BigInt.fromI32(500), BigInt.fromI32(500)));
+      assert.fieldEquals("Silo", v().protocolAddress.toHexString(), "activeFarmers", "1");
+      handleStalkBalanceChanged(createStalkBalanceChangedEvent(account1, BigInt.fromI32(1000), BigInt.fromI32(1000)));
+      assert.fieldEquals("Silo", v().protocolAddress.toHexString(), "activeFarmers", "1");
+      handleStalkBalanceChanged(createStalkBalanceChangedEvent(account2, BigInt.fromI32(1000), BigInt.fromI32(1000)));
+      assert.fieldEquals("Silo", v().protocolAddress.toHexString(), "activeFarmers", "2");
+      handleStalkBalanceChanged(createStalkBalanceChangedEvent(account1, BigInt.fromI32(-1500), BigInt.fromI32(-1500)));
+      assert.fieldEquals("Silo", v().protocolAddress.toHexString(), "activeFarmers", "1");
+    });
+
     // It is assumed sufficient to test a few fields updating properly
     test("Hourly/Daily snapshots update appropriately", () => {
       const baseTimestamp = BigInt.fromU32(1712732400);
       const hours15 = BigInt.fromU64(15 * 60 * 60);
-      let account = "0x1234567890abcdef1234567890abcdef12345678".toLowerCase();
       let token = BEAN_ERC20.toHexString().toLowerCase();
 
-      let addV3_1 = createAddDepositV3Event(account, token, BigInt.fromU32(70), 2000, 6, 2000);
+      let addV3_1 = createAddDepositV3Event(account1, token, BigInt.fromU32(70), 2000, 6, 2000);
       addV3_1.block = mockBlock(ZERO_BI, baseTimestamp);
       setSeason(20000);
       handleAddDeposit(addV3_1);
 
-      assert.fieldEquals("SiloHourlySnapshot", account + "-20000", "depositedBDV", "2000000000");
-      assert.fieldEquals("SiloHourlySnapshot", account + "-20000", "deltaDepositedBDV", "2000000000");
+      assert.fieldEquals("SiloHourlySnapshot", account1 + "-20000", "depositedBDV", "2000000000");
+      assert.fieldEquals("SiloHourlySnapshot", account1 + "-20000", "deltaDepositedBDV", "2000000000");
       assert.fieldEquals(
         "SiloDailySnapshot",
-        account + "-" + dayFromTimestamp(addV3_1.block.timestamp).toString(),
+        account1 + "-" + dayFromTimestamp(addV3_1.block.timestamp).toString(),
         "depositedBDV",
         "2000000000"
       );
       assert.fieldEquals(
         "SiloDailySnapshot",
-        account + "-" + dayFromTimestamp(addV3_1.block.timestamp).toString(),
+        account1 + "-" + dayFromTimestamp(addV3_1.block.timestamp).toString(),
         "deltaDepositedBDV",
         "2000000000"
       );
 
-      let addV3_2 = createAddDepositV3Event(account, token, BigInt.fromU32(50), 1000, 6, 1000);
+      let addV3_2 = createAddDepositV3Event(account1, token, BigInt.fromU32(50), 1000, 6, 1000);
       addV3_2.block = mockBlock(ZERO_BI, baseTimestamp.plus(hours15));
       setSeason(20015);
       handleAddDeposit(addV3_2);
 
-      assert.fieldEquals("SiloHourlySnapshot", account + "-20015", "depositedBDV", "3000000000");
-      assert.fieldEquals("SiloHourlySnapshot", account + "-20015", "deltaDepositedBDV", "1000000000");
+      assert.fieldEquals("SiloHourlySnapshot", account1 + "-20015", "depositedBDV", "3000000000");
+      assert.fieldEquals("SiloHourlySnapshot", account1 + "-20015", "deltaDepositedBDV", "1000000000");
       assert.fieldEquals(
         "SiloDailySnapshot",
-        account + "-" + dayFromTimestamp(addV3_2.block.timestamp).toString(),
+        account1 + "-" + dayFromTimestamp(addV3_2.block.timestamp).toString(),
         "depositedBDV",
         "3000000000"
       );
       assert.fieldEquals(
         "SiloDailySnapshot",
-        account + "-" + dayFromTimestamp(addV3_2.block.timestamp).toString(),
+        account1 + "-" + dayFromTimestamp(addV3_2.block.timestamp).toString(),
         "deltaDepositedBDV",
         "3000000000"
       );
 
-      let addV3_3 = createAddDepositV3Event(account, token, BigInt.fromU32(90), 5000, 6, 4000);
+      let addV3_3 = createAddDepositV3Event(account1, token, BigInt.fromU32(90), 5000, 6, 4000);
       addV3_3.block = mockBlock(ZERO_BI, baseTimestamp.plus(hours15).plus(hours15));
       setSeason(20030);
       handleAddDeposit(addV3_3);
 
-      assert.fieldEquals("SiloHourlySnapshot", account + "-20030", "depositedBDV", "7000000000");
-      assert.fieldEquals("SiloHourlySnapshot", account + "-20030", "deltaDepositedBDV", "4000000000");
+      assert.fieldEquals("SiloHourlySnapshot", account1 + "-20030", "depositedBDV", "7000000000");
+      assert.fieldEquals("SiloHourlySnapshot", account1 + "-20030", "deltaDepositedBDV", "4000000000");
       assert.fieldEquals(
         "SiloDailySnapshot",
-        account + "-" + dayFromTimestamp(addV3_3.block.timestamp).toString(),
+        account1 + "-" + dayFromTimestamp(addV3_3.block.timestamp).toString(),
         "depositedBDV",
         "7000000000"
       );
       assert.fieldEquals(
         "SiloDailySnapshot",
-        account + "-" + dayFromTimestamp(addV3_3.block.timestamp).toString(),
+        account1 + "-" + dayFromTimestamp(addV3_3.block.timestamp).toString(),
         "deltaDepositedBDV",
         "4000000000"
       );
