@@ -1,4 +1,4 @@
-import { Address, BigInt, ethereum, Bytes, log } from "@graphprotocol/graph-ts";
+import { Address, BigInt, ethereum, Bytes, log, BigDecimal } from "@graphprotocol/graph-ts";
 import { takeSiloSnapshots } from "../entities/snapshots/Silo";
 import { loadSilo, loadSiloAsset, loadSiloDeposit, loadWhitelistTokenSetting, updateDeposit } from "../entities/Silo";
 import { takeSiloAssetSnapshots } from "../entities/snapshots/SiloAsset";
@@ -31,6 +31,7 @@ class WhitelistTokenParams {
 }
 
 export function addDeposits(params: AddRemoveDepositsParams): void {
+  loadFarmer(params.account, params.event.block);
   for (let i = 0; i < params.amounts.length; ++i) {
     let deposit = loadSiloDeposit({
       account: params.account,
@@ -55,9 +56,6 @@ export function addDeposits(params: AddRemoveDepositsParams): void {
     deposit = updateDeposit(deposit, params.amounts[i], params.bdvs![i], params.event)!;
     deposit.save();
 
-    // Ensure that a Farmer entity is set up for this account.
-    loadFarmer(params.account);
-
     updateDepositInSilo(
       params.event.address,
       params.account,
@@ -70,6 +68,7 @@ export function addDeposits(params: AddRemoveDepositsParams): void {
 }
 
 export function removeDeposits(params: AddRemoveDepositsParams): void {
+  loadFarmer(params.account, params.event.block);
   for (let i = 0; i < params.amounts.length; ++i) {
     let deposit = loadSiloDeposit({
       account: params.account,
@@ -186,26 +185,29 @@ export function updateStalkBalances(
   silo.roots = silo.roots.plus(deltaRoots);
 
   takeSiloSnapshots(silo, block);
+  silo.save();
 
   // Add account to active list if needed
   if (account !== protocol) {
     let beanstalk = loadBeanstalk();
+    let protocolSilo = loadSilo(protocol);
     let farmerIndex = beanstalk.activeFarmers.indexOf(account);
     if (farmerIndex == -1) {
       let newFarmers = beanstalk.activeFarmers;
       newFarmers.push(account);
       beanstalk.activeFarmers = newFarmers;
+      protocolSilo.activeFarmers += 1;
       beanstalk.save();
-      silo.activeFarmers += 1;
+      protocolSilo.save();
     } else if (silo.stalk == ZERO_BI) {
       let newFarmers = beanstalk.activeFarmers;
       newFarmers.splice(farmerIndex, 1);
       beanstalk.activeFarmers = newFarmers;
+      protocolSilo.activeFarmers -= 1;
       beanstalk.save();
-      silo.activeFarmers -= 1;
+      protocolSilo.save();
     }
   }
-  silo.save();
 }
 
 export function setWhitelistTokenSettings(params: WhitelistTokenParams, forceEnableGauge: boolean = false): void {
@@ -223,4 +225,27 @@ export function setWhitelistTokenSettings(params: WhitelistTokenParams, forceEna
 
   takeWhitelistTokenSettingSnapshots(siloSettings, params.block);
   siloSettings.save();
+}
+
+export function applyConvertDownPenalty(
+  protocol: Address,
+  account: Address,
+  penaltyAmount: BigInt,
+  unpenalizedAmount: BigInt,
+  block: ethereum.Block,
+  recurs: boolean = true
+): void {
+  if (recurs && account != protocol) {
+    applyConvertDownPenalty(protocol, protocol, penaltyAmount, unpenalizedAmount, block);
+  }
+
+  const silo = loadSilo(account);
+  silo.penalizedStalkConvertDown = silo.penalizedStalkConvertDown.plus(penaltyAmount);
+  silo.unpenalizedStalkConvertDown = silo.unpenalizedStalkConvertDown.plus(unpenalizedAmount);
+  silo.avgConvertDownPenalty = new BigDecimal(silo.penalizedStalkConvertDown).div(
+    new BigDecimal(silo.penalizedStalkConvertDown.plus(silo.unpenalizedStalkConvertDown))
+  );
+
+  takeSiloSnapshots(silo, block);
+  silo.save();
 }

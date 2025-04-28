@@ -2,6 +2,17 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "beanstalk",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "beans",
         "type": "uint256"
@@ -261,6 +272,11 @@
         "internalType": "address",
         "name": "wellAddress",
         "type": "address"
+      },
+      {
+        "internalType": "enum ReservesType",
+        "name": "reservesType",
+        "type": "uint8"
       }
     ],
     "name": "getWell",
@@ -320,6 +336,153 @@
         ],
         "internalType": "struct P.Pool",
         "name": "pool",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "wellAddress",
+        "type": "address"
+      }
+    ],
+    "name": "getWell",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "pool",
+            "type": "address"
+          },
+          {
+            "internalType": "address[2]",
+            "name": "tokens",
+            "type": "address[2]"
+          },
+          {
+            "internalType": "uint256[2]",
+            "name": "balances",
+            "type": "uint256[2]"
+          },
+          {
+            "internalType": "uint256",
+            "name": "price",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "liquidity",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "beanLiquidity",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "nonBeanLiquidity",
+            "type": "uint256"
+          },
+          {
+            "internalType": "int256",
+            "name": "deltaB",
+            "type": "int256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "lpUsd",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "lpBdv",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct P.Pool",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "pool",
+        "type": "address"
+      },
+      {
+        "internalType": "enum ReservesType",
+        "name": "reservesType",
+        "type": "uint8"
+      }
+    ],
+    "name": "poolPrice",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "pool",
+            "type": "address"
+          },
+          {
+            "internalType": "address[2]",
+            "name": "tokens",
+            "type": "address[2]"
+          },
+          {
+            "internalType": "uint256[2]",
+            "name": "balances",
+            "type": "uint256[2]"
+          },
+          {
+            "internalType": "uint256",
+            "name": "price",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "liquidity",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "beanLiquidity",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "nonBeanLiquidity",
+            "type": "uint256"
+          },
+          {
+            "internalType": "int256",
+            "name": "deltaB",
+            "type": "int256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "lpUsd",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "lpBdv",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct P.Pool",
+        "name": "p",
         "type": "tuple"
       }
     ],
@@ -400,6 +563,197 @@
   {
     "inputs": [],
     "name": "price",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "price",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "liquidity",
+            "type": "uint256"
+          },
+          {
+            "internalType": "int256",
+            "name": "deltaB",
+            "type": "int256"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address",
+                "name": "pool",
+                "type": "address"
+              },
+              {
+                "internalType": "address[2]",
+                "name": "tokens",
+                "type": "address[2]"
+              },
+              {
+                "internalType": "uint256[2]",
+                "name": "balances",
+                "type": "uint256[2]"
+              },
+              {
+                "internalType": "uint256",
+                "name": "price",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "liquidity",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "beanLiquidity",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nonBeanLiquidity",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "deltaB",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "lpUsd",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "lpBdv",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct P.Pool[]",
+            "name": "ps",
+            "type": "tuple[]"
+          }
+        ],
+        "internalType": "struct BeanstalkPrice.Prices",
+        "name": "p",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "enum ReservesType",
+        "name": "reservesType",
+        "type": "uint8"
+      }
+    ],
+    "name": "price",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "price",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "liquidity",
+            "type": "uint256"
+          },
+          {
+            "internalType": "int256",
+            "name": "deltaB",
+            "type": "int256"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address",
+                "name": "pool",
+                "type": "address"
+              },
+              {
+                "internalType": "address[2]",
+                "name": "tokens",
+                "type": "address[2]"
+              },
+              {
+                "internalType": "uint256[2]",
+                "name": "balances",
+                "type": "uint256[2]"
+              },
+              {
+                "internalType": "uint256",
+                "name": "price",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "liquidity",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "beanLiquidity",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nonBeanLiquidity",
+                "type": "uint256"
+              },
+              {
+                "internalType": "int256",
+                "name": "deltaB",
+                "type": "int256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "lpUsd",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "lpBdv",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct P.Pool[]",
+            "name": "ps",
+            "type": "tuple[]"
+          }
+        ],
+        "internalType": "struct BeanstalkPrice.Prices",
+        "name": "p",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address[]",
+        "name": "wells",
+        "type": "address[]"
+      },
+      {
+        "internalType": "enum ReservesType",
+        "name": "reservesType",
+        "type": "uint8"
+      }
+    ],
+    "name": "priceForWells",
     "outputs": [
       {
         "components": [

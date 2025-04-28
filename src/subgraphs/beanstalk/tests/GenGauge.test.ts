@@ -16,6 +16,19 @@ const initCultivationFactorGauge = (): void => {
   handleAddedGauge(addedGaugeEvent);
 };
 
+const initConvertPenaltyGauge = (): void => {
+  const value = Bytes.fromHexString(
+    "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+  );
+  const address = Address.fromString("0xD1A0D188E861ed9d15773a2F3574a2e94134bA8f");
+  const selector = Bytes.fromHexString("0x44811f70");
+  const data = Bytes.fromHexString(
+    "0x0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000c"
+  );
+  const addedGaugeEvent = createAddedGaugeEvent(1, value, address, selector, data);
+  handleAddedGauge(addedGaugeEvent);
+};
+
 describe("Gen Gauge", () => {
   beforeEach(() => {
     initPintoVersion();
@@ -39,6 +52,26 @@ describe("Gen Gauge", () => {
       handleEngaged(engagedEvent);
 
       assert.fieldEquals("Field", v().protocolAddress.toHexString(), "cultivationFactor", "1.5");
+    });
+  });
+
+  describe("Convert down penalty", () => {
+    test("Assigns initial value", () => {
+      initConvertPenaltyGauge();
+
+      assert.fieldEquals("Silo", v().protocolAddress.toHexString(), "convertDownPenalty", "0");
+    });
+
+    test("Updates value", () => {
+      initConvertPenaltyGauge();
+
+      const value = Bytes.fromHexString(
+        "0x00000000000000000000000000000000000000000000000005a5f457f79580000000000000000000000000000000000000000000000000000000000000000000"
+      );
+      const engagedEvent = createEngagedEvent(1, value);
+      handleEngaged(engagedEvent);
+
+      assert.fieldEquals("Silo", v().protocolAddress.toHexString(), "convertDownPenalty", "0.407");
     });
   });
 });

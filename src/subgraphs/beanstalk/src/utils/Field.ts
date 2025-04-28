@@ -11,7 +11,7 @@ import { getCurrentSeason, getHarvestableIndex, loadBeanstalk, loadFarmer, loadS
 import { loadField, loadPlot } from "../entities/Field";
 import { expirePodListingIfExists } from "./Marketplace";
 import { toAddress } from "../../../../core/utils/Bytes";
-import { PintoPI6 } from "../../generated/Beanstalk-ABIs/PintoPI6";
+import { PintoPI8 } from "../../generated/Beanstalk-ABIs/PintoPI8";
 
 class SowParams {
   event: ethereum.Event;
@@ -62,7 +62,7 @@ export function sow(params: SowParams): void {
   );
 
   let protocolField = loadField(protocol);
-  loadFarmer(params.account);
+  loadFarmer(params.account, params.event.block);
   let plot = loadPlot(protocol, params.index);
 
   let newIndexes = protocolField.plotIndexes;
@@ -85,7 +85,7 @@ export function sow(params: SowParams): void {
 
   incrementSows(protocol, params.account, params.event.block);
 
-  const beanstalk = PintoPI6.bind(protocol);
+  const beanstalk = PintoPI8.bind(protocol);
   const deltaPodDemand = beanstalk.getDeltaPodDemand();
   setDeltaPodDemand(deltaPodDemand, protocolField);
 }
@@ -93,6 +93,7 @@ export function sow(params: SowParams): void {
 export function harvest(params: HarvestParams): void {
   const protocol = params.event.address;
   let beanstalk = loadBeanstalk();
+  loadFarmer(params.account, params.event.block);
 
   let remainingIndex = ZERO_BI;
   for (let i = 0; i < params.plots.length; i++) {
@@ -182,8 +183,8 @@ export function plotTransfer(params: PlotTransferParams): void {
   const currentHarvestable = getHarvestableIndex();
 
   // Ensure both farmer entites exist
-  loadFarmer(params.from);
-  loadFarmer(params.to);
+  loadFarmer(params.from, params.event.block);
+  loadFarmer(params.to, params.event.block);
 
   let field = loadField(protocol);
   let sortedPlots = field.plotIndexes.sort();
@@ -474,7 +475,7 @@ export function updateFieldTotals(
   field.save();
 
   // Set extra info on the hourly snapshot
-  if (account == protocol && field.soil == ZERO_BI) {
+  if (account == protocol && field.soil == ZERO_BI && sownBeans > ZERO_BI) {
     setHourlySoilSoldOut(block.number, field);
   }
 }

@@ -1,4 +1,4 @@
-import { BigInt, Address } from "@graphprotocol/graph-ts";
+import { BigInt, Address, ethereum } from "@graphprotocol/graph-ts";
 import { Beanstalk } from "../../generated/schema";
 import { Farmer } from "../../generated/schema";
 import { Season } from "../../generated/schema";
@@ -22,10 +22,11 @@ export function loadBeanstalk(): Beanstalk {
   return beanstalk as Beanstalk;
 }
 
-export function loadFarmer(account: Address): Farmer {
+export function loadFarmer(account: Address, block: ethereum.Block): Farmer {
   let farmer = Farmer.load(account);
   if (farmer == null) {
     farmer = new Farmer(account);
+    farmer.creationBlock = block.number;
     farmer.save();
   }
   return farmer;

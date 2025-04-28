@@ -113,40 +113,47 @@ type Silo @entity {
   beanstalk: Beanstalk!
   "Farmer address if applicable"
   farmer: Farmer
-  "Tokens whitelisted for deposit within the silo"
-  whitelistedTokens: [Bytes!]!
-  "Tokens that have been removed from the silo deposit whitelist"
-  dewhitelistedTokens: [Bytes!]!
+
   "Link to all silo assets currently associated with this silo"
   assets: [SiloAsset!]! @derivedFrom(field: "silo")
-  "Current BDV of all deposited assets"
-  depositedBDV: BigInt!
-  "Deposited BDV from L1 which has not migrated yet"
-  unmigratedL1DepositedBdv: BigInt
   "Current stalk balance"
   stalk: BigInt!
-  "Current plantable stalk for bean seigniorage not yet claimed (only set on protocol-level Silo)"
-  plantableStalk: BigInt!
+  "Current BDV of all deposited assets"
+  depositedBDV: BigInt!
   "Cumulative total of beans that have been Planted"
   plantedBeans: BigInt!
-  "Value emitted by UpdateAverageStalkPerBdvPerSeason event"
-  avgGrownStalkPerBdvPerSeason: BigInt!
-  """
-  Current grown stalk per season.
-  NOTE: This value is currently not accurate for pre-gauge queries (BIP-45).
-  A correct implementation would recalculate this value when a whitelisted token's seed amount is changed.
-  """
-  grownStalkPerSeason: BigInt!
   "Current roots balance"
   roots: BigInt!
   "[Seed Gauge] Stalk that is currently Germinating"
   germinatingStalk: BigInt!
-  "[Seed Gauge] Current target ratio of Bean to LP deposits"
-  beanToMaxLpGpPerBdvRatio: BigInt!
-  "Cumulative total for bean mints sent to the silo (only set on protocol-level Silo)"
+  "Total stalk amount that has been penalized by the convert down penalty"
+  penalizedStalkConvertDown: BigInt!
+  "Total amount of stalk that was not penalized during the application of a down convert penalty. Needed to compute the avg penalty rate"
+  unpenalizedStalkConvertDown: BigInt!
+  "Average convert down penalty that has been assessed, in percent"
+  avgConvertDownPenalty: BigDecimal!
+
+  "(protocol) Tokens whitelisted for deposit within the silo"
+  whitelistedTokens: [Bytes!]!
+  "(protocol) Tokens that have been removed from the silo deposit whitelist"
+  dewhitelistedTokens: [Bytes!]!
+  "(protocol) Cumulative total for bean mints sent to the silo"
   beanMints: BigInt!
-  "Current number of active farmers deposited in the silo"
+  "(protocol) Current plantable stalk for bean seigniorage not yet claimed"
+  plantableStalk: BigInt!
+  "(protocol) [Seed Gauge] Current target ratio of Bean to LP deposits"
+  beanToMaxLpGpPerBdvRatio: BigInt!
+  "(protocol) Value emitted by UpdateAverageStalkPerBdvPerSeason event"
+  avgGrownStalkPerBdvPerSeason: BigInt!
+  "(protocol) Current grown stalk per season according to avgGrownStalkPerBdvPerSeason"
+  grownStalkPerSeason: BigInt!
+  "(protocol) PI-7 Convert down penalty"
+  convertDownPenalty: BigDecimal
+  "(protocol) Current number of active farmers deposited in the silo"
   activeFarmers: Int!
+  "(protocol) Deposited BDV from L1 which has not migrated yet"
+  unmigratedL1DepositedBdv: BigInt
+
   "Season when the previous hourly snapshot was taken/updated"
   lastHourlySnapshotSeason: Int
   "Day of when the previous daily snapshot was taken/updated"
@@ -164,39 +171,52 @@ type SiloHourlySnapshot @entity {
   season: Int!
   "Silo associated with the snapshot"
   silo: Silo!
-  "Point in time current BDV of all deposited assets"
-  depositedBDV: BigInt!
   "Point in time current stalk balance"
   stalk: BigInt!
-  "Point in time current plantable stalk for bean seigniorage not yet claimed (only set on protocol-level Silo)"
-  plantableStalk: BigInt!
+  "Point in time current BDV of all deposited assets"
+  depositedBDV: BigInt!
   "Point in time total of beans that have been Planted"
   plantedBeans: BigInt!
-  "Point in time average grown stalk per bdv per season"
-  avgGrownStalkPerBdvPerSeason: BigInt!
-  "Point in time grown stalk per season"
-  grownStalkPerSeason: BigInt!
   "Point in time current roots balance"
   roots: BigInt!
   "[Seed Gauge] Stalk that is currently Germinating"
   germinatingStalk: BigInt!
-  "[Seed Gauge] Current target ratio of Bean to LP deposits"
-  beanToMaxLpGpPerBdvRatio: BigInt!
+  "Point in time total stalk that has been penalized by the convert down penalty"
+  penalizedStalkConvertDown: BigInt!
+  "Point in time totalstalk that was not penalized during the application of a down convert penalty"
+  unpenalizedStalkConvertDown: BigInt!
+  "Average convert down penalty that has been assessed, in percent. 20.5 = 20.5%"
+  avgConvertDownPenalty: BigDecimal!
+
   "Point in time cumulative total for bean mints sent to the silo"
   beanMints: BigInt!
-  "Point in time current number of active farmers deposited in the silo"
+  "Point in time current plantable stalk for bean seigniorage not yet claimed (only set on protocol-level Silo)"
+  plantableStalk: BigInt!
+  "[Seed Gauge] Current target ratio of Bean to LP deposits"
+  beanToMaxLpGpPerBdvRatio: BigInt!
+  "Point in time average grown stalk per bdv per season"
+  avgGrownStalkPerBdvPerSeason: BigInt!
+  "Point in time grown stalk per season"
+  grownStalkPerSeason: BigInt!
+  "Point in time PI-7 convert down penalty)"
+  convertDownPenalty: BigDecimal
+  "Point in time active farmers"
   activeFarmers: Int!
 
-  deltaDepositedBDV: BigInt!
   deltaStalk: BigInt!
-  deltaPlantableStalk: BigInt!
+  deltaDepositedBDV: BigInt!
   deltaPlantedBeans: BigInt!
-  deltaAvgGrownStalkPerBdvPerSeason: BigInt!
-  deltaGrownStalkPerSeason: BigInt!
   deltaRoots: BigInt!
   deltaGerminatingStalk: BigInt!
-  deltaBeanToMaxLpGpPerBdvRatio: BigInt!
+  deltaPenalizedStalkConvertDown: BigInt!
+  deltaUnpenalizedStalkConvertDown: BigInt!
+  deltaAvgConvertDownPenalty: BigDecimal!
   deltaBeanMints: BigInt!
+  deltaPlantableStalk: BigInt!
+  deltaBeanToMaxLpGpPerBdvRatio: BigInt!
+  deltaAvgGrownStalkPerBdvPerSeason: BigInt!
+  deltaGrownStalkPerSeason: BigInt!
+  deltaConvertDownPenalty: BigDecimal
   deltaActiveFarmers: Int!
 
   "Timestamp of initial snapshot creation"
@@ -216,39 +236,52 @@ type SiloDailySnapshot @entity {
   season: Int!
   "Silo associated with the snapshot"
   silo: Silo!
-  "Point in time current BDV of all deposited assets"
-  depositedBDV: BigInt!
   "Point in time current stalk balance"
   stalk: BigInt!
-  "Point in time current plantable stalk for bean seigniorage not yet claimed (only set on protocol-level Silo)"
-  plantableStalk: BigInt!
+  "Point in time current BDV of all deposited assets"
+  depositedBDV: BigInt!
   "Point in time total of beans that have been Planted"
   plantedBeans: BigInt!
-  "Point in time average grown stalk per bdv per season"
-  avgGrownStalkPerBdvPerSeason: BigInt!
-  "Point in time grown stalk per season"
-  grownStalkPerSeason: BigInt!
   "Point in time current roots balance"
   roots: BigInt!
   "[Seed Gauge] Stalk that is currently Germinating"
   germinatingStalk: BigInt!
-  "[Seed Gauge] Current target ratio of Bean to LP deposits"
-  beanToMaxLpGpPerBdvRatio: BigInt!
+  "Point in time total stalk that has been penalized by the convert down penalty"
+  penalizedStalkConvertDown: BigInt!
+  "Point in time totalstalk that was not penalized during the application of a down convert penalty"
+  unpenalizedStalkConvertDown: BigInt!
+  "Average convert down penalty that has been assessed, in percent. 20.5 = 20.5%"
+  avgConvertDownPenalty: BigDecimal!
+
   "Point in time cumulative total for bean mints sent to the silo"
   beanMints: BigInt!
-  "Point in time current number of active farmers deposited in the silo"
+  "Point in time current plantable stalk for bean seigniorage not yet claimed (only set on protocol-level Silo)"
+  plantableStalk: BigInt!
+  "[Seed Gauge] Current target ratio of Bean to LP deposits"
+  beanToMaxLpGpPerBdvRatio: BigInt!
+  "Point in time average grown stalk per bdv per season"
+  avgGrownStalkPerBdvPerSeason: BigInt!
+  "Point in time grown stalk per season"
+  grownStalkPerSeason: BigInt!
+  "Point in time PI-7 convert down penalty)"
+  convertDownPenalty: BigDecimal
+  "Point in time active farmers"
   activeFarmers: Int!
 
-  deltaDepositedBDV: BigInt!
   deltaStalk: BigInt!
-  deltaPlantableStalk: BigInt!
+  deltaDepositedBDV: BigInt!
   deltaPlantedBeans: BigInt!
-  deltaAvgGrownStalkPerBdvPerSeason: BigInt!
-  deltaGrownStalkPerSeason: BigInt!
   deltaRoots: BigInt!
   deltaGerminatingStalk: BigInt!
-  deltaBeanToMaxLpGpPerBdvRatio: BigInt!
+  deltaPenalizedStalkConvertDown: BigInt!
+  deltaUnpenalizedStalkConvertDown: BigInt!
+  deltaAvgConvertDownPenalty: BigDecimal!
   deltaBeanMints: BigInt!
+  deltaPlantableStalk: BigInt!
+  deltaBeanToMaxLpGpPerBdvRatio: BigInt!
+  deltaAvgGrownStalkPerBdvPerSeason: BigInt!
+  deltaGrownStalkPerSeason: BigInt!
+  deltaConvertDownPenalty: BigDecimal
   deltaActiveFarmers: Int!
 
   "Timestamp of initial snapshot creation"
@@ -766,6 +799,8 @@ type FieldDailySnapshot @entity {
 type Farmer @entity {
   "Address for the farmer"
   id: Bytes!
+  "Block number in which this entity was created"
+  creationBlock: BigInt!
   silo: Silo @derivedFrom(field: "farmer")
   deposits: [SiloDeposit!]! @derivedFrom(field: "farmer")
   withdraws: [SiloWithdraw!]! @derivedFrom(field: "farmer")
@@ -1639,6 +1674,104 @@ type PrevFarmerGerminatingEvent @entity {
   "The value for `deltaGerminatingStalk` from this previous `FarmerGerminatingStalkBalanceChanged` event."
   deltaGerminatingStalk: BigInt!
 }
+
+type TractorReward @entity {
+  "{farmer}-{rewardType}-{rewardToken}"
+  id: ID!
+
+  "The farmer associated to this reward"
+  farmer: Farmer!
+  "The type of this reward"
+  rewardType: Int!
+  "The token given for this reward"
+  rewardToken: Bytes!
+
+  "For account=publisher - Total executed orders with these reward settings."
+  publisherExecutions: Int!
+  "For account=publisher - Total amount paid to the operator for executed orders."
+  publisherPosAmount: BigInt!
+  "For account=publisher - Total amount received from the operator for executed orders."
+  publisherNegAmount: BigInt!
+
+  "For account=operator - Total executed orders with these reward settings."
+  operatorExecutions: Int!
+  "For account=operator - Total amount received from the publisher for executed orders."
+  operatorPosAmount: BigInt!
+  "For account=operator - Total amount paid to the publisher for executed orders."
+  operatorNegAmount: BigInt!
+}
+
+type Tractor @entity {
+  "'tractor'"
+  id: ID!
+  "Total number of tractor executions (# times the `Tractor` event is emitted)"
+  totalExecutions: Int!
+  "Total amount of Bean tips paid from publisher to operator. Does not include any other tokens."
+  totalPosBeanTips: BigInt!
+  "Total amount of Bean tips paid from operator to publisher. Does not include any other tokens."
+  totalNegBeanTips: BigInt!
+
+  "Season when the previous hourly snapshot was taken/updated"
+  lastHourlySnapshotSeason: Int
+  "Day of when the previous daily snapshot was taken/updated"
+  lastDailySnapshotDay: BigInt
+  "Link to hourly snapshot data"
+  hourlySnapshots: [TractorHourlySnapshot!]! @derivedFrom(field: "tractor")
+  "Link to daily snapshot data"
+  dailySnapshots: [TractorDailySnapshot!]! @derivedFrom(field: "tractor")
+}
+
+type TractorHourlySnapshot @entity {
+  "Tractor ID - Season"
+  id: ID!
+  "Season for the snapshot"
+  season: Int!
+  "Tractor associated with this snapshot"
+  tractor: Tractor!
+
+  "Point in time totalExecutions"
+  totalExecutions: Int!
+  "Point in time totalPosBeanTips"
+  totalPosBeanTips: BigInt!
+  "Point in time totalNegBeanTips"
+  totalNegBeanTips: BigInt!
+
+  deltaTotalExecutions: Int!
+  deltaTotalPosBeanTips: BigInt!
+  deltaTotalNegBeanTips: BigInt!
+
+  "Timestamp of initial snapshot creation"
+  createdAt: BigInt!
+  "Timestamp of last entity update"
+  updatedAt: BigInt!
+}
+
+type TractorDailySnapshot @entity {
+  "Tractor ID - Day"
+  id: ID!
+  "Season for the snapshot"
+  season: Int!
+  "Tractor associated with this snapshot"
+  tractor: Tractor!
+
+  "Point in time totalExecutions"
+  totalExecutions: Int!
+  "Point in time totalPosBeanTips"
+  totalPosBeanTips: BigInt!
+  "Point in time totalNegBeanTips"
+  totalNegBeanTips: BigInt!
+
+  deltaTotalExecutions: Int!
+  deltaTotalPosBeanTips: BigInt!
+  deltaTotalNegBeanTips: BigInt!
+
+  "Timestamp of initial snapshot creation"
+  createdAt: BigInt!
+  "Timestamp of last entity update"
+  updatedAt: BigInt!
+}
+
+### LEGACY/BEANSTALK ###
 
 type UnripeToken @entity {
   "Token Address"
