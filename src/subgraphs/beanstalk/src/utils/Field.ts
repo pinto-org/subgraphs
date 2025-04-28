@@ -76,11 +76,16 @@ export function sow(params: SowParams): void {
   plot.season = protocolField.season;
   plot.creationHash = params.event.transaction.hash;
   plot.createdAt = params.event.block.timestamp;
+  plot.sowSeason = plot.season;
+  plot.sowHash = plot.creationHash;
+  plot.sowTimestamp = plot.createdAt;
   plot.updatedAt = params.event.block.timestamp;
   plot.updatedAtBlock = params.event.block.number;
   plot.pods = params.pods;
   plot.beansPerPod = params.beans.times(BI_10.pow(6)).div(plot.pods);
+  plot.sownBeansPerPod = plot.beansPerPod;
   plot.initialHarvestableIndex = protocolField.harvestableIndex;
+  plot.sownInitialHarvestableIndex = plot.initialHarvestableIndex;
   plot.save();
 
   incrementSows(protocol, params.account, params.event.block);
@@ -149,12 +154,17 @@ export function harvest(params: HarvestParams): void {
       remainingPlot.season = beanstalk.lastSeason;
       remainingPlot.creationHash = params.event.transaction.hash;
       remainingPlot.createdAt = params.event.block.timestamp;
+      remainingPlot.sowSeason = plot.sowSeason;
+      remainingPlot.sowHash = plot.sowHash;
+      remainingPlot.sowTimestamp = plot.sowTimestamp;
       remainingPlot.updatedAt = params.event.block.timestamp;
       remainingPlot.updatedAtBlock = params.event.block.number;
       remainingPlot.index = remainingIndex;
       remainingPlot.pods = remainingPods;
       remainingPlot.beansPerPod = plot.beansPerPod;
+      remainingPlot.sownBeansPerPod = plot.sownBeansPerPod;
       remainingPlot.initialHarvestableIndex = plot.initialHarvestableIndex;
+      remainingPlot.sownInitialHarvestableIndex = plot.sownInitialHarvestableIndex;
       remainingPlot.save();
 
       plot.harvestedPods = harvestablePods;
@@ -284,11 +294,16 @@ export function plotTransfer(params: PlotTransferParams): void {
     remainderPlot.season = field.season;
     remainderPlot.creationHash = params.event.transaction.hash;
     remainderPlot.createdAt = params.event.block.timestamp;
+    remainderPlot.sowSeason = sourcePlot.sowSeason;
+    remainderPlot.sowHash = sourcePlot.sowHash;
+    remainderPlot.sowTimestamp = sourcePlot.sowTimestamp;
     remainderPlot.updatedAt = params.event.block.timestamp;
     remainderPlot.updatedAtBlock = params.event.block.number;
     remainderPlot.index = remainderIndex;
     remainderPlot.pods = sourceEndIndex.minus(transferEndIndex);
     remainderPlot.harvestablePods = calcHarvestable(remainderPlot.index, remainderPlot.pods, currentHarvestable);
+    remainderPlot.sownBeansPerPod = sourcePlot.sownBeansPerPod;
+    remainderPlot.sownInitialHarvestableIndex = sourcePlot.sownInitialHarvestableIndex;
     remainderPlot.save();
   } else if (sourceEndIndex == transferEndIndex) {
     // We are only needing to split this plot once to send
@@ -317,11 +332,16 @@ export function plotTransfer(params: PlotTransferParams): void {
     toPlot.season = field.season;
     toPlot.creationHash = params.event.transaction.hash;
     toPlot.createdAt = params.event.block.timestamp;
+    toPlot.sowSeason = sourcePlot.sowSeason;
+    toPlot.sowHash = sourcePlot.sowHash;
+    toPlot.sowTimestamp = sourcePlot.sowTimestamp;
     toPlot.updatedAt = params.event.block.timestamp;
     toPlot.updatedAtBlock = params.event.block.number;
     toPlot.index = params.index;
     toPlot.pods = params.amount;
     toPlot.harvestablePods = calcHarvestable(toPlot.index, toPlot.pods, currentHarvestable);
+    toPlot.sownBeansPerPod = sourcePlot.sownBeansPerPod;
+    toPlot.sownInitialHarvestableIndex = sourcePlot.sownInitialHarvestableIndex;
     toPlot.save();
   } else {
     // We have to split this plot twice to send
@@ -353,28 +373,38 @@ export function plotTransfer(params: PlotTransferParams): void {
     toPlot.season = field.season;
     toPlot.creationHash = params.event.transaction.hash;
     toPlot.createdAt = params.event.block.timestamp;
+    toPlot.sowSeason = sourcePlot.sowSeason;
+    toPlot.sowHash = sourcePlot.sowHash;
+    toPlot.sowTimestamp = sourcePlot.sowTimestamp;
     toPlot.updatedAt = params.event.block.timestamp;
     toPlot.updatedAtBlock = params.event.block.number;
     toPlot.index = params.index;
     toPlot.pods = params.amount;
     toPlot.harvestablePods = calcHarvestable(toPlot.index, toPlot.pods, currentHarvestable);
+    toPlot.sownBeansPerPod = sourcePlot.sownBeansPerPod;
+    toPlot.sownInitialHarvestableIndex = sourcePlot.sownInitialHarvestableIndex;
     toPlot.save();
 
     remainderPlot.farmer = params.from;
     remainderPlot.source = sourcePlot.source;
+    remainderPlot.sourceHash = sourcePlot.sourceHash;
     remainderPlot.preTransferSource = sourcePlot.preTransferSource;
     remainderPlot.preTransferOwner = sourcePlot.preTransferOwner;
-    remainderPlot.sourceHash = sourcePlot.sourceHash;
     remainderPlot.season = field.season;
     remainderPlot.creationHash = params.event.transaction.hash;
     remainderPlot.createdAt = params.event.block.timestamp;
+    remainderPlot.sowSeason = sourcePlot.sowSeason;
+    remainderPlot.sowHash = sourcePlot.sowHash;
+    remainderPlot.sowTimestamp = sourcePlot.sowTimestamp;
     remainderPlot.updatedAt = params.event.block.timestamp;
     remainderPlot.updatedAtBlock = params.event.block.number;
     remainderPlot.index = remainderIndex;
     remainderPlot.pods = sourceEndIndex.minus(transferEndIndex);
     remainderPlot.harvestablePods = calcHarvestable(remainderPlot.index, remainderPlot.pods, currentHarvestable);
     remainderPlot.beansPerPod = sourcePlot.beansPerPod;
+    remainderPlot.sownBeansPerPod = sourcePlot.sownBeansPerPod;
     remainderPlot.initialHarvestableIndex = sourcePlot.initialHarvestableIndex;
+    remainderPlot.sownInitialHarvestableIndex = sourcePlot.sownInitialHarvestableIndex;
     remainderPlot.save();
   }
   sortedPlots.sort();

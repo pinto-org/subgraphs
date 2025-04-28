@@ -48,9 +48,14 @@ export function loadPlot(diamondAddress: Address, index: BigInt): Plot {
     plot.pods = ZERO_BI;
     plot.beansPerPod = ZERO_BI;
     plot.initialHarvestableIndex = ZERO_BI;
+    plot.sownBeansPerPod = ZERO_BI;
+    plot.sownInitialHarvestableIndex = ZERO_BI;
     plot.harvestablePods = ZERO_BI;
     plot.harvestedPods = ZERO_BI;
     plot.fullyHarvested = false;
+    plot.sowSeason = 1;
+    plot.sowHash = ADDRESS_ZERO;
+    plot.sowTimestamp = ZERO_BI;
     plot.save();
   }
   return plot;
