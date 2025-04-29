@@ -871,34 +871,30 @@ type Plot @entity {
   field: Field!
   "Farmer who owns this plot"
   farmer: Farmer!
-  "Transaction source for this plot. Not the same as creationHash which can include plots splitting from transfer or harvest without the owner changing"
+  "Source for this plot"
   source: PlotSource!
-  "Transaction hash corresponding to source"
+  "Transaction hash corresponding to when source was set. Not the same as creationHash which can include plots splitting from transfer or harvest without the owner changing"
   sourceHash: Bytes!
-  "If `source === 'TRANSFER'`: Source SOW/MARKET of the farmer who aquired the plot. Cannot be TRANSFER."
+  "If `source === 'TRANSFER'`: Source SOW/MARKET of the farmer who acquired the plot. Cannot be TRANSFER."
   preTransferSource: PlotSource
   "If `source === 'TRANSFER'`: Farmer who acquired this plot in the Field or Market, and spent `beansPerPod` for each pod in the plot."
   preTransferOwner: Farmer
   "Associated plot listing"
   listing: PodListing
-  "Season when created"
-  season: Int!
-  "Transaction hash of when this plot entity was created"
-  creationHash: Bytes!
-  "Timestamp of creation"
-  createdAt: BigInt!
-  "Timestamp when updated"
-  updatedAt: BigInt!
-  "Block when updated"
-  updatedAtBlock: BigInt!
   "Plot Index"
   index: BigInt!
   "Total pods in plot"
   pods: BigInt!
+
   "Number of beans spent for each pod, whether through sowing or on the marketplace"
   beansPerPod: BigInt!
+  "Same as beansPerPod, but only for the initial sowing"
+  sownBeansPerPod: BigInt!
   "The harvestable index at the time the plot was sown or exchanged on the marketplace"
   initialHarvestableIndex: BigInt!
+  "Same as initialHarvestableIndex, but only for the initial sowing"
+  sownInitialHarvestableIndex: BigInt!
+
   "Number of pods harvestable"
   harvestablePods: BigInt!
   "Number of pods harvested"
@@ -909,6 +905,25 @@ type Plot @entity {
   harvestAt: BigInt
   "Transaction hash of plot harvest"
   harvestHash: Bytes
+
+  "Season on entity creation (not sown)"
+  season: Int!
+  "Transaction hash of when this plot entity was created (not sown)"
+  creationHash: Bytes!
+  "Timestamp of entity creation (not sown)"
+  createdAt: BigInt!
+
+  "Same as season, but only for the initial sowing"
+  sowSeason: Int!
+  "Transaction hash of initial sowing"
+  sowHash: Bytes!
+  "Timestamp of initial sowing"
+  sowTimestamp: BigInt!
+
+  "Timestamp when updated"
+  updatedAt: BigInt!
+  "Block when updated"
+  updatedAtBlock: BigInt!
 }
 
 type PodMarketplace @entity {

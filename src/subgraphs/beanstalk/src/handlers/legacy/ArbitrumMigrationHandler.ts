@@ -130,11 +130,16 @@ function addMigratedPlot(
   plot.season = 1;
   plot.creationHash = event.transaction.hash;
   plot.createdAt = event.block.timestamp;
+  plot.sowSeason = 1;
+  plot.sowHash = event.transaction.hash;
+  plot.sowTimestamp = event.block.timestamp;
   plot.updatedAt = event.block.timestamp;
   plot.updatedAtBlock = event.block.number;
   plot.pods = amount;
   plot.beansPerPod = ZERO_BI;
+  plot.sownBeansPerPod = ZERO_BI;
   plot.initialHarvestableIndex = ZERO_BI;
+  plot.sownInitialHarvestableIndex = ZERO_BI;
   plot.save();
 }
 
