@@ -2,7 +2,7 @@ import { ethereum, BigInt, BigDecimal } from "@graphprotocol/graph-ts";
 import { subBigIntArray, ZERO_BI } from "../../../../core/utils/Decimals";
 import { loadWell } from "./Well";
 import { EventVolume, SwapInfo } from "../utils/Volume";
-import { Trade } from "../../generated/schema";
+import { ConvertCandidate, Trade } from "../../generated/schema";
 
 export function getLiquidityEntityId(
   tradeType: string,
@@ -61,6 +61,14 @@ export function recordLiquidityEvent(
   trade.logIndex = event.logIndex.toI32();
   trade.timestamp = event.block.timestamp;
   trade.save();
+
+  const convertCandidate = loadOrCreateConvertCandidate();
+  if (tradeType == "ADD_LIQUIDITY") {
+    convertCandidate.addLiquidityTrade = trade.id;
+  } else {
+    convertCandidate.removeLiquidityTrade = trade.id;
+  }
+  convertCandidate.save();
 }
 
 export function recordSwapEvent(
@@ -101,4 +109,13 @@ export function recordSwapEvent(
   trade.logIndex = event.logIndex.toI32();
   trade.timestamp = event.block.timestamp;
   trade.save();
+}
+
+export function loadOrCreateConvertCandidate(): ConvertCandidate {
+  let convertCandidate = ConvertCandidate.load("internal");
+  if (convertCandidate == null) {
+    convertCandidate = new ConvertCandidate("internal");
+    convertCandidate.save();
+  }
+  return convertCandidate;
 }

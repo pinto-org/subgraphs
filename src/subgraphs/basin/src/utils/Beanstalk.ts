@@ -4,6 +4,7 @@ import { addBigDecimalArray, addBigIntArray } from "../../../../core/utils/Decim
 import { toAddress } from "../../../../core/utils/Bytes";
 import { loadBeanstalk } from "../entities/Beanstalk";
 import { Trade } from "../../generated/schema";
+import { loadOrCreateConvertCandidate } from "../entities/Trade";
 
 class ConvertParams {
   event: ethereum.Event;
@@ -25,20 +26,38 @@ export function convert(params: ConvertParams): void {
   // Both can exist in the case of LP->LP converts.
   let wellCount = 0;
 
-  const addId = `ADD_LIQUIDITY-${params.event.transaction.hash.toHexString()}-${params.toToken.toHexString()}-${params.toAmount.toString()}`;
-  const addEntity = Trade.load(addId);
-  if (addEntity != null) {
-    addEntity.isConvert = true;
-    addEntity.save();
-    ++wellCount;
+  const convertCandidate = loadOrCreateConvertCandidate();
+
+  let addEntity: Trade | null = null;
+  let removeEntity: Trade | null = null;
+  if (convertCandidate.addLiquidityTrade != null) {
+    addEntity = Trade.load(convertCandidate.addLiquidityTrade!);
+    if (addEntity != null) {
+      if (
+        addEntity.hash == params.event.transaction.hash &&
+        toAddress(addEntity.well) == params.toToken &&
+        addEntity.liqLpTokenAmount!.equals(params.toAmount)
+      ) {
+        addEntity.isConvert = true;
+        addEntity.save();
+        ++wellCount;
+      }
+    }
   }
 
-  const removeId = `REMOVE_LIQUIDITY-${params.event.transaction.hash.toHexString()}-${params.fromToken.toHexString()}-${params.fromAmount.toString()}`;
-  const removeEntity = Trade.load(removeId);
-  if (removeEntity != null) {
-    removeEntity.isConvert = true;
-    removeEntity.save();
-    ++wellCount;
+  if (convertCandidate.removeLiquidityTrade != null) {
+    removeEntity = Trade.load(convertCandidate.removeLiquidityTrade!);
+    if (removeEntity != null) {
+      if (
+        removeEntity.hash == params.event.transaction.hash &&
+        toAddress(removeEntity.well) == params.fromToken &&
+        removeEntity.liqLpTokenAmount!.equals(params.fromAmount)
+      ) {
+        removeEntity.isConvert = true;
+        removeEntity.save();
+        ++wellCount;
+      }
+    }
   }
 
   // Deposit/Withdraw can involve the non-bean token, however this would only occur in NEUTRAL convert type,

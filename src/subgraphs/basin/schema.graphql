@@ -718,3 +718,14 @@ type Trade @entity {
   "Timestamp of this event"
   timestamp: BigInt!
 }
+
+# For internal use only; necessary to enable retriaval of matching Trade entities in convert events within the same txn.
+# Trade.load() with the same constructed id does not work in production environments.
+type ConvertCandidate @entity {
+  "internal"
+  id: ID!
+  "The most recent add liquidity Trade"
+  addLiquidityTrade: Trade
+  "The most recent remove liquidity Trade"
+  removeLiquidityTrade: Trade
+}
