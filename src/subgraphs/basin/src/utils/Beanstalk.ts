@@ -41,6 +41,8 @@ export function convert(params: ConvertParams): void {
         addEntity.isConvert = true;
         addEntity.save();
         ++wellCount;
+      } else {
+        addEntity = null;
       }
     }
   }
@@ -56,6 +58,8 @@ export function convert(params: ConvertParams): void {
         removeEntity.isConvert = true;
         removeEntity.save();
         ++wellCount;
+      } else {
+        removeEntity = null;
       }
     }
   }
