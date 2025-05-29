@@ -188,4 +188,32 @@ describe("Convert Tests", () => {
     const withdrawUpdated = Trade.load(tradeId)!;
     assert.assertTrue(!withdrawUpdated.isConvert);
   });
+
+  test("Convert ignores past, unmatching events", () => {
+    const transaction1 = mockTransaction();
+    const transaction2 = mockTransaction();
+    transaction2.hash = Bytes.fromHexString("0xd0a947cdaf4b351da76a7bf051fe15560a4b3f2725a6db2d8b8663c27a11fbe5");
+    const pastLiqEvent = mockRemoveLiquidityOneBean(WELL_LP_AMOUNT, PintoBase.PINTO_CBBTC, transaction1);
+    const currLiqEvent = mockAddLiquidity(
+      [BEAN_SWAP_AMOUNT, ZERO_BI],
+      WELL_LP_AMOUNT,
+      ONE_BD,
+      PintoBase.PINTO_WETH,
+      transaction2
+    );
+
+    mockConvert(PintoBase.BEAN_ERC20, PintoBase.PINTO_WETH, BEAN_SWAP_AMOUNT, WELL_LP_AMOUNT, transaction2);
+
+    const pastTradeId = getLiquidityEntityId("REMOVE_LIQUIDITY", pastLiqEvent, WELL_LP_AMOUNT, true);
+    const currTradeId = getLiquidityEntityId("ADD_LIQUIDITY", currLiqEvent, WELL_LP_AMOUNT, true);
+    const pastTrade = Trade.load(pastTradeId)!;
+    const currTrade = Trade.load(currTradeId)!;
+    assert.assertTrue(!pastTrade.isConvert);
+    assert.assertTrue(currTrade.isConvert);
+
+    const wellRemove = loadWell(PintoBase.PINTO_CBBTC);
+    const wellAdd = loadWell(PintoBase.PINTO_WETH);
+    assert.assertTrue(wellRemove.convertVolumeUSD.equals(ZERO_BD));
+    assert.assertTrue(wellAdd.convertVolumeUSD.gt(ZERO_BD));
+  });
 });
