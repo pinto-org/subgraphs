@@ -362,6 +362,42 @@ type SiloAssetDailySnapshot @entity {
   updatedAt: BigInt!
 }
 
+# At the beginning of each season, initiate one of these for the following season and complete the one for the current season.
+# Results for the current season are then added to cumulative entity.
+type MarketPerformanceSeasonal @entity {
+  "Silo ID - Season"
+  id: ID!
+  season: Int!
+  silo: Silo!
+
+  "Amount of tokens in each well, as of the previous season starting. Ordering according to silo.whitelistedTokens"
+  prevSeasonTokenBalances: [BigInt!]!
+
+  "Seasonal net change in usd value of each deposited non-bean token. Ordering according to silo.whitelistedTokens. Null for (current season + 1)"
+  usdChange: [BigDecimal!]
+  "Seasonal net change in usd value across all deposited non-bean tokens. Null for (current season + 1)"
+  totalUsdChange: BigDecimal
+  "Seasonal percentage change in value of each deposited non-bean token. Ordering according to silo.whitelistedTokens. Null for (current season + 1)"
+  percentChange: [BigDecimal!]
+  "Seasonal percentage change in value across all deposited non-bean tokens. Ordering according to silo.whitelistedTokens. Null for (current season + 1)"
+  totalPercentChange: BigDecimal
+}
+
+type MarketPerformanceCumulative @entity {
+  "Silo ID"
+  id: ID!
+  silo: Silo!
+
+  "Cumulative net change in usd value of each deposited non-bean token. Ordering according to silo.whitelistedTokens"
+  usdChange: [BigDecimal!]!
+  "Cumulative net change in usd value across all deposited non-bean tokens."
+  totalUsdChange: BigDecimal!
+  "Cumulative percentage change in value of each deposited non-bean token. It is possible for this value to appear out of sync with usdChange; it does not account for the number of these tokens deposited at the time of the value changing. Ordering according to silo.whitelistedTokens"
+  percentChange: [BigDecimal!]!
+  "Cumulative percentage change in value across all deposited non-bean tokens. It is possible for this value to appear out of sync with usdChange; it does not account for the number of these tokens deposited at the time of the value changing. Ordering according to silo.whitelistedTokens"
+  totalPercentChange: BigDecimal!
+}
+
 type WrappedDepositERC20 @entity {
   "Address of the wrapped silo token"
   id: Bytes!
