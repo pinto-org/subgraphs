@@ -154,6 +154,11 @@ type Silo @entity {
   "(protocol) Deposited BDV from L1 which has not migrated yet"
   unmigratedL1DepositedBdv: BigInt
 
+  "(protocol) Market performance for each season"
+  marketPerformanceSeasonals: [MarketPerformanceSeasonal!]! @derivedFrom(field: "silo")
+  "(protocol) Cumulative market performance across all seasons"
+  marketPerformanceCumulative: MarketPerformanceCumulative @derivedFrom(field: "silo")
+
   "Season when the previous hourly snapshot was taken/updated"
   lastHourlySnapshotSeason: Int
   "Day of when the previous daily snapshot was taken/updated"
@@ -368,7 +373,6 @@ type MarketPerformanceSeasonal @entity {
   "Silo ID - Season"
   id: ID!
   season: Int!
-  # TODO: add derivedFrom to main entity?
   silo: Silo!
 
   "True if the entity is valid; entity is not valid for (current season + 1), the 'this' season has not occurred yet"

@@ -100,17 +100,20 @@ function accumulateSeason(currentSeason: MarketPerformanceSeasonal): void {
     init.totalPercentChange = currentSeason.totalPercentChange!;
     init.save();
   } else {
-    const usdChange = [
-      cumulative.usdChange[0].plus(currentSeason.usdChange![0]),
-      cumulative.usdChange[1].plus(currentSeason.usdChange![1])
-    ];
+    // This would be an issue if the number of whitelisted tokens changes
+    const usdChange: BigDecimal[] = [];
+    for (let i = 0; i < cumulative.usdChange.length; i++) {
+      usdChange.push(cumulative.usdChange[i].plus(currentSeason.usdChange![i]));
+    }
     cumulative.usdChange = usdChange;
     cumulative.totalUsdChange = cumulative.totalUsdChange.plus(currentSeason.totalUsdChange!);
 
-    const percentChange = [
-      cumulative.percentChange[0].plus(ONE_BD).times(currentSeason.percentChange![0].plus(ONE_BD)).minus(ONE_BD),
-      cumulative.percentChange[1].plus(ONE_BD).times(currentSeason.percentChange![1].plus(ONE_BD)).minus(ONE_BD)
-    ];
+    const percentChange: BigDecimal[] = [];
+    for (let i = 0; i < cumulative.percentChange.length; i++) {
+      percentChange.push(
+        cumulative.percentChange[i].plus(ONE_BD).times(currentSeason.percentChange![i].plus(ONE_BD)).minus(ONE_BD)
+      );
+    }
     cumulative.percentChange = percentChange;
     cumulative.totalPercentChange = cumulative.totalPercentChange
       .plus(ONE_BD)
