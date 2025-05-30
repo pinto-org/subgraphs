@@ -382,13 +382,13 @@ type MarketPerformanceSeasonal @entity {
   "Usd value across all the non-bean tokens in each well, as of the previous season starting"
   prevSeasonTotalUsd: BigDecimal!
 
-  "Amount of tokens in each well, as of this season starting. Ordering according to silo.whitelistedTokens. Null for !valid"
-  thisSeasonTokenBalances: [BigInt!]
+  # Does not store the token balances as of this season starting; is not relevant to the calculation of price changes.
+
   "Prices of the non-bean token in each well, as of this season starting. Ordering according to silo.whitelistedTokens. Null for !valid"
   thisSeasonTokenUsdPrices: [BigDecimal!]
-  "Usd value of the non-bean tokens in each well, as of this season starting. Ordering according to silo.whitelistedTokens. Null for !valid"
+  "Usd value of prevSeasonTokenBalances, as of this season starting. Ordering according to silo.whitelistedTokens. Null for !valid"
   thisSeasonTokenUsdBalances: [BigDecimal!]
-  "Usd value across all the non-bean tokens in each well, as of this season starting. Null for !valid"
+  "Usd value across all prevSeasonTokenBalances, as of this season starting. Null for !valid"
   thisSeasonTotalUsd: BigDecimal
 
   "Seasonal net change in usd value of each deposited non-bean token. Ordering according to silo.whitelistedTokens. Null for !valid"

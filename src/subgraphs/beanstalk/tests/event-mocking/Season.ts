@@ -1,8 +1,18 @@
 import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
-import { Incentivization } from "../../generated/Beanstalk-ABIs/PintoPI8";
+import { Incentivization, Sunrise } from "../../generated/Beanstalk-ABIs/PintoPI8";
 import { mockBeanstalkEvent } from "../../../../core/tests/event-mocking/Util";
 
-export function createSunriseEvent(season: BigInt): void {}
+export function createSunriseEvent(season: i32, block: ethereum.Block | null = null): Sunrise {
+  let event = changetype<Sunrise>(mockBeanstalkEvent());
+  event.parameters = new Array();
+  if (block !== null) {
+    event.block = block;
+  }
+  let param1 = new ethereum.EventParam("season", ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(season)));
+  event.parameters.push(param1);
+  return event as Sunrise;
+}
+
 export function createSeasonSnapshotEvent(
   season: i32,
   price: BigInt,
