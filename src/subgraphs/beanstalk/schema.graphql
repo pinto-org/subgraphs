@@ -368,6 +368,7 @@ type MarketPerformanceSeasonal @entity {
   "Silo ID - Season"
   id: ID!
   season: Int!
+  # TODO: add derivedFrom to main entity?
   silo: Silo!
 
   "True if the entity is valid; entity is not valid for (current season + 1), the 'this' season has not occurred yet"
@@ -378,7 +379,7 @@ type MarketPerformanceSeasonal @entity {
   "Prices of the non-bean token in each well, as of the previous season starting. Ordering according to silo.whitelistedTokens"
   prevSeasonTokenUsdPrices: [BigDecimal!]!
   "Usd value of the non-bean tokens in each well, as of the previous season starting. Ordering according to silo.whitelistedTokens"
-  prevSeasonTokenUsdBalances: [BigDecimal!]!
+  prevSeasonTokenUsdValues: [BigDecimal!]!
   "Usd value across all the non-bean tokens in each well, as of the previous season starting"
   prevSeasonTotalUsd: BigDecimal!
 
@@ -387,7 +388,7 @@ type MarketPerformanceSeasonal @entity {
   "Prices of the non-bean token in each well, as of this season starting. Ordering according to silo.whitelistedTokens. Null for !valid"
   thisSeasonTokenUsdPrices: [BigDecimal!]
   "Usd value of prevSeasonTokenBalances, as of this season starting. Ordering according to silo.whitelistedTokens. Null for !valid"
-  thisSeasonTokenUsdBalances: [BigDecimal!]
+  thisSeasonTokenUsdValues: [BigDecimal!]
   "Usd value across all prevSeasonTokenBalances, as of this season starting. Null for !valid"
   thisSeasonTotalUsd: BigDecimal
 

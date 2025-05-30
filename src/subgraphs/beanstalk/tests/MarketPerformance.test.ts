@@ -64,7 +64,7 @@ describe("Market Performance", () => {
       handleSunrise(createSunriseEvent(1));
 
       const A = v().protocolAddress.toHexString();
-      assert.fieldEquals("MarketPerformanceSeasonal", `${A}-1`, "valid", "false");
+      assert.fieldEquals("MarketPerformanceSeasonal", `${A}-2`, "valid", "false");
       assert.fieldEquals(
         "MarketPerformanceSeasonal",
         `${A}-2`,
