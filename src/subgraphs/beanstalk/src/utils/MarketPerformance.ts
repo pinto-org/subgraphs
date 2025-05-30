@@ -100,7 +100,8 @@ function accumulateSeason(currentSeason: MarketPerformanceSeasonal): void {
     init.totalPercentChange = currentSeason.totalPercentChange!;
     init.save();
   } else {
-    // This would be an issue if the number of whitelisted tokens changes
+    // This would be an issue if the number of whitelisted tokens changes.
+    // usdChange/percentChange would have to be removed or refactored to have a direct token mapping.
     const usdChange: BigDecimal[] = [];
     for (let i = 0; i < cumulative.usdChange.length; i++) {
       usdChange.push(cumulative.usdChange[i].plus(currentSeason.usdChange![i]));
