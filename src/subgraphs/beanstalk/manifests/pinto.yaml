@@ -267,6 +267,8 @@ dataSources:
           file: ../../../core/abis/PintostalkPrice.json
         - name: WrappedSiloERC20
           file: ../../../core/abis/WrappedSiloERC20.json
+        - name: ERC20
+          file: ../../../core/abis/ERC20.json
       eventHandlers:
         - event: Sunrise(indexed uint256)
           handler: handleSunrise
