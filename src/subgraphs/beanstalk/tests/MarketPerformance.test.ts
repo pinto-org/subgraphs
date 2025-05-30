@@ -5,8 +5,7 @@ import {
   clearStore,
   describe,
   test,
-  createMockedFunction,
-  log
+  createMockedFunction
 } from "matchstick-as/assembly/index";
 import { initPintoVersion } from "./entity-mocking/MockVersion";
 import { v } from "../src/utils/constants/Version";
@@ -14,7 +13,7 @@ import { getPoolTokens, PoolTokens } from "../../../core/constants/RuntimeConsta
 import { Bytes, BigInt, ethereum, BigDecimal } from "@graphprotocol/graph-ts";
 import { BI_10, ONE_BD, toBigInt, toDecimal, ZERO_BD } from "../../../core/utils/Decimals";
 import { trackMarketPerformance } from "../src/utils/MarketPerformance";
-import { MarketPerformanceSeasonal } from "../generated/schema";
+import { MarketPerformanceCumulative, MarketPerformanceSeasonal } from "../generated/schema";
 import { assertBDClose } from "../../../core/tests/Assert";
 
 const CMP_BD_PRECISION = BigDecimal.fromString("0.0001");
@@ -145,13 +144,13 @@ describe("Market Performance", () => {
       assertBDClose(entityS.percentChange![1], BigDecimal.fromString("-0.1"), CMP_BD_PRECISION);
       assertBDClose(entityS.totalPercentChange!, usdAfter.minus(usdBefore).div(usdBefore), CMP_BD_PRECISION);
 
-      const entityC = MarketPerformanceSeasonal.load(A)!;
-      assertBDClose(entityC.usdChange![0], usdChange[0], CMP_BD_PRECISION);
-      assertBDClose(entityC.usdChange![1], usdChange[1], CMP_BD_PRECISION);
-      assertBDClose(entityC.totalUsdChange!, usdAfter.minus(usdBefore), CMP_BD_PRECISION);
-      assertBDClose(entityC.percentChange![0], BigDecimal.fromString("0.25"), CMP_BD_PRECISION);
-      assertBDClose(entityC.percentChange![1], BigDecimal.fromString("-0.1"), CMP_BD_PRECISION);
-      assertBDClose(entityC.totalPercentChange!, usdAfter.minus(usdBefore).div(usdBefore), CMP_BD_PRECISION);
+      const entityC = MarketPerformanceCumulative.load(A)!;
+      assertBDClose(entityC.usdChange[0], usdChange[0], CMP_BD_PRECISION);
+      assertBDClose(entityC.usdChange[1], usdChange[1], CMP_BD_PRECISION);
+      assertBDClose(entityC.totalUsdChange, usdAfter.minus(usdBefore), CMP_BD_PRECISION);
+      assertBDClose(entityC.percentChange[0], BigDecimal.fromString("0.25"), CMP_BD_PRECISION);
+      assertBDClose(entityC.percentChange[1], BigDecimal.fromString("-0.1"), CMP_BD_PRECISION);
+      assertBDClose(entityC.totalPercentChange, usdAfter.minus(usdBefore).div(usdBefore), CMP_BD_PRECISION);
     });
 
     test("Applies cumulative values (2 seasons) with balance/price changes", () => {
@@ -172,7 +171,7 @@ describe("Market Performance", () => {
       trackMarketPerformance(2, getSiloTokens(getAllToWhitelist()));
 
       const newPrices2 = [
-        newPrices1[0].times(BigDecimal.fromString("0.9")),
+        newPrices1[0].times(BigDecimal.fromString("0.95")),
         newPrices1[1].times(BigDecimal.fromString("1.5"))
       ];
       mockNbtPrice(allToWhitelist[0], newPrices2[0]);
@@ -180,37 +179,44 @@ describe("Market Performance", () => {
 
       trackMarketPerformance(3, getSiloTokens(getAllToWhitelist()));
 
+      const initialUsd1 = [
+        toDecimal(initBal[0], 18).times(initPrice[0]),
+        toDecimal(initBal[1], 18).times(initPrice[1])
+      ];
       const usdChange1 = [
-        toDecimal(initBal[0], 18).times(newPrices1[0]).minus(toDecimal(initBal[0], 18).times(initPrice[0])),
-        toDecimal(initBal[1], 18).times(newPrices1[1]).minus(toDecimal(initBal[1], 18).times(initPrice[1]))
+        toDecimal(initBal[0], 18).times(newPrices1[0]).minus(initialUsd1[0]),
+        toDecimal(initBal[1], 18).times(newPrices1[1]).minus(initialUsd1[1])
+      ];
+      const initialUsd2 = [
+        toDecimal(newBal2[0], 18).times(newPrices1[0]),
+        toDecimal(newBal2[1], 18).times(newPrices1[1])
       ];
       const usdChange2 = [
-        toDecimal(newBal2[0], 18).times(newPrices2[0]).minus(toDecimal(newBal2[0], 18).times(newPrices1[0])),
-        toDecimal(newBal2[1], 18).times(newPrices2[1]).minus(toDecimal(newBal2[1], 18).times(newPrices1[1]))
+        toDecimal(newBal2[0], 18).times(newPrices2[0]).minus(initialUsd2[0]),
+        toDecimal(newBal2[1], 18).times(newPrices2[1]).minus(initialUsd2[1])
       ];
-      const usdBefore = toDecimal(initBal[0], 18)
-        .times(initPrice[0])
-        .plus(toDecimal(initBal[1], 18).times(initPrice[1]));
-      const usdAfter1 = usdBefore.plus(usdChange1[0]).plus(usdChange1[1]);
-      const usdAfter2 = usdAfter1.plus(usdChange2[0]).plus(usdChange2[1]);
 
-      const totalPercentChange1 = usdAfter1.minus(usdBefore).div(usdBefore);
-      const totalPercentChange2 = usdAfter2.minus(usdAfter1).div(usdAfter1);
+      const totalUsdChange1 = usdChange1[0].plus(usdChange1[1]);
+      const totalUsdChange2 = usdChange2[0].plus(usdChange2[1]);
+      const totalInitialUsd1 = initialUsd1[0].plus(initialUsd1[1]);
+      const totalInitialUsd2 = initialUsd2[0].plus(initialUsd2[1]);
+      const totalPercentChange1 = totalUsdChange1.div(totalInitialUsd1);
+      const totalPercentChange2 = totalUsdChange2.div(totalInitialUsd2);
 
       const A = v().protocolAddress.toHexString();
-      const entityC = MarketPerformanceSeasonal.load(A)!;
-      assertBDClose(entityC.usdChange![0], usdChange1[0].plus(usdChange2[0]), CMP_BD_PRECISION);
-      assertBDClose(entityC.usdChange![1], usdChange1[1].plus(usdChange2[1]), CMP_BD_PRECISION);
+      const entityC = MarketPerformanceCumulative.load(A)!;
+      assertBDClose(entityC.usdChange[0], usdChange1[0].plus(usdChange2[0]), CMP_BD_PRECISION);
+      assertBDClose(entityC.usdChange[1], usdChange1[1].plus(usdChange2[1]), CMP_BD_PRECISION);
       assertBDClose(
-        entityC.totalUsdChange!,
+        entityC.totalUsdChange,
         usdChange1[0].plus(usdChange1[1]).plus(usdChange2[0]).plus(usdChange2[1]),
         CMP_BD_PRECISION
       );
-      assertBDClose(entityC.percentChange![0], BigDecimal.fromString("0.125"), CMP_BD_PRECISION);
-      assertBDClose(entityC.percentChange![1], BigDecimal.fromString("0.35"), CMP_BD_PRECISION);
+      assertBDClose(entityC.percentChange[0], BigDecimal.fromString("0.1875"), CMP_BD_PRECISION);
+      assertBDClose(entityC.percentChange[1], BigDecimal.fromString("0.35"), CMP_BD_PRECISION);
       assertBDClose(
-        entityC.totalPercentChange!,
-        totalPercentChange1.times(totalPercentChange2).minus(ONE_BD),
+        entityC.totalPercentChange,
+        totalPercentChange1.plus(ONE_BD).times(totalPercentChange2.plus(ONE_BD)).minus(ONE_BD),
         CMP_BD_PRECISION
       );
     });

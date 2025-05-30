@@ -411,9 +411,9 @@ type MarketPerformanceCumulative @entity {
   usdChange: [BigDecimal!]!
   "Cumulative net change in usd value across all deposited non-bean tokens"
   totalUsdChange: BigDecimal!
-  "Cumulative percentage change in value of each deposited non-bean token. It is possible for this value to appear out of sync with usdChange; it does not account for the number of these tokens deposited at the time of the value changing. Ordering according to silo.whitelistedTokens"
+  "Cumulative percentage change in value of each deposited non-bean token. It is possible for this value to appear out of sync with usdChange; it does not account for the number of these tokens deposited at the time of the value changing (only their ratios). Ordering according to silo.whitelistedTokens"
   percentChange: [BigDecimal!]!
-  "Cumulative percentage change in value across all deposited non-bean tokens. It is possible for this value to appear out of sync with usdChange; it does not account for the number of these tokens deposited at the time of the value changing"
+  "Cumulative percentage change in value across all deposited non-bean tokens. It is possible for this value to appear out of sync with usdChange; it does not account for the number of these tokens deposited at the time of the value changing (only their ratios)"
   totalPercentChange: BigDecimal!
 }
 

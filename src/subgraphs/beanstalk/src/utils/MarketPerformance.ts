@@ -1,10 +1,10 @@
-import { Address, Bytes, BigInt, BigDecimal, log } from "@graphprotocol/graph-ts";
+import { Address, Bytes, BigInt, BigDecimal } from "@graphprotocol/graph-ts";
 import { getPoolTokens, getTokenDecimals, PoolTokens } from "../../../../core/constants/RuntimeConstants";
 import { v as ver } from "./constants/Version";
 import { ERC20 } from "../../generated/Beanstalk-ABIs/ERC20";
 import { PintoPI8 } from "../../generated/Beanstalk-ABIs/PintoPI8";
 import { ONE_BD, toDecimal, ZERO_BD } from "../../../../core/utils/Decimals";
-import { MarketPerformanceSeasonal } from "../../generated/schema";
+import { MarketPerformanceCumulative, MarketPerformanceSeasonal } from "../../generated/schema";
 import { toAddress } from "../../../../core/utils/Bytes";
 
 export function trackMarketPerformance(season: i32, siloTokens: Bytes[]): void {
@@ -45,7 +45,7 @@ export function trackMarketPerformance(season: i32, siloTokens: Bytes[]): void {
   nextSeason.prevSeasonTokenBalances = balances;
   nextSeason.prevSeasonTokenUsdPrices = prices;
   nextSeason.prevSeasonTokenUsdValues = values;
-  nextSeason.prevSeasonTotalUsd = values.reduce<BigDecimal>((acc, value) => acc.plus(value), ZERO_BD);
+  nextSeason.prevSeasonTotalUsd = values.reduce<BigDecimal>((acc, usd) => acc.plus(usd), ZERO_BD);
   nextSeason.save();
 
   // Finish values for the current season
@@ -53,8 +53,17 @@ export function trackMarketPerformance(season: i32, siloTokens: Bytes[]): void {
   if (currentSeason !== null) {
     currentSeason.valid = true;
     currentSeason.thisSeasonTokenUsdPrices = prices;
-    currentSeason.thisSeasonTokenUsdValues = values;
-    currentSeason.thisSeasonTotalUsd = values.reduce<BigDecimal>((acc, value) => acc.plus(value), ZERO_BD);
+    const thisSeasonTokenUsdValues: BigDecimal[] = [];
+    for (let i = 0; i < nonBeanTokens.length; i++) {
+      thisSeasonTokenUsdValues.push(
+        toDecimal(currentSeason.prevSeasonTokenBalances[i], getTokenDecimals(v, nonBeanTokens[i])).times(prices[i])
+      );
+    }
+    currentSeason.thisSeasonTokenUsdValues = thisSeasonTokenUsdValues;
+    currentSeason.thisSeasonTotalUsd = thisSeasonTokenUsdValues.reduce<BigDecimal>(
+      (acc, usd) => acc.plus(usd),
+      ZERO_BD
+    );
 
     const usdChange: BigDecimal[] = [];
     for (let i = 0; i < currentSeason.thisSeasonTokenUsdValues!.length; ++i) {
@@ -74,5 +83,39 @@ export function trackMarketPerformance(season: i32, siloTokens: Bytes[]): void {
       ? ZERO_BD
       : currentSeason.thisSeasonTotalUsd!.div(currentSeason.prevSeasonTotalUsd).minus(ONE_BD);
     currentSeason.save();
+
+    // Accumulate values from this season into the cumulative entity
+    accumulateSeason(currentSeason);
+  }
+}
+
+function accumulateSeason(currentSeason: MarketPerformanceSeasonal): void {
+  const cumulative = MarketPerformanceCumulative.load(currentSeason.silo.toHexString());
+  if (cumulative === null) {
+    const init = new MarketPerformanceCumulative(`${currentSeason.silo.toHexString()}`);
+    init.silo = currentSeason.silo;
+    init.usdChange = currentSeason.usdChange!;
+    init.totalUsdChange = currentSeason.totalUsdChange!;
+    init.percentChange = currentSeason.percentChange!;
+    init.totalPercentChange = currentSeason.totalPercentChange!;
+    init.save();
+  } else {
+    const usdChange = [
+      cumulative.usdChange[0].plus(currentSeason.usdChange![0]),
+      cumulative.usdChange[1].plus(currentSeason.usdChange![1])
+    ];
+    cumulative.usdChange = usdChange;
+    cumulative.totalUsdChange = cumulative.totalUsdChange.plus(currentSeason.totalUsdChange!);
+
+    const percentChange = [
+      cumulative.percentChange[0].plus(ONE_BD).times(currentSeason.percentChange![0].plus(ONE_BD)).minus(ONE_BD),
+      cumulative.percentChange[1].plus(ONE_BD).times(currentSeason.percentChange![1].plus(ONE_BD)).minus(ONE_BD)
+    ];
+    cumulative.percentChange = percentChange;
+    cumulative.totalPercentChange = cumulative.totalPercentChange
+      .plus(ONE_BD)
+      .times(currentSeason.totalPercentChange!.plus(ONE_BD))
+      .minus(ONE_BD);
+    cumulative.save();
   }
 }
