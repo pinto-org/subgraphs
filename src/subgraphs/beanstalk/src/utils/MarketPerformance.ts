@@ -1,4 +1,4 @@
-import { Address, Bytes, BigInt, BigDecimal } from "@graphprotocol/graph-ts";
+import { Address, Bytes, BigInt, BigDecimal, log } from "@graphprotocol/graph-ts";
 import { getPoolTokens, getTokenDecimals, PoolTokens } from "../../../../core/constants/RuntimeConstants";
 import { v as ver } from "./constants/Version";
 import { ERC20 } from "../../generated/Beanstalk-ABIs/ERC20";
