@@ -45,7 +45,7 @@ export function trackMarketPerformance(season: i32, siloTokens: Bytes[], block: 
   nextSeason.prevSeasonTokenBalances = balances;
   nextSeason.prevSeasonTokenUsdPrices = prices;
   nextSeason.prevSeasonTokenUsdValues = values;
-  nextSeason.prevSeasonTotalUsd = values.reduce<BigDecimal>((acc, usd) => acc.plus(usd), ZERO_BD);
+  nextSeason.prevSeasonTotalUsd = values.reduce<BigDecimal>((acc, usd) => acc.plus(usd), ZERO_BD).truncate(2);
   nextSeason.save();
 
   // Finish values for the current season
@@ -61,17 +61,18 @@ export function trackMarketPerformance(season: i32, siloTokens: Bytes[], block: 
       );
     }
     currentSeason.thisSeasonTokenUsdValues = thisSeasonTokenUsdValues;
-    currentSeason.thisSeasonTotalUsd = thisSeasonTokenUsdValues.reduce<BigDecimal>(
-      (acc, usd) => acc.plus(usd),
-      ZERO_BD
-    );
+    currentSeason.thisSeasonTotalUsd = thisSeasonTokenUsdValues
+      .reduce<BigDecimal>((acc, usd) => acc.plus(usd), ZERO_BD)
+      .truncate(2);
 
     const usdChange: BigDecimal[] = [];
     for (let i = 0; i < currentSeason.thisSeasonTokenUsdValues!.length; ++i) {
       usdChange.push(currentSeason.thisSeasonTokenUsdValues![i].minus(currentSeason.prevSeasonTokenUsdValues[i]));
     }
-    currentSeason.usdChange = usdChange;
-    currentSeason.totalUsdChange = currentSeason.thisSeasonTotalUsd!.minus(currentSeason.prevSeasonTotalUsd);
+    currentSeason.usdChange = usdChange.map<BigDecimal>((bd) => bd.truncate(2));
+    currentSeason.totalUsdChange = currentSeason
+      .thisSeasonTotalUsd!.minus(currentSeason.prevSeasonTotalUsd)
+      .truncate(2);
 
     const percentChange: BigDecimal[] = [];
     for (let i = 0; i < currentSeason.thisSeasonTokenUsdValues!.length; ++i) {
@@ -79,10 +80,10 @@ export function trackMarketPerformance(season: i32, siloTokens: Bytes[], block: 
       const curr = currentSeason.thisSeasonTokenUsdValues![i];
       percentChange.push(prev.equals(ZERO_BD) ? ZERO_BD : curr.div(prev).minus(ONE_BD));
     }
-    currentSeason.percentChange = percentChange;
+    currentSeason.percentChange = percentChange.map<BigDecimal>((bd) => bd.truncate(6));
     currentSeason.totalPercentChange = currentSeason.prevSeasonTotalUsd.equals(ZERO_BD)
       ? ZERO_BD
-      : currentSeason.thisSeasonTotalUsd!.div(currentSeason.prevSeasonTotalUsd).minus(ONE_BD);
+      : currentSeason.thisSeasonTotalUsd!.div(currentSeason.prevSeasonTotalUsd).minus(ONE_BD).truncate(6);
 
     // Accumulate values from this season into the cumulative fields
     accumulateSeason(currentSeason);
@@ -117,11 +118,12 @@ function accumulateSeason(currentSeason: MarketPerformanceSeasonal): void {
           .minus(ONE_BD)
       );
     }
-    currentSeason.cumulativePercentChange = percentChange;
+    currentSeason.cumulativePercentChange = percentChange.map<BigDecimal>((bd) => bd.truncate(6));
     currentSeason.cumulativeTotalPercentChange = prevSeason
       .cumulativeTotalPercentChange!.plus(ONE_BD)
       .times(currentSeason.totalPercentChange!.plus(ONE_BD))
-      .minus(ONE_BD);
+      .minus(ONE_BD)
+      .truncate(6);
     currentSeason.save();
   }
 }

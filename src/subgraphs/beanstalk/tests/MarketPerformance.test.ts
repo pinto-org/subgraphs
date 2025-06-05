@@ -133,20 +133,24 @@ describe("Market Performance", () => {
         toDecimal(initBal[1], 18).times(newPrices[1]),
         CMP_BD_PRECISION
       );
-      assertBDClose(entity.thisSeasonTotalUsd!, usdAfter, CMP_BD_PRECISION);
-      assertBDClose(entity.usdChange![0], usdChange[0], CMP_BD_PRECISION);
-      assertBDClose(entity.usdChange![1], usdChange[1], CMP_BD_PRECISION);
-      assertBDClose(entity.totalUsdChange!, usdAfter.minus(usdBefore), CMP_BD_PRECISION);
+      assertBDClose(entity.thisSeasonTotalUsd!, usdAfter.truncate(2), CMP_BD_PRECISION);
+      assertBDClose(entity.usdChange![0], usdChange[0].truncate(2), CMP_BD_PRECISION);
+      assertBDClose(entity.usdChange![1], usdChange[1].truncate(2), CMP_BD_PRECISION);
+      assertBDClose(entity.totalUsdChange!, usdAfter.minus(usdBefore).truncate(2), CMP_BD_PRECISION);
       assertBDClose(entity.percentChange![0], BigDecimal.fromString("0.25"), CMP_BD_PRECISION);
       assertBDClose(entity.percentChange![1], BigDecimal.fromString("-0.1"), CMP_BD_PRECISION);
-      assertBDClose(entity.totalPercentChange!, usdAfter.minus(usdBefore).div(usdBefore), CMP_BD_PRECISION);
+      assertBDClose(entity.totalPercentChange!, usdAfter.minus(usdBefore).div(usdBefore).truncate(6), CMP_BD_PRECISION);
 
-      assertBDClose(entity.cumulativeUsdChange![0], usdChange[0], CMP_BD_PRECISION);
-      assertBDClose(entity.cumulativeUsdChange![1], usdChange[1], CMP_BD_PRECISION);
-      assertBDClose(entity.cumulativeTotalUsdChange!, usdAfter.minus(usdBefore), CMP_BD_PRECISION);
+      assertBDClose(entity.cumulativeUsdChange![0], usdChange[0].truncate(2), CMP_BD_PRECISION);
+      assertBDClose(entity.cumulativeUsdChange![1], usdChange[1].truncate(2), CMP_BD_PRECISION);
+      assertBDClose(entity.cumulativeTotalUsdChange!, usdAfter.minus(usdBefore).truncate(2), CMP_BD_PRECISION);
       assertBDClose(entity.cumulativePercentChange![0], BigDecimal.fromString("0.25"), CMP_BD_PRECISION);
       assertBDClose(entity.cumulativePercentChange![1], BigDecimal.fromString("-0.1"), CMP_BD_PRECISION);
-      assertBDClose(entity.cumulativeTotalPercentChange!, usdAfter.minus(usdBefore).div(usdBefore), CMP_BD_PRECISION);
+      assertBDClose(
+        entity.cumulativeTotalPercentChange!,
+        usdAfter.minus(usdBefore).div(usdBefore).truncate(6),
+        CMP_BD_PRECISION
+      );
     });
 
     test("Applies cumulative values (2 seasons) with balance/price changes", () => {
@@ -201,18 +205,31 @@ describe("Market Performance", () => {
 
       const ID = `${v().protocolAddress.toHexString()}-3`;
       const entity = MarketPerformanceSeasonal.load(ID)!;
-      assertBDClose(entity.cumulativeUsdChange![0], usdChange1[0].plus(usdChange2[0]), CMP_BD_PRECISION);
-      assertBDClose(entity.cumulativeUsdChange![1], usdChange1[1].plus(usdChange2[1]), CMP_BD_PRECISION);
+      assertBDClose(
+        entity.cumulativeUsdChange![0],
+        usdChange1[0].truncate(2).plus(usdChange2[0].truncate(2)),
+        CMP_BD_PRECISION
+      );
+      assertBDClose(
+        entity.cumulativeUsdChange![1],
+        usdChange1[1].truncate(2).plus(usdChange2[1].truncate(2)),
+        CMP_BD_PRECISION
+      );
       assertBDClose(
         entity.cumulativeTotalUsdChange!,
-        usdChange1[0].plus(usdChange1[1]).plus(usdChange2[0]).plus(usdChange2[1]),
+        usdChange1[0]
+          .truncate(2)
+          .plus(usdChange1[1].truncate(2))
+          .plus(usdChange2[0].truncate(2))
+          .plus(usdChange2[1].truncate(2))
+          .truncate(2),
         CMP_BD_PRECISION
       );
       assertBDClose(entity.cumulativePercentChange![0], BigDecimal.fromString("0.1875"), CMP_BD_PRECISION);
       assertBDClose(entity.cumulativePercentChange![1], BigDecimal.fromString("0.35"), CMP_BD_PRECISION);
       assertBDClose(
         entity.cumulativeTotalPercentChange!,
-        totalPercentChange1.plus(ONE_BD).times(totalPercentChange2.plus(ONE_BD)).minus(ONE_BD),
+        totalPercentChange1.plus(ONE_BD).times(totalPercentChange2.plus(ONE_BD)).minus(ONE_BD).truncate(6),
         CMP_BD_PRECISION
       );
     });
