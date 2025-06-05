@@ -71,7 +71,7 @@ export function sunrise(protocol: Address, season: BigInt, block: ethereum.Block
   }
 
   // Track market performance of silo assets
-  trackMarketPerformance(season.toI32(), siloTokens);
+  trackMarketPerformance(season.toI32(), siloTokens, block);
 }
 
 export function siloReceipt(amount: BigInt, block: ethereum.Block): void {

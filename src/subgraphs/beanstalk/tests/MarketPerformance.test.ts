@@ -13,8 +13,11 @@ import { getPoolTokens, PoolTokens } from "../../../core/constants/RuntimeConsta
 import { Bytes, BigInt, ethereum, BigDecimal } from "@graphprotocol/graph-ts";
 import { BI_10, ONE_BD, toBigInt, toDecimal, ZERO_BD } from "../../../core/utils/Decimals";
 import { trackMarketPerformance } from "../src/utils/MarketPerformance";
-import { MarketPerformanceCumulative, MarketPerformanceSeasonal } from "../generated/schema";
+import { MarketPerformanceSeasonal } from "../generated/schema";
 import { assertBDClose } from "../../../core/tests/Assert";
+import { mockBlock } from "../../../core/tests/event-mocking/Block";
+
+const B = mockBlock();
 
 const CMP_BD_PRECISION = BigDecimal.fromString("0.0001");
 
@@ -57,21 +60,17 @@ describe("Market Performance", () => {
 
   describe("On Sunrise", () => {
     test("First Season", () => {
-      trackMarketPerformance(1, getSiloTokens(getAllToWhitelist()));
+      trackMarketPerformance(1, getSiloTokens(getAllToWhitelist()), B);
 
-      const A = v().protocolAddress.toHexString();
-      const entity = MarketPerformanceSeasonal.load(`${A}-2`)!;
+      const ID = `${v().protocolAddress.toHexString()}-2`;
+      const entity = MarketPerformanceSeasonal.load(ID)!;
       assert.assertTrue(entity.valid === false);
       assert.assertNull(entity.usdChange);
+      assert.assertNull(entity.cumulativeUsdChange);
+      assert.fieldEquals("MarketPerformanceSeasonal", ID, "prevSeasonTokenBalances", `[${initBal[0]}, ${initBal[1]}]`);
       assert.fieldEquals(
         "MarketPerformanceSeasonal",
-        `${A}-2`,
-        "prevSeasonTokenBalances",
-        `[${initBal[0]}, ${initBal[1]}]`
-      );
-      assert.fieldEquals(
-        "MarketPerformanceSeasonal",
-        `${A}-2`,
+        ID,
         "prevSeasonTokenUsdPrices",
         `[${initPrice[0]}, ${initPrice[1]}]`
       );
@@ -90,12 +89,10 @@ describe("Market Performance", () => {
         toDecimal(initBal[0], 18).times(initPrice[0]).plus(toDecimal(initBal[1], 18).times(initPrice[1])),
         CMP_BD_PRECISION
       );
-
-      assert.notInStore("MarketPerformanceCumulative", A);
     });
 
     test("Sets seasonal values (1 season)", () => {
-      trackMarketPerformance(1, getSiloTokens(getAllToWhitelist()));
+      trackMarketPerformance(1, getSiloTokens(getAllToWhitelist()), B);
 
       const allToWhitelist = getAllToWhitelist();
       const newPrices = [
@@ -105,7 +102,7 @@ describe("Market Performance", () => {
       mockNbtPrice(allToWhitelist[0], newPrices[0]);
       mockNbtPrice(allToWhitelist[1], newPrices[1]);
 
-      trackMarketPerformance(2, getSiloTokens(getAllToWhitelist()));
+      trackMarketPerformance(2, getSiloTokens(getAllToWhitelist()), B);
 
       const usdChange = [
         toDecimal(initBal[0], 18).times(newPrices[0]).minus(toDecimal(initBal[0], 18).times(initPrice[0])),
@@ -118,43 +115,42 @@ describe("Market Performance", () => {
         .times(newPrices[0])
         .plus(toDecimal(initBal[1], 18).times(newPrices[1]));
 
-      const A = v().protocolAddress.toHexString();
-      const entityS = MarketPerformanceSeasonal.load(`${A}-2`)!;
+      const ID = `${v().protocolAddress.toHexString()}-2`;
+      const entity = MarketPerformanceSeasonal.load(ID)!;
       assert.fieldEquals(
         "MarketPerformanceSeasonal",
-        `${A}-2`,
+        ID,
         "thisSeasonTokenUsdPrices",
         `[${newPrices[0]}, ${newPrices[1]}]`
       );
       assertBDClose(
-        entityS.thisSeasonTokenUsdValues![0],
+        entity.thisSeasonTokenUsdValues![0],
         toDecimal(initBal[0], 18).times(newPrices[0]),
         CMP_BD_PRECISION
       );
       assertBDClose(
-        entityS.thisSeasonTokenUsdValues![1],
+        entity.thisSeasonTokenUsdValues![1],
         toDecimal(initBal[1], 18).times(newPrices[1]),
         CMP_BD_PRECISION
       );
-      assertBDClose(entityS.thisSeasonTotalUsd!, usdAfter, CMP_BD_PRECISION);
-      assertBDClose(entityS.usdChange![0], usdChange[0], CMP_BD_PRECISION);
-      assertBDClose(entityS.usdChange![1], usdChange[1], CMP_BD_PRECISION);
-      assertBDClose(entityS.totalUsdChange!, usdAfter.minus(usdBefore), CMP_BD_PRECISION);
-      assertBDClose(entityS.percentChange![0], BigDecimal.fromString("0.25"), CMP_BD_PRECISION);
-      assertBDClose(entityS.percentChange![1], BigDecimal.fromString("-0.1"), CMP_BD_PRECISION);
-      assertBDClose(entityS.totalPercentChange!, usdAfter.minus(usdBefore).div(usdBefore), CMP_BD_PRECISION);
+      assertBDClose(entity.thisSeasonTotalUsd!, usdAfter, CMP_BD_PRECISION);
+      assertBDClose(entity.usdChange![0], usdChange[0], CMP_BD_PRECISION);
+      assertBDClose(entity.usdChange![1], usdChange[1], CMP_BD_PRECISION);
+      assertBDClose(entity.totalUsdChange!, usdAfter.minus(usdBefore), CMP_BD_PRECISION);
+      assertBDClose(entity.percentChange![0], BigDecimal.fromString("0.25"), CMP_BD_PRECISION);
+      assertBDClose(entity.percentChange![1], BigDecimal.fromString("-0.1"), CMP_BD_PRECISION);
+      assertBDClose(entity.totalPercentChange!, usdAfter.minus(usdBefore).div(usdBefore), CMP_BD_PRECISION);
 
-      const entityC = MarketPerformanceCumulative.load(A)!;
-      assertBDClose(entityC.usdChange[0], usdChange[0], CMP_BD_PRECISION);
-      assertBDClose(entityC.usdChange[1], usdChange[1], CMP_BD_PRECISION);
-      assertBDClose(entityC.totalUsdChange, usdAfter.minus(usdBefore), CMP_BD_PRECISION);
-      assertBDClose(entityC.percentChange[0], BigDecimal.fromString("0.25"), CMP_BD_PRECISION);
-      assertBDClose(entityC.percentChange[1], BigDecimal.fromString("-0.1"), CMP_BD_PRECISION);
-      assertBDClose(entityC.totalPercentChange, usdAfter.minus(usdBefore).div(usdBefore), CMP_BD_PRECISION);
+      assertBDClose(entity.cumulativeUsdChange![0], usdChange[0], CMP_BD_PRECISION);
+      assertBDClose(entity.cumulativeUsdChange![1], usdChange[1], CMP_BD_PRECISION);
+      assertBDClose(entity.cumulativeTotalUsdChange!, usdAfter.minus(usdBefore), CMP_BD_PRECISION);
+      assertBDClose(entity.cumulativePercentChange![0], BigDecimal.fromString("0.25"), CMP_BD_PRECISION);
+      assertBDClose(entity.cumulativePercentChange![1], BigDecimal.fromString("-0.1"), CMP_BD_PRECISION);
+      assertBDClose(entity.cumulativeTotalPercentChange!, usdAfter.minus(usdBefore).div(usdBefore), CMP_BD_PRECISION);
     });
 
     test("Applies cumulative values (2 seasons) with balance/price changes", () => {
-      trackMarketPerformance(1, getSiloTokens(getAllToWhitelist()));
+      trackMarketPerformance(1, getSiloTokens(getAllToWhitelist()), B);
 
       const allToWhitelist = getAllToWhitelist();
       const newPrices1 = [
@@ -168,7 +164,7 @@ describe("Market Performance", () => {
       mockWellBalance(allToWhitelist[0], newBal2[0]);
       mockWellBalance(allToWhitelist[1], newBal2[1]);
 
-      trackMarketPerformance(2, getSiloTokens(getAllToWhitelist()));
+      trackMarketPerformance(2, getSiloTokens(getAllToWhitelist()), B);
 
       const newPrices2 = [
         newPrices1[0].times(BigDecimal.fromString("0.95")),
@@ -177,7 +173,7 @@ describe("Market Performance", () => {
       mockNbtPrice(allToWhitelist[0], newPrices2[0]);
       mockNbtPrice(allToWhitelist[1], newPrices2[1]);
 
-      trackMarketPerformance(3, getSiloTokens(getAllToWhitelist()));
+      trackMarketPerformance(3, getSiloTokens(getAllToWhitelist()), B);
 
       const initialUsd1 = [
         toDecimal(initBal[0], 18).times(initPrice[0]),
@@ -203,37 +199,37 @@ describe("Market Performance", () => {
       const totalPercentChange1 = totalUsdChange1.div(totalInitialUsd1);
       const totalPercentChange2 = totalUsdChange2.div(totalInitialUsd2);
 
-      const A = v().protocolAddress.toHexString();
-      const entityC = MarketPerformanceCumulative.load(A)!;
-      assertBDClose(entityC.usdChange[0], usdChange1[0].plus(usdChange2[0]), CMP_BD_PRECISION);
-      assertBDClose(entityC.usdChange[1], usdChange1[1].plus(usdChange2[1]), CMP_BD_PRECISION);
+      const ID = `${v().protocolAddress.toHexString()}-3`;
+      const entity = MarketPerformanceSeasonal.load(ID)!;
+      assertBDClose(entity.cumulativeUsdChange![0], usdChange1[0].plus(usdChange2[0]), CMP_BD_PRECISION);
+      assertBDClose(entity.cumulativeUsdChange![1], usdChange1[1].plus(usdChange2[1]), CMP_BD_PRECISION);
       assertBDClose(
-        entityC.totalUsdChange,
+        entity.cumulativeTotalUsdChange!,
         usdChange1[0].plus(usdChange1[1]).plus(usdChange2[0]).plus(usdChange2[1]),
         CMP_BD_PRECISION
       );
-      assertBDClose(entityC.percentChange[0], BigDecimal.fromString("0.1875"), CMP_BD_PRECISION);
-      assertBDClose(entityC.percentChange[1], BigDecimal.fromString("0.35"), CMP_BD_PRECISION);
+      assertBDClose(entity.cumulativePercentChange![0], BigDecimal.fromString("0.1875"), CMP_BD_PRECISION);
+      assertBDClose(entity.cumulativePercentChange![1], BigDecimal.fromString("0.35"), CMP_BD_PRECISION);
       assertBDClose(
-        entityC.totalPercentChange,
+        entity.cumulativeTotalPercentChange!,
         totalPercentChange1.plus(ONE_BD).times(totalPercentChange2.plus(ONE_BD)).minus(ONE_BD),
         CMP_BD_PRECISION
       );
     });
 
     test("No change", () => {
-      trackMarketPerformance(1, getSiloTokens(getAllToWhitelist()));
-      trackMarketPerformance(2, getSiloTokens(getAllToWhitelist()));
+      trackMarketPerformance(1, getSiloTokens(getAllToWhitelist()), B);
+      trackMarketPerformance(2, getSiloTokens(getAllToWhitelist()), B);
 
-      const A = v().protocolAddress.toHexString();
-      assert.fieldEquals("MarketPerformanceSeasonal", `${A}-2`, "usdChange", `[0, 0]`);
-      assert.fieldEquals("MarketPerformanceSeasonal", `${A}-2`, "totalUsdChange", "0");
-      assert.fieldEquals("MarketPerformanceSeasonal", `${A}-2`, "percentChange", "[0, 0]");
-      assert.fieldEquals("MarketPerformanceSeasonal", `${A}-2`, "totalPercentChange", "0");
-      assert.fieldEquals("MarketPerformanceCumulative", A, "usdChange", `[0, 0]`);
-      assert.fieldEquals("MarketPerformanceCumulative", A, "totalUsdChange", "0");
-      assert.fieldEquals("MarketPerformanceCumulative", A, "percentChange", "[0, 0]");
-      assert.fieldEquals("MarketPerformanceCumulative", A, "totalPercentChange", "0");
+      const ID = `${v().protocolAddress.toHexString()}-2`;
+      assert.fieldEquals("MarketPerformanceSeasonal", ID, "usdChange", `[0, 0]`);
+      assert.fieldEquals("MarketPerformanceSeasonal", ID, "totalUsdChange", "0");
+      assert.fieldEquals("MarketPerformanceSeasonal", ID, "percentChange", "[0, 0]");
+      assert.fieldEquals("MarketPerformanceSeasonal", ID, "totalPercentChange", "0");
+      assert.fieldEquals("MarketPerformanceSeasonal", ID, "cumulativeUsdChange", `[0, 0]`);
+      assert.fieldEquals("MarketPerformanceSeasonal", ID, "cumulativeTotalUsdChange", "0");
+      assert.fieldEquals("MarketPerformanceSeasonal", ID, "cumulativePercentChange", "[0, 0]");
+      assert.fieldEquals("MarketPerformanceSeasonal", ID, "cumulativeTotalPercentChange", "0");
     });
   });
 });

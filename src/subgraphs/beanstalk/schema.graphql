@@ -156,8 +156,6 @@ type Silo @entity {
 
   "(protocol) Market performance for each season"
   marketPerformanceSeasonals: [MarketPerformanceSeasonal!]! @derivedFrom(field: "silo")
-  "(protocol) Cumulative market performance across all seasons"
-  marketPerformanceCumulative: MarketPerformanceCumulative @derivedFrom(field: "silo")
 
   "Season when the previous hourly snapshot was taken/updated"
   lastHourlySnapshotSeason: Int
@@ -377,6 +375,8 @@ type MarketPerformanceSeasonal @entity {
 
   "True if the entity is valid; entity is not valid for (current season + 1), the 'this' season has not occurred yet"
   valid: Boolean!
+  "Timestamp of this entry becoming valid"
+  timestamp: BigInt
 
   "Amount of tokens in each well, as of the previous season starting. Ordering according to silo.whitelistedTokens"
   prevSeasonTokenBalances: [BigInt!]!
@@ -404,21 +404,15 @@ type MarketPerformanceSeasonal @entity {
   percentChange: [BigDecimal!]
   "Seasonal percentage change in value across all deposited non-bean tokens. Null for !valid"
   totalPercentChange: BigDecimal
-}
-
-type MarketPerformanceCumulative @entity {
-  "Silo ID"
-  id: ID!
-  silo: Silo!
 
   "Cumulative net change in usd value of each deposited non-bean token. Ordering according to silo.whitelistedTokens"
-  usdChange: [BigDecimal!]!
+  cumulativeUsdChange: [BigDecimal!]
   "Cumulative net change in usd value across all deposited non-bean tokens"
-  totalUsdChange: BigDecimal!
-  "Cumulative percentage change in value of each deposited non-bean token. It is possible for this value to appear out of sync with usdChange; it does not account for the number of these tokens deposited at the time of the value changing (only their ratios). Ordering according to silo.whitelistedTokens"
-  percentChange: [BigDecimal!]!
-  "Cumulative percentage change in value across all deposited non-bean tokens. It is possible for this value to appear out of sync with usdChange; it does not account for the number of these tokens deposited at the time of the value changing (only their ratios)"
-  totalPercentChange: BigDecimal!
+  cumulativeTotalUsdChange: BigDecimal
+  "Cumulative percentage change in value of each deposited non-bean token. It is possible for this value to appear out of sync with cumulativeUsdChange; it does not account for the number of these tokens deposited at the time of the value changing (only their ratios). Ordering according to silo.whitelistedTokens"
+  cumulativePercentChange: [BigDecimal!]
+  "Cumulative percentage change in value across all deposited non-bean tokens. It is possible for this value to appear out of sync with cumulativeUsdChange; it does not account for the number of these tokens deposited at the time of the value changing (only their ratios)"
+  cumulativeTotalPercentChange: BigDecimal
 }
 
 type WrappedDepositERC20 @entity {

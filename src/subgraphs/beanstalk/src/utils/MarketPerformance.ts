@@ -1,13 +1,13 @@
-import { Address, Bytes, BigInt, BigDecimal } from "@graphprotocol/graph-ts";
+import { Address, Bytes, BigInt, BigDecimal, ethereum } from "@graphprotocol/graph-ts";
 import { getPoolTokens, getTokenDecimals, PoolTokens } from "../../../../core/constants/RuntimeConstants";
 import { v as ver } from "./constants/Version";
 import { ERC20 } from "../../generated/Beanstalk-ABIs/ERC20";
 import { PintoPI8 } from "../../generated/Beanstalk-ABIs/PintoPI8";
 import { ONE_BD, toDecimal, ZERO_BD } from "../../../../core/utils/Decimals";
-import { MarketPerformanceCumulative, MarketPerformanceSeasonal } from "../../generated/schema";
+import { MarketPerformanceSeasonal } from "../../generated/schema";
 import { toAddress } from "../../../../core/utils/Bytes";
 
-export function trackMarketPerformance(season: i32, siloTokens: Bytes[]): void {
+export function trackMarketPerformance(season: i32, siloTokens: Bytes[], block: ethereum.Block): void {
   const v = ver();
   const POOL_TOKENS = getPoolTokens(v);
   const siloPoolTokens: PoolTokens[] = [];
@@ -52,6 +52,7 @@ export function trackMarketPerformance(season: i32, siloTokens: Bytes[]): void {
   const currentSeason = MarketPerformanceSeasonal.load(`${v.protocolAddress.toHexString()}-${season}`);
   if (currentSeason !== null) {
     currentSeason.valid = true;
+    currentSeason.timestamp = block.timestamp;
     currentSeason.thisSeasonTokenUsdPrices = prices;
     const thisSeasonTokenUsdValues: BigDecimal[] = [];
     for (let i = 0; i < nonBeanTokens.length; i++) {
@@ -82,44 +83,45 @@ export function trackMarketPerformance(season: i32, siloTokens: Bytes[]): void {
     currentSeason.totalPercentChange = currentSeason.prevSeasonTotalUsd.equals(ZERO_BD)
       ? ZERO_BD
       : currentSeason.thisSeasonTotalUsd!.div(currentSeason.prevSeasonTotalUsd).minus(ONE_BD);
-    currentSeason.save();
 
-    // Accumulate values from this season into the cumulative entity
+    // Accumulate values from this season into the cumulative fields
     accumulateSeason(currentSeason);
+    currentSeason.save();
   }
 }
 
 function accumulateSeason(currentSeason: MarketPerformanceSeasonal): void {
-  const cumulative = MarketPerformanceCumulative.load(currentSeason.silo.toHexString());
-  if (cumulative === null) {
-    const init = new MarketPerformanceCumulative(`${currentSeason.silo.toHexString()}`);
-    init.silo = currentSeason.silo;
-    init.usdChange = currentSeason.usdChange!;
-    init.totalUsdChange = currentSeason.totalUsdChange!;
-    init.percentChange = currentSeason.percentChange!;
-    init.totalPercentChange = currentSeason.totalPercentChange!;
-    init.save();
+  const prevSeason = MarketPerformanceSeasonal.load(`${currentSeason.silo.toHexString()}-${currentSeason.season - 1}`);
+  if (prevSeason === null) {
+    currentSeason.cumulativeUsdChange = currentSeason.usdChange!;
+    currentSeason.cumulativeTotalUsdChange = currentSeason.totalUsdChange!;
+    currentSeason.cumulativePercentChange = currentSeason.percentChange!;
+    currentSeason.cumulativeTotalPercentChange = currentSeason.totalPercentChange!;
+    currentSeason.save();
   } else {
     // This would be an issue if the number of whitelisted tokens changes.
     // usdChange/percentChange would have to be removed or refactored to have a direct token mapping.
     const usdChange: BigDecimal[] = [];
-    for (let i = 0; i < cumulative.usdChange.length; i++) {
-      usdChange.push(cumulative.usdChange[i].plus(currentSeason.usdChange![i]));
+    for (let i = 0; i < prevSeason.cumulativeUsdChange!.length; i++) {
+      usdChange.push(prevSeason.cumulativeUsdChange![i].plus(currentSeason.usdChange![i]));
     }
-    cumulative.usdChange = usdChange;
-    cumulative.totalUsdChange = cumulative.totalUsdChange.plus(currentSeason.totalUsdChange!);
+    currentSeason.cumulativeUsdChange = usdChange;
+    currentSeason.cumulativeTotalUsdChange = prevSeason.cumulativeTotalUsdChange!.plus(currentSeason.totalUsdChange!);
 
     const percentChange: BigDecimal[] = [];
-    for (let i = 0; i < cumulative.percentChange.length; i++) {
+    for (let i = 0; i < prevSeason.cumulativePercentChange!.length; i++) {
       percentChange.push(
-        cumulative.percentChange[i].plus(ONE_BD).times(currentSeason.percentChange![i].plus(ONE_BD)).minus(ONE_BD)
+        prevSeason
+          .cumulativePercentChange![i].plus(ONE_BD)
+          .times(currentSeason.percentChange![i].plus(ONE_BD))
+          .minus(ONE_BD)
       );
     }
-    cumulative.percentChange = percentChange;
-    cumulative.totalPercentChange = cumulative.totalPercentChange
-      .plus(ONE_BD)
+    currentSeason.cumulativePercentChange = percentChange;
+    currentSeason.cumulativeTotalPercentChange = prevSeason
+      .cumulativeTotalPercentChange!.plus(ONE_BD)
       .times(currentSeason.totalPercentChange!.plus(ONE_BD))
       .minus(ONE_BD);
-    cumulative.save();
+    currentSeason.save();
   }
 }
