@@ -139,7 +139,7 @@ describe("Market Performance", () => {
       assertBDClose(entity.totalUsdChange!, usdAfter.minus(usdBefore).truncate(2), CMP_BD_PRECISION);
       assertBDClose(entity.percentChange![0], BigDecimal.fromString("0.25"), CMP_BD_PRECISION);
       assertBDClose(entity.percentChange![1], BigDecimal.fromString("-0.1"), CMP_BD_PRECISION);
-      assertBDClose(entity.totalPercentChange!, usdAfter.minus(usdBefore).div(usdBefore).truncate(6), CMP_BD_PRECISION);
+      assertBDClose(entity.totalPercentChange!, usdAfter.minus(usdBefore).div(usdBefore).truncate(8), CMP_BD_PRECISION);
 
       assertBDClose(entity.cumulativeUsdChange![0], usdChange[0].truncate(2), CMP_BD_PRECISION);
       assertBDClose(entity.cumulativeUsdChange![1], usdChange[1].truncate(2), CMP_BD_PRECISION);
@@ -148,7 +148,7 @@ describe("Market Performance", () => {
       assertBDClose(entity.cumulativePercentChange![1], BigDecimal.fromString("-0.1"), CMP_BD_PRECISION);
       assertBDClose(
         entity.cumulativeTotalPercentChange!,
-        usdAfter.minus(usdBefore).div(usdBefore).truncate(6),
+        usdAfter.minus(usdBefore).div(usdBefore).truncate(8),
         CMP_BD_PRECISION
       );
     });
@@ -229,7 +229,7 @@ describe("Market Performance", () => {
       assertBDClose(entity.cumulativePercentChange![1], BigDecimal.fromString("0.35"), CMP_BD_PRECISION);
       assertBDClose(
         entity.cumulativeTotalPercentChange!,
-        totalPercentChange1.plus(ONE_BD).times(totalPercentChange2.plus(ONE_BD)).minus(ONE_BD).truncate(6),
+        totalPercentChange1.plus(ONE_BD).times(totalPercentChange2.plus(ONE_BD)).minus(ONE_BD).truncate(8),
         CMP_BD_PRECISION
       );
     });
