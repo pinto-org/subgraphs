@@ -16,6 +16,7 @@ import { beanDecimals, getProtocolToken, isUnripe, stalkDecimals } from "../../.
 import { v } from "./constants/Version";
 import { toAddress } from "../../../../core/utils/Bytes";
 import { updateDepositInSiloAsset } from "./Silo";
+import { trackMarketPerformance } from "./MarketPerformance";
 
 export function sunrise(protocol: Address, season: BigInt, block: ethereum.Block): void {
   let currentSeason = season.toI32();
@@ -68,6 +69,9 @@ export function sunrise(protocol: Address, season: BigInt, block: ethereum.Block
       updateUnripeStats(token, protocol, block);
     }
   }
+
+  // Track market performance of silo assets
+  trackMarketPerformance(season.toI32(), siloTokens, block);
 }
 
 export function siloReceipt(amount: BigInt, block: ethereum.Block): void {
