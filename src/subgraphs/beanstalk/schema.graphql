@@ -685,6 +685,8 @@ type Field @entity {
   temperature: BigDecimal!
   "PI-6 Cultivation Factor, in percent (i.e. 20.5 = 20.5% cultivation factor)"
   cultivationFactor: BigDecimal
+  "PI-10 Cultivation Temperature, in percent (i.e. 50.5 = 50.5% cultivation temperature). This value is presented since protocol deployment, despite not being introduced onchain until PI-10."
+  cultivationTemperature: BigDecimal
   "Rate of return: Temperature / Bean Price"
   realRateOfReturn: BigDecimal!
   "Cumulative number of unique sowers"
@@ -732,6 +734,8 @@ type FieldHourlySnapshot @entity {
   temperature: BigDecimal!
   "Point in time PI-6 Cultivation Factor"
   cultivationFactor: BigDecimal
+  "Point in time PI-10 Cultivation Temperature"
+  cultivationTemperature: BigDecimal
   "Point in time rate of return: Temperature / Bean Price"
   realRateOfReturn: BigDecimal!
   "Point in time cumulative number of unique sowers"
@@ -759,6 +763,7 @@ type FieldHourlySnapshot @entity {
 
   deltaTemperature: BigDecimal!
   deltaCultivationFactor: BigDecimal
+  deltaCultivationTemperature: BigDecimal
   deltaRealRateOfReturn: BigDecimal!
   deltaNumberOfSowers: Int!
   deltaNumberOfSows: Int!
@@ -801,6 +806,8 @@ type FieldDailySnapshot @entity {
   temperature: BigDecimal!
   "Point in time PI-6 Cultivation Factor"
   cultivationFactor: BigDecimal
+  "Point in time PI-10 Cultivation Temperature"
+  cultivationTemperature: BigDecimal
   "Point in time rate of return: Temperature / Bean Price"
   realRateOfReturn: BigDecimal!
   "Point in time cumulative number of unique sowers"
@@ -828,6 +835,7 @@ type FieldDailySnapshot @entity {
 
   deltaTemperature: BigDecimal!
   deltaCultivationFactor: BigDecimal
+  deltaCultivationTemperature: BigDecimal
   deltaRealRateOfReturn: BigDecimal!
   deltaNumberOfSowers: Int!
   deltaNumberOfSows: Int!

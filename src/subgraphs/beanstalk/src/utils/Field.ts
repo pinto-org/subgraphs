@@ -2,6 +2,7 @@ import { Address, BigInt, BigDecimal, ethereum } from "@graphprotocol/graph-ts";
 import { BeanstalkPrice_priceOnly } from "./contracts/BeanstalkPrice";
 import { BI_10, ONE_BD, toDecimal, ZERO_BD, ZERO_BI } from "../../../../core/utils/Decimals";
 import {
+  calculateCultivationTemperature,
   setDeltaPodDemand,
   setFieldHourlyCaseId,
   setHourlySoilSoldOut,
@@ -455,6 +456,8 @@ export function temperatureChanged(params: TemperatureChangedParams): void {
   }
 
   field.realRateOfReturn = ONE_BD.plus(field.temperature.div(BigDecimal.fromString("100"))).div(currentPrice);
+
+  field.cultivationTemperature = calculateCultivationTemperature(params.caseId, field);
 
   takeFieldSnapshots(field, params.event.block);
   field.save();

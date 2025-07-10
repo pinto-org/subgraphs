@@ -1,8 +1,9 @@
-import { BigInt, ethereum, log } from "@graphprotocol/graph-ts";
+import { BigDecimal, BigInt, ethereum, log } from "@graphprotocol/graph-ts";
 import { Field, FieldDailySnapshot, FieldHourlySnapshot } from "../../../generated/schema";
 import { getCurrentSeason, loadSeason } from "../Beanstalk";
 import { dayFromTimestamp, hourFromTimestamp } from "../../../../../core/utils/Dates";
-import { ZERO_BD, ZERO_BI } from "../../../../../core/utils/Decimals";
+import { BI_10, ZERO_BD, ZERO_BI } from "../../../../../core/utils/Decimals";
+import { BigInt_min } from "../../../../../core/utils/ArrayMath";
 
 export function takeFieldSnapshots(field: Field, block: ethereum.Block): void {
   const currentSeason = getCurrentSeason();
@@ -44,6 +45,7 @@ export function takeFieldSnapshots(field: Field, block: ethereum.Block): void {
   hourly.podRate = field.podRate;
 
   hourly.cultivationFactor = field.cultivationFactor;
+  hourly.cultivationTemperature = field.cultivationTemperature;
 
   // Set deltas
   if (baseHourly !== null) {
@@ -68,6 +70,13 @@ export function takeFieldSnapshots(field: Field, block: ethereum.Block): void {
       hourly.deltaCultivationFactor = hourly.cultivationFactor;
     }
 
+    if (baseHourly.cultivationTemperature !== null) {
+      // Implies current is also not null
+      hourly.deltaCultivationTemperature = hourly.cultivationTemperature!.minus(baseHourly.cultivationTemperature!);
+    } else {
+      hourly.deltaCultivationTemperature = hourly.cultivationTemperature;
+    }
+
     if (hourly.id == baseHourly.id) {
       // Add existing deltas
       hourly.deltaTemperature = hourly.deltaTemperature.plus(baseHourly.deltaTemperature);
@@ -86,6 +95,13 @@ export function takeFieldSnapshots(field: Field, block: ethereum.Block): void {
       if (baseHourly.deltaCultivationFactor !== null) {
         // Implies current is also not null
         hourly.deltaCultivationFactor = hourly.deltaCultivationFactor!.plus(baseHourly.deltaCultivationFactor!);
+      }
+
+      if (baseHourly.deltaCultivationTemperature !== null) {
+        // Implies current is also not null
+        hourly.deltaCultivationTemperature = hourly.deltaCultivationTemperature!.plus(
+          baseHourly.deltaCultivationTemperature!
+        );
       }
 
       // Carry over unset values that would otherwise get erased
@@ -128,6 +144,7 @@ export function takeFieldSnapshots(field: Field, block: ethereum.Block): void {
     hourly.deltaPodRate = hourly.podRate;
 
     hourly.deltaCultivationFactor = hourly.cultivationFactor;
+    hourly.deltaCultivationTemperature = hourly.cultivationTemperature;
 
     // Sets initial sunrise values
     hourly.issuedSoil = field.soil;
@@ -160,6 +177,7 @@ export function takeFieldSnapshots(field: Field, block: ethereum.Block): void {
   daily.podRate = field.podRate;
 
   daily.cultivationFactor = field.cultivationFactor;
+  daily.cultivationTemperature = field.cultivationTemperature;
 
   if (baseDaily !== null) {
     daily.deltaTemperature = daily.temperature.minus(baseDaily.temperature);
@@ -183,6 +201,13 @@ export function takeFieldSnapshots(field: Field, block: ethereum.Block): void {
       daily.deltaCultivationFactor = daily.cultivationFactor;
     }
 
+    if (baseDaily.cultivationTemperature !== null) {
+      // Implies current is also not null
+      daily.deltaCultivationTemperature = daily.cultivationTemperature!.minus(baseDaily.cultivationTemperature!);
+    } else {
+      daily.deltaCultivationTemperature = daily.cultivationTemperature;
+    }
+
     if (daily.id == baseDaily.id) {
       // Add existing deltas
       daily.deltaTemperature = daily.deltaTemperature.plus(baseDaily.deltaTemperature);
@@ -201,6 +226,13 @@ export function takeFieldSnapshots(field: Field, block: ethereum.Block): void {
       if (baseDaily.deltaCultivationFactor !== null) {
         // Implies current is also not null
         daily.deltaCultivationFactor = daily.deltaCultivationFactor!.plus(baseDaily.deltaCultivationFactor!);
+      }
+
+      if (baseDaily.deltaCultivationTemperature !== null) {
+        // Implies current is also not null
+        daily.deltaCultivationTemperature = daily.deltaCultivationTemperature!.plus(
+          baseDaily.deltaCultivationTemperature!
+        );
       }
 
       // Carry over existing values
@@ -232,6 +264,7 @@ export function takeFieldSnapshots(field: Field, block: ethereum.Block): void {
     daily.deltaPodRate = daily.podRate;
 
     daily.deltaCultivationFactor = daily.cultivationFactor;
+    daily.deltaCultivationTemperature = daily.cultivationTemperature;
 
     // Sets issued soil here since this is the initial creation
     daily.issuedSoil = field.soil;
@@ -282,6 +315,43 @@ export function clearFieldDeltas(field: Field, block: ethereum.Block): void {
     daily.deltaIssuedSoil = ZERO_BI;
     daily.save();
   }
+}
+
+/**
+ * Returns the cultivation temperature for the current season. Performs calculation rather than pulling from the contracts,
+ * so it can be available for past seasons (prior to PI-10).
+ *
+ * The cultivation temperature is the temperature in which
+ * (1) soil is selling out (i.e. almost sold out or sold out), and
+ * (2) demand for soil is not decreasing (i.e. steady or increasing)
+ *
+ * Soil is considered mostly selling out if the amount of soil remaining at the end of the season is less than S2:
+ * (I = amount of soil issued at the start of the season)
+ * S1 = min(50, I / 10)
+ * S2 = (I - S1) / 5 + S1
+ *
+ * Both points (1) and (2) are evaluated using the state at the end of the prior season.
+ *
+ * @param caseId
+ * @param field
+ * @returns The cultivation temperature, or null if it's never been set
+ */
+export function calculateCultivationTemperature(caseId: BigInt, field: Field): BigDecimal | null {
+  const prevHourly = FieldHourlySnapshot.load(field.id.toHexString() + "-" + (field.season - 1).toString())!;
+  const soldOutThreshold = BigInt_min([BigInt.fromI32(50).times(BI_10.pow(6)), prevHourly.issuedSoil.div(BI_10)]);
+  const mostlySoldOutThreshold = prevHourly.issuedSoil
+    .minus(soldOutThreshold)
+    .div(BigInt.fromI32(5))
+    .plus(soldOutThreshold);
+
+  const isSoilSellingOut = prevHourly.soil < mostlySoldOutThreshold;
+  const isDemandNotDecreasing = !caseId.mod(BigInt.fromI32(3)).equals(BigInt.fromI32(0));
+
+  if (isSoilSellingOut && isDemandNotDecreasing) {
+    return prevHourly.temperature;
+  }
+  // Cultivation temperature is unchanged
+  return field.cultivationTemperature;
 }
 
 // Set case id on hourly. Snapshot must have already been created.
