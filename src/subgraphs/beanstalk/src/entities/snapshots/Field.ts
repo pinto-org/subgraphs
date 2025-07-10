@@ -337,7 +337,12 @@ export function clearFieldDeltas(field: Field, block: ethereum.Block): void {
  * @returns The cultivation temperature, or null if it's never been set
  */
 export function calculateCultivationTemperature(caseId: BigInt, field: Field): BigDecimal | null {
-  const prevHourly = FieldHourlySnapshot.load(field.id.toHexString() + "-" + (field.season - 1).toString())!;
+  const prevHourly = FieldHourlySnapshot.load(field.id.toHexString() + "-" + (getCurrentSeason() - 1).toString());
+  if (prevHourly == null) {
+    // Initial season
+    return null;
+  }
+
   const soldOutThreshold = BigInt_min([BigInt.fromI32(50).times(BI_10.pow(6)), prevHourly.issuedSoil.div(BI_10)]);
   const mostlySoldOutThreshold = prevHourly.issuedSoil
     .minus(soldOutThreshold)
