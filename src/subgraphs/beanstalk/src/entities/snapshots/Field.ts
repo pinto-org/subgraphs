@@ -350,7 +350,9 @@ export function calculateCultivationTemperature(caseId: BigInt, field: Field): B
     .plus(soldOutThreshold);
 
   const isSoilSellingOut = prevHourly.soil < mostlySoldOutThreshold;
-  const isDemandNotDecreasing = !caseId.mod(BigInt.fromI32(3)).equals(BigInt.fromI32(0));
+
+  const effectiveCaseId = caseId >= BigInt.fromI32(1000) ? caseId.minus(BigInt.fromI32(1000)) : caseId;
+  const isDemandNotDecreasing = !effectiveCaseId.mod(BigInt.fromI32(3)).equals(BigInt.fromI32(0));
 
   if (isSoilSellingOut && isDemandNotDecreasing) {
     return prevHourly.temperature;

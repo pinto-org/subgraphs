@@ -88,6 +88,12 @@ describe("Field", () => {
       assert.assertTrue(field.cultivationTemperature === null);
     });
 
+    test("Case id adjustment above 1000", () => {
+      testCultivationTemp(5, 1014);
+      const field = loadField(BEANSTALK);
+      assert.assertTrue(field.cultivationTemperature!.equals(BigDecimal.fromString("100")));
+    });
+
     test("Falls back to prior cultivation temp", () => {
       const field = loadField(BEANSTALK);
       field.soil = BigInt.fromU32(100).times(BI_10.pow(6));
