@@ -8,7 +8,7 @@ import * as PintoBase from "../../../../../core/constants/raw/PintoBaseConstants
 
 export function handleInitVersion(block: ethereum.Block): void {
   const versionEntity = new Version("subgraph");
-  versionEntity.versionNumber = "1.2.3";
+  versionEntity.versionNumber = "1.2.4";
   versionEntity.subgraphName = subgraphNameForBlockNumber(block.number);
   versionEntity.protocolAddress = protocolForBlockNumber(block.number);
   versionEntity.chain = chainForBlockNumber(block.number);
