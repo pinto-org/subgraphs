@@ -119,6 +119,8 @@ dataSources:
           handler: handleBeanstalkSunrise
         - event: Convert(indexed address,address,address,uint256,uint256)
           handler: handleConvert
+        - event: DewhitelistToken(indexed address)
+          handler: handleDewhitelistToken
       file: ../src/handlers/BeanstalkHandler.ts
 templates:
   - kind: ethereum/contract

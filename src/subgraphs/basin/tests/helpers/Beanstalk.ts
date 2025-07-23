@@ -1,6 +1,6 @@
 import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import { mockBeanstalkEvent } from "../../../../core/tests/event-mocking/Util";
-import { Convert } from "../../generated/Basin-ABIs/PintoLaunch";
+import { Convert, DewhitelistToken } from "../../generated/Basin-ABIs/PintoLaunch";
 
 export function createConvertEvent(
   account: Address,
@@ -25,4 +25,14 @@ export function createConvertEvent(
   event.parameters.push(param5);
 
   return event as Convert;
+}
+
+export function createDewhitelistTokenEvent(token: Address): DewhitelistToken {
+  let event = changetype<DewhitelistToken>(mockBeanstalkEvent());
+  event.parameters = new Array();
+
+  let param1 = new ethereum.EventParam("token", ethereum.Value.fromAddress(token));
+
+  event.parameters.push(param1);
+  return event as DewhitelistToken;
 }
