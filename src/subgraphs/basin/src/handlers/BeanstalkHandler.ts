@@ -1,4 +1,4 @@
-import { Convert, Sunrise } from "../../generated/Basin-ABIs/PintoLaunch";
+import { Convert, DewhitelistToken, Sunrise } from "../../generated/Basin-ABIs/PintoLaunch";
 import { toAddress } from "../../../../core/utils/Bytes";
 import { v } from "../utils/constants/Version";
 import { getWhitelistedWells } from "../../../../core/constants/RuntimeConstants";
@@ -19,8 +19,11 @@ export function handleBeanstalkSunrise(event: Sunrise): void {
   const wells = getWhitelistedWells(v());
   for (let i = 0; i < wells.length; i++) {
     const well = loadWell(toAddress(wells[i]));
-    takeWellSnapshots(well, event.block);
-    well.save();
+    // Verify the well is still whitelisted
+    if (well.isBeanstalk) {
+      takeWellSnapshots(well, event.block);
+      well.save();
+    }
   }
 }
 
@@ -33,4 +36,12 @@ export function handleConvert(event: Convert): void {
     fromAmount: event.params.fromAmount,
     toAmount: event.params.toAmount
   });
+}
+
+export function handleDewhitelistToken(event: DewhitelistToken): void {
+  const well = loadWell(event.params.token);
+  if (well) {
+    well.isBeanstalk = false;
+    well.save();
+  }
 }
