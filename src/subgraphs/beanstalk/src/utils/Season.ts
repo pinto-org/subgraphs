@@ -61,6 +61,7 @@ export function sunrise(protocol: Address, season: BigInt, block: ethereum.Block
     siloAsset.save();
 
     let whitelistTokenSetting = loadWhitelistTokenSetting(token);
+    whitelistTokenSetting.stemTip = PintoPI12.bind(protocol).stemTipForToken(token);
     takeWhitelistTokenSettingSnapshots(whitelistTokenSetting, block);
     whitelistTokenSetting.save();
     setTokenBdv(token, protocol, whitelistTokenSetting);
@@ -97,16 +98,6 @@ export function siloReceipt(amount: BigInt, block: ethereum.Block): void {
   );
 }
 
-function setTokenBdv(token: Address, protocol: Address, whitelistTokenSetting: WhitelistTokenSetting): void {
-  // Get bdv if the bdv function is available onchain (not available prior to BIP-16)
-  const beanstalk_call = PintoPI12.bind(protocol);
-  const bdvResult = beanstalk_call.try_bdv(token, BI_10.pow(<u8>whitelistTokenSetting.decimals));
-  if (bdvResult.reverted) {
-    return;
-  }
-  setBdv(bdvResult.value, whitelistTokenSetting);
-}
-
 export function plentyWell(token: Address, amount: BigInt): void {
   const systemPlenty = loadWellPlenty(v().protocolAddress, token);
   systemPlenty.unclaimedAmount = systemPlenty.unclaimedAmount.plus(amount);
@@ -118,4 +109,14 @@ export function plentyWell(token: Address, amount: BigInt): void {
   const season = loadSeason(BigInt.fromU32(getCurrentSeason()));
   season.floodSiloBeans = season.deltaBeans.minus(season.floodFieldBeans);
   season.save();
+}
+
+function setTokenBdv(token: Address, protocol: Address, whitelistTokenSetting: WhitelistTokenSetting): void {
+  // Get bdv if the bdv function is available onchain (not available prior to BIP-16)
+  const beanstalk_call = PintoPI12.bind(protocol);
+  const bdvResult = beanstalk_call.try_bdv(token, BI_10.pow(<u8>whitelistTokenSetting.decimals));
+  if (bdvResult.reverted) {
+    return;
+  }
+  setBdv(bdvResult.value, whitelistTokenSetting);
 }

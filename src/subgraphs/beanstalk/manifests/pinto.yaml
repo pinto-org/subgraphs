@@ -119,6 +119,9 @@ dataSources:
         # Introduced in PI-12
         - event: ConvertUpBonus(address,uint256,uint256,uint256,uint256)
           handler: handleConvertUpBonus
+        # New signature in PI-12
+        - event: Convert(indexed address,address,address,uint256,uint256,uint256,uint256)
+          handler: handleConvert
       file: ../src/handlers/SiloHandler.ts
   - kind: ethereum/contract
     name: LegacySilo-PintoLaunch-PintoPI12
@@ -127,7 +130,7 @@ dataSources:
       address: "0xD1A0D188E861ed9d15773a2F3574a2e94134bA8f"
       abi: PintoLaunch
       startBlock: 22622961 # Pintostalk Deployment
-      endBlock: 999999999 # PI-12 Deployment (TODO once known)
+      endBlock: 999999999 # PI-12 Deployment (TODO: enter actual value once known)
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -141,26 +144,6 @@ dataSources:
         - event: Convert(indexed address,address,address,uint256,uint256)
           handler: handleConvert
       file: ../src/handlers/legacy/LegacySiloHandler.ts
-  - kind: ethereum/contract
-    name: Silo-PintoPI12-
-    network: base
-    source:
-      address: "0xD1A0D188E861ed9d15773a2F3574a2e94134bA8f"
-      abi: PintoPI12
-      startBlock: 22622961 # PI-12 Deployment (TODO once known)
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.6
-      language: wasm/assemblyscript
-      entities:
-        - Silo
-      abis:
-        - name: PintoPI12
-          file: ../../../core/abis/Beanstalk/Pinto-PI12.json
-      eventHandlers:
-        - event: Convert(indexed address,address,address,uint256,uint256,uint256,uint256)
-          handler: handleConvert
-      file: ../src/handlers/SiloHandler.ts
   ###
   # SEED GAUGE
   ###
