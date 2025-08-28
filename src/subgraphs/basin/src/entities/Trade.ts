@@ -4,6 +4,10 @@ import { loadWell } from "./Well";
 import { EventVolume, SwapInfo } from "../utils/Volume";
 import { ConvertCandidate, Trade } from "../../generated/schema";
 
+// Avoid saving Trade entities with transfer volume less than this amount.
+// Transfer vol is used instead of trade volume, because balances LP adds wont be trading volume.
+const TRADE_USD_MIN = BigDecimal.fromString("100.0");
+
 export function getLiquidityEntityId(
   tradeType: string,
   event: ethereum.Event,
@@ -32,6 +36,10 @@ export function recordLiquidityEvent(
   initialRates: BigDecimal[],
   volume: EventVolume
 ): void {
+  if (volume.transferVolumeUSD < TRADE_USD_MIN) {
+    return;
+  }
+
   const tradeType = deltaLpTokens >= ZERO_BI ? "ADD_LIQUIDITY" : "REMOVE_LIQUIDITY";
   const trade = new Trade(getLiquidityEntityId(tradeType, event, deltaLpTokens.abs()));
   const well = loadWell(event.address);
@@ -78,6 +86,10 @@ export function recordSwapEvent(
   initialRates: BigDecimal[],
   volume: EventVolume
 ): void {
+  if (volume.transferVolumeUSD < TRADE_USD_MIN) {
+    return;
+  }
+
   const trade = new Trade(getSwapEntityId(event, swapInfo.amountOut));
   const well = loadWell(event.address);
 
