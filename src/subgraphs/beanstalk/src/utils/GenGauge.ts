@@ -1,5 +1,5 @@
 import { BigDecimal, Bytes, ethereum } from "@graphprotocol/graph-ts";
-import { AddedGaugeGaugeStruct } from "../../generated/Beanstalk-ABIs/PintoPI8";
+import { AddedGaugeGaugeStruct } from "../../generated/Beanstalk-ABIs/PintoPI12";
 import { loadField } from "../entities/Field";
 import { v } from "./constants/Version";
 import { takeFieldSnapshots } from "../entities/snapshots/Field";
@@ -43,14 +43,14 @@ function setConvertDownPenalty(value: BigDecimal, block: ethereum.Block): void {
   silo.save();
 }
 
-export function initConvertUpBonus(initial: AddedGaugeGaugeStruct, block: ethereum.Block) {
+export function initConvertUpBonus(initial: AddedGaugeGaugeStruct, block: ethereum.Block): void {
   //
 }
 
-export function engagedConvertUpBonus(value: Bytes, block: ethereum.Block) {
+export function engagedConvertUpBonus(value: Bytes, block: ethereum.Block): void {
   //
 }
 
-export function engagedDataConvertUpBonus(data: ?, block: ethereum.Block) {
+export function engagedDataConvertUpBonus(data: Bytes, block: ethereum.Block): void {
   //
 }

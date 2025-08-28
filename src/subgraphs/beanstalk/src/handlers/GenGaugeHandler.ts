@@ -1,4 +1,4 @@
-import { AddedGauge, Engaged } from "../../generated/Beanstalk-ABIs/PintoPI8";
+import { AddedGauge, Engaged, EngagedData } from "../../generated/Beanstalk-ABIs/PintoPI12";
 import {
   engagedConvertDownPenalty,
   engagedConvertUpBonus,

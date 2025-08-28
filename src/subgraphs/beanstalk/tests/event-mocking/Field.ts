@@ -1,5 +1,5 @@
 import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
-import { Sow, PlotTransfer, Harvest, TemperatureChange } from "../../generated/Beanstalk-ABIs/PintoPI8";
+import { Sow, PlotTransfer, Harvest, TemperatureChange } from "../../generated/Beanstalk-ABIs/PintoPI12";
 import { mockBeanstalkEvent } from "../../../../core/tests/event-mocking/Util";
 import { ZERO_BI } from "../../../../core/utils/Decimals";
 

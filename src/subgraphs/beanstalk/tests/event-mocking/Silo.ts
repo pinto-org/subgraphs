@@ -11,7 +11,7 @@ import {
   RemoveDeposit,
   ConvertDownPenalty,
   StalkBalanceChanged
-} from "../../generated/Beanstalk-ABIs/PintoPI8";
+} from "../../generated/Beanstalk-ABIs/PintoPI12";
 import { v } from "../../src/utils/constants/Version";
 export function createAddDepositV2Event(
   account: string,

@@ -22,8 +22,9 @@ import {
   UpdatedStalkPerBdvPerSeason,
   UpdateWhitelistStatus,
   ClaimPlenty,
-  ConvertDownPenalty
-} from "../../generated/Beanstalk-ABIs/PintoPI8";
+  ConvertDownPenalty,
+  ConvertUpBonus
+} from "../../generated/Beanstalk-ABIs/PintoPI12";
 import { beanDecimals, getProtocolToken, stalkDecimals } from "../../../../core/constants/RuntimeConstants";
 import { v } from "../utils/constants/Version";
 import { BI_10 } from "../../../../core/utils/Decimals";
@@ -185,5 +186,5 @@ export function handleConvertDownPenalty(event: ConvertDownPenalty): void {
 }
 
 export function handleConvertUpBonus(event: ConvertUpBonus): void {
-  //
+  // TODO(pp)
 }
