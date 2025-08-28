@@ -117,8 +117,6 @@ dataSources:
       eventHandlers:
         - event: Sunrise(indexed uint256)
           handler: handleBeanstalkSunrise
-        - event: Convert(indexed address,address,address,uint256,uint256)
-          handler: handleConvert
         - event: DewhitelistToken(indexed address)
           handler: handleDewhitelistToken
         # New signature in PI-12
