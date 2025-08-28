@@ -1,13 +1,15 @@
 import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import { mockBeanstalkEvent } from "../../../../core/tests/event-mocking/Util";
-import { Convert, DewhitelistToken } from "../../generated/Basin-ABIs/PintoLaunch";
+import { Convert, DewhitelistToken } from "../../generated/Basin-ABIs/PintoPI12";
 
 export function createConvertEvent(
   account: Address,
   fromToken: Address,
   toToken: Address,
   fromAmount: BigInt,
-  toAmount: BigInt
+  toAmount: BigInt,
+  fromBdv: BigInt,
+  toBdv: BigInt
 ): Convert {
   let event = changetype<Convert>(mockBeanstalkEvent());
   event.parameters = new Array();
@@ -17,12 +19,16 @@ export function createConvertEvent(
   let param3 = new ethereum.EventParam("toToken", ethereum.Value.fromAddress(toToken));
   let param4 = new ethereum.EventParam("fromAmount", ethereum.Value.fromUnsignedBigInt(fromAmount));
   let param5 = new ethereum.EventParam("toAmount", ethereum.Value.fromUnsignedBigInt(toAmount));
+  let param6 = new ethereum.EventParam("fromBdv", ethereum.Value.fromUnsignedBigInt(fromBdv));
+  let param7 = new ethereum.EventParam("toBdv", ethereum.Value.fromUnsignedBigInt(toBdv));
 
   event.parameters.push(param1);
   event.parameters.push(param2);
   event.parameters.push(param3);
   event.parameters.push(param4);
   event.parameters.push(param5);
+  event.parameters.push(param6);
+  event.parameters.push(param7);
 
   return event as Convert;
 }

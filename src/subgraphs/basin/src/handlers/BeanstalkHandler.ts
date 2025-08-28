@@ -1,4 +1,4 @@
-import { Convert, DewhitelistToken, Sunrise } from "../../generated/Basin-ABIs/PintoLaunch";
+import { Convert, DewhitelistToken, Sunrise } from "../../generated/Basin-ABIs/PintoPI12";
 import { toAddress } from "../../../../core/utils/Bytes";
 import { v } from "../utils/constants/Version";
 import { getWhitelistedWells } from "../../../../core/constants/RuntimeConstants";
@@ -34,7 +34,9 @@ export function handleConvert(event: Convert): void {
     fromToken: event.params.fromToken,
     toToken: event.params.toToken,
     fromAmount: event.params.fromAmount,
-    toAmount: event.params.toAmount
+    toAmount: event.params.toAmount,
+    fromBdv: event.params.fromBdv,
+    toBdv: event.params.toBdv
   });
 }
 
