@@ -21,11 +21,20 @@ export function loadGaugesInfo(): GaugesInfo {
   return genGauge;
 }
 
-export function initCultivationFactor(initial: AddedGaugeGaugeStruct, block: ethereum.Block): void {
-  const genGauge = loadGaugesInfo();
-  genGauge.g0IsActive = true;
-  genGauge.save();
-  engagedCultivationFactor(initial.value, block);
+export function engaged(gaugeId: i32, value: Bytes, block: ethereum.Block): void {
+  if (gaugeId == 0) {
+    engagedCultivationFactor(value, block);
+  } else if (gaugeId == 1) {
+    engagedConvertDownPenalty(value, block);
+  } else if (gaugeId == 2) {
+    engagedConvertUpBonus(value, block);
+  }
+}
+
+export function engagedData(gaugeId: i32, data: Bytes, block: ethereum.Block): void {
+  if (gaugeId == 2) {
+    engagedDataConvertUpBonus(data, block);
+  }
 }
 
 export function engagedCultivationFactor(value: Bytes, block: ethereum.Block): void {
@@ -38,13 +47,6 @@ export function engagedCultivationFactor(value: Bytes, block: ethereum.Block): v
   setCultivationFactor(genGauge.g0CultivationFactor!, block);
 }
 
-export function initConvertDownPenalty(initial: AddedGaugeGaugeStruct, block: ethereum.Block): void {
-  const genGauge = loadGaugesInfo();
-  genGauge.g1IsActive = true;
-  genGauge.save();
-  engagedConvertDownPenalty(initial.value, block);
-}
-
 export function engagedConvertDownPenalty(value: Bytes, block: ethereum.Block): void {
   const genGauge = loadGaugesInfo();
   const decoded = ethereum.decode("(uint256, uint256)", value)!.toTuple();
@@ -53,14 +55,6 @@ export function engagedConvertDownPenalty(value: Bytes, block: ethereum.Block): 
   genGauge.save();
   // Legacy gauge value location
   setConvertDownPenalty(genGauge.g1ConvertDownPenalty!, block);
-}
-
-export function initConvertUpBonus(initial: AddedGaugeGaugeStruct, block: ethereum.Block): void {
-  const genGauge = loadGaugesInfo();
-  genGauge.g2IsActive = true;
-  genGauge.save();
-  engagedConvertUpBonus(initial.value, block);
-  engagedDataConvertUpBonus(initial.data, block);
 }
 
 export function engagedConvertUpBonus(value: Bytes, block: ethereum.Block): void {
