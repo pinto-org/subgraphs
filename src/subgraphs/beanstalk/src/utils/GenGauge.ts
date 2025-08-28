@@ -35,7 +35,7 @@ export function engagedCultivationFactor(value: Bytes, block: ethereum.Block): v
   takeGaugesInfoSnapshots(genGauge, block);
   genGauge.save();
   // Legacy gauge value location
-  setCultivationFactor(genGauge.g0CultivationFactor, block);
+  setCultivationFactor(genGauge.g0CultivationFactor!, block);
 }
 
 export function initConvertDownPenalty(initial: AddedGaugeGaugeStruct, block: ethereum.Block): void {
@@ -52,7 +52,7 @@ export function engagedConvertDownPenalty(value: Bytes, block: ethereum.Block): 
   takeGaugesInfoSnapshots(genGauge, block);
   genGauge.save();
   // Legacy gauge value location
-  setConvertDownPenalty(genGauge.g1ConvertDownPenalty, block);
+  setConvertDownPenalty(genGauge.g1ConvertDownPenalty!, block);
 }
 
 export function initConvertUpBonus(initial: AddedGaugeGaugeStruct, block: ethereum.Block): void {
