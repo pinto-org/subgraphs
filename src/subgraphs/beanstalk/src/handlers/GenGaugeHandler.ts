@@ -30,7 +30,7 @@ export function handleEngaged(event: Engaged): void {
     engagedConvertUpBonus(event.params.value, event.block);
   }
 }
-
+// An active gauge's data was updated
 export function handleEngagedData(event: EngagedData): void {
   if (event.params.gaugeId == 2) {
     engagedDataConvertUpBonus(event.params.data, event.block);

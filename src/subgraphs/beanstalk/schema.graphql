@@ -1995,3 +1995,92 @@ type UnripeTokenDailySnapshot @entity {
   "Timestamp of last entity update"
   updatedAt: BigInt!
 }
+
+# Intention of this entity is to store info relevant to various (multiple) gauges.
+# Gauge 0 and 1 are already on the silo/field entity directly, however continuing this pattern
+# will quickly bloat those schemas. Therefore it is preferable to put all of the info here.
+# Ultimately, the intention is to remove those values from the silo/field entities, but in practice it may not happen.
+type GaugesInfo @entity {
+  "'gauges'"
+  id: ID!
+
+  "Cultivation Factor, in percent (i.e. 20.5 = 20.5% cultivation factor)"
+  g0CultivationFactor: BigDecimal
+
+  "Convert down penalty ratio"
+  g1ConvertDownPenalty: BigDecimal
+
+  "Convert Up Bonus current bonus stalk per bdv"
+  g2BonusStalkPerBdv: BigInt
+  "Convert Up Bonus seasonal max convert capacity (in bdv) that is eligible for a bonus"
+  g2MaxConvertCapacity: BigInt
+  "Convert Up Bonus bdv converted this season"
+  g2BdvConvertedThisSeason: BigInt
+  "Convert Up Bonus max recorded negative twaDeltaB while the bonus was active"
+  g2MaxTwaDeltaB: BigInt
+
+  "Season when the previous hourly snapshot was taken/updated"
+  lastHourlySnapshotSeason: Int
+  "Day of when the previous daily snapshot was taken/updated"
+  lastDailySnapshotDay: BigInt
+  "Link to hourly snapshot data"
+  hourlySnapshots: [GaugesInfoHourlySnapshot!]! @derivedFrom(field: "gaugesInfo")
+  "Link to daily snapshot data"
+  dailySnapshots: [GaugesInfoDailySnapshot!]! @derivedFrom(field: "gaugesInfo")
+}
+
+type GaugesInfoHourlySnapshot @entity {
+  "Gauge ID - Season"
+  id: ID!
+  "Season for the snapshot"
+  season: Int!
+  "Unripe token associated with this snapshot"
+  gaugesInfo: GaugesInfo!
+
+  g0CultivationFactor: BigDecimal
+  g1ConvertDownPenalty: BigDecimal
+  g2BonusStalkPerBdv: BigInt
+  g2MaxConvertCapacity: BigInt
+  g2BdvConvertedThisSeason: BigInt
+  g2MaxTwaDeltaB: BigInt
+
+  deltaG0CultivationFactor: BigDecimal
+  deltaG1ConvertDownPenalty: BigDecimal
+  deltaG2BonusStalkPerBdv: BigInt
+  deltaG2MaxConvertCapacity: BigInt
+  deltaG2BdvConvertedThisSeason: BigInt
+  deltaG2MaxTwaDeltaB: BigInt
+
+  "Timestamp of initial snapshot creation"
+  createdAt: BigInt!
+  "Timestamp of last entity update"
+  updatedAt: BigInt!
+}
+
+type GaugesInfoDailySnapshot @entity {
+  "Gauge ID - Day"
+  id: ID!
+  "Season for the snapshot"
+  season: Int!
+  "Unripe token associated with this snapshot"
+  gaugesInfo: GaugesInfo!
+
+  g0CultivationFactor: BigDecimal
+  g1ConvertDownPenalty: BigDecimal
+  g2BonusStalkPerBdv: BigInt
+  g2MaxConvertCapacity: BigInt
+  g2BdvConvertedThisSeason: BigInt
+  g2MaxTwaDeltaB: BigInt
+
+  deltaG0CultivationFactor: BigDecimal
+  deltaG1ConvertDownPenalty: BigDecimal
+  deltaG2BonusStalkPerBdv: BigInt
+  deltaG2MaxConvertCapacity: BigInt
+  deltaG2BdvConvertedThisSeason: BigInt
+  deltaG2MaxTwaDeltaB: BigInt
+
+  "Timestamp of initial snapshot creation"
+  createdAt: BigInt!
+  "Timestamp of last entity update"
+  updatedAt: BigInt!
+}
