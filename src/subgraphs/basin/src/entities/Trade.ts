@@ -4,8 +4,8 @@ import { loadWell } from "./Well";
 import { EventVolume, SwapInfo } from "../utils/Volume";
 import { ConvertCandidate, Trade } from "../../generated/schema";
 
-// Avoid saving Trade entities with transfer volume less than this amount.
-// Transfer vol is used instead of trade volume, because balances LP adds wont be trading volume.
+// Avoid saving swap Trade entities with volume less than this amount.
+// LP events are always saved since they are needed for Convert tracking.
 const TRADE_USD_MIN = BigDecimal.fromString("100.0");
 
 export function getLiquidityEntityId(
@@ -36,10 +36,6 @@ export function recordLiquidityEvent(
   initialRates: BigDecimal[],
   volume: EventVolume
 ): void {
-  if (volume.transferVolumeUSD < TRADE_USD_MIN) {
-    return;
-  }
-
   const tradeType = deltaLpTokens >= ZERO_BI ? "ADD_LIQUIDITY" : "REMOVE_LIQUIDITY";
   const trade = new Trade(getLiquidityEntityId(tradeType, event, deltaLpTokens.abs()));
   const well = loadWell(event.address);
@@ -86,7 +82,7 @@ export function recordSwapEvent(
   initialRates: BigDecimal[],
   volume: EventVolume
 ): void {
-  if (volume.transferVolumeUSD < TRADE_USD_MIN) {
+  if (volume.tradeVolumeUSD < TRADE_USD_MIN) {
     return;
   }
 
