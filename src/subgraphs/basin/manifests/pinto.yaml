@@ -133,7 +133,7 @@ dataSources:
       endBlock: 999999999 # PI-12 Deployment (TODO: enter actual value once known)
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.6
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - Silo
