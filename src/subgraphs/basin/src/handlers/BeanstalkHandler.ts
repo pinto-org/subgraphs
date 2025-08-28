@@ -41,6 +41,12 @@ export function handleConvert(event: Convert): void {
 }
 
 export function handleDewhitelistToken(event: DewhitelistToken): void {
+  // In practice, it was decided to be preferable for all tracking to continue for dewhitelisted wells.
+  // Volume/Liquidity etc continues to be reported for dewhitelisted Beanstalk wells.
+  if (1 === 1) {
+    return;
+  }
+
   const well = loadWell(event.params.token);
   if (well) {
     well.isBeanstalk = false;

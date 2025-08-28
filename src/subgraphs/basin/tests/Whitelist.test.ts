@@ -18,6 +18,8 @@ describe("Whitelisting", () => {
   test("Dewhitelist", () => {
     assert.fieldEquals("Well", WELL.toHexString(), "isBeanstalk", "true");
     handleDewhitelistToken(createDewhitelistTokenEvent(WELL));
-    assert.fieldEquals("Well", WELL.toHexString(), "isBeanstalk", "false");
+    // In practice, it was decided to be preferable for all tracking to continue for dewhitelisted wells.
+    // Therefore the isBeanstalk flag does not get flipped.
+    assert.fieldEquals("Well", WELL.toHexString(), "isBeanstalk", "true");
   });
 });
