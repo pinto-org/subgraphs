@@ -41,6 +41,7 @@ export function takeWhitelistTokenSettingSnapshots(
   hourly.selector = whitelistTokenSetting.selector;
   hourly.stalkEarnedPerSeason = whitelistTokenSetting.stalkEarnedPerSeason;
   hourly.stalkIssuedPerBdv = whitelistTokenSetting.stalkIssuedPerBdv;
+  hourly.stemTip = whitelistTokenSetting.stemTip;
   hourly.milestoneSeason = whitelistTokenSetting.milestoneSeason;
   hourly.isGaugeEnabled = whitelistTokenSetting.isGaugeEnabled;
   hourly.gaugePoints = whitelistTokenSetting.gaugePoints;
@@ -50,6 +51,7 @@ export function takeWhitelistTokenSettingSnapshots(
   if (baseHourly !== null) {
     hourly.deltaStalkEarnedPerSeason = hourly.stalkEarnedPerSeason.minus(baseHourly.stalkEarnedPerSeason);
     hourly.deltaStalkIssuedPerBdv = hourly.stalkIssuedPerBdv.minus(baseHourly.stalkIssuedPerBdv);
+    hourly.deltaStemTip = hourly.stemTip.minus(baseHourly.stemTip);
     hourly.deltaMilestoneSeason = hourly.milestoneSeason - baseHourly.milestoneSeason;
     hourly.deltaIsGaugeEnabled = hourly.isGaugeEnabled != baseHourly.isGaugeEnabled;
     if (hourly.gaugePoints !== null) {
@@ -73,6 +75,7 @@ export function takeWhitelistTokenSettingSnapshots(
       // Add existing deltas
       hourly.deltaStalkEarnedPerSeason = hourly.deltaStalkEarnedPerSeason.plus(baseHourly.deltaStalkEarnedPerSeason);
       hourly.deltaStalkIssuedPerBdv = hourly.deltaStalkIssuedPerBdv.plus(baseHourly.deltaStalkIssuedPerBdv);
+      hourly.deltaStemTip = hourly.deltaStemTip.plus(baseHourly.deltaStemTip);
       hourly.deltaMilestoneSeason = hourly.deltaMilestoneSeason + baseHourly.deltaMilestoneSeason;
       hourly.deltaIsGaugeEnabled = hourly.deltaIsGaugeEnabled != baseHourly.deltaIsGaugeEnabled;
       if (hourly.deltaGaugePoints !== null && baseHourly.deltaGaugePoints !== null) {
@@ -87,6 +90,7 @@ export function takeWhitelistTokenSettingSnapshots(
   } else {
     hourly.deltaStalkEarnedPerSeason = hourly.stalkEarnedPerSeason;
     hourly.deltaStalkIssuedPerBdv = hourly.stalkIssuedPerBdv;
+    hourly.deltaStemTip = hourly.stemTip;
     hourly.deltaMilestoneSeason = hourly.milestoneSeason;
     hourly.deltaIsGaugeEnabled = hourly.isGaugeEnabled;
     hourly.deltaGaugePoints = hourly.gaugePoints;
@@ -104,6 +108,7 @@ export function takeWhitelistTokenSettingSnapshots(
   daily.selector = whitelistTokenSetting.selector;
   daily.stalkEarnedPerSeason = whitelistTokenSetting.stalkEarnedPerSeason;
   daily.stalkIssuedPerBdv = whitelistTokenSetting.stalkIssuedPerBdv;
+  daily.stemTip = whitelistTokenSetting.stemTip;
   daily.milestoneSeason = whitelistTokenSetting.milestoneSeason;
   daily.isGaugeEnabled = whitelistTokenSetting.isGaugeEnabled;
   daily.gaugePoints = whitelistTokenSetting.gaugePoints;
@@ -111,6 +116,7 @@ export function takeWhitelistTokenSettingSnapshots(
   if (baseDaily !== null) {
     daily.deltaStalkEarnedPerSeason = daily.stalkEarnedPerSeason.minus(baseDaily.stalkEarnedPerSeason);
     daily.deltaStalkIssuedPerBdv = daily.stalkIssuedPerBdv.minus(baseDaily.stalkIssuedPerBdv);
+    daily.deltaStemTip = daily.stemTip.minus(baseDaily.stemTip);
     daily.deltaMilestoneSeason = daily.milestoneSeason - baseDaily.milestoneSeason;
     daily.deltaIsGaugeEnabled = daily.isGaugeEnabled != baseDaily.isGaugeEnabled;
     if (daily.gaugePoints !== null) {
@@ -134,6 +140,7 @@ export function takeWhitelistTokenSettingSnapshots(
       // Add existing deltas
       daily.deltaStalkEarnedPerSeason = daily.deltaStalkEarnedPerSeason.plus(baseDaily.deltaStalkEarnedPerSeason);
       daily.deltaStalkIssuedPerBdv = daily.deltaStalkIssuedPerBdv.plus(baseDaily.deltaStalkIssuedPerBdv);
+      daily.deltaStemTip = daily.deltaStemTip.plus(baseDaily.deltaStemTip);
       daily.deltaMilestoneSeason = daily.deltaMilestoneSeason + baseDaily.deltaMilestoneSeason;
       daily.deltaIsGaugeEnabled = daily.deltaIsGaugeEnabled != baseDaily.deltaIsGaugeEnabled;
       if (daily.deltaGaugePoints !== null && baseDaily.deltaGaugePoints !== null) {
@@ -148,6 +155,7 @@ export function takeWhitelistTokenSettingSnapshots(
   } else {
     daily.deltaStalkEarnedPerSeason = daily.stalkEarnedPerSeason;
     daily.deltaStalkIssuedPerBdv = daily.stalkIssuedPerBdv;
+    daily.deltaStemTip = daily.stemTip;
     daily.deltaMilestoneSeason = daily.milestoneSeason;
     daily.deltaIsGaugeEnabled = daily.isGaugeEnabled;
     daily.deltaGaugePoints = daily.gaugePoints;

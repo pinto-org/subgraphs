@@ -568,6 +568,8 @@ type WhitelistTokenSetting @entity {
   stalkEarnedPerSeason: BigInt!
   "The stalk per BDV that the silo grants in exchange for depositing this token."
   stalkIssuedPerBdv: BigInt!
+  "The stem tip of the whitelisted token. Used to derive cumulative Stalk growth. "
+  stemTip: BigInt!
   "The last season in which the stalkEarnedPerSeason for this token was updated."
   milestoneSeason: Int!
   "Whether the seed gauge is enabled on this whitelisted token"
@@ -605,6 +607,8 @@ type WhitelistTokenHourlySnapshot @entity {
   stalkEarnedPerSeason: BigInt!
   "The stalk per BDV that the silo grants in exchange for depositing this token."
   stalkIssuedPerBdv: BigInt!
+  "The stem tip of the whitelisted token. Used to derive cumulative Stalk growth. "
+  stemTip: BigInt!
   "The last season in which the stalkEarnedPerSeason for this token was updated."
   milestoneSeason: Int!
   "Whether the seed gauge is enabled on this whitelisted token"
@@ -616,6 +620,7 @@ type WhitelistTokenHourlySnapshot @entity {
 
   deltaStalkEarnedPerSeason: BigInt!
   deltaStalkIssuedPerBdv: BigInt!
+  deltaStemTip: BigInt!
   deltaMilestoneSeason: Int!
   deltaIsGaugeEnabled: Boolean!
   deltaGaugePoints: BigInt
@@ -645,6 +650,8 @@ type WhitelistTokenDailySnapshot @entity {
   stalkEarnedPerSeason: BigInt!
   "The stalk per BDV that the silo grants in exchange for depositing this token."
   stalkIssuedPerBdv: BigInt!
+  "The stem tip of the whitelisted token. Used to derive cumulative Stalk growth. "
+  stemTip: BigInt!
   "The last season in which the stalkEarnedPerSeason for this token was updated."
   milestoneSeason: Int!
   "Whether the seed gauge is enabled on this whitelisted token"
@@ -656,6 +663,7 @@ type WhitelistTokenDailySnapshot @entity {
 
   deltaStalkEarnedPerSeason: BigInt!
   deltaStalkIssuedPerBdv: BigInt!
+  deltaStemTip: BigInt!
   deltaMilestoneSeason: Int!
   deltaIsGaugeEnabled: Boolean!
   deltaGaugePoints: BigInt

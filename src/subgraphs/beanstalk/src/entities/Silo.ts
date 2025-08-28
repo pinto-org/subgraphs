@@ -84,6 +84,7 @@ export function loadWhitelistTokenSetting(token: Address): WhitelistTokenSetting
     setting.selector = Bytes.empty();
     setting.stalkEarnedPerSeason = ZERO_BI;
     setting.stalkIssuedPerBdv = ZERO_BI;
+    setting.stemTip = ZERO_BI;
     setting.milestoneSeason = 0;
     setting.isGaugeEnabled = false;
     setting.decimals = getTokenDecimals(v(), token);
