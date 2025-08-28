@@ -132,6 +132,12 @@ type Silo @entity {
   unpenalizedStalkConvertDown: BigInt!
   "Average convert down penalty that has been assessed, in percent"
   avgConvertDownPenalty: BigDecimal!
+  "Total grown stalk gained via the Convert Up Bonus"
+  bonusStalkConvertUp: BigInt!
+  "Total BDV converted up that was awarded the bonus"
+  totalBdvConvertUpBonus: BigInt!
+  "Total BDV converted up regardless of receiving a bonus. (!) This value accumulates only when the Convert Up Bonus (gauge id 2) is active."
+  totalBdvConvertUp: BigInt!
 
   "(protocol) Tokens whitelisted for deposit within the silo"
   whitelistedTokens: [Bytes!]!
@@ -190,6 +196,12 @@ type SiloHourlySnapshot @entity {
   unpenalizedStalkConvertDown: BigInt!
   "Average convert down penalty that has been assessed, in percent. 20.5 = 20.5%"
   avgConvertDownPenalty: BigDecimal!
+  "Point in time total grown stalk gained via the Convert Up Bonus"
+  bonusStalkConvertUp: BigInt!
+  "Point in time total BDV converted up that was awarded the bonus"
+  totalBdvConvertUpBonus: BigInt!
+  "Point in time total BDV converted up regardless of receiving a bonus. (!) This value accumulates only when the Convert Up Bonus (gauge id 2) is active."
+  totalBdvConvertUp: BigInt!
 
   "Point in time cumulative total for bean mints sent to the silo"
   beanMints: BigInt!
@@ -214,6 +226,9 @@ type SiloHourlySnapshot @entity {
   deltaPenalizedStalkConvertDown: BigInt!
   deltaUnpenalizedStalkConvertDown: BigInt!
   deltaAvgConvertDownPenalty: BigDecimal!
+  deltaBonusStalkConvertUp: BigInt!
+  deltaTotalBdvConvertUpBonus: BigInt!
+  deltaTotalBdvConvertUp: BigInt!
   deltaBeanMints: BigInt!
   deltaPlantableStalk: BigInt!
   deltaBeanToMaxLpGpPerBdvRatio: BigInt!
@@ -255,6 +270,12 @@ type SiloDailySnapshot @entity {
   unpenalizedStalkConvertDown: BigInt!
   "Average convert down penalty that has been assessed, in percent. 20.5 = 20.5%"
   avgConvertDownPenalty: BigDecimal!
+  "Point in time total grown stalk gained via the Convert Up Bonus"
+  bonusStalkConvertUp: BigInt!
+  "Point in time total BDV converted up that was awarded the bonus"
+  totalBdvConvertUpBonus: BigInt!
+  "Point in time total BDV converted up regardless of receiving a bonus. (!) This value accumulates only when the Convert Up Bonus (gauge id 2) is active."
+  totalBdvConvertUp: BigInt!
 
   "Point in time cumulative total for bean mints sent to the silo"
   beanMints: BigInt!
@@ -279,6 +300,9 @@ type SiloDailySnapshot @entity {
   deltaPenalizedStalkConvertDown: BigInt!
   deltaUnpenalizedStalkConvertDown: BigInt!
   deltaAvgConvertDownPenalty: BigDecimal!
+  deltaBonusStalkConvertUp: BigInt!
+  deltaTotalBdvConvertUpBonus: BigInt!
+  deltaTotalBdvConvertUp: BigInt!
   deltaBeanMints: BigInt!
   deltaPlantableStalk: BigInt!
   deltaBeanToMaxLpGpPerBdvRatio: BigInt!

@@ -186,5 +186,5 @@ export function handleConvertDownPenalty(event: ConvertDownPenalty): void {
 }
 
 export function handleConvertUpBonus(event: ConvertUpBonus): void {
-  // TODO(pp)
+  // TODO
 }

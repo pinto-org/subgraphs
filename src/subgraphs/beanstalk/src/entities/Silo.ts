@@ -34,6 +34,9 @@ export function loadSilo(account: Address): Silo {
     silo.penalizedStalkConvertDown = ZERO_BI;
     silo.unpenalizedStalkConvertDown = ZERO_BI;
     silo.avgConvertDownPenalty = ZERO_BD;
+    silo.bonusStalkConvertUp = ZERO_BI;
+    silo.totalBdvConvertUpBonus = ZERO_BI;
+    silo.totalBdvConvertUp = ZERO_BI;
 
     silo.whitelistedTokens = [];
     silo.dewhitelistedTokens = [];
