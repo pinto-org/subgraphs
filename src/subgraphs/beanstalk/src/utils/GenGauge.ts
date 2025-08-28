@@ -42,3 +42,15 @@ function setConvertDownPenalty(value: BigDecimal, block: ethereum.Block): void {
   takeSiloSnapshots(silo, block);
   silo.save();
 }
+
+export function initConvertUpBonus(initial: AddedGaugeGaugeStruct, block: ethereum.Block) {
+  //
+}
+
+export function engagedConvertUpBonus(value: Bytes, block: ethereum.Block) {
+  //
+}
+
+export function engagedDataConvertUpBonus(data: ?, block: ethereum.Block) {
+  //
+}

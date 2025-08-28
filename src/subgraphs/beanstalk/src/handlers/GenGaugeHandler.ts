@@ -1,8 +1,11 @@
 import { AddedGauge, Engaged } from "../../generated/Beanstalk-ABIs/PintoPI8";
 import {
   engagedConvertDownPenalty,
+  engagedConvertUpBonus,
   engagedCultivationFactor,
+  engagedDataConvertUpBonus,
   initConvertDownPenalty,
+  initConvertUpBonus,
   initCultivationFactor
 } from "../utils/GenGauge";
 
@@ -12,6 +15,8 @@ export function handleAddedGauge(event: AddedGauge): void {
     initCultivationFactor(event.params.gauge, event.block);
   } else if (event.params.gaugeId == 1) {
     initConvertDownPenalty(event.params.gauge, event.block);
+  } else if (event.params.gaugeId == 2) {
+    initConvertUpBonus(event.params.gauge, event.block);
   }
 }
 
@@ -21,5 +26,13 @@ export function handleEngaged(event: Engaged): void {
     engagedCultivationFactor(event.params.value, event.block);
   } else if (event.params.gaugeId == 1) {
     engagedConvertDownPenalty(event.params.value, event.block);
+  } else if (event.params.gaugeId == 2) {
+    engagedConvertUpBonus(event.params.value, event.block);
+  }
+}
+
+export function handleEngagedData(event: EngagedData): void {
+  if (event.params.gaugeId == 2) {
+    engagedDataConvertUpBonus(event.params.data, event.block);
   }
 }

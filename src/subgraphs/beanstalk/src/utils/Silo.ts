@@ -5,9 +5,10 @@ import { takeSiloAssetSnapshots } from "../entities/snapshots/SiloAsset";
 import { BI_10, ZERO_BI } from "../../../../core/utils/Decimals";
 import { loadBeanstalk, loadFarmer } from "../entities/Beanstalk";
 import { stemFromSeason } from "./legacy/LegacySilo";
-import { beanDecimals, isGaugeDeployed } from "../../../../core/constants/RuntimeConstants";
+import { beanDecimals, isGaugeDeployed, isUnripe } from "../../../../core/constants/RuntimeConstants";
 import { v } from "./constants/Version";
 import { takeWhitelistTokenSettingSnapshots } from "../entities/snapshots/WhitelistTokenSetting";
+import { unripeChopped } from "./Barn";
 
 class AddRemoveDepositsParams {
   event: ethereum.Event;
@@ -28,6 +29,15 @@ class WhitelistTokenParams {
   gaugePoints: BigInt;
   optimalPercentDepositedBdv: BigInt;
   block: ethereum.Block;
+}
+
+class ConvertParams {
+  event: ethereum.Event;
+  account: Address;
+  fromToken: Address;
+  toToken: Address;
+  fromAmount: BigInt;
+  toAmount: BigInt;
 }
 
 export function addDeposits(params: AddRemoveDepositsParams): void {
@@ -225,6 +235,19 @@ export function setWhitelistTokenSettings(params: WhitelistTokenParams, forceEna
 
   takeWhitelistTokenSettingSnapshots(siloSettings, params.block);
   siloSettings.save();
+}
+
+export function convert(params: ConvertParams): void {
+  if (isUnripe(v(), params.fromToken) && !isUnripe(v(), params.toToken)) {
+    unripeChopped({
+      event: params.event,
+      type: "convert",
+      account: params.account,
+      unripeToken: params.fromToken,
+      unripeAmount: params.fromAmount,
+      underlyingAmount: params.toAmount
+    });
+  }
 }
 
 export function applyConvertDownPenalty(

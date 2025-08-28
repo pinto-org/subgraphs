@@ -81,7 +81,7 @@ dataSources:
     network: base
     source:
       address: "0xD1A0D188E861ed9d15773a2F3574a2e94134bA8f"
-      abi: PintoPI8
+      abi: PintoPI12
       startBlock: 22622961 # Pintostalk Deployment
     mapping:
       kind: ethereum/events
@@ -90,8 +90,8 @@ dataSources:
       entities:
         - Silo
       abis:
-        - name: PintoPI8
-          file: ../../../core/abis/Beanstalk/Pinto-PI8.json
+        - name: PintoPI12
+          file: ../../../core/abis/Beanstalk/Pinto-PI12.json
       eventHandlers:
         - event: AddDeposit(indexed address,indexed address,int96,uint256,uint256)
           handler: handleAddDeposit
@@ -99,8 +99,6 @@ dataSources:
           handler: handleRemoveDeposit
         - event: RemoveDeposits(indexed address,indexed address,int96[],uint256[],uint256,uint256[])
           handler: handleRemoveDeposits
-        - event: Convert(indexed address,address,address,uint256,uint256)
-          handler: handleConvert
         - event: StalkBalanceChanged(indexed address,int256,int256)
           handler: handleStalkBalanceChanged
         - event: Plant(indexed address,uint256)
@@ -115,8 +113,53 @@ dataSources:
           handler: handleUpdatedStalkPerBdvPerSeason
         - event: ClaimPlenty(indexed address,address,uint256)
           handler: handleClaimPlenty
+        # Introduced in PI-9
         - event: ConvertDownPenalty(address,uint256,uint256)
           handler: handleConvertDownPenalty
+        # Introduced in PI-12
+        - event: ConvertUpBonus(address,uint256,uint256,uint256,uint256)
+          handler: handleConvertUpBonus
+      file: ../src/handlers/SiloHandler.ts
+  - kind: ethereum/contract
+    name: LegacySilo-PintoLaunch-PintoPI12
+    network: base
+    source:
+      address: "0xD1A0D188E861ed9d15773a2F3574a2e94134bA8f"
+      abi: PintoLaunch
+      startBlock: 22622961 # Pintostalk Deployment
+      endBlock: 999999999 # PI-12 Deployment (TODO once known)
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Silo
+      abis:
+        - name: PintoLaunch
+          file: ../../../core/abis/Beanstalk/Pinto-Launch.json
+      eventHandlers:
+        - event: Convert(indexed address,address,address,uint256,uint256)
+          handler: handleConvert
+      file: ../src/handlers/legacy/LegacySiloHandler.ts
+  - kind: ethereum/contract
+    name: Silo-PintoPI12-
+    network: base
+    source:
+      address: "0xD1A0D188E861ed9d15773a2F3574a2e94134bA8f"
+      abi: PintoPI12
+      startBlock: 22622961 # PI-12 Deployment (TODO once known)
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Silo
+      abis:
+        - name: PintoPI12
+          file: ../../../core/abis/Beanstalk/Pinto-PI12.json
+      eventHandlers:
+        - event: Convert(indexed address,address,address,uint256,uint256,uint256,uint256)
+          handler: handleConvert
       file: ../src/handlers/SiloHandler.ts
   ###
   # SEED GAUGE
@@ -126,7 +169,7 @@ dataSources:
     network: base
     source:
       address: "0xD1A0D188E861ed9d15773a2F3574a2e94134bA8f"
-      abi: PintoPI8
+      abi: PintoPI12
       startBlock: 22622961 # Pintostalk Deployment
     mapping:
       kind: ethereum/events
@@ -135,8 +178,8 @@ dataSources:
       entities:
         - SeedGauge
       abis:
-        - name: PintoPI8
-          file: ../../../core/abis/Beanstalk/Pinto-PI8.json
+        - name: PintoPI12
+          file: ../../../core/abis/Beanstalk/Pinto-PI12.json
         - name: BeanstalkPrice
           file: ../../../core/abis/PintostalkPrice.json
       eventHandlers:
@@ -165,7 +208,7 @@ dataSources:
     network: base
     source:
       address: "0xD1A0D188E861ed9d15773a2F3574a2e94134bA8f"
-      abi: PintoPI8
+      abi: PintoPI12
       startBlock: 22622961 # Pintostalk Deployment
     mapping:
       kind: ethereum/events
@@ -174,8 +217,8 @@ dataSources:
       entities:
         - Field
       abis:
-        - name: PintoPI8
-          file: ../../../core/abis/Beanstalk/Pinto-PI8.json
+        - name: PintoPI12
+          file: ../../../core/abis/Beanstalk/Pinto-PI12.json
         - name: BeanstalkPrice
           file: ../../../core/abis/PintostalkPrice.json
       eventHandlers:
@@ -219,7 +262,7 @@ dataSources:
     network: base
     source:
       address: "0xD1A0D188E861ed9d15773a2F3574a2e94134bA8f"
-      abi: PintoPI8
+      abi: PintoPI12
       startBlock: 22622961 # Pintostalk Deployment
     mapping:
       kind: ethereum/events
@@ -228,8 +271,8 @@ dataSources:
       entities:
         - PodMarketplace
       abis:
-        - name: PintoPI8
-          file: ../../../core/abis/Beanstalk/Pinto-PI8.json
+        - name: PintoPI12
+          file: ../../../core/abis/Beanstalk/Pinto-PI12.json
       eventHandlers:
         - event: PodListingCreated(indexed address,uint256,uint256,uint256,uint256,uint24,uint256,uint256,uint8)
           handler: handlePodListingCreated
@@ -252,7 +295,7 @@ dataSources:
     network: base
     source:
       address: "0xD1A0D188E861ed9d15773a2F3574a2e94134bA8f"
-      abi: PintoPI8
+      abi: PintoPI12
       startBlock: 22622961 # Pintostalk Deployment
     mapping:
       kind: ethereum/events
@@ -261,8 +304,8 @@ dataSources:
       entities:
         - Season
       abis:
-        - name: PintoPI8
-          file: ../../../core/abis/Beanstalk/Pinto-PI8.json
+        - name: PintoPI12
+          file: ../../../core/abis/Beanstalk/Pinto-PI12.json
         - name: BeanstalkPrice
           file: ../../../core/abis/PintostalkPrice.json
         - name: WrappedSiloERC20
@@ -316,7 +359,7 @@ dataSources:
     network: base
     source:
       address: "0xD1A0D188E861ed9d15773a2F3574a2e94134bA8f"
-      abi: PintoPI8
+      abi: PintoPI12
       startBlock: 27514420 # PI-6 Deployment
     mapping:
       kind: ethereum/events
@@ -325,11 +368,16 @@ dataSources:
       entities:
         - GenGauge
       abis:
-        - name: PintoPI8
-          file: ../../../core/abis/Beanstalk/Pinto-PI8.json
+        - name: PintoPI12
+          file: ../../../core/abis/Beanstalk/Pinto-PI12.json
       eventHandlers:
+        - event: AddedGauge(uint8,(bytes,address,bytes4,bytes))
+          handler: handleAddedGauge
         - event: Engaged(uint8,bytes)
           handler: handleEngaged
+        # Introduced in PI-9
+        - event: EngagedData(uint8,bytes)
+          handler: handleEngagedData
       file: ../src/handlers/GenGaugeHandler.ts
   ###
   # ERC20
@@ -385,7 +433,7 @@ dataSources:
     network: base
     source:
       address: "0xD1A0D188E861ed9d15773a2F3574a2e94134bA8f"
-      abi: PintoPI8
+      abi: PintoPI12
       startBlock: 29064231 # PI-8 Deployment
     mapping:
       kind: ethereum/events
@@ -394,8 +442,8 @@ dataSources:
       entities:
         - Tractor
       abis:
-        - name: PintoPI8
-          file: ../../../core/abis/Beanstalk/Pinto-PI8.json
+        - name: PintoPI12
+          file: ../../../core/abis/Beanstalk/Pinto-PI12.json
       eventHandlers:
         - event: Tractor(indexed address,indexed address,indexed bytes32,uint256,uint256)
           handler: handleTractor
@@ -420,6 +468,7 @@ dataSources:
         - event: OperatorReward(uint8,indexed address,indexed address,address,int256)
           handler: handleOperatorReward
       file: ../src/handlers/TractorHandler.ts
+  # NOTE: there will be a new tractor helper for the convert blueprint
 # features:
 #   - grafting
 # graft:
