@@ -1,6 +1,6 @@
 import { Address, Bytes, ethereum } from "@graphprotocol/graph-ts";
 import { mockContractEvent } from "../../../../core/tests/event-mocking/Util";
-import { AddedGauge, Engaged } from "../../generated/Beanstalk-ABIs/PintoPI12";
+import { AddedGauge, Engaged, EngagedData } from "../../generated/Beanstalk-ABIs/PintoPI12";
 import { v } from "../../src/utils/constants/Version";
 
 export function createAddedGaugeEvent(
@@ -39,4 +39,17 @@ export function createEngagedEvent(gaugeId: i32, value: Bytes): Engaged {
   event.parameters.push(param2);
 
   return event as Engaged;
+}
+
+export function createEngagedDataEvent(gaugeId: i32, data: Bytes): EngagedData {
+  let event = changetype<EngagedData>(mockContractEvent(v().protocolAddress));
+  event.parameters = new Array();
+
+  let param1 = new ethereum.EventParam("gaugeId", ethereum.Value.fromI32(gaugeId));
+  let param2 = new ethereum.EventParam("data", ethereum.Value.fromBytes(data));
+
+  event.parameters.push(param1);
+  event.parameters.push(param2);
+
+  return event as EngagedData;
 }

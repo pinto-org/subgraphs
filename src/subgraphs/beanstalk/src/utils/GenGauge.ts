@@ -60,6 +60,7 @@ export function initConvertUpBonus(initial: AddedGaugeGaugeStruct, block: ethere
   genGauge.g2IsActive = true;
   genGauge.save();
   engagedConvertUpBonus(initial.value, block);
+  engagedDataConvertUpBonus(initial.data, block);
 }
 
 export function engagedConvertUpBonus(value: Bytes, block: ethereum.Block): void {
