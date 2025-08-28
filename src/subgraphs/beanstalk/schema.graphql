@@ -2004,6 +2004,13 @@ type GaugesInfo @entity {
   "'gauges'"
   id: ID!
 
+  "Whether the Cultivation Factor gauge is active"
+  g0IsActive: Boolean!
+  "Whether the Convert Down Penalty gauge is active"
+  g1IsActive: Boolean!
+  "Whether the Convert Up Bonus gauge is active"
+  g2IsActive: Boolean!
+
   "Cultivation Factor, in percent (i.e. 20.5 = 20.5% cultivation factor)"
   g0CultivationFactor: BigDecimal
 
@@ -2037,6 +2044,9 @@ type GaugesInfoHourlySnapshot @entity {
   "Unripe token associated with this snapshot"
   gaugesInfo: GaugesInfo!
 
+  g0IsActive: Boolean!
+  g1IsActive: Boolean!
+  g2IsActive: Boolean!
   g0CultivationFactor: BigDecimal
   g1ConvertDownPenalty: BigDecimal
   g2BonusStalkPerBdv: BigInt
@@ -2044,6 +2054,9 @@ type GaugesInfoHourlySnapshot @entity {
   g2BdvConvertedThisSeason: BigInt
   g2MaxTwaDeltaB: BigInt
 
+  deltaG0IsActive: Boolean!
+  deltaG1IsActive: Boolean!
+  deltaG2IsActive: Boolean!
   deltaG0CultivationFactor: BigDecimal
   deltaG1ConvertDownPenalty: BigDecimal
   deltaG2BonusStalkPerBdv: BigInt
@@ -2065,6 +2078,9 @@ type GaugesInfoDailySnapshot @entity {
   "Unripe token associated with this snapshot"
   gaugesInfo: GaugesInfo!
 
+  g0IsActive: Boolean!
+  g1IsActive: Boolean!
+  g2IsActive: Boolean!
   g0CultivationFactor: BigDecimal
   g1ConvertDownPenalty: BigDecimal
   g2BonusStalkPerBdv: BigInt
@@ -2072,6 +2088,9 @@ type GaugesInfoDailySnapshot @entity {
   g2BdvConvertedThisSeason: BigInt
   g2MaxTwaDeltaB: BigInt
 
+  deltaG0IsActive: Boolean!
+  deltaG1IsActive: Boolean!
+  deltaG2IsActive: Boolean!
   deltaG0CultivationFactor: BigDecimal
   deltaG1ConvertDownPenalty: BigDecimal
   deltaG2BonusStalkPerBdv: BigInt
