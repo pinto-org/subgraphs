@@ -1,6 +1,7 @@
 import {
   addDeposits,
   applyConvertDownPenalty,
+  applyConvertUpBonus,
   convert,
   removeDeposits,
   setWhitelistTokenSettings,
@@ -75,7 +76,9 @@ export function handleConvert(event: Convert): void {
     fromToken: event.params.fromToken,
     toToken: event.params.toToken,
     fromAmount: event.params.fromAmount,
-    toAmount: event.params.toAmount
+    toAmount: event.params.toAmount,
+    fromBdv: event.params.fromBdv,
+    toBdv: event.params.toBdv
   });
 }
 
@@ -186,5 +189,11 @@ export function handleConvertDownPenalty(event: ConvertDownPenalty): void {
 }
 
 export function handleConvertUpBonus(event: ConvertUpBonus): void {
-  // TODO
+  applyConvertUpBonus(
+    event.address,
+    event.params.account,
+    event.params.grownStalkGained,
+    event.params.bdvCapacityUsed,
+    event.block
+  );
 }

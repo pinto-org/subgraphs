@@ -180,6 +180,8 @@ export function handleConvert(event: Convert): void {
     fromToken: event.params.fromToken,
     toToken: event.params.toToken,
     fromAmount: event.params.fromAmount,
-    toAmount: event.params.toAmount
+    toAmount: event.params.toAmount,
+    fromBdv: null,
+    toBdv: null
   });
 }

@@ -5,10 +5,11 @@ import { takeSiloAssetSnapshots } from "../entities/snapshots/SiloAsset";
 import { BI_10, ZERO_BI } from "../../../../core/utils/Decimals";
 import { loadBeanstalk, loadFarmer } from "../entities/Beanstalk";
 import { stemFromSeason } from "./legacy/LegacySilo";
-import { beanDecimals, isGaugeDeployed, isUnripe } from "../../../../core/constants/RuntimeConstants";
+import { beanDecimals, getProtocolToken, isGaugeDeployed, isUnripe } from "../../../../core/constants/RuntimeConstants";
 import { v } from "./constants/Version";
 import { takeWhitelistTokenSettingSnapshots } from "../entities/snapshots/WhitelistTokenSetting";
 import { unripeChopped } from "./Barn";
+import { loadGaugesInfo } from "./GenGauge";
 
 class AddRemoveDepositsParams {
   event: ethereum.Event;
@@ -38,6 +39,8 @@ class ConvertParams {
   toToken: Address;
   fromAmount: BigInt;
   toAmount: BigInt;
+  fromBdv: BigInt | null;
+  toBdv: BigInt | null;
 }
 
 export function addDeposits(params: AddRemoveDepositsParams): void {
@@ -238,6 +241,16 @@ export function setWhitelistTokenSettings(params: WhitelistTokenParams, forceEna
 }
 
 export function convert(params: ConvertParams): void {
+  const beanToken = getProtocolToken(v(), params.event.block.number);
+  // If converting up
+  if (params.fromToken !== beanToken && params.toToken === beanToken) {
+    // g2 = convert up bonus gauge
+    if (loadGaugesInfo().g2IsActive) {
+      // In practice, bdv is always provided in the Convert event signature when gauge 2 is active
+      trackConvertUpBdv(params.event.address, params.account, params.toBdv!, params.event.block);
+    }
+  }
+
   if (isUnripe(v(), params.fromToken) && !isUnripe(v(), params.toToken)) {
     unripeChopped({
       event: params.event,
@@ -268,6 +281,44 @@ export function applyConvertDownPenalty(
   silo.avgConvertDownPenalty = new BigDecimal(silo.penalizedStalkConvertDown).div(
     new BigDecimal(silo.penalizedStalkConvertDown.plus(silo.unpenalizedStalkConvertDown))
   );
+
+  takeSiloSnapshots(silo, block);
+  silo.save();
+}
+
+export function applyConvertUpBonus(
+  protocol: Address,
+  account: Address,
+  bonusAmount: BigInt,
+  bdvReceivingBonus: BigInt,
+  block: ethereum.Block,
+  recurs: boolean = true
+): void {
+  if (recurs && account != protocol) {
+    applyConvertUpBonus(protocol, protocol, bonusAmount, bdvReceivingBonus, block);
+  }
+
+  const silo = loadSilo(account);
+  silo.bonusStalkConvertUp = silo.bonusStalkConvertUp.plus(bonusAmount);
+  silo.totalBdvConvertUpBonus = silo.totalBdvConvertUpBonus.plus(bdvReceivingBonus);
+
+  takeSiloSnapshots(silo, block);
+  silo.save();
+}
+
+function trackConvertUpBdv(
+  protocol: Address,
+  account: Address,
+  bdv: BigInt,
+  block: ethereum.Block,
+  recurs: boolean = true
+): void {
+  if (recurs && account != protocol) {
+    trackConvertUpBdv(protocol, protocol, bdv, block);
+  }
+
+  const silo = loadSilo(account);
+  silo.totalBdvConvertUp = silo.totalBdvConvertUp.plus(bdv);
 
   takeSiloSnapshots(silo, block);
   silo.save();
