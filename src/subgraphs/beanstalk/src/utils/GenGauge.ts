@@ -21,6 +21,19 @@ export function loadGaugesInfo(): GaugesInfo {
   return genGauge;
 }
 
+export function toggleGaugeActive(gaugeId: i32, isActive: boolean, block: ethereum.Block): void {
+  const genGauge = loadGaugesInfo();
+  if (gaugeId == 0) {
+    genGauge.g0IsActive = isActive;
+  } else if (gaugeId == 1) {
+    genGauge.g1IsActive = isActive;
+  } else if (gaugeId == 2) {
+    genGauge.g2IsActive = isActive;
+  }
+  takeGaugesInfoSnapshots(genGauge, block);
+  genGauge.save();
+}
+
 export function engaged(gaugeId: i32, value: Bytes, block: ethereum.Block): void {
   if (gaugeId == 0) {
     engagedCultivationFactor(value, block);

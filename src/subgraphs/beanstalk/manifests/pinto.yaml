@@ -373,11 +373,21 @@ dataSources:
       eventHandlers:
         - event: AddedGauge(uint8,(bytes,address,bytes4,bytes))
           handler: handleAddedGauge
+        - event: RemovedGauge(uint8)
+          handler: handleRemovedGauge
         - event: Engaged(uint8,bytes)
           handler: handleEngaged
+        - event: UpdatedGauge(uint8,(bytes,address,bytes4,bytes))
+          handler: handleUpdatedGauge
         # Introduced in PI-9
         - event: EngagedData(uint8,bytes)
           handler: handleEngagedData
+        # Introduced in PI-9
+        - event: UpdatedGaugeData(uint8,bytes)
+          handler: handleUpdatedGaugeData
+        # Introduced in PI-10
+        - event: UpdatedGaugeValue(uint8,bytes)
+          handler: handleUpdatedGaugeValue
       file: ../src/handlers/GenGaugeHandler.ts
   ###
   # ERC20

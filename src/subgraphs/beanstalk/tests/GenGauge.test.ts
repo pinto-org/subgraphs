@@ -1,8 +1,18 @@
 import { afterEach, beforeEach, assert, clearStore, describe, test } from "matchstick-as/assembly/index";
 import { Address, Bytes } from "@graphprotocol/graph-ts";
 import { initPintoVersion } from "./entity-mocking/MockVersion";
-import { createAddedGaugeEvent, createEngagedDataEvent, createEngagedEvent } from "./event-mocking/GenGauge";
-import { handleAddedGauge, handleEngaged, handleEngagedData } from "../src/handlers/GenGaugeHandler";
+import {
+  createAddedGaugeEvent,
+  createEngagedDataEvent,
+  createEngagedEvent,
+  createRemovedGaugeEvent
+} from "./event-mocking/GenGauge";
+import {
+  handleAddedGauge,
+  handleEngaged,
+  handleEngagedData,
+  handleRemovedGauge
+} from "../src/handlers/GenGaugeHandler";
 import { v } from "../src/utils/constants/Version";
 import { loadGaugesInfo } from "../src/utils/GenGauge";
 
@@ -72,6 +82,15 @@ describe("Gen Gauge", () => {
 
       assert.fieldEquals("GaugesInfo", "gauges", "g0CultivationFactor", "1.5");
       assert.fieldEquals("Field", v().protocolAddress.toHexString(), "cultivationFactor", "1.5");
+    });
+
+    test("Deactivates gauge", () => {
+      assert.fieldEquals("GaugesInfo", "gauges", "g0IsActive", "false");
+      initCultivationFactorGauge();
+      assert.fieldEquals("GaugesInfo", "gauges", "g0IsActive", "true");
+      const removedGaugeEvent = createRemovedGaugeEvent(0);
+      handleRemovedGauge(removedGaugeEvent);
+      assert.fieldEquals("GaugesInfo", "gauges", "g0IsActive", "false");
     });
   });
 
