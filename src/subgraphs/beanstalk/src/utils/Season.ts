@@ -52,9 +52,8 @@ export function sunrise(protocol: Address, season: BigInt, block: ethereum.Block
   silo.save();
 
   // Update all whitelisted/dewhitelisted token info
-  const siloTokens = silo.whitelistedTokens.concat(silo.dewhitelistedTokens);
-  for (let i = 0; i < siloTokens.length; i++) {
-    const token = toAddress(siloTokens[i]);
+  for (let i = 0; i < silo.allWhitelistedTokens.length; i++) {
+    const token = toAddress(silo.allWhitelistedTokens[i]);
 
     let siloAsset = loadSiloAsset(protocol, token);
     takeSiloAssetSnapshots(siloAsset, block);
@@ -72,7 +71,7 @@ export function sunrise(protocol: Address, season: BigInt, block: ethereum.Block
   }
 
   // Track market performance of silo assets
-  trackMarketPerformance(season.toI32(), siloTokens, block);
+  trackMarketPerformance(season.toI32(), silo.allWhitelistedTokens, block);
 }
 
 export function siloReceipt(amount: BigInt, block: ethereum.Block): void {

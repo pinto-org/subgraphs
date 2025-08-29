@@ -40,6 +40,7 @@ export function loadSilo(account: Address): Silo {
 
     silo.whitelistedTokens = [];
     silo.dewhitelistedTokens = [];
+    silo.allWhitelistedTokens = [];
     silo.beanMints = ZERO_BI;
     silo.plantableStalk = ZERO_BI;
     silo.beanToMaxLpGpPerBdvRatio = ZERO_BI;
@@ -73,10 +74,13 @@ export function loadSiloAsset(account: Address, token: Address): SiloAsset {
 /* ===== Whitelist Token Settings Entities ===== */
 
 export function addToSiloWhitelist(siloAddress: Address, token: Address): void {
-  let silo = loadSilo(siloAddress);
-  let currentList = silo.whitelistedTokens;
-  currentList.push(token);
-  silo.whitelistedTokens = currentList;
+  const silo = loadSilo(siloAddress);
+  const currentWhitelisted = silo.whitelistedTokens;
+  const currentAllWhitelisted = silo.allWhitelistedTokens;
+  currentWhitelisted.push(token);
+  currentAllWhitelisted.push(token);
+  silo.whitelistedTokens = currentWhitelisted;
+  silo.allWhitelistedTokens = currentAllWhitelisted;
   silo.save();
 }
 

@@ -143,6 +143,8 @@ type Silo @entity {
   whitelistedTokens: [Bytes!]!
   "(protocol) Tokens that have been removed from the silo deposit whitelist"
   dewhitelistedTokens: [Bytes!]!
+  "(protocol) Tokens in the order they were whitelisted for deposit. This list never shrinks."
+  allWhitelistedTokens: [Bytes!]!
   "(protocol) Cumulative total for bean mints sent to the silo"
   beanMints: BigInt!
   "(protocol) Current plantable stalk for bean seigniorage not yet claimed"
