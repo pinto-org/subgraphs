@@ -167,6 +167,10 @@ templates:
           file: ../../../core/abis/PintostalkPrice.json
         - name: ERC20
           file: ../../../core/abis/ERC20.json
+        # Necessary to handle the case where BeanstalkPrice contract is not functioning. This contract isn't relevant
+        # to Pinto (and will revert), but is kept to be compatible with legacy Beanstalk indexing.
+        - name: CurvePrice
+          file: ../../../core/abis/CurvePrice.json
       eventHandlers:
         - event: AddLiquidity(uint256[],uint256,address)
           handler: handleAddLiquidity
