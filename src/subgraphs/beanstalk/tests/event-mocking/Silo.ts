@@ -10,9 +10,12 @@ import {
   RemoveDeposits,
   RemoveDeposit,
   ConvertDownPenalty,
-  StalkBalanceChanged
-} from "../../generated/Beanstalk-ABIs/PintoPI8";
+  StalkBalanceChanged,
+  ConvertUpBonus,
+  Convert
+} from "../../generated/Beanstalk-ABIs/PintoPI12";
 import { v } from "../../src/utils/constants/Version";
+
 export function createAddDepositV2Event(
   account: string,
   token: string,
@@ -217,6 +220,37 @@ export function createStalkBalanceChangedEvent(
   return event as StalkBalanceChanged;
 }
 
+export function createConvertEvent(
+  account: Address,
+  fromToken: Address,
+  toToken: Address,
+  fromAmount: BigInt,
+  toAmount: BigInt,
+  fromBdv: BigInt,
+  toBdv: BigInt
+): Convert {
+  let event = changetype<Convert>(mockContractEvent(v().protocolAddress));
+  event.parameters = new Array();
+
+  let param1 = new ethereum.EventParam("account", ethereum.Value.fromAddress(account));
+  let param2 = new ethereum.EventParam("fromToken", ethereum.Value.fromAddress(fromToken));
+  let param3 = new ethereum.EventParam("toToken", ethereum.Value.fromAddress(toToken));
+  let param4 = new ethereum.EventParam("fromAmount", ethereum.Value.fromUnsignedBigInt(fromAmount));
+  let param5 = new ethereum.EventParam("toAmount", ethereum.Value.fromUnsignedBigInt(toAmount));
+  let param6 = new ethereum.EventParam("fromBdv", ethereum.Value.fromUnsignedBigInt(fromBdv));
+  let param7 = new ethereum.EventParam("toBdv", ethereum.Value.fromUnsignedBigInt(toBdv));
+
+  event.parameters.push(param1);
+  event.parameters.push(param2);
+  event.parameters.push(param3);
+  event.parameters.push(param4);
+  event.parameters.push(param5);
+  event.parameters.push(param6);
+  event.parameters.push(param7);
+
+  return event as Convert;
+}
+
 export function createConvertDownPenaltyEvent(
   account: Address,
   stalkLost: BigInt,
@@ -234,4 +268,29 @@ export function createConvertDownPenaltyEvent(
   event.parameters.push(param3);
 
   return event as ConvertDownPenalty;
+}
+
+export function createConvertUpBonusEvent(
+  account: Address,
+  grownStalkGained: BigInt,
+  newGrownStalk: BigInt,
+  bdvCapacityUsed: BigInt,
+  bdvConverted: BigInt
+): ConvertUpBonus {
+  let event = changetype<ConvertUpBonus>(mockContractEvent(v().protocolAddress));
+  event.parameters = new Array();
+
+  let param1 = new ethereum.EventParam("account", ethereum.Value.fromAddress(account));
+  let param2 = new ethereum.EventParam("grownStalkGained", ethereum.Value.fromUnsignedBigInt(grownStalkGained));
+  let param3 = new ethereum.EventParam("newGrownStalk", ethereum.Value.fromUnsignedBigInt(newGrownStalk));
+  let param4 = new ethereum.EventParam("bdvCapacityUsed", ethereum.Value.fromUnsignedBigInt(bdvCapacityUsed));
+  let param5 = new ethereum.EventParam("bdvConverted", ethereum.Value.fromUnsignedBigInt(bdvConverted));
+
+  event.parameters.push(param1);
+  event.parameters.push(param2);
+  event.parameters.push(param3);
+  event.parameters.push(param4);
+  event.parameters.push(param5);
+
+  return event as ConvertUpBonus;
 }

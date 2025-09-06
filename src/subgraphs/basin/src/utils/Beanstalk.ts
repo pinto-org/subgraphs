@@ -13,6 +13,8 @@ class ConvertParams {
   toToken: Address;
   fromAmount: BigInt;
   toAmount: BigInt;
+  fromBdv: BigInt | null;
+  toBdv: BigInt | null;
 }
 
 enum ConvertDirection {

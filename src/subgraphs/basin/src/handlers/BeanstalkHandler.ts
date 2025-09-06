@@ -1,4 +1,4 @@
-import { Convert, DewhitelistToken, Sunrise } from "../../generated/Basin-ABIs/PintoLaunch";
+import { Convert, DewhitelistToken, Sunrise } from "../../generated/Basin-ABIs/PintoPI12";
 import { toAddress } from "../../../../core/utils/Bytes";
 import { v } from "../utils/constants/Version";
 import { getWhitelistedWells } from "../../../../core/constants/RuntimeConstants";
@@ -34,11 +34,19 @@ export function handleConvert(event: Convert): void {
     fromToken: event.params.fromToken,
     toToken: event.params.toToken,
     fromAmount: event.params.fromAmount,
-    toAmount: event.params.toAmount
+    toAmount: event.params.toAmount,
+    fromBdv: event.params.fromBdv,
+    toBdv: event.params.toBdv
   });
 }
 
 export function handleDewhitelistToken(event: DewhitelistToken): void {
+  // In practice, it was decided to be preferable for all tracking to continue for dewhitelisted wells.
+  // Volume/Liquidity etc continues to be reported for dewhitelisted Beanstalk wells.
+  if (1 === 1) {
+    return;
+  }
+
   const well = loadWell(event.params.token);
   if (well) {
     well.isBeanstalk = false;

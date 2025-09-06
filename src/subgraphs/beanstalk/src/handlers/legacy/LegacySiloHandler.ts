@@ -11,18 +11,14 @@ import {
 } from "../../../generated/Beanstalk-ABIs/Replanted";
 import { loadBeanstalk } from "../../entities/Beanstalk";
 import { addToSiloWhitelist, loadSiloWithdraw, loadWhitelistTokenSetting } from "../../entities/Silo";
-import { addDeposits, addWithdrawToSiloAsset, removeDeposits } from "../../utils/Silo";
+import { addDeposits, addWithdrawToSiloAsset, convert, removeDeposits } from "../../utils/Silo";
 import { takeWhitelistTokenSettingSnapshots } from "../../entities/snapshots/WhitelistTokenSetting";
 import { WhitelistToken as WhitelistToken_v3 } from "../../../generated/Beanstalk-ABIs/SiloV3";
-import {
-  RemoveWithdrawal,
-  RemoveWithdrawals,
-  SeedsBalanceChanged,
-  WhitelistToken
-} from "../../../generated/Beanstalk-ABIs/SeedGauge";
+import { RemoveWithdrawal, RemoveWithdrawals, WhitelistToken } from "../../../generated/Beanstalk-ABIs/SeedGauge";
 import { updateClaimedWithdraw } from "../../utils/legacy/LegacySilo";
 import { Bytes4_emptySelector } from "../../../../../core/utils/Bytes";
 import { initLegacyUnripe } from "../../utils/legacy/LegacyWhitelist";
+import { Convert } from "../../../generated/Beanstalk-ABIs/PintoLaunch";
 
 // Note: No silo v1 (pre-replant) handlers have been developed.
 
@@ -174,4 +170,18 @@ export function handleRemoveWithdrawals(event: RemoveWithdrawals): void {
       event.block
     );
   }
+}
+
+// PintoLaunch -> PintoPI12
+export function handleConvert(event: Convert): void {
+  convert({
+    event,
+    account: event.params.account,
+    fromToken: event.params.fromToken,
+    toToken: event.params.toToken,
+    fromAmount: event.params.fromAmount,
+    toAmount: event.params.toAmount,
+    fromBdv: null,
+    toBdv: null
+  });
 }

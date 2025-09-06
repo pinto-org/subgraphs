@@ -149,10 +149,9 @@ export function updateSiloVAPYs(protocol: Address, timestamp: BigInt, window: i3
     let staticSeeds: Array<BigDecimal | null> = [];
 
     // All tokens that are/could have been deposited in the silo
-    const siloTokens = siloYield.whitelistedTokens.concat(silo.dewhitelistedTokens);
     const depositedAssets: SiloAsset[] = [];
-    for (let i = 0; i < siloTokens.length; ++i) {
-      depositedAssets.push(loadSiloAsset(protocol, toAddress(siloTokens[i])));
+    for (let i = 0; i < silo.allWhitelistedTokens.length; ++i) {
+      depositedAssets.push(loadSiloAsset(protocol, toAddress(silo.allWhitelistedTokens[i])));
     }
 
     // .load() is not supported on graph-node v0.30.0. Instead the above derivation of depositedAssets is used

@@ -10,10 +10,12 @@ import { initL1Version } from "./entity-mocking/MockVersion";
 import { handleSwap } from "../src/handlers/WellHandler";
 import { getSwapEntityId } from "../src/entities/Trade";
 import { Trade } from "../generated/schema";
+import { mockL1TokenPrices } from "./entity-mocking/MockToken";
 
 describe("Swap Entity", () => {
   beforeEach(() => {
     initL1Version();
+    mockL1TokenPrices();
     boreDefaultWell();
   });
 

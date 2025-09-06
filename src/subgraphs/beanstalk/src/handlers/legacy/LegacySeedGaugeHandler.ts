@@ -1,6 +1,6 @@
 import { Bytes4_emptySelector } from "../../../../../core/utils/Bytes";
 import { ZERO_BI } from "../../../../../core/utils/Decimals";
-import { BeanToMaxLpGpPerBdvRatioChange } from "../../../generated/Beanstalk-ABIs/PintoPI8";
+import { BeanToMaxLpGpPerBdvRatioChange } from "../../../generated/Beanstalk-ABIs/PintoPI12";
 import {
   FarmerGerminatingStalkBalanceChanged,
   SeedGauge,

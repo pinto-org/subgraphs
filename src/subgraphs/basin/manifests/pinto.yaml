@@ -103,7 +103,7 @@ dataSources:
     network: base
     source:
       address: "0xD1A0D188E861ed9d15773a2F3574a2e94134bA8f"
-      abi: PintoLaunch
+      abi: PintoPI12
       startBlock: 22622961 # Pintostalk Deployment
     mapping:
       kind: ethereum/events
@@ -112,16 +112,38 @@ dataSources:
       entities:
         - Season
       abis:
-        - name: PintoLaunch
-          file: ../../../core/abis/Beanstalk/Pinto-Launch.json
+        - name: PintoPI12
+          file: ../../../core/abis/Beanstalk/Pinto-PI12.json
       eventHandlers:
         - event: Sunrise(indexed uint256)
           handler: handleBeanstalkSunrise
-        - event: Convert(indexed address,address,address,uint256,uint256)
-          handler: handleConvert
         - event: DewhitelistToken(indexed address)
           handler: handleDewhitelistToken
+        # New signature in PI-12
+        - event: Convert(indexed address,address,address,uint256,uint256,uint256,uint256)
+          handler: handleConvert
       file: ../src/handlers/BeanstalkHandler.ts
+  - kind: ethereum/contract
+    name: LegacySilo-PintoLaunch-PintoPI12
+    network: base
+    source:
+      address: "0xD1A0D188E861ed9d15773a2F3574a2e94134bA8f"
+      abi: PintoLaunch
+      startBlock: 22622961 # Pintostalk Deployment
+      endBlock: 999999999 # PI-12 Deployment (TODO: enter actual value once known)
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Silo
+      abis:
+        - name: PintoLaunch
+          file: ../../../core/abis/Beanstalk/Pinto-Launch.json
+      eventHandlers:
+        - event: Convert(indexed address,address,address,uint256,uint256)
+          handler: handleConvert
+      file: ../src/handlers/legacy/LegacyBeanstalkHandler.ts
 templates:
   - kind: ethereum/contract
     name: Well
@@ -139,12 +161,16 @@ templates:
           file: ../../../core/abis/Well.json
         - name: WellFunction
           file: ../../../core/abis/WellFunction.json
-        - name: PintoLaunch
-          file: ../../../core/abis/Beanstalk/Pinto-Launch.json
+        - name: PintoPI12
+          file: ../../../core/abis/Beanstalk/Pinto-PI12.json
         - name: BeanstalkPrice
           file: ../../../core/abis/PintostalkPrice.json
         - name: ERC20
           file: ../../../core/abis/ERC20.json
+        # Necessary to handle the case where BeanstalkPrice contract is not functioning. This contract isn't relevant
+        # to Pinto (and will revert), but is kept to be compatible with legacy Beanstalk indexing.
+        - name: CurvePrice
+          file: ../../../core/abis/CurvePrice.json
       eventHandlers:
         - event: AddLiquidity(uint256[],uint256,address)
           handler: handleAddLiquidity

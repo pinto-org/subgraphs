@@ -1,6 +1,8 @@
 import {
   addDeposits,
   applyConvertDownPenalty,
+  applyConvertUpBonus,
+  convert,
   removeDeposits,
   setWhitelistTokenSettings,
   updateDepositInSiloAsset,
@@ -21,10 +23,10 @@ import {
   UpdatedStalkPerBdvPerSeason,
   UpdateWhitelistStatus,
   ClaimPlenty,
-  ConvertDownPenalty
-} from "../../generated/Beanstalk-ABIs/PintoPI8";
-import { unripeChopped } from "../utils/Barn";
-import { beanDecimals, getProtocolToken, isUnripe, stalkDecimals } from "../../../../core/constants/RuntimeConstants";
+  ConvertDownPenalty,
+  ConvertUpBonus
+} from "../../generated/Beanstalk-ABIs/PintoPI12";
+import { beanDecimals, getProtocolToken, stalkDecimals } from "../../../../core/constants/RuntimeConstants";
 import { v } from "../utils/constants/Version";
 import { BI_10 } from "../../../../core/utils/Decimals";
 
@@ -68,16 +70,16 @@ export function handleRemoveDeposits(event: RemoveDeposits): void {
 }
 
 export function handleConvert(event: Convert): void {
-  if (isUnripe(v(), event.params.fromToken) && !isUnripe(v(), event.params.toToken)) {
-    unripeChopped({
-      event,
-      type: "convert",
-      account: event.params.account,
-      unripeToken: event.params.fromToken,
-      unripeAmount: event.params.fromAmount,
-      underlyingAmount: event.params.toAmount
-    });
-  }
+  convert({
+    event,
+    account: event.params.account,
+    fromToken: event.params.fromToken,
+    toToken: event.params.toToken,
+    fromAmount: event.params.fromAmount,
+    toAmount: event.params.toAmount,
+    fromBdv: event.params.fromBdv,
+    toBdv: event.params.toBdv
+  });
 }
 
 export function handleStalkBalanceChanged(event: StalkBalanceChanged): void {
@@ -120,16 +122,6 @@ export function handlePlant(event: Plant): void {
   farmerSilo.plantedBeans = farmerSilo.plantedBeans.plus(event.params.beans);
   takeSiloSnapshots(farmerSilo, event.block);
   farmerSilo.save();
-}
-
-export function handleConvertDownPenalty(event: ConvertDownPenalty): void {
-  applyConvertDownPenalty(
-    event.address,
-    event.params.account,
-    event.params.grownStalkLost,
-    event.params.grownStalkKept,
-    event.block
-  );
 }
 
 export function handleWhitelistToken(event: WhitelistToken): void {
@@ -184,4 +176,24 @@ export function handleClaimPlenty(event: ClaimPlenty): void {
   systemPlenty.unclaimedAmount = systemPlenty.unclaimedAmount.minus(event.params.plenty);
   systemPlenty.claimedAmount = systemPlenty.claimedAmount.plus(event.params.plenty);
   systemPlenty.save();
+}
+
+export function handleConvertDownPenalty(event: ConvertDownPenalty): void {
+  applyConvertDownPenalty(
+    event.address,
+    event.params.account,
+    event.params.grownStalkLost,
+    event.params.grownStalkKept,
+    event.block
+  );
+}
+
+export function handleConvertUpBonus(event: ConvertUpBonus): void {
+  applyConvertUpBonus(
+    event.address,
+    event.params.account,
+    event.params.grownStalkGained,
+    event.params.bdvCapacityUsed,
+    event.block
+  );
 }

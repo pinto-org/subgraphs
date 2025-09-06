@@ -4,7 +4,7 @@ import { getBeanPrice } from "./BeanstalkPrice";
 import { getProtocolToken } from "../../../../core/constants/RuntimeConstants";
 import { v } from "./constants/Version";
 import { loadToken } from "../entities/Token";
-import { PintoLaunch } from "../../generated/Basin-ABIs/PintoLaunch";
+import { PintoPI12 } from "../../generated/Basin-ABIs/PintoPI12";
 
 export function getBeanPriceUDSC(): BigDecimal {
   let token = loadToken(getProtocolToken(v(), BI_MAX));
@@ -16,7 +16,12 @@ export function getTokenDecimals(tokenAddress: Address): i32 {
   return token.decimals;
 }
 
-export function updateTokenUSD(tokenAddress: Address, blockNumber: BigInt, beanPrice: BigDecimal = ZERO_BD): void {
+export function updateTokenUSD(
+  tokenAddress: Address,
+  blockNumber: BigInt,
+  // Used as a fallback if getTokenUsdPrice fails. This wont be accurate as it doesnt consider the getTokenRates by well function
+  beanToTokenRatio: BigDecimal = ZERO_BD
+): void {
   let token = loadToken(tokenAddress);
   if (tokenAddress == getProtocolToken(v(), BI_MAX)) {
     const beanPrice = getBeanPrice(blockNumber);
@@ -25,13 +30,13 @@ export function updateTokenUSD(tokenAddress: Address, blockNumber: BigInt, beanP
     }
     token.lastPriceUSD = beanPrice;
   } else {
-    // Get the token price from the beanstalk contract if possible, else derive from current bean price.
-    const beanstalkContract = PintoLaunch.bind(v().protocolAddress);
+    const beanstalkContract = PintoPI12.bind(v().protocolAddress);
     const tokenUsd = beanstalkContract.try_getTokenUsdPrice(tokenAddress);
     if (!tokenUsd.reverted) {
       token.lastPriceUSD = toDecimal(tokenUsd.value);
     } else {
-      token.lastPriceUSD = beanPrice.times(getBeanPriceUDSC());
+      // This is considered an error if it occurs
+      token.lastPriceUSD = beanToTokenRatio.times(getBeanPriceUDSC());
     }
   }
   token.lastPriceBlockNumber = blockNumber;

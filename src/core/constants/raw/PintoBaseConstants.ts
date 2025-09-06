@@ -46,12 +46,12 @@ export const POOL_TOKENS: PoolTokens[] = [
     tokens: [BEAN_ERC20, CBBTC]
   },
   {
-    pool: PINTO_WSOL,
-    tokens: [BEAN_ERC20, WSOL]
-  },
-  {
     pool: PINTO_USDC,
     tokens: [BEAN_ERC20, USDC]
+  },
+  {
+    pool: PINTO_WSOL,
+    tokens: [BEAN_ERC20, WSOL]
   }
 ];
 

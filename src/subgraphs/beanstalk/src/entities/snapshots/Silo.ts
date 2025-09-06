@@ -35,6 +35,9 @@ export function takeSiloSnapshots(silo: Silo, block: ethereum.Block): void {
   hourly.penalizedStalkConvertDown = silo.penalizedStalkConvertDown;
   hourly.unpenalizedStalkConvertDown = silo.unpenalizedStalkConvertDown;
   hourly.avgConvertDownPenalty = silo.avgConvertDownPenalty;
+  hourly.bonusStalkConvertUp = silo.bonusStalkConvertUp;
+  hourly.totalBdvConvertUpBonus = silo.totalBdvConvertUpBonus;
+  hourly.totalBdvConvertUp = silo.totalBdvConvertUp;
   hourly.beanMints = silo.beanMints;
   hourly.plantableStalk = silo.plantableStalk;
   hourly.beanToMaxLpGpPerBdvRatio = silo.beanToMaxLpGpPerBdvRatio;
@@ -58,6 +61,9 @@ export function takeSiloSnapshots(silo: Silo, block: ethereum.Block): void {
       baseHourly.unpenalizedStalkConvertDown
     );
     hourly.deltaAvgConvertDownPenalty = hourly.avgConvertDownPenalty.minus(baseHourly.avgConvertDownPenalty);
+    hourly.deltaBonusStalkConvertUp = hourly.bonusStalkConvertUp.minus(baseHourly.bonusStalkConvertUp);
+    hourly.deltaTotalBdvConvertUpBonus = hourly.totalBdvConvertUpBonus.minus(baseHourly.totalBdvConvertUpBonus);
+    hourly.deltaTotalBdvConvertUp = hourly.totalBdvConvertUp.minus(baseHourly.totalBdvConvertUp);
     hourly.deltaBeanMints = hourly.beanMints.minus(baseHourly.beanMints);
     hourly.deltaPlantableStalk = hourly.plantableStalk.minus(baseHourly.plantableStalk);
     hourly.deltaBeanToMaxLpGpPerBdvRatio = hourly.beanToMaxLpGpPerBdvRatio.minus(baseHourly.beanToMaxLpGpPerBdvRatio);
@@ -88,6 +94,11 @@ export function takeSiloSnapshots(silo: Silo, block: ethereum.Block): void {
         baseHourly.deltaUnpenalizedStalkConvertDown
       );
       hourly.deltaAvgConvertDownPenalty = hourly.deltaAvgConvertDownPenalty.plus(baseHourly.deltaAvgConvertDownPenalty);
+      hourly.deltaBonusStalkConvertUp = hourly.deltaBonusStalkConvertUp.plus(baseHourly.deltaBonusStalkConvertUp);
+      hourly.deltaTotalBdvConvertUpBonus = hourly.deltaTotalBdvConvertUpBonus.plus(
+        baseHourly.deltaTotalBdvConvertUpBonus
+      );
+      hourly.deltaTotalBdvConvertUp = hourly.deltaTotalBdvConvertUp.plus(baseHourly.deltaTotalBdvConvertUp);
       hourly.deltaBeanMints = hourly.deltaBeanMints.plus(baseHourly.deltaBeanMints);
       hourly.deltaPlantableStalk = hourly.deltaPlantableStalk.plus(baseHourly.deltaPlantableStalk);
       hourly.deltaBeanToMaxLpGpPerBdvRatio = hourly.deltaBeanToMaxLpGpPerBdvRatio.plus(
@@ -116,6 +127,9 @@ export function takeSiloSnapshots(silo: Silo, block: ethereum.Block): void {
     hourly.deltaPenalizedStalkConvertDown = hourly.penalizedStalkConvertDown;
     hourly.deltaUnpenalizedStalkConvertDown = hourly.unpenalizedStalkConvertDown;
     hourly.deltaAvgConvertDownPenalty = hourly.avgConvertDownPenalty;
+    hourly.deltaBonusStalkConvertUp = hourly.bonusStalkConvertUp;
+    hourly.deltaTotalBdvConvertUpBonus = hourly.totalBdvConvertUpBonus;
+    hourly.deltaTotalBdvConvertUp = hourly.totalBdvConvertUp;
     hourly.deltaBeanMints = hourly.beanMints;
     hourly.deltaPlantableStalk = hourly.plantableStalk;
     hourly.deltaBeanToMaxLpGpPerBdvRatio = hourly.beanToMaxLpGpPerBdvRatio;
@@ -142,6 +156,9 @@ export function takeSiloSnapshots(silo: Silo, block: ethereum.Block): void {
   daily.penalizedStalkConvertDown = silo.penalizedStalkConvertDown;
   daily.unpenalizedStalkConvertDown = silo.unpenalizedStalkConvertDown;
   daily.avgConvertDownPenalty = silo.avgConvertDownPenalty;
+  daily.bonusStalkConvertUp = silo.bonusStalkConvertUp;
+  daily.totalBdvConvertUpBonus = silo.totalBdvConvertUpBonus;
+  daily.totalBdvConvertUp = silo.totalBdvConvertUp;
   daily.beanMints = silo.beanMints;
   daily.plantableStalk = silo.plantableStalk;
   daily.beanToMaxLpGpPerBdvRatio = silo.beanToMaxLpGpPerBdvRatio;
@@ -162,6 +179,9 @@ export function takeSiloSnapshots(silo: Silo, block: ethereum.Block): void {
       baseDaily.unpenalizedStalkConvertDown
     );
     daily.deltaAvgConvertDownPenalty = daily.avgConvertDownPenalty.minus(baseDaily.avgConvertDownPenalty);
+    daily.deltaBonusStalkConvertUp = daily.bonusStalkConvertUp.minus(baseDaily.bonusStalkConvertUp);
+    daily.deltaTotalBdvConvertUpBonus = daily.totalBdvConvertUpBonus.minus(baseDaily.totalBdvConvertUpBonus);
+    daily.deltaTotalBdvConvertUp = daily.totalBdvConvertUp.minus(baseDaily.totalBdvConvertUp);
     daily.deltaBeanMints = daily.beanMints.minus(baseDaily.beanMints);
     daily.deltaPlantableStalk = daily.plantableStalk.minus(baseDaily.plantableStalk);
     daily.deltaBeanToMaxLpGpPerBdvRatio = daily.beanToMaxLpGpPerBdvRatio.minus(baseDaily.beanToMaxLpGpPerBdvRatio);
@@ -192,6 +212,9 @@ export function takeSiloSnapshots(silo: Silo, block: ethereum.Block): void {
         baseDaily.deltaUnpenalizedStalkConvertDown
       );
       daily.deltaAvgConvertDownPenalty = daily.deltaAvgConvertDownPenalty.plus(baseDaily.deltaAvgConvertDownPenalty);
+      daily.deltaBonusStalkConvertUp = daily.deltaBonusStalkConvertUp.plus(baseDaily.deltaBonusStalkConvertUp);
+      daily.deltaTotalBdvConvertUpBonus = daily.deltaTotalBdvConvertUpBonus.plus(baseDaily.deltaTotalBdvConvertUpBonus);
+      daily.deltaTotalBdvConvertUp = daily.deltaTotalBdvConvertUp.plus(baseDaily.deltaTotalBdvConvertUp);
       daily.deltaBeanMints = daily.deltaBeanMints.plus(baseDaily.deltaBeanMints);
       daily.deltaPlantableStalk = daily.deltaPlantableStalk.plus(baseDaily.deltaPlantableStalk);
       daily.deltaBeanToMaxLpGpPerBdvRatio = daily.deltaBeanToMaxLpGpPerBdvRatio.plus(
@@ -217,6 +240,9 @@ export function takeSiloSnapshots(silo: Silo, block: ethereum.Block): void {
     daily.deltaPenalizedStalkConvertDown = daily.penalizedStalkConvertDown;
     daily.deltaUnpenalizedStalkConvertDown = daily.unpenalizedStalkConvertDown;
     daily.deltaAvgConvertDownPenalty = daily.avgConvertDownPenalty;
+    daily.deltaBonusStalkConvertUp = daily.bonusStalkConvertUp;
+    daily.deltaTotalBdvConvertUpBonus = daily.totalBdvConvertUpBonus;
+    daily.deltaTotalBdvConvertUp = daily.totalBdvConvertUp;
     daily.deltaBeanMints = daily.beanMints;
     daily.deltaPlantableStalk = daily.plantableStalk;
     daily.deltaBeanToMaxLpGpPerBdvRatio = daily.beanToMaxLpGpPerBdvRatio;

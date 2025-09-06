@@ -132,11 +132,19 @@ type Silo @entity {
   unpenalizedStalkConvertDown: BigInt!
   "Average convert down penalty that has been assessed, in percent"
   avgConvertDownPenalty: BigDecimal!
+  "Total grown stalk gained via the Convert Up Bonus"
+  bonusStalkConvertUp: BigInt!
+  "Total BDV converted up that was awarded the bonus"
+  totalBdvConvertUpBonus: BigInt!
+  "Total BDV converted up regardless of receiving a bonus. (!) This value accumulates only when the Convert Up Bonus (gauge id 2) is active."
+  totalBdvConvertUp: BigInt!
 
   "(protocol) Tokens whitelisted for deposit within the silo"
   whitelistedTokens: [Bytes!]!
   "(protocol) Tokens that have been removed from the silo deposit whitelist"
   dewhitelistedTokens: [Bytes!]!
+  "(protocol) Tokens in the order they were whitelisted for deposit. This list never shrinks."
+  allWhitelistedTokens: [Bytes!]!
   "(protocol) Cumulative total for bean mints sent to the silo"
   beanMints: BigInt!
   "(protocol) Current plantable stalk for bean seigniorage not yet claimed"
@@ -190,6 +198,12 @@ type SiloHourlySnapshot @entity {
   unpenalizedStalkConvertDown: BigInt!
   "Average convert down penalty that has been assessed, in percent. 20.5 = 20.5%"
   avgConvertDownPenalty: BigDecimal!
+  "Point in time total grown stalk gained via the Convert Up Bonus"
+  bonusStalkConvertUp: BigInt!
+  "Point in time total BDV converted up that was awarded the bonus"
+  totalBdvConvertUpBonus: BigInt!
+  "Point in time total BDV converted up regardless of receiving a bonus. (!) This value accumulates only when the Convert Up Bonus (gauge id 2) is active."
+  totalBdvConvertUp: BigInt!
 
   "Point in time cumulative total for bean mints sent to the silo"
   beanMints: BigInt!
@@ -214,6 +228,9 @@ type SiloHourlySnapshot @entity {
   deltaPenalizedStalkConvertDown: BigInt!
   deltaUnpenalizedStalkConvertDown: BigInt!
   deltaAvgConvertDownPenalty: BigDecimal!
+  deltaBonusStalkConvertUp: BigInt!
+  deltaTotalBdvConvertUpBonus: BigInt!
+  deltaTotalBdvConvertUp: BigInt!
   deltaBeanMints: BigInt!
   deltaPlantableStalk: BigInt!
   deltaBeanToMaxLpGpPerBdvRatio: BigInt!
@@ -255,6 +272,12 @@ type SiloDailySnapshot @entity {
   unpenalizedStalkConvertDown: BigInt!
   "Average convert down penalty that has been assessed, in percent. 20.5 = 20.5%"
   avgConvertDownPenalty: BigDecimal!
+  "Point in time total grown stalk gained via the Convert Up Bonus"
+  bonusStalkConvertUp: BigInt!
+  "Point in time total BDV converted up that was awarded the bonus"
+  totalBdvConvertUpBonus: BigInt!
+  "Point in time total BDV converted up regardless of receiving a bonus. (!) This value accumulates only when the Convert Up Bonus (gauge id 2) is active."
+  totalBdvConvertUp: BigInt!
 
   "Point in time cumulative total for bean mints sent to the silo"
   beanMints: BigInt!
@@ -279,6 +302,9 @@ type SiloDailySnapshot @entity {
   deltaPenalizedStalkConvertDown: BigInt!
   deltaUnpenalizedStalkConvertDown: BigInt!
   deltaAvgConvertDownPenalty: BigDecimal!
+  deltaBonusStalkConvertUp: BigInt!
+  deltaTotalBdvConvertUpBonus: BigInt!
+  deltaTotalBdvConvertUp: BigInt!
   deltaBeanMints: BigInt!
   deltaPlantableStalk: BigInt!
   deltaBeanToMaxLpGpPerBdvRatio: BigInt!
@@ -568,6 +594,8 @@ type WhitelistTokenSetting @entity {
   stalkEarnedPerSeason: BigInt!
   "The stalk per BDV that the silo grants in exchange for depositing this token."
   stalkIssuedPerBdv: BigInt!
+  "The stem tip of the whitelisted token. Used to derive cumulative Stalk growth. "
+  stemTip: BigInt!
   "The last season in which the stalkEarnedPerSeason for this token was updated."
   milestoneSeason: Int!
   "Whether the seed gauge is enabled on this whitelisted token"
@@ -605,6 +633,8 @@ type WhitelistTokenHourlySnapshot @entity {
   stalkEarnedPerSeason: BigInt!
   "The stalk per BDV that the silo grants in exchange for depositing this token."
   stalkIssuedPerBdv: BigInt!
+  "The stem tip of the whitelisted token. Used to derive cumulative Stalk growth. "
+  stemTip: BigInt!
   "The last season in which the stalkEarnedPerSeason for this token was updated."
   milestoneSeason: Int!
   "Whether the seed gauge is enabled on this whitelisted token"
@@ -616,6 +646,7 @@ type WhitelistTokenHourlySnapshot @entity {
 
   deltaStalkEarnedPerSeason: BigInt!
   deltaStalkIssuedPerBdv: BigInt!
+  deltaStemTip: BigInt!
   deltaMilestoneSeason: Int!
   deltaIsGaugeEnabled: Boolean!
   deltaGaugePoints: BigInt
@@ -645,6 +676,8 @@ type WhitelistTokenDailySnapshot @entity {
   stalkEarnedPerSeason: BigInt!
   "The stalk per BDV that the silo grants in exchange for depositing this token."
   stalkIssuedPerBdv: BigInt!
+  "The stem tip of the whitelisted token. Used to derive cumulative Stalk growth. "
+  stemTip: BigInt!
   "The last season in which the stalkEarnedPerSeason for this token was updated."
   milestoneSeason: Int!
   "Whether the seed gauge is enabled on this whitelisted token"
@@ -656,6 +689,7 @@ type WhitelistTokenDailySnapshot @entity {
 
   deltaStalkEarnedPerSeason: BigInt!
   deltaStalkIssuedPerBdv: BigInt!
+  deltaStemTip: BigInt!
   deltaMilestoneSeason: Int!
   deltaIsGaugeEnabled: Boolean!
   deltaGaugePoints: BigInt
@@ -1981,6 +2015,114 @@ type UnripeTokenDailySnapshot @entity {
   deltaTotalChoppedAmount: BigInt!
   deltaTotalChoppedBdv: BigInt!
   deltaTotalChoppedBdvReceived: BigInt!
+
+  "Timestamp of initial snapshot creation"
+  createdAt: BigInt!
+  "Timestamp of last entity update"
+  updatedAt: BigInt!
+}
+
+# Intention of this entity is to store info relevant to various (multiple) gauges.
+# Gauge 0 and 1 are already on the silo/field entity directly, however continuing this pattern
+# will quickly bloat those schemas. Therefore it is preferable to put all of the info here.
+# Ultimately, the intention is to remove those values from the silo/field entities, but in practice it may not happen.
+type GaugesInfo @entity {
+  "'gauges'"
+  id: ID!
+
+  "Whether the Cultivation Factor gauge is active"
+  g0IsActive: Boolean!
+  "Whether the Convert Down Penalty gauge is active"
+  g1IsActive: Boolean!
+  "Whether the Convert Up Bonus gauge is active"
+  g2IsActive: Boolean!
+
+  "Cultivation Factor, in percent (i.e. 20.5 = 20.5% cultivation factor)"
+  g0CultivationFactor: BigDecimal
+
+  "Convert down penalty ratio"
+  g1ConvertDownPenalty: BigDecimal
+
+  "Convert Up Bonus current bonus stalk per bdv"
+  g2BonusStalkPerBdv: BigInt
+  "Convert Up Bonus seasonal max convert capacity (in bdv) that is eligible for a bonus"
+  g2MaxConvertCapacity: BigInt
+  "Convert Up Bonus bdv converted this season"
+  g2BdvConvertedThisSeason: BigInt
+  "Convert Up Bonus max recorded negative twaDeltaB while the bonus was active"
+  g2MaxTwaDeltaB: BigInt
+
+  "Season when the previous hourly snapshot was taken/updated"
+  lastHourlySnapshotSeason: Int
+  "Day of when the previous daily snapshot was taken/updated"
+  lastDailySnapshotDay: BigInt
+  "Link to hourly snapshot data"
+  hourlySnapshots: [GaugesInfoHourlySnapshot!]! @derivedFrom(field: "gaugesInfo")
+  "Link to daily snapshot data"
+  dailySnapshots: [GaugesInfoDailySnapshot!]! @derivedFrom(field: "gaugesInfo")
+}
+
+type GaugesInfoHourlySnapshot @entity {
+  "Gauge ID - Season"
+  id: ID!
+  "Season for the snapshot"
+  season: Int!
+  "Unripe token associated with this snapshot"
+  gaugesInfo: GaugesInfo!
+
+  g0IsActive: Boolean!
+  g1IsActive: Boolean!
+  g2IsActive: Boolean!
+  g0CultivationFactor: BigDecimal
+  g1ConvertDownPenalty: BigDecimal
+  g2BonusStalkPerBdv: BigInt
+  g2MaxConvertCapacity: BigInt
+  g2BdvConvertedThisSeason: BigInt
+  g2MaxTwaDeltaB: BigInt
+
+  deltaG0IsActive: Boolean!
+  deltaG1IsActive: Boolean!
+  deltaG2IsActive: Boolean!
+  deltaG0CultivationFactor: BigDecimal
+  deltaG1ConvertDownPenalty: BigDecimal
+  deltaG2BonusStalkPerBdv: BigInt
+  deltaG2MaxConvertCapacity: BigInt
+  deltaG2BdvConvertedThisSeason: BigInt
+  deltaG2MaxTwaDeltaB: BigInt
+
+  "Timestamp of initial snapshot creation"
+  createdAt: BigInt!
+  "Timestamp of last entity update"
+  updatedAt: BigInt!
+}
+
+type GaugesInfoDailySnapshot @entity {
+  "Gauge ID - Day"
+  id: ID!
+  "Season for the snapshot"
+  season: Int!
+  "Unripe token associated with this snapshot"
+  gaugesInfo: GaugesInfo!
+
+  g0IsActive: Boolean!
+  g1IsActive: Boolean!
+  g2IsActive: Boolean!
+  g0CultivationFactor: BigDecimal
+  g1ConvertDownPenalty: BigDecimal
+  g2BonusStalkPerBdv: BigInt
+  g2MaxConvertCapacity: BigInt
+  g2BdvConvertedThisSeason: BigInt
+  g2MaxTwaDeltaB: BigInt
+
+  deltaG0IsActive: Boolean!
+  deltaG1IsActive: Boolean!
+  deltaG2IsActive: Boolean!
+  deltaG0CultivationFactor: BigDecimal
+  deltaG1ConvertDownPenalty: BigDecimal
+  deltaG2BonusStalkPerBdv: BigInt
+  deltaG2MaxConvertCapacity: BigInt
+  deltaG2BdvConvertedThisSeason: BigInt
+  deltaG2MaxTwaDeltaB: BigInt
 
   "Timestamp of initial snapshot creation"
   createdAt: BigInt!

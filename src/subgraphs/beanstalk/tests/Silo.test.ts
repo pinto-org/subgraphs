@@ -14,6 +14,8 @@ import {
   createAddDepositV2Event,
   createAddDepositV3Event,
   createConvertDownPenaltyEvent,
+  createConvertEvent,
+  createConvertUpBonusEvent,
   createRemoveDepositsV2Event,
   createRemoveDepositV2Event,
   createRemoveDepositV3Event,
@@ -37,7 +39,9 @@ import {
 } from "../src/handlers/legacy/LegacySiloHandler";
 import {
   handleAddDeposit,
+  handleConvert,
   handleConvertDownPenalty,
+  handleConvertUpBonus,
   handleDewhitelistToken,
   handleRemoveDeposit,
   handleStalkBalanceChanged
@@ -45,6 +49,9 @@ import {
 import { initL1Version, initPintoVersion } from "./entity-mocking/MockVersion";
 import { stemFromSeason } from "../src/utils/legacy/LegacySilo";
 import { v } from "../src/utils/constants/Version";
+import { getProtocolToken } from "../../../core/constants/RuntimeConstants";
+import { PINTO_WETH } from "../../../core/constants/raw/PintoBaseConstants";
+import { loadGaugesInfo } from "../src/utils/GenGauge";
 
 let account1 = "0x1234567890abcdef1234567890abcdef12345678".toLowerCase();
 let account2 = "0x1234567890abcdef1234567890abcdef12345679".toLowerCase();
@@ -372,6 +379,130 @@ describe("Pinto Events", () => {
     assert.fieldEquals("Silo", ADDR2.toHexString(), "avgConvertDownPenalty", "0.4");
     assert.fieldEquals("Silo", v().protocolAddress.toHexString(), "penalizedStalkConvertDown", "3000");
     assert.fieldEquals("Silo", v().protocolAddress.toHexString(), "avgConvertDownPenalty", "0.3");
+  });
+
+  describe("Convert up bonus", () => {
+    beforeEach(() => {
+      const gaugeInfo = loadGaugesInfo();
+      gaugeInfo.g2IsActive = true;
+      gaugeInfo.save();
+    });
+
+    test("Full bonus awarded", () => {
+      handleConvert(
+        createConvertEvent(
+          ADDR1,
+          PINTO_WETH,
+          getProtocolToken(v(), ZERO_BI),
+          BigInt.fromString("1000"),
+          BigInt.fromString("2000"),
+          BigInt.fromString("2900"),
+          BigInt.fromString("3000")
+        )
+      );
+      handleConvertUpBonus(
+        createConvertUpBonusEvent(
+          ADDR1,
+          BigInt.fromString("1000"),
+          BigInt.fromString("2000"),
+          BigInt.fromString("3000"),
+          BigInt.fromString("3000")
+        )
+      );
+
+      assert.fieldEquals("Silo", ADDR1.toHexString(), "totalBdvConvertUp", "3000");
+      assert.fieldEquals("Silo", ADDR1.toHexString(), "bonusStalkConvertUp", "1000");
+      assert.fieldEquals("Silo", ADDR1.toHexString(), "totalBdvConvertUpBonus", "3000");
+      assert.fieldEquals("Silo", v().protocolAddress.toHexString(), "totalBdvConvertUp", "3000");
+      assert.fieldEquals("Silo", v().protocolAddress.toHexString(), "bonusStalkConvertUp", "1000");
+      assert.fieldEquals("Silo", v().protocolAddress.toHexString(), "totalBdvConvertUpBonus", "3000");
+
+      handleConvert(
+        createConvertEvent(
+          ADDR2,
+          PINTO_WETH,
+          getProtocolToken(v(), ZERO_BI),
+          BigInt.fromString("1000"),
+          BigInt.fromString("2000"),
+          BigInt.fromString("12900"),
+          BigInt.fromString("13000")
+        )
+      );
+      handleConvertUpBonus(
+        createConvertUpBonusEvent(
+          ADDR2,
+          BigInt.fromString("1000"),
+          BigInt.fromString("2000"),
+          BigInt.fromString("13000"),
+          BigInt.fromString("13000")
+        )
+      );
+
+      assert.fieldEquals("Silo", ADDR1.toHexString(), "totalBdvConvertUp", "3000");
+      assert.fieldEquals("Silo", ADDR1.toHexString(), "bonusStalkConvertUp", "1000");
+      assert.fieldEquals("Silo", ADDR1.toHexString(), "totalBdvConvertUpBonus", "3000");
+      assert.fieldEquals("Silo", v().protocolAddress.toHexString(), "totalBdvConvertUp", "16000");
+      assert.fieldEquals("Silo", v().protocolAddress.toHexString(), "bonusStalkConvertUp", "2000");
+      assert.fieldEquals("Silo", v().protocolAddress.toHexString(), "totalBdvConvertUpBonus", "16000");
+    });
+
+    test("Partial bonus awarded", () => {
+      handleConvert(
+        createConvertEvent(
+          ADDR1,
+          PINTO_WETH,
+          getProtocolToken(v(), ZERO_BI),
+          BigInt.fromString("1000"),
+          BigInt.fromString("2000"),
+          BigInt.fromString("2900"),
+          BigInt.fromString("3000")
+        )
+      );
+      handleConvertUpBonus(
+        createConvertUpBonusEvent(
+          ADDR1,
+          BigInt.fromString("1000"),
+          BigInt.fromString("2000"),
+          BigInt.fromString("2500"),
+          BigInt.fromString("3000")
+        )
+      );
+
+      assert.fieldEquals("Silo", ADDR1.toHexString(), "totalBdvConvertUp", "3000");
+      assert.fieldEquals("Silo", ADDR1.toHexString(), "bonusStalkConvertUp", "1000");
+      assert.fieldEquals("Silo", ADDR1.toHexString(), "totalBdvConvertUpBonus", "2500");
+      assert.fieldEquals("Silo", v().protocolAddress.toHexString(), "totalBdvConvertUp", "3000");
+      assert.fieldEquals("Silo", v().protocolAddress.toHexString(), "bonusStalkConvertUp", "1000");
+      assert.fieldEquals("Silo", v().protocolAddress.toHexString(), "totalBdvConvertUpBonus", "2500");
+    });
+
+    test("Detects convert up vs convert down in cumulative bdv converted", () => {
+      handleConvert(
+        createConvertEvent(
+          ADDR1,
+          PINTO_WETH,
+          getProtocolToken(v(), ZERO_BI),
+          BigInt.fromString("1000"),
+          BigInt.fromString("2000"),
+          BigInt.fromString("2900"),
+          BigInt.fromString("3000")
+        )
+      );
+      assert.fieldEquals("Silo", v().protocolAddress.toHexString(), "totalBdvConvertUp", "3000");
+
+      handleConvert(
+        createConvertEvent(
+          ADDR1,
+          getProtocolToken(v(), ZERO_BI),
+          PINTO_WETH,
+          BigInt.fromString("1000"),
+          BigInt.fromString("2000"),
+          BigInt.fromString("2900"),
+          BigInt.fromString("3000")
+        )
+      );
+      assert.fieldEquals("Silo", v().protocolAddress.toHexString(), "totalBdvConvertUp", "3000");
+    });
   });
 });
 

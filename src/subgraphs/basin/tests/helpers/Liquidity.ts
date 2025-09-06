@@ -22,7 +22,7 @@ import { AddLiquidity, RemoveLiquidity, RemoveLiquidityOneToken, Sync } from "..
 import { getProtocolToken } from "../../../../core/constants/RuntimeConstants";
 import { v } from "../../src/utils/constants/Version";
 import { createConvertEvent } from "./Beanstalk";
-import { Convert } from "../../generated/Basin-ABIs/PintoLaunch";
+import { Convert } from "../../generated/Basin-ABIs/PintoPI12";
 import { handleConvert } from "../../src/handlers/BeanstalkHandler";
 import { Trade } from "../../generated/schema";
 
@@ -126,7 +126,7 @@ export function mockConvert(
   toAmount: BigInt,
   transaction: ethereum.Transaction | null = null
 ): Convert {
-  const event = createConvertEvent(SWAP_ACCOUNT, fromToken, toToken, fromAmount, toAmount);
+  const event = createConvertEvent(SWAP_ACCOUNT, fromToken, toToken, fromAmount, toAmount, fromAmount, toAmount);
   if (transaction != null) {
     event.transaction = transaction;
   }

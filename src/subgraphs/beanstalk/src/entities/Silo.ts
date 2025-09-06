@@ -34,9 +34,13 @@ export function loadSilo(account: Address): Silo {
     silo.penalizedStalkConvertDown = ZERO_BI;
     silo.unpenalizedStalkConvertDown = ZERO_BI;
     silo.avgConvertDownPenalty = ZERO_BD;
+    silo.bonusStalkConvertUp = ZERO_BI;
+    silo.totalBdvConvertUpBonus = ZERO_BI;
+    silo.totalBdvConvertUp = ZERO_BI;
 
     silo.whitelistedTokens = [];
     silo.dewhitelistedTokens = [];
+    silo.allWhitelistedTokens = [];
     silo.beanMints = ZERO_BI;
     silo.plantableStalk = ZERO_BI;
     silo.beanToMaxLpGpPerBdvRatio = ZERO_BI;
@@ -70,10 +74,13 @@ export function loadSiloAsset(account: Address, token: Address): SiloAsset {
 /* ===== Whitelist Token Settings Entities ===== */
 
 export function addToSiloWhitelist(siloAddress: Address, token: Address): void {
-  let silo = loadSilo(siloAddress);
-  let currentList = silo.whitelistedTokens;
-  currentList.push(token);
-  silo.whitelistedTokens = currentList;
+  const silo = loadSilo(siloAddress);
+  const currentWhitelisted = silo.whitelistedTokens;
+  const currentAllWhitelisted = silo.allWhitelistedTokens;
+  currentWhitelisted.push(token);
+  currentAllWhitelisted.push(token);
+  silo.whitelistedTokens = currentWhitelisted;
+  silo.allWhitelistedTokens = currentAllWhitelisted;
   silo.save();
 }
 
@@ -84,6 +91,7 @@ export function loadWhitelistTokenSetting(token: Address): WhitelistTokenSetting
     setting.selector = Bytes.empty();
     setting.stalkEarnedPerSeason = ZERO_BI;
     setting.stalkIssuedPerBdv = ZERO_BI;
+    setting.stemTip = ZERO_BI;
     setting.milestoneSeason = 0;
     setting.isGaugeEnabled = false;
     setting.decimals = getTokenDecimals(v(), token);

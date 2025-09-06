@@ -2,11 +2,14 @@ import { Address, Bytes, BigInt, BigDecimal, ethereum } from "@graphprotocol/gra
 import { getPoolTokens, getTokenDecimals, PoolTokens } from "../../../../core/constants/RuntimeConstants";
 import { v as ver } from "./constants/Version";
 import { ERC20 } from "../../generated/Beanstalk-ABIs/ERC20";
-import { PintoPI8 } from "../../generated/Beanstalk-ABIs/PintoPI8";
+import { PintoPI12 } from "../../generated/Beanstalk-ABIs/PintoPI12";
 import { ONE_BD, toDecimal, ZERO_BD } from "../../../../core/utils/Decimals";
 import { MarketPerformanceSeasonal } from "../../generated/schema";
 import { toAddress } from "../../../../core/utils/Bytes";
 
+// Tracks the effect of underlying token movements on the overall liquidity value.
+// siloTokens must be provided in the same order each season, even after dewhitelisting.
+// When new tokens are whitelisted, they can be appended to the end of the list.
 export function trackMarketPerformance(season: i32, siloTokens: Bytes[], block: ethereum.Block): void {
   const v = ver();
   const POOL_TOKENS = getPoolTokens(v);
@@ -23,7 +26,7 @@ export function trackMarketPerformance(season: i32, siloTokens: Bytes[], block: 
   const pools = siloPoolTokens.map<Address>((pool) => pool.pool);
   const nonBeanTokens = siloPoolTokens.map<Address>((pool) => pool.tokens[1]);
 
-  const beanstalk = PintoPI8.bind(v.protocolAddress);
+  const beanstalk = PintoPI12.bind(v.protocolAddress);
   const balances: BigInt[] = [];
   for (let i = 0; i < nonBeanTokens.length; i++) {
     balances.push(ERC20.bind(nonBeanTokens[i]).balanceOf(pools[i]));
@@ -55,7 +58,7 @@ export function trackMarketPerformance(season: i32, siloTokens: Bytes[], block: 
     currentSeason.timestamp = block.timestamp;
     currentSeason.thisSeasonTokenUsdPrices = prices;
     const thisSeasonTokenUsdValues: BigDecimal[] = [];
-    for (let i = 0; i < nonBeanTokens.length; i++) {
+    for (let i = 0; i < currentSeason.prevSeasonTokenBalances.length; i++) {
       thisSeasonTokenUsdValues.push(
         toDecimal(currentSeason.prevSeasonTokenBalances[i], getTokenDecimals(v, nonBeanTokens[i])).times(prices[i])
       );
@@ -66,7 +69,7 @@ export function trackMarketPerformance(season: i32, siloTokens: Bytes[], block: 
       .truncate(2);
 
     const usdChange: BigDecimal[] = [];
-    for (let i = 0; i < currentSeason.thisSeasonTokenUsdValues!.length; ++i) {
+    for (let i = 0; i < currentSeason.prevSeasonTokenUsdValues!.length; ++i) {
       usdChange.push(currentSeason.thisSeasonTokenUsdValues![i].minus(currentSeason.prevSeasonTokenUsdValues[i]));
     }
     currentSeason.usdChange = usdChange.map<BigDecimal>((bd) => bd.truncate(2));
@@ -75,7 +78,7 @@ export function trackMarketPerformance(season: i32, siloTokens: Bytes[], block: 
       .truncate(2);
 
     const percentChange: BigDecimal[] = [];
-    for (let i = 0; i < currentSeason.thisSeasonTokenUsdValues!.length; ++i) {
+    for (let i = 0; i < currentSeason.prevSeasonTokenUsdValues!.length; ++i) {
       const prev = currentSeason.prevSeasonTokenUsdValues[i];
       const curr = currentSeason.thisSeasonTokenUsdValues![i];
       percentChange.push(prev.equals(ZERO_BD) ? ZERO_BD : curr.div(prev).minus(ONE_BD));

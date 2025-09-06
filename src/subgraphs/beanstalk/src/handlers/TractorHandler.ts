@@ -1,6 +1,6 @@
 import { getProtocolToken } from "../../../../core/constants/RuntimeConstants";
 import { ZERO_BI } from "../../../../core/utils/Decimals";
-import { Tractor } from "../../generated/Beanstalk-ABIs/PintoPI8";
+import { Tractor } from "../../generated/Beanstalk-ABIs/PintoPI12";
 import { OperatorReward } from "../../generated/Beanstalk-ABIs/TractorHelpers";
 import { takeTractorSnapshots } from "../entities/snapshots/Tractor";
 import { loadTractor, loadTractorReward } from "../entities/Tractor";

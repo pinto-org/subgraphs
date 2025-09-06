@@ -4,6 +4,10 @@ import { loadWell } from "./Well";
 import { EventVolume, SwapInfo } from "../utils/Volume";
 import { ConvertCandidate, Trade } from "../../generated/schema";
 
+// Avoid saving swap Trade entities with volume less than this amount.
+// LP events are always saved since they are needed for Convert tracking.
+const TRADE_USD_MIN = BigDecimal.fromString("100.0");
+
 export function getLiquidityEntityId(
   tradeType: string,
   event: ethereum.Event,
@@ -78,6 +82,10 @@ export function recordSwapEvent(
   initialRates: BigDecimal[],
   volume: EventVolume
 ): void {
+  if (volume.tradeVolumeUSD < TRADE_USD_MIN) {
+    return;
+  }
+
   const trade = new Trade(getSwapEntityId(event, swapInfo.amountOut));
   const well = loadWell(event.address);
 

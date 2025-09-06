@@ -38,8 +38,8 @@ dataSources:
           file: ../../../core/abis/Beanstalk/Beanstalk-BIP50.json
         - name: PintoLaunch
           file: ../../../core/abis/Beanstalk/Pinto-Launch.json
-        - name: PintoPI8
-          file: ../../../core/abis/Beanstalk/Pinto-PI8.json
+        - name: PintoPI12
+          file: ../../../core/abis/Beanstalk/Pinto-PI12.json
         - name: ERC20
           file: ../../../core/abis/ERC20.json
         - name: CurvePrice

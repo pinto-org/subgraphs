@@ -27,6 +27,8 @@ dataSources:
           file: ../../../core/abis/ERC20.json
         - name: PintoLaunch
           file: ../../../core/abis/Beanstalk/Pinto-Launch.json
+        - name: PintoPI12
+          file: ../../../core/abis/Beanstalk/Pinto-PI12.json
         - name: Well
           file: ../../../core/abis/Well.json
         - name: WellFunction

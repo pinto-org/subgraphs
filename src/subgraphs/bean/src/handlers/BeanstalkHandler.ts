@@ -58,6 +58,9 @@ export function handleChop(event: Chop): void {
   updateBeanSupplyPegPercent(beanToken, event.block);
 }
 
+// NOTE: This doesn't do anything for Pinto, however it is still connected. The PI-12 updated Convert event signature
+// was not added to this subgraph since it's useless. If the handleConvert implementation changes in the future
+// and becomes relevant for Pinto, the PI-12 Convert event signature must be supported as well.
 export function handleConvert(event: Convert): void {
   if (isUnripe(v(), event.params.fromToken) && !isUnripe(v(), event.params.toToken)) {
     let beanToken = getProtocolToken(v(), event.block.number);
