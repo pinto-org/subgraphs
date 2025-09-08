@@ -1,6 +1,6 @@
 import { BigInt, Address, Bytes, ethereum } from "@graphprotocol/graph-ts";
 import { mockContractEvent } from "../../../../core/tests/event-mocking/Util";
-import { Tractor } from "../../generated/Beanstalk-ABIs/PintoPI12";
+import { Tractor } from "../../generated/Beanstalk-ABIs/PintoPI13";
 import { v } from "../../src/utils/constants/Version";
 import { OperatorReward } from "../../generated/Beanstalk-ABIs/TractorHelpers";
 

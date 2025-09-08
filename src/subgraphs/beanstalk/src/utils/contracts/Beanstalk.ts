@@ -2,7 +2,7 @@ import { BigInt } from "@graphprotocol/graph-ts";
 import { BEANSTALK as BEANSTALK_ETH } from "../../../../../core/constants/raw/BeanstalkEthConstants";
 import { SeedGauge } from "../../../generated/Beanstalk-ABIs/SeedGauge";
 import { v } from "../constants/Version";
-import { PintoPI12 } from "../../../generated/Beanstalk-ABIs/PintoPI12";
+import { PintoPI13 } from "../../../generated/Beanstalk-ABIs/PintoPI13";
 
 export function Beanstalk_harvestableIndex(fieldId: BigInt): BigInt {
   const version = v();
@@ -11,12 +11,12 @@ export function Beanstalk_harvestableIndex(fieldId: BigInt): BigInt {
     return beanstalk_contract.harvestableIndex();
   }
   // Has field id
-  let beanstalk_contract = PintoPI12.bind(version.protocolAddress);
+  let beanstalk_contract = PintoPI13.bind(version.protocolAddress);
   return beanstalk_contract.harvestableIndex(fieldId);
 }
 
 export function Beanstalk_isRaining(): boolean {
-  const beanstalk_contract = PintoPI12.bind(v().protocolAddress);
+  const beanstalk_contract = PintoPI13.bind(v().protocolAddress);
   const seasonStruct = beanstalk_contract.getSeasonStruct();
   return seasonStruct.raining;
 }

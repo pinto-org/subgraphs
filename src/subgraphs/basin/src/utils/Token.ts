@@ -4,7 +4,7 @@ import { getBeanPrice } from "./BeanstalkPrice";
 import { getProtocolToken } from "../../../../core/constants/RuntimeConstants";
 import { v } from "./constants/Version";
 import { loadToken } from "../entities/Token";
-import { PintoPI12 } from "../../generated/Basin-ABIs/PintoPI12";
+import { PintoPI13 } from "../../generated/Basin-ABIs/PintoPI13";
 
 export function getBeanPriceUDSC(): BigDecimal {
   let token = loadToken(getProtocolToken(v(), BI_MAX));
@@ -30,7 +30,7 @@ export function updateTokenUSD(
     }
     token.lastPriceUSD = beanPrice;
   } else {
-    const beanstalkContract = PintoPI12.bind(v().protocolAddress);
+    const beanstalkContract = PintoPI13.bind(v().protocolAddress);
     const tokenUsd = beanstalkContract.try_getTokenUsdPrice(tokenAddress);
     if (!tokenUsd.reverted) {
       token.lastPriceUSD = toDecimal(tokenUsd.value);

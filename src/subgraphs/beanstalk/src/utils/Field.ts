@@ -12,7 +12,7 @@ import { getCurrentSeason, getHarvestableIndex, loadBeanstalk, loadFarmer, loadS
 import { loadField, loadPlot } from "../entities/Field";
 import { expirePodListingIfExists } from "./Marketplace";
 import { toAddress } from "../../../../core/utils/Bytes";
-import { PintoPI12 } from "../../generated/Beanstalk-ABIs/PintoPI12";
+import { PintoPI13 } from "../../generated/Beanstalk-ABIs/PintoPI13";
 
 class SowParams {
   event: ethereum.Event;
@@ -91,7 +91,7 @@ export function sow(params: SowParams): void {
 
   incrementSows(protocol, params.account, params.event.block);
 
-  const beanstalk = PintoPI12.bind(protocol);
+  const beanstalk = PintoPI13.bind(protocol);
   const deltaPodDemand = beanstalk.getDeltaPodDemand();
   setDeltaPodDemand(deltaPodDemand, protocolField);
 }

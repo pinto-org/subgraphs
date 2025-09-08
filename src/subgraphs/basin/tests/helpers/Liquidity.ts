@@ -22,7 +22,7 @@ import { AddLiquidity, RemoveLiquidity, RemoveLiquidityOneToken, Sync } from "..
 import { getProtocolToken } from "../../../../core/constants/RuntimeConstants";
 import { v } from "../../src/utils/constants/Version";
 import { createConvertEvent } from "./Beanstalk";
-import { Convert } from "../../generated/Basin-ABIs/PintoPI12";
+import { Convert } from "../../generated/Basin-ABIs/PintoPI13";
 import { handleConvert } from "../../src/handlers/BeanstalkHandler";
 import { Trade } from "../../generated/schema";
 
