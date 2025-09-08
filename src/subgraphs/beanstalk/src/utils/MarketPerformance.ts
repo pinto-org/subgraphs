@@ -2,7 +2,7 @@ import { Address, Bytes, BigInt, BigDecimal, ethereum } from "@graphprotocol/gra
 import { getPoolTokens, getTokenDecimals, PoolTokens } from "../../../../core/constants/RuntimeConstants";
 import { v as ver } from "./constants/Version";
 import { ERC20 } from "../../generated/Beanstalk-ABIs/ERC20";
-import { PintoPI12 } from "../../generated/Beanstalk-ABIs/PintoPI12";
+import { PintoPI13 } from "../../generated/Beanstalk-ABIs/PintoPI13";
 import { ONE_BD, toDecimal, ZERO_BD } from "../../../../core/utils/Decimals";
 import { MarketPerformanceSeasonal } from "../../generated/schema";
 import { toAddress } from "../../../../core/utils/Bytes";
@@ -26,7 +26,7 @@ export function trackMarketPerformance(season: i32, siloTokens: Bytes[], block: 
   const pools = siloPoolTokens.map<Address>((pool) => pool.pool);
   const nonBeanTokens = siloPoolTokens.map<Address>((pool) => pool.tokens[1]);
 
-  const beanstalk = PintoPI12.bind(v.protocolAddress);
+  const beanstalk = PintoPI13.bind(v.protocolAddress);
   const balances: BigInt[] = [];
   for (let i = 0; i < nonBeanTokens.length; i++) {
     balances.push(ERC20.bind(nonBeanTokens[i]).balanceOf(pools[i]));

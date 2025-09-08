@@ -6,7 +6,7 @@ import {
   UpdatedGauge,
   UpdatedGaugeData,
   UpdatedGaugeValue
-} from "../../generated/Beanstalk-ABIs/PintoPI12";
+} from "../../generated/Beanstalk-ABIs/PintoPI13";
 import { engaged, engagedData, toggleGaugeActive } from "../utils/GenGauge";
 
 // A gauge was newly added

@@ -10,7 +10,7 @@ import { BI_10, toDecimal, ZERO_BD, ZERO_BI } from "../../../../core/utils/Decim
 import { loadField } from "../entities/Field";
 import { setBdv, takeWhitelistTokenSettingSnapshots } from "../entities/snapshots/WhitelistTokenSetting";
 import { WhitelistTokenSetting } from "../../generated/schema";
-import { PintoPI12 } from "../../generated/Beanstalk-ABIs/PintoPI12";
+import { PintoPI13 } from "../../generated/Beanstalk-ABIs/PintoPI13";
 import { updateUnripeStats } from "./Barn";
 import { beanDecimals, getProtocolToken, isUnripe, stalkDecimals } from "../../../../core/constants/RuntimeConstants";
 import { v } from "./constants/Version";
@@ -60,7 +60,7 @@ export function sunrise(protocol: Address, season: BigInt, block: ethereum.Block
     siloAsset.save();
 
     let whitelistTokenSetting = loadWhitelistTokenSetting(token);
-    whitelistTokenSetting.stemTip = PintoPI12.bind(protocol).stemTipForToken(token);
+    whitelistTokenSetting.stemTip = PintoPI13.bind(protocol).stemTipForToken(token);
     takeWhitelistTokenSettingSnapshots(whitelistTokenSetting, block);
     whitelistTokenSetting.save();
     setTokenBdv(token, protocol, whitelistTokenSetting);
@@ -112,7 +112,7 @@ export function plentyWell(token: Address, amount: BigInt): void {
 
 function setTokenBdv(token: Address, protocol: Address, whitelistTokenSetting: WhitelistTokenSetting): void {
   // Get bdv if the bdv function is available onchain (not available prior to BIP-16)
-  const beanstalk_call = PintoPI12.bind(protocol);
+  const beanstalk_call = PintoPI13.bind(protocol);
   const bdvResult = beanstalk_call.try_bdv(token, BI_10.pow(<u8>whitelistTokenSetting.decimals));
   if (bdvResult.reverted) {
     return;

@@ -13,7 +13,7 @@ import {
   StalkBalanceChanged,
   ConvertUpBonus,
   Convert
-} from "../../generated/Beanstalk-ABIs/PintoPI12";
+} from "../../generated/Beanstalk-ABIs/PintoPI13";
 import { v } from "../../src/utils/constants/Version";
 
 export function createAddDepositV2Event(

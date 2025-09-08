@@ -7,7 +7,7 @@ import {
   TotalGerminatingStalkChanged,
   TotalStalkChangedFromGermination,
   UpdatedOptimalPercentDepositedBdvForToken
-} from "../../generated/Beanstalk-ABIs/PintoPI12";
+} from "../../generated/Beanstalk-ABIs/PintoPI13";
 import {
   deleteGerminating,
   germinationEnumCategory,

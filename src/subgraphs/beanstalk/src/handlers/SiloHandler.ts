@@ -25,7 +25,7 @@ import {
   ClaimPlenty,
   ConvertDownPenalty,
   ConvertUpBonus
-} from "../../generated/Beanstalk-ABIs/PintoPI12";
+} from "../../generated/Beanstalk-ABIs/PintoPI13";
 import { beanDecimals, getProtocolToken, stalkDecimals } from "../../../../core/constants/RuntimeConstants";
 import { v } from "../utils/constants/Version";
 import { BI_10 } from "../../../../core/utils/Decimals";
