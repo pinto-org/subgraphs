@@ -477,7 +477,7 @@ export function plotCombined(params: PlotCombinedParams): void {
     totalHarvestable = totalHarvestable.plus(plot.harvestablePods);
     totalHarvested = totalHarvested.plus(plot.harvestedPods);
     indexesToRemove.push(index);
-    store.remove("Plot", index.toString());
+    store.remove("Plot", plot.id);
   }
 
   targetPlot.farmer = params.account;
