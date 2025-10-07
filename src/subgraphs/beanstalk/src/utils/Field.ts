@@ -1,4 +1,4 @@
-import { Address, BigInt, BigDecimal, ethereum } from "@graphprotocol/graph-ts";
+import { Address, BigInt, BigDecimal, ethereum, store } from "@graphprotocol/graph-ts";
 import { BeanstalkPrice_priceOnly } from "./contracts/BeanstalkPrice";
 import { BI_10, ONE_BD, toDecimal, ZERO_BD, ZERO_BI } from "../../../../core/utils/Decimals";
 import {
@@ -13,6 +13,7 @@ import { loadField, loadPlot } from "../entities/Field";
 import { expirePodListingIfExists } from "./Marketplace";
 import { toAddress } from "../../../../core/utils/Bytes";
 import { PintoPI13 } from "../../generated/Beanstalk-ABIs/PintoPI13";
+import { Plot } from "../../generated/schema";
 
 class SowParams {
   event: ethereum.Event;
@@ -45,6 +46,14 @@ class TemperatureChangedParams {
   season: BigInt;
   caseId: BigInt;
   absChange: BigInt;
+}
+
+class PlotCombinedParams {
+  event: ethereum.Event;
+  account: Address;
+  fieldId: BigInt | null;
+  plotIndexes: BigInt[];
+  totalPods: BigInt;
 }
 
 export function sow(params: SowParams): void {
@@ -438,6 +447,69 @@ export function plotTransfer(params: PlotTransferParams): void {
     params.event.block,
     false
   );
+}
+
+export function plotCombined(params: PlotCombinedParams): void {
+  const protocol = params.event.address;
+  const field = loadField(protocol);
+
+  //TODO: need sort indexes?
+
+
+  // loadPlot or Plot.load? loadPlot generates new plot if it is null
+  const targetIndex = params.plotIndexes[0];
+  let targetPlot = Plot.load(targetIndex.toString());
+  if (targetPlot == null) {
+    return;
+  }
+
+  let totalHarvestable = targetPlot.harvestablePods;
+  let totalHarvested = targetPlot.harvestedPods;
+  const indexesToRemove = new Array<BigInt>();
+
+  for (let i = 1; i < params.plotIndexes.length; ++i) {
+    const index = params.plotIndexes[i];
+    const plot = Plot.load(index.toString());
+    if (plot == null) {
+      continue;
+    }
+
+    totalHarvestable = totalHarvestable.plus(plot.harvestablePods);
+    totalHarvested = totalHarvested.plus(plot.harvestedPods);
+    indexesToRemove.push(index);
+    store.remove("Plot", index.toString());
+  }
+
+  targetPlot.farmer = params.account;
+  targetPlot.pods = params.totalPods;
+  targetPlot.harvestedPods = totalHarvested;
+
+  //TODO: Is it overengineering?
+
+  let maxHarvestable = targetPlot.pods.minus(targetPlot.harvestedPods);
+  if (maxHarvestable < ZERO_BI) {
+    maxHarvestable = ZERO_BI;
+  }
+  targetPlot.harvestablePods = totalHarvestable > maxHarvestable ? maxHarvestable : totalHarvestable;
+
+  //
+
+  targetPlot.fullyHarvested = targetPlot.harvestedPods >= targetPlot.pods;
+  targetPlot.updatedAt = params.event.block.timestamp;
+  targetPlot.updatedAtBlock = params.event.block.number;
+  targetPlot.combinedAtBlock = params.event.block.number;
+  targetPlot.save();
+
+  let fieldIndexes = field.plotIndexes;
+  for (let i = 0; i < indexesToRemove.length; ++i) {
+    const removalIndex = indexesToRemove[i];
+    const position = fieldIndexes.indexOf(removalIndex);
+    if (position >= 0) {
+      fieldIndexes.splice(position, 1);
+    }
+  }
+  field.plotIndexes = fieldIndexes;
+  field.save();
 }
 
 // This function is for handling both the WeatherChange and TemperatureChange events.

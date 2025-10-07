@@ -1,5 +1,5 @@
 import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
-import { Sow, PlotTransfer, Harvest, TemperatureChange } from "../../generated/Beanstalk-ABIs/PintoPI13";
+import { Sow, PlotTransfer, Harvest, TemperatureChange, PlotCombined } from "../../generated/Beanstalk-ABIs/PintoPI13";
 import { mockBeanstalkEvent } from "../../../../core/tests/event-mocking/Util";
 import { ZERO_BI } from "../../../../core/utils/Decimals";
 
@@ -102,6 +102,39 @@ export function createPlotTransferEvent(
   event.parameters.push(param5);
 
   return event as PlotTransfer;
+}
+
+export function createPlotCombinedEvent(
+  account: string,
+  fieldId: BigInt,
+  indexes: BigInt[],
+  totalPods: BigInt,
+  blockNumber: BigInt | null = null
+): PlotCombined {
+  let event = changetype<PlotCombined>(mockBeanstalkEvent());
+  event.parameters = new Array();
+
+  if (blockNumber !== null) {
+    event.block.number = blockNumber;
+    event.block.timestamp = blockNumber;
+  }
+
+  let indexValues: ethereum.Value[] = [];
+  for (let i = 0; i < indexes.length; ++i) {
+    indexValues.push(ethereum.Value.fromUnsignedBigInt(indexes[i]));
+  }
+
+  let param1 = new ethereum.EventParam("account", ethereum.Value.fromAddress(Address.fromString(account)));
+  let param2 = new ethereum.EventParam("fieldId", ethereum.Value.fromUnsignedBigInt(fieldId));
+  let param3 = new ethereum.EventParam("plotIndexes", ethereum.Value.fromArray(indexValues));
+  let param4 = new ethereum.EventParam("totalPods", ethereum.Value.fromUnsignedBigInt(totalPods));
+
+  event.parameters.push(param1);
+  event.parameters.push(param2);
+  event.parameters.push(param3);
+  event.parameters.push(param4);
+
+  return event as PlotCombined;
 }
 export function createSupplyIncreaseEvent(
   season: BigInt,

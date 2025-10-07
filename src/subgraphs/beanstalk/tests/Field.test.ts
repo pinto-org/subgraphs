@@ -3,12 +3,12 @@ import { BigDecimal, BigInt } from "@graphprotocol/graph-ts";
 import { BEANSTALK, BEANSTALK_BLOCK } from "../../../core/constants/raw/BeanstalkEthConstants";
 import { BI_10, ZERO_BI } from "../../../core/utils/Decimals";
 import { beans_BI as beans, podlineMil_BI as mil } from "../../../core/tests/Values";
-import { assertFarmerHasPlot, assertFieldHas, sow } from "./utils/Field";
+import { assertFarmerHasPlot, assertFieldHas, combinePlots, sow } from "./utils/Field";
 import { initL1Version } from "./entity-mocking/MockVersion";
 import { simpleMockPrice } from "../../../core/tests/event-mocking/Price";
 import { handleTemperatureChange } from "../src/handlers/FieldHandler";
 import { createTemperatureChangeEvent } from "./event-mocking/Field";
-import { loadField } from "../src/entities/Field";
+import { loadField, loadPlot } from "../src/entities/Field";
 import { takeFieldSnapshots } from "../src/entities/snapshots/Field";
 import { mockBlock } from "../../../core/tests/event-mocking/Block";
 
@@ -40,6 +40,62 @@ describe("Field", () => {
       "beansPerPod",
       BI_10.pow(6).div(BigInt.fromU32(temperature)).toString()
     );
+  });
+
+  test("PlotCombined merges sequential plots into the earliest index", () => {
+    const plotIndices = [1000, 3000, 5000, 9000];
+    const podSizes = [2000, 2000, 4000, 1000];
+
+    for (let i = 0; i < plotIndices.length; ++i) {
+      sow(account, BigInt.fromI32(plotIndices[i]), beans(1), BigInt.fromI32(podSizes[i]));
+    }
+
+    const harvestableValues = [100, 150, 75, 0];
+    const harvestedValues = [50, 25, 0, 0];
+
+    for (let i = 0; i < harvestableValues.length; ++i) {
+      const plot = loadPlot(BEANSTALK, BigInt.fromI32(plotIndices[i]));
+      plot.harvestablePods = BigInt.fromI32(harvestableValues[i]);
+      plot.harvestedPods = BigInt.fromI32(harvestedValues[i]);
+      plot.save();
+    }
+
+    const index1000 = BigInt.fromI32(plotIndices[0]);
+    const index3000 = BigInt.fromI32(plotIndices[1]);
+    const index5000 = BigInt.fromI32(plotIndices[2]);
+    const index9000 = BigInt.fromI32(plotIndices[3]);
+
+    let totalPods = ZERO_BI;
+    let expectedHarvestable = ZERO_BI;
+    let expectedHarvested = ZERO_BI;
+    for (let i = 0; i < 3; ++i) {
+      totalPods = totalPods.plus(BigInt.fromI32(podSizes[i]));
+      expectedHarvestable = expectedHarvestable.plus(BigInt.fromI32(harvestableValues[i]));
+      expectedHarvested = expectedHarvested.plus(BigInt.fromI32(harvestedValues[i]));
+    }
+    const podsD = BigInt.fromI32(podSizes[3]);
+    const blockNumber = BigInt.fromI32(123);
+
+    const combinedIndexes: BigInt[] = [index1000, index3000, index5000];
+    combinePlots(account, combinedIndexes, totalPods, blockNumber);
+
+    assert.fieldEquals("Plot", index1000.toString(), "pods", totalPods.toString());
+    assert.fieldEquals("Plot", index1000.toString(), "harvestablePods", expectedHarvestable.toString());
+    assert.fieldEquals("Plot", index1000.toString(), "harvestedPods", expectedHarvested.toString());
+    assert.fieldEquals("Plot", index1000.toString(), "combinedAtBlock", blockNumber.toString());
+    assert.fieldEquals("Plot", index1000.toString(), "fullyHarvested", "false");
+
+    assert.notInStore("Plot", index3000.toString());
+    assert.notInStore("Plot", index5000.toString());
+
+    const fieldEntity = loadField(BEANSTALK);
+    const fieldIndexes = fieldEntity.plotIndexes;
+    assert.assertTrue(fieldIndexes.indexOf(index3000) == -1);
+    assert.assertTrue(fieldIndexes.indexOf(index5000) == -1);
+    assert.assertTrue(fieldIndexes.indexOf(index1000) != -1);
+    assert.assertTrue(fieldIndexes.indexOf(index9000) != -1);
+
+    assert.fieldEquals("Plot", index9000.toString(), "pods", podsD.toString());
   });
 
   describe("Cultivation Temperature", () => {
