@@ -480,20 +480,10 @@ export function plotCombined(params: PlotCombinedParams): void {
     store.remove("Plot", plot.id);
   }
 
-  targetPlot.farmer = params.account;
   targetPlot.pods = params.totalPods;
   targetPlot.harvestedPods = totalHarvested;
-
-  //TODO: Is it overengineering?
-
-  let maxHarvestable = targetPlot.pods.minus(targetPlot.harvestedPods);
-  if (maxHarvestable < ZERO_BI) {
-    maxHarvestable = ZERO_BI;
-  }
-  targetPlot.harvestablePods = totalHarvestable > maxHarvestable ? maxHarvestable : totalHarvestable;
-
-  //
-
+  targetPlot.harvestablePods = totalHarvestable;
+  
   targetPlot.fullyHarvested = targetPlot.harvestedPods >= targetPlot.pods;
   targetPlot.updatedAt = params.event.block.timestamp;
   targetPlot.updatedAtBlock = params.event.block.number;
