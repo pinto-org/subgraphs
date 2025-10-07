@@ -466,6 +466,7 @@ export function plotCombined(params: PlotCombinedParams): void {
   let totalHarvestable = targetPlot.harvestablePods;
   let totalHarvested = targetPlot.harvestedPods;
   let beansPerPodSum = targetPlot.beansPerPod.times(targetPlot.pods);
+  let sownBeansPerPodSum = targetPlot.sownBeansPerPod.times(targetPlot.pods);
   const indexesToRemove = new Array<BigInt>();
 
   for (let i = 1; i < params.plotIndexes.length; ++i) {
@@ -478,6 +479,7 @@ export function plotCombined(params: PlotCombinedParams): void {
     totalHarvestable = totalHarvestable.plus(plot.harvestablePods);
     totalHarvested = totalHarvested.plus(plot.harvestedPods);
     beansPerPodSum = beansPerPodSum.plus(plot.beansPerPod.times(plot.pods));
+    sownBeansPerPodSum = sownBeansPerPodSum.plus(plot.sownBeansPerPod.times(plot.pods));
     indexesToRemove.push(index);
     store.remove("Plot", plot.id);
   }
@@ -486,6 +488,7 @@ export function plotCombined(params: PlotCombinedParams): void {
   targetPlot.harvestedPods = totalHarvested;
   targetPlot.harvestablePods = totalHarvestable;
   targetPlot.beansPerPod = beansPerPodSum.div(params.totalPods);
+  targetPlot.sownBeansPerPod = sownBeansPerPodSum.div(params.totalPods);
   targetPlot.fullyHarvested = targetPlot.harvestedPods >= targetPlot.pods;
   targetPlot.updatedAt = params.event.block.timestamp;
   targetPlot.updatedAtBlock = params.event.block.number;
