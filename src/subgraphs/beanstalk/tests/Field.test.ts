@@ -68,11 +68,15 @@ describe("Field", () => {
     let totalPods = ZERO_BI;
     let expectedHarvestable = ZERO_BI;
     let expectedHarvested = ZERO_BI;
+    let expectedBeansPerPodSum = ZERO_BI;
     for (let i = 0; i < 3; ++i) {
+      const plot = loadPlot(BEANSTALK, BigInt.fromI32(plotIndices[i]));
       totalPods = totalPods.plus(BigInt.fromI32(podSizes[i]));
       expectedHarvestable = expectedHarvestable.plus(BigInt.fromI32(harvestableValues[i]));
       expectedHarvested = expectedHarvested.plus(BigInt.fromI32(harvestedValues[i]));
+      expectedBeansPerPodSum = expectedBeansPerPodSum.plus(plot.beansPerPod.times(plot.pods));
     }
+    const expectedBeansPerPod = expectedBeansPerPodSum.div(totalPods);
     const podsD = BigInt.fromI32(podSizes[3]);
     const blockNumber = BigInt.fromI32(123);
 
@@ -82,6 +86,7 @@ describe("Field", () => {
     assert.fieldEquals("Plot", index1000.toString(), "pods", totalPods.toString());
     assert.fieldEquals("Plot", index1000.toString(), "harvestablePods", expectedHarvestable.toString());
     assert.fieldEquals("Plot", index1000.toString(), "harvestedPods", expectedHarvested.toString());
+    assert.fieldEquals("Plot", index1000.toString(), "beansPerPod", expectedBeansPerPod.toString());
     assert.fieldEquals("Plot", index1000.toString(), "combinedAtBlock", blockNumber.toString());
     assert.fieldEquals("Plot", index1000.toString(), "fullyHarvested", "false");
 
