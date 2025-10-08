@@ -1,5 +1,5 @@
-import { harvest, plotTransfer, sow, temperatureChanged } from "../utils/Field";
-import { Sow, Harvest, PlotTransfer, TemperatureChange } from "../../generated/Beanstalk-ABIs/PintoPI13";
+import { harvest, plotCombined, plotTransfer, sow, temperatureChanged } from "../utils/Field";
+import { Sow, Harvest, PlotTransfer, TemperatureChange, PlotCombined } from "../../generated/Beanstalk-ABIs/PintoPI13";
 import { legacySowAmount } from "../utils/legacy/LegacyField";
 import { ZERO_BI } from "../../../../core/utils/Decimals";
 import { BigInt } from "@graphprotocol/graph-ts";
@@ -55,5 +55,19 @@ export function handleTemperatureChange(event: TemperatureChange): void {
     season: event.params.season,
     caseId: event.params.caseId,
     absChange: BigInt.fromI32(event.params.absChange)
+  });
+}
+
+export function handlePlotCombined(event: PlotCombined): void {
+  if (event.params.fieldId != ZERO_BI) {
+    return;
+  }
+
+  plotCombined({
+    event,
+    account: event.params.account,
+    fieldId: null,
+    plotIndexes: event.params.plotIndexes,
+    totalPods: event.params.totalPods
   });
 }
