@@ -453,10 +453,6 @@ export function plotCombined(params: PlotCombinedParams): void {
   const protocol = params.event.address;
   const field = loadField(protocol);
 
-  //TODO: need sort indexes?
-
-
-  // loadPlot or Plot.load? loadPlot generates new plot if it is null
   const targetIndex = params.plotIndexes[0];
   let targetPlot = Plot.load(targetIndex.toString());
   if (targetPlot == null) {
