@@ -455,9 +455,6 @@ export function plotCombined(params: PlotCombinedParams): void {
 
   const targetIndex = params.plotIndexes[0];
   let targetPlot = loadPlot(protocol, targetIndex);
-  if (targetPlot == null) {
-    return;
-  }
 
   let totalHarvestable = targetPlot.harvestablePods;
   let totalHarvested = targetPlot.harvestedPods;
@@ -468,9 +465,6 @@ export function plotCombined(params: PlotCombinedParams): void {
   for (let i = 1; i < params.plotIndexes.length; ++i) {
     const index = params.plotIndexes[i];
     const plot = loadPlot(protocol, index);
-    if (plot == null) {
-      continue;
-    }
 
     totalHarvestable = totalHarvestable.plus(plot.harvestablePods);
     totalHarvested = totalHarvested.plus(plot.harvestedPods);
