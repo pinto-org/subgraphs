@@ -11,6 +11,7 @@ import { handleIncentive } from "../../src/handlers/SeasonHandler";
 import { ZERO_BI } from "../../../../core/utils/Decimals";
 import { BEANSTALK } from "../../../../core/constants/raw/BeanstalkEthConstants";
 import { handleHarvest, handlePlotCombined, handlePlotTransfer, handleSow } from "../../src/handlers/FieldHandler";
+import { loadPlot } from "../../src/entities/Field";
 
 const account = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266".toLowerCase();
 
@@ -37,6 +38,38 @@ export function combinePlots(
   fieldId: BigInt = ZERO_BI
 ): void {
   handlePlotCombined(createPlotCombinedEvent(account, fieldId, indexes, totalPods, blockNumber));
+}
+
+export class PlotSeedScenario {
+  index: BigInt;
+  pods: BigInt;
+  harvestable: BigInt;
+  harvested: BigInt;
+  combine: bool;
+
+  constructor(index: BigInt, pods: BigInt, harvestable: BigInt, harvested: BigInt, combine: bool) {
+    this.index = index;
+    this.pods = pods;
+    this.harvestable = harvestable;
+    this.harvested = harvested;
+    this.combine = combine;
+  }
+}
+
+export function seedPlotWithHarvests(
+  account: string,
+  index: BigInt,
+  beans: BigInt,
+  pods: BigInt,
+  harvestablePods: BigInt,
+  harvestedPods: BigInt
+): void {
+  sow(account, index, beans, pods);
+
+  const plot = loadPlot(BEANSTALK, index);
+  plot.harvestablePods = harvestablePods;
+  plot.harvestedPods = harvestedPods;
+  plot.save();
 }
 
 export function setHarvestable(harvestableIndex: BigInt): BigInt {
