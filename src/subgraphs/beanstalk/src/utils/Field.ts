@@ -454,7 +454,7 @@ export function plotCombined(params: PlotCombinedParams): void {
   const field = loadField(protocol);
 
   const targetIndex = params.plotIndexes[0];
-  let targetPlot = Plot.load(targetIndex.toString());
+  let targetPlot = loadPlot(protocol, targetIndex);
   if (targetPlot == null) {
     return;
   }
@@ -467,7 +467,7 @@ export function plotCombined(params: PlotCombinedParams): void {
 
   for (let i = 1; i < params.plotIndexes.length; ++i) {
     const index = params.plotIndexes[i];
-    const plot = Plot.load(index.toString());
+    const plot = loadPlot(protocol, index);
     if (plot == null) {
       continue;
     }
