@@ -1,17 +1,36 @@
-import { Address, BigInt } from "@graphprotocol/graph-ts";
+import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
 import { Field, Plot } from "../../generated/schema";
 import { ONE_BD, ZERO_BD, ZERO_BI } from "../../../../core/utils/Decimals";
 import { ADDRESS_ZERO } from "../../../../core/utils/Bytes";
 import { v } from "../utils/constants/Version";
 
-export function loadField(account: Address): Field {
-  let field = Field.load(account);
+export function getFieldEntityId(account: Address, fieldId: BigInt | null = null): Bytes {
+  if (fieldId === null || fieldId.equals(ZERO_BI)) {
+    return account as Bytes;
+  }
+  const suffixArray = new Uint8Array(1);
+  suffixArray[0] = fieldId.toI32();
+  const suffix = Bytes.fromUint8Array(suffixArray);
+  return account.concat(suffix);
+}
+
+export function getPlotEntityId(index: BigInt, fieldId: BigInt | null = null): string {
+  if (fieldId === null || fieldId.equals(ZERO_BI)) {
+    return index.toString();
+  }
+  return fieldId.toString() + "-" + index.toString();
+}
+
+export function loadField(account: Address, fieldId: BigInt | null = null): Field {
+  const entityId = getFieldEntityId(account, fieldId);
+  let field = Field.load(entityId);
   if (field == null) {
-    field = new Field(account);
+    field = new Field(entityId);
     field.beanstalk = "beanstalk";
     if (account !== v().protocolAddress) {
       field.farmer = account;
     }
+    field.fieldId = fieldId === null ? ZERO_BI : fieldId;
     field.season = 1;
     field.temperature = ONE_BD;
     field.realRateOfReturn = ZERO_BD;
@@ -27,15 +46,19 @@ export function loadField(account: Address): Field {
     field.harvestableIndex = ZERO_BI;
     field.podRate = ZERO_BD;
     field.save();
+  } else {
+    field.fieldId = fieldId === null ? ZERO_BI : fieldId;
   }
   return field;
 }
 
-export function loadPlot(diamondAddress: Address, index: BigInt): Plot {
-  let plot = Plot.load(index.toString());
+export function loadPlot(diamondAddress: Address, index: BigInt, fieldId: BigInt | null = null): Plot {
+  const plotId = getPlotEntityId(index, fieldId);
+  let plot = Plot.load(plotId);
   if (plot == null) {
-    plot = new Plot(index.toString());
-    plot.field = diamondAddress;
+    plot = new Plot(plotId);
+    plot.field = getFieldEntityId(diamondAddress, fieldId);
+    plot.fieldId = fieldId === null ? ZERO_BI : fieldId;
     plot.farmer = ADDRESS_ZERO;
     plot.source = "SOW"; // Should be overwritten in case of a transfer creating a new plot
     plot.sourceHash = ADDRESS_ZERO;
@@ -57,6 +80,9 @@ export function loadPlot(diamondAddress: Address, index: BigInt): Plot {
     plot.sowHash = ADDRESS_ZERO;
     plot.sowTimestamp = ZERO_BI;
     plot.save();
+  } else {
+    plot.fieldId = fieldId === null ? ZERO_BI : fieldId;
+    plot.field = getFieldEntityId(diamondAddress, fieldId);
   }
   return plot;
 }
