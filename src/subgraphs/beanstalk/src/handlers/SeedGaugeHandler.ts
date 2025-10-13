@@ -36,7 +36,6 @@ export function handleBeanToMaxLpGpPerBdvRatioChange(event: BeanToMaxLpGpPerBdvR
 
   let silo = loadSilo(event.address);
   silo.beanToMaxLpGpPerBdvRatio = silo.beanToMaxLpGpPerBdvRatio.plus(event.params.absChange);
-  silo.cropRatio = toDecimal(PintoPI13.bind(event.address).getBeanToMaxLpGpPerBdvRatioScaled(), 18);
   takeSiloSnapshots(silo, event.block);
   setSiloHourlyCaseId(event.params.caseId, silo);
   silo.save();

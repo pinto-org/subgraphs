@@ -69,11 +69,6 @@ describe("Seed Gauge", () => {
     test("event: BeanToMaxLpGpPerBdvRatioChange (initialization)", () => {
       const initialRatio = BigInt.fromI32(66).times(ratioDecimals);
       setSeason(20000);
-      createMockedFunction(
-        BEANSTALK,
-        "getBeanToMaxLpGpPerBdvRatioScaled",
-        "getBeanToMaxLpGpPerBdvRatioScaled():(uint256)"
-      ).returns([ethereum.Value.fromUnsignedBigInt(initialRatio)]);
 
       handleBeanToMaxLpGpPerBdvRatioChange(
         createBeanToMaxLpGpPerBdvRatioChangeEvent(BigInt.fromU32(20000), BigInt.fromU32(10), initialRatio)
@@ -84,11 +79,6 @@ describe("Seed Gauge", () => {
 
     test("event: BeanToMaxLpGpPerBdvRatioChange (adjustment)", () => {
       const initialRatio = BigInt.fromI32(66).times(ratioDecimals);
-      createMockedFunction(
-        BEANSTALK,
-        "getBeanToMaxLpGpPerBdvRatioScaled",
-        "getBeanToMaxLpGpPerBdvRatioScaled():(uint256)"
-      ).returns([ethereum.Value.fromUnsignedBigInt(initialRatio)]);
       handleBeanToMaxLpGpPerBdvRatioChange(
         createBeanToMaxLpGpPerBdvRatioChangeEvent(BigInt.fromU32(20000), BigInt.fromU32(10), initialRatio)
       );
