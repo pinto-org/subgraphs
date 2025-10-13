@@ -6,7 +6,8 @@ import {
   TotalGerminatingBalanceChanged,
   TotalGerminatingStalkChanged,
   TotalStalkChangedFromGermination,
-  UpdatedOptimalPercentDepositedBdvForToken
+  UpdatedOptimalPercentDepositedBdvForToken,
+  PintoPI13
 } from "../../generated/Beanstalk-ABIs/PintoPI13";
 import {
   deleteGerminating,
@@ -15,7 +16,7 @@ import {
   loadGerminating,
   loadOrCreateGerminating
 } from "../entities/Germinating";
-import { BI_10, ZERO_BI } from "../../../../core/utils/Decimals";
+import { BI_10, toDecimal, ZERO_BI } from "../../../../core/utils/Decimals";
 import { setSiloHourlyCaseId, takeSiloSnapshots } from "../entities/snapshots/Silo";
 import { loadSilo, loadWhitelistTokenSetting } from "../entities/Silo";
 import { takeWhitelistTokenSettingSnapshots } from "../entities/snapshots/WhitelistTokenSetting";
@@ -35,6 +36,7 @@ export function handleBeanToMaxLpGpPerBdvRatioChange(event: BeanToMaxLpGpPerBdvR
 
   let silo = loadSilo(event.address);
   silo.beanToMaxLpGpPerBdvRatio = silo.beanToMaxLpGpPerBdvRatio.plus(event.params.absChange);
+  silo.cropRatio = toDecimal(PintoPI13.bind(event.address).getBeanToMaxLpGpPerBdvRatioScaled(), 18);
   takeSiloSnapshots(silo, event.block);
   setSiloHourlyCaseId(event.params.caseId, silo);
   silo.save();

@@ -1,6 +1,6 @@
 import { Bytes4_emptySelector } from "../../../../../core/utils/Bytes";
-import { ZERO_BI } from "../../../../../core/utils/Decimals";
-import { BeanToMaxLpGpPerBdvRatioChange } from "../../../generated/Beanstalk-ABIs/PintoPI13";
+import { toDecimal, ZERO_BI } from "../../../../../core/utils/Decimals";
+import { BeanToMaxLpGpPerBdvRatioChange, PintoPI13 } from "../../../generated/Beanstalk-ABIs/PintoPI13";
 import {
   FarmerGerminatingStalkBalanceChanged,
   SeedGauge,
@@ -138,6 +138,7 @@ export function handleBeanToMaxLpGpPerBdvRatioChange_bugged(event: BeanToMaxLpGp
   } else {
     silo.beanToMaxLpGpPerBdvRatio = silo.beanToMaxLpGpPerBdvRatio.plus(event.params.absChange);
   }
+  silo.cropRatio = toDecimal(PintoPI13.bind(event.address).getBeanToMaxLpGpPerBdvRatioScaled(), 18);
   takeSiloSnapshots(silo, event.block);
   setSiloHourlyCaseId(event.params.caseId, silo);
   silo.save();
