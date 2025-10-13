@@ -2042,6 +2042,8 @@ type GaugesInfo @entity {
 
   "Convert down penalty ratio"
   g1ConvertDownPenalty: BigDecimal
+  "Blight factor; increments each season the twaDeltaB is above 1 and decrements otherwise (minimum zero)."
+  g1BlightFactor: BigInt
 
   "Convert Up Bonus current bonus stalk per bdv"
   g2BonusStalkPerBdv: BigInt
@@ -2075,6 +2077,7 @@ type GaugesInfoHourlySnapshot @entity {
   g2IsActive: Boolean!
   g0CultivationFactor: BigDecimal
   g1ConvertDownPenalty: BigDecimal
+  g1BlightFactor: BigInt
   g2BonusStalkPerBdv: BigInt
   g2MaxConvertCapacity: BigInt
   g2BdvConvertedThisSeason: BigInt
@@ -2085,6 +2088,7 @@ type GaugesInfoHourlySnapshot @entity {
   deltaG2IsActive: Boolean!
   deltaG0CultivationFactor: BigDecimal
   deltaG1ConvertDownPenalty: BigDecimal
+  deltaG1BlightFactor: BigInt
   deltaG2BonusStalkPerBdv: BigInt
   deltaG2MaxConvertCapacity: BigInt
   deltaG2BdvConvertedThisSeason: BigInt
@@ -2109,6 +2113,7 @@ type GaugesInfoDailySnapshot @entity {
   g2IsActive: Boolean!
   g0CultivationFactor: BigDecimal
   g1ConvertDownPenalty: BigDecimal
+  g1BlightFactor: BigInt
   g2BonusStalkPerBdv: BigInt
   g2MaxConvertCapacity: BigInt
   g2BdvConvertedThisSeason: BigInt
@@ -2119,6 +2124,7 @@ type GaugesInfoDailySnapshot @entity {
   deltaG2IsActive: Boolean!
   deltaG0CultivationFactor: BigDecimal
   deltaG1ConvertDownPenalty: BigDecimal
+  deltaG1BlightFactor: BigInt
   deltaG2BonusStalkPerBdv: BigInt
   deltaG2MaxConvertCapacity: BigInt
   deltaG2BdvConvertedThisSeason: BigInt

@@ -102,6 +102,7 @@ describe("Gen Gauge", () => {
 
       assert.fieldEquals("GaugesInfo", "gauges", "g1IsActive", "true");
       assert.fieldEquals("GaugesInfo", "gauges", "g1ConvertDownPenalty", "0");
+      assert.fieldEquals("GaugesInfo", "gauges", "g1BlightFactor", "0");
       assert.fieldEquals("Silo", v().protocolAddress.toHexString(), "convertDownPenalty", "0");
     });
 
@@ -109,13 +110,14 @@ describe("Gen Gauge", () => {
       initConvertPenaltyGauge();
 
       const value = Bytes.fromHexString(
-        "0x00000000000000000000000000000000000000000000000005a5f457f79580000000000000000000000000000000000000000000000000000000000000000000"
+        "0x00000000000000000000000000000000000000000000000005a5f457f79580000000000000000000000000000000000000000000000000000000000000000005"
       );
       const engagedEvent = createEngagedEvent(1, value);
       handleEngaged(engagedEvent);
 
       assert.fieldEquals("GaugesInfo", "gauges", "g1IsActive", "true");
       assert.fieldEquals("GaugesInfo", "gauges", "g1ConvertDownPenalty", "0.407");
+      assert.fieldEquals("GaugesInfo", "gauges", "g1BlightFactor", "5");
       assert.fieldEquals("Silo", v().protocolAddress.toHexString(), "convertDownPenalty", "0.407");
     });
   });
