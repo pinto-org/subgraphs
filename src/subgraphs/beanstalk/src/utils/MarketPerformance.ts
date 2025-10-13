@@ -69,7 +69,7 @@ export function trackMarketPerformance(season: i32, siloTokens: Bytes[], block: 
       .truncate(2);
 
     const usdChange: BigDecimal[] = [];
-    for (let i = 0; i < currentSeason.prevSeasonTokenUsdValues!.length; ++i) {
+    for (let i = 0; i < currentSeason.prevSeasonTokenUsdValues.length; ++i) {
       usdChange.push(currentSeason.thisSeasonTokenUsdValues![i].minus(currentSeason.prevSeasonTokenUsdValues[i]));
     }
     currentSeason.usdChange = usdChange.map<BigDecimal>((bd) => bd.truncate(2));
@@ -78,7 +78,7 @@ export function trackMarketPerformance(season: i32, siloTokens: Bytes[], block: 
       .truncate(2);
 
     const percentChange: BigDecimal[] = [];
-    for (let i = 0; i < currentSeason.prevSeasonTokenUsdValues!.length; ++i) {
+    for (let i = 0; i < currentSeason.prevSeasonTokenUsdValues.length; ++i) {
       const prev = currentSeason.prevSeasonTokenUsdValues[i];
       const curr = currentSeason.thisSeasonTokenUsdValues![i];
       percentChange.push(prev.equals(ZERO_BD) ? ZERO_BD : curr.div(prev).minus(ONE_BD));
