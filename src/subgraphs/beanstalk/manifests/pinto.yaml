@@ -442,12 +442,12 @@ dataSources:
           handler: handleTractor
       file: ../src/handlers/TractorHandler.ts
   - kind: ethereum/contract
-    name: TractorHelpers
+    name: TractorHelpersSowV0
     network: base
     source:
       address: "0x2808b14d287F8CA77eb25B16575aF187d5A05119"
       abi: TractorHelpers
-      startBlock: 28930873 # TractorHelpers deployment
+      startBlock: 28930873 # SowV0 TractorHelpers deployment
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -461,7 +461,26 @@ dataSources:
         - event: OperatorReward(uint8,indexed address,indexed address,address,int256)
           handler: handleOperatorReward
       file: ../src/handlers/TractorHandler.ts
-  # NOTE: there will be a new tractor helper for the convert blueprint
+  - kind: ethereum/contract
+    name: TractorHelpersConvertUpV0
+    network: base
+    source:
+      address: "0xBCa2F299602c2a43850c8b2FD19D5275D0F388b6"
+      abi: TractorHelpers
+      startBlock: 36932817 # ConvertUpV0 TractorHelpers deployment
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Tractor
+      abis:
+        - name: TractorHelpers
+          file: ../../../core/abis/TractorHelpers.json
+      eventHandlers:
+        - event: OperatorReward(uint8,indexed address,indexed address,address,int256)
+          handler: handleOperatorReward
+      file: ../src/handlers/TractorHandler.ts
 # features:
 #   - grafting
 # graft:
