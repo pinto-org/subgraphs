@@ -64,6 +64,7 @@ export function engagedConvertDownPenalty(value: Bytes, block: ethereum.Block): 
   const genGauge = loadGaugesInfo();
   const decoded = ethereum.decode("(uint256, uint256)", value)!.toTuple();
   genGauge.g1ConvertDownPenalty = toDecimal(decoded[0].toBigInt(), 18);
+  genGauge.g1BlightFactor = decoded[1].toBigInt();
   takeGaugesInfoSnapshots(genGauge, block);
   genGauge.save();
   // Legacy gauge value location

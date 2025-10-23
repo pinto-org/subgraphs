@@ -6,7 +6,8 @@ import {
   TotalGerminatingBalanceChanged,
   TotalGerminatingStalkChanged,
   TotalStalkChangedFromGermination,
-  UpdatedOptimalPercentDepositedBdvForToken
+  UpdatedOptimalPercentDepositedBdvForToken,
+  PintoPI13
 } from "../../generated/Beanstalk-ABIs/PintoPI13";
 import {
   deleteGerminating,
@@ -15,7 +16,7 @@ import {
   loadGerminating,
   loadOrCreateGerminating
 } from "../entities/Germinating";
-import { BI_10, ZERO_BI } from "../../../../core/utils/Decimals";
+import { BI_10, toDecimal, ZERO_BI } from "../../../../core/utils/Decimals";
 import { setSiloHourlyCaseId, takeSiloSnapshots } from "../entities/snapshots/Silo";
 import { loadSilo, loadWhitelistTokenSetting } from "../entities/Silo";
 import { takeWhitelistTokenSettingSnapshots } from "../entities/snapshots/WhitelistTokenSetting";
