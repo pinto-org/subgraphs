@@ -83,10 +83,10 @@ export function engagedConvertUpBonus(value: Bytes, block: ethereum.Block): void
 export function engagedDataConvertUpBonus(data: Bytes, block: ethereum.Block): void {
   const genGauge = loadGaugesInfo();
   const decoded = ethereum
-    .decode("(uint256, uint256, uint256, uint256, uint256, uint256, uint256, uint256)", data)!
+    .decode("(uint256, uint256, uint256, uint256, uint256, uint256, uint256, uint256, uint256)", data)!
     .toTuple();
-  genGauge.g2BdvConvertedThisSeason = decoded[4].toBigInt();
-  genGauge.g2MaxTwaDeltaB = decoded[6].toBigInt();
+  genGauge.g2BdvConvertedThisSeason = decoded[5].toBigInt();
+  genGauge.g2MaxTwaDeltaB = decoded[7].toBigInt();
   takeGaugesInfoSnapshots(genGauge, block);
   genGauge.save();
 }
