@@ -4,48 +4,40 @@ import { ZERO_BI } from "../../../../core/utils/Decimals";
 import { getCurrentSeason } from "./Beanstalk";
 import { ADDRESS_ZERO } from "../../../../core/utils/Bytes";
 
-function resolvedFieldId(fieldId: BigInt | null): BigInt {
-  return fieldId === null ? ZERO_BI : fieldId;
+function marketplaceId(fieldId: BigInt = ZERO_BI): string {
+  return fieldId.toString();
 }
 
-function isZeroField(fieldId: BigInt | null): boolean {
-  return resolvedFieldId(fieldId).equals(ZERO_BI);
-}
-
-function marketplaceId(fieldId: BigInt | null): string {
-  return resolvedFieldId(fieldId).toString();
-}
-
-function listingId(account: Address, index: BigInt, fieldId: BigInt | null): string {
+function listingId(account: Address, index: BigInt, fieldId: BigInt = ZERO_BI): string {
   const base = account.toHexString() + "-" + index.toString();
-  if (isZeroField(fieldId)) {
+  if (fieldId.equals(ZERO_BI)) {
     return base;
   }
-  return resolvedFieldId(fieldId).toString() + "-" + base;
+  return fieldId.toString() + "-" + base;
 }
 
-function orderId(orderID: Bytes, fieldId: BigInt | null): string {
+function orderId(orderID: Bytes, fieldId: BigInt = ZERO_BI): string {
   const base = orderID.toHexString();
-  if (isZeroField(fieldId)) {
+  if (fieldId.equals(ZERO_BI)) {
     return base;
   }
-  return resolvedFieldId(fieldId).toString() + "-" + base;
+  return fieldId.toString() + "-" + base;
 }
 
-function fillId(protocol: Address, index: BigInt, hash: String, fieldId: BigInt | null): string {
+function fillId(protocol: Address, index: BigInt, hash: String, fieldId: BigInt = ZERO_BI): string {
   const base = protocol.toHexString() + "-" + index.toString() + "-" + hash;
-  if (isZeroField(fieldId)) {
+  if (fieldId.equals(ZERO_BI)) {
     return base;
   }
-  return resolvedFieldId(fieldId).toString() + "-" + base;
+  return fieldId.toString() + "-" + base;
 }
 
-export function loadPodMarketplace(fieldId: BigInt | null = null): PodMarketplace {
+export function loadPodMarketplace(fieldId: BigInt = ZERO_BI): PodMarketplace {
   let marketplace = PodMarketplace.load(marketplaceId(fieldId));
   if (marketplace == null) {
     marketplace = new PodMarketplace(marketplaceId(fieldId));
     marketplace.season = getCurrentSeason();
-    marketplace.fieldId = resolvedFieldId(fieldId);
+    marketplace.fieldId = fieldId;
     marketplace.activeListings = [];
     marketplace.activeOrders = [];
     marketplace.listedPods = ZERO_BI;
@@ -62,12 +54,12 @@ export function loadPodMarketplace(fieldId: BigInt | null = null): PodMarketplac
     marketplace.beanVolume = ZERO_BI;
     marketplace.save();
   } else {
-    marketplace.fieldId = resolvedFieldId(fieldId);
+    marketplace.fieldId = fieldId;
   }
   return marketplace;
 }
 
-export function loadPodFill(protocol: Address, index: BigInt, hash: String, fieldId: BigInt | null = null): PodFill {
+export function loadPodFill(protocol: Address, index: BigInt, hash: String, fieldId: BigInt = ZERO_BI): PodFill {
   let id = fillId(protocol, index, hash, fieldId);
   let fill = PodFill.load(id);
   if (fill == null) {
@@ -86,7 +78,7 @@ export function loadPodFill(protocol: Address, index: BigInt, hash: String, fiel
   return fill;
 }
 
-export function loadPodListing(account: Address, index: BigInt, fieldId: BigInt | null = null): PodListing {
+export function loadPodListing(account: Address, index: BigInt, fieldId: BigInt = ZERO_BI): PodListing {
   let id = listingId(account, index, fieldId);
   let listing = PodListing.load(id);
   if (listing == null) {
@@ -95,7 +87,7 @@ export function loadPodListing(account: Address, index: BigInt, fieldId: BigInt 
     listing.historyID = "";
     listing.plot = index.toString();
     listing.farmer = account;
-    listing.fieldId = resolvedFieldId(fieldId);
+    listing.fieldId = fieldId;
     listing.index = index;
     listing.start = ZERO_BI;
     listing.mode = 0;
@@ -115,7 +107,7 @@ export function loadPodListing(account: Address, index: BigInt, fieldId: BigInt 
     listing.updatedAt = ZERO_BI;
     listing.save();
   } else {
-    listing.fieldId = resolvedFieldId(fieldId);
+    listing.fieldId = fieldId;
   }
   return listing;
 }
@@ -157,14 +149,14 @@ export function createHistoricalPodListing(listing: PodListing): void {
   }
 }
 
-export function loadPodOrder(orderID: Bytes, fieldId: BigInt | null = null): PodOrder {
+export function loadPodOrder(orderID: Bytes, fieldId: BigInt = ZERO_BI): PodOrder {
   let order = PodOrder.load(orderId(orderID, fieldId));
   if (order == null) {
     order = new PodOrder(orderId(orderID, fieldId));
     order.podMarketplace = marketplaceId(fieldId);
     order.historyID = "";
     order.farmer = ADDRESS_ZERO;
-    order.fieldId = resolvedFieldId(fieldId);
+    order.fieldId = fieldId;
     order.createdAt = ZERO_BI;
     order.updatedAt = ZERO_BI;
     order.status = "";
@@ -178,7 +170,7 @@ export function loadPodOrder(orderID: Bytes, fieldId: BigInt | null = null): Pod
     order.fills = [];
     order.save();
   } else {
-    order.fieldId = resolvedFieldId(fieldId);
+    order.fieldId = fieldId;
   }
   return order;
 }
