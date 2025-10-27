@@ -1087,8 +1087,6 @@ type PodMarketplaceHourlySnapshot @entity {
   season: Int!
   "Marketplace associated with snapshot"
   podMarketplace: PodMarketplace!
-  "Numeric identifier of the field"
-  fieldId: BigInt!
   "Point in time current cumulative pods listed for sale"
   listedPods: BigInt!
   "Point in time current amount of total pods listed"
@@ -1140,8 +1138,6 @@ type PodMarketplaceDailySnapshot @entity {
   season: Int!
   "Marketplace associated with snapshot"
   podMarketplace: PodMarketplace!
-  "Numeric identifier of the field"
-  fieldId: BigInt!
   "Point in time current cumulative pods listed for sale"
   listedPods: BigInt!
   "Point in time current amount of total pods listed"
