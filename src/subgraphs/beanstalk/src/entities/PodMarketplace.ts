@@ -13,7 +13,7 @@ function listingId(account: Address, index: BigInt, fieldId: BigInt = ZERO_BI): 
   if (fieldId.equals(ZERO_BI)) {
     return base;
   }
-  return fieldId.toString() + "-" + base;
+  return base + "-" + fieldId.toString();
 }
 
 function orderId(orderID: Bytes, fieldId: BigInt = ZERO_BI): string {
@@ -21,7 +21,7 @@ function orderId(orderID: Bytes, fieldId: BigInt = ZERO_BI): string {
   if (fieldId.equals(ZERO_BI)) {
     return base;
   }
-  return fieldId.toString() + "-" + base;
+  return base + "-" + fieldId.toString();
 }
 
 function fillId(protocol: Address, index: BigInt, hash: String, fieldId: BigInt = ZERO_BI): string {
@@ -29,7 +29,7 @@ function fillId(protocol: Address, index: BigInt, hash: String, fieldId: BigInt 
   if (fieldId.equals(ZERO_BI)) {
     return base;
   }
-  return fieldId.toString() + "-" + base;
+  return base + "-" + fieldId.toString();
 }
 
 export function loadPodMarketplace(fieldId: BigInt = ZERO_BI): PodMarketplace {
