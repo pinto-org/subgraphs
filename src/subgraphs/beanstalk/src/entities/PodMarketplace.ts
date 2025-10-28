@@ -3,6 +3,7 @@ import { PodFill, PodListing, PodMarketplace, PodOrder } from "../../generated/s
 import { ZERO_BI } from "../../../../core/utils/Decimals";
 import { getCurrentSeason } from "./Beanstalk";
 import { ADDRESS_ZERO } from "../../../../core/utils/Bytes";
+import { getPlotEntityId } from "./Field";
 
 function marketplaceId(fieldId: BigInt = ZERO_BI): string {
   return fieldId.toString();
@@ -83,7 +84,7 @@ export function loadPodListing(account: Address, index: BigInt, fieldId: BigInt 
     listing = new PodListing(id);
     listing.podMarketplace = marketplaceId(fieldId);
     listing.historyID = "";
-    listing.plot = index.toString();
+    listing.plot = getPlotEntityId(index, fieldId);
     listing.farmer = account;
     listing.fieldId = fieldId;
     listing.index = index;
