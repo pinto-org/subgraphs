@@ -92,8 +92,8 @@ export function handleIncentive(event: Incentivization): void {
   takeFieldSnapshots(field, event.block);
   field.save();
 
-  updateExpiredPlots(field.harvestableIndex, event.block);
-  updateHarvestablePlots(event.address, field.harvestableIndex, event.block);
+  updateExpiredPlots(field.harvestableIndex, event.block, field.fieldId);
+  updateHarvestablePlots(event.address, field.harvestableIndex, event.block, field.fieldId);
 
   updateAllWrappedDeposits(event.block);
 }

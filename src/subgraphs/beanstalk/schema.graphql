@@ -707,7 +707,7 @@ type WhitelistTokenDailySnapshot @entity {
 }
 
 type Field @entity {
-  "Contract address for this field or farmer"
+  "Contract address for this field or farmer when fieldId is zero. Otherwise address-fieldId"
   id: ID!
   "'beanstalk'"
   beanstalk: Beanstalk!
@@ -966,7 +966,7 @@ type SiloWithdraw @entity {
 }
 
 type Plot @entity {
-  "Plot index"
+  "Plot index when fieldId is 0, otherwise plotIndex-fieldId"
   id: ID!
   "Field to which this plot belongs"
   field: Field!
@@ -1034,8 +1034,6 @@ type PodMarketplace @entity {
   id: ID!
   "Current season of the marketplace"
   season: Int!
-  "Numeric identifier of the field this marketplace tracks"
-  fieldId: BigInt!
   "Information about the active pod listings. Each entry of the form 'account-index-expiry'"
   activeListings: [String!]!
   "Information about the active pod orders. Each entry of the form 'orderId-maxPlaceInLine'"

@@ -30,6 +30,7 @@ export function takeFieldSnapshots(field: Field, block: ethereum.Block): void {
   // Set current values
   hourly.season = currentSeason;
   hourly.field = field.id;
+  hourly.fieldId = field.fieldId;
   hourly.temperature = field.temperature;
   hourly.realRateOfReturn = field.realRateOfReturn;
   hourly.numberOfSowers = field.numberOfSowers;
@@ -162,6 +163,7 @@ export function takeFieldSnapshots(field: Field, block: ethereum.Block): void {
 
   daily.season = currentSeason;
   daily.field = field.id;
+  daily.fieldId = field.fieldId;
   daily.temperature = field.temperature;
   daily.realRateOfReturn = field.realRateOfReturn;
   daily.numberOfSowers = field.numberOfSowers;
