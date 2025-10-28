@@ -708,7 +708,7 @@ type WhitelistTokenDailySnapshot @entity {
 
 type Field @entity {
   "Contract address for this field or farmer"
-  id: Bytes!
+  id: ID!
   "'beanstalk'"
   beanstalk: Beanstalk!
   "Numeric identifier of the field emitted on protocol events"

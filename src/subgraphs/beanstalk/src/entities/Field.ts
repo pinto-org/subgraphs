@@ -1,17 +1,14 @@
-import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
+import { Address, BigInt } from "@graphprotocol/graph-ts";
 import { Field, Plot } from "../../generated/schema";
 import { ONE_BD, ZERO_BD, ZERO_BI } from "../../../../core/utils/Decimals";
 import { ADDRESS_ZERO } from "../../../../core/utils/Bytes";
 import { v } from "../utils/constants/Version";
 
-export function getFieldEntityId(account: Address, fieldId: BigInt = ZERO_BI): Bytes {
+export function getFieldEntityId(account: Address, fieldId: BigInt = ZERO_BI): string {
   if (fieldId.equals(ZERO_BI)) {
-    return account as Bytes;
+    return account.toHexString();
   }
-  const suffixArray = new Uint8Array(1);
-  suffixArray[0] = fieldId.toI32();
-  const suffix = Bytes.fromUint8Array(suffixArray);
-  return account.concat(suffix);
+  return account.toHexString() + "-" + fieldId.toString();
 }
 
 export function getPlotEntityId(index: BigInt, fieldId: BigInt = ZERO_BI): string {

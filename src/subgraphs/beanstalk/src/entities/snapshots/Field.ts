@@ -14,15 +14,15 @@ export function takeFieldSnapshots(field: Field, block: ethereum.Block): void {
   const day = BigInt.fromI32(dayFromTimestamp(block.timestamp));
 
   // Load the snapshot for this season/day
-  const hourlyId = field.id.toHexString() + "-" + currentSeason.toString();
-  const dailyId = field.id.toHexString() + "-" + day.toString();
+  const hourlyId = field.id + "-" + currentSeason.toString();
+  const dailyId = field.id + "-" + day.toString();
   let baseHourly = FieldHourlySnapshot.load(hourlyId);
   let baseDaily = FieldDailySnapshot.load(dailyId);
   if (baseHourly == null && field.lastHourlySnapshotSeason !== 0) {
-    baseHourly = FieldHourlySnapshot.load(field.id.toHexString() + "-" + field.lastHourlySnapshotSeason.toString());
+    baseHourly = FieldHourlySnapshot.load(field.id + "-" + field.lastHourlySnapshotSeason.toString());
   }
   if (baseDaily == null && field.lastDailySnapshotDay !== null) {
-    baseDaily = FieldDailySnapshot.load(field.id.toHexString() + "-" + field.lastDailySnapshotDay!.toString());
+    baseDaily = FieldDailySnapshot.load(field.id + "-" + field.lastDailySnapshotDay!.toString());
   }
   const hourly = new FieldHourlySnapshot(hourlyId);
   const daily = new FieldDailySnapshot(dailyId);
@@ -281,8 +281,8 @@ export function takeFieldSnapshots(field: Field, block: ethereum.Block): void {
 export function clearFieldDeltas(field: Field, block: ethereum.Block): void {
   const currentSeason = getCurrentSeason();
   const day = BigInt.fromI32(dayFromTimestamp(block.timestamp));
-  const hourly = FieldHourlySnapshot.load(field.id.toHexString() + "-" + currentSeason.toString());
-  const daily = FieldDailySnapshot.load(field.id.toHexString() + "-" + day.toString());
+  const hourly = FieldHourlySnapshot.load(field.id + "-" + currentSeason.toString());
+  const daily = FieldDailySnapshot.load(field.id + "-" + day.toString());
   if (hourly != null) {
     hourly.deltaTemperature = ZERO_BD;
     hourly.deltaRealRateOfReturn = ZERO_BD;
@@ -337,7 +337,7 @@ export function clearFieldDeltas(field: Field, block: ethereum.Block): void {
  * @returns The cultivation temperature, or null if it's never been set
  */
 export function calculateCultivationTemperature(caseId: BigInt, field: Field): BigDecimal | null {
-  const prevHourly = FieldHourlySnapshot.load(field.id.toHexString() + "-" + (getCurrentSeason() - 1).toString());
+  const prevHourly = FieldHourlySnapshot.load(field.id + "-" + (getCurrentSeason() - 1).toString());
   if (prevHourly == null) {
     // Initial season
     return null;
@@ -363,14 +363,14 @@ export function calculateCultivationTemperature(caseId: BigInt, field: Field): B
 
 // Set case id on hourly. Snapshot must have already been created.
 export function setFieldHourlyCaseId(caseId: BigInt, field: Field): void {
-  const hourly = FieldHourlySnapshot.load(field.id.toHexString() + "-" + field.lastHourlySnapshotSeason.toString())!;
+  const hourly = FieldHourlySnapshot.load(field.id + "-" + field.lastHourlySnapshotSeason.toString())!;
   hourly.caseId = caseId;
   hourly.save();
 }
 
 // Set soil sold out info on the hourly. Snapshot must have already been created.
 export function setHourlySoilSoldOut(soldOutBlock: BigInt, field: Field): void {
-  const hourly = FieldHourlySnapshot.load(field.id.toHexString() + "-" + field.lastHourlySnapshotSeason.toString())!;
+  const hourly = FieldHourlySnapshot.load(field.id + "-" + field.lastHourlySnapshotSeason.toString())!;
   hourly.blocksToSoldOutSoil = soldOutBlock.minus(hourly.seasonBlock);
   hourly.soilSoldOut = true;
   hourly.save();
@@ -378,7 +378,7 @@ export function setHourlySoilSoldOut(soldOutBlock: BigInt, field: Field): void {
 
 // Sets delta pod demand. Should be set after each sow, and will be correct by the end of each season
 export function setDeltaPodDemand(deltaPodDemand: BigInt, field: Field): void {
-  const hourly = FieldHourlySnapshot.load(field.id.toHexString() + "-" + field.lastHourlySnapshotSeason.toString())!;
+  const hourly = FieldHourlySnapshot.load(field.id + "-" + field.lastHourlySnapshotSeason.toString())!;
   hourly.deltaPodDemand = deltaPodDemand;
   hourly.save();
 }
