@@ -46,8 +46,6 @@ export function loadField(account: Address, fieldId: BigInt = ZERO_BI): Field {
     field.harvestableIndex = ZERO_BI;
     field.podRate = ZERO_BD;
     field.save();
-  } else {
-    field.fieldId = fieldId;
   }
   return field;
 }
@@ -80,9 +78,6 @@ export function loadPlot(diamondAddress: Address, index: BigInt, fieldId: BigInt
     plot.sowHash = ADDRESS_ZERO;
     plot.sowTimestamp = ZERO_BI;
     plot.save();
-  } else {
-    plot.fieldId = fieldId;
-    plot.field = getFieldEntityId(diamondAddress, fieldId);
   }
   return plot;
 }

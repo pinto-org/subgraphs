@@ -53,8 +53,6 @@ export function loadPodMarketplace(fieldId: BigInt = ZERO_BI): PodMarketplace {
     marketplace.podVolume = ZERO_BI;
     marketplace.beanVolume = ZERO_BI;
     marketplace.save();
-  } else {
-    marketplace.fieldId = fieldId;
   }
   return marketplace;
 }
@@ -106,8 +104,6 @@ export function loadPodListing(account: Address, index: BigInt, fieldId: BigInt 
     listing.creationHash = ADDRESS_ZERO;
     listing.updatedAt = ZERO_BI;
     listing.save();
-  } else {
-    listing.fieldId = fieldId;
   }
   return listing;
 }
@@ -169,8 +165,6 @@ export function loadPodOrder(orderID: Bytes, fieldId: BigInt = ZERO_BI): PodOrde
     order.creationHash = ADDRESS_ZERO;
     order.fills = [];
     order.save();
-  } else {
-    order.fieldId = fieldId;
   }
   return order;
 }
