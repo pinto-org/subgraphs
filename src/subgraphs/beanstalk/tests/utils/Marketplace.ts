@@ -2,19 +2,32 @@ import { BigInt, Bytes, ethereum, log } from "@graphprotocol/graph-ts";
 import { assert } from "matchstick-as/assembly/index";
 import {
   createPodListingCancelledEvent,
+  createPodListingCancelledEvent_pinto,
   createPodListingCreatedEvent,
+  createPodListingCreatedEvent_pinto,
   createPodListingCreatedEvent_v1_1,
   createPodListingCreatedEvent_v2,
   createPodListingFilledEvent,
+  createPodListingFilledEvent_pinto,
   createPodListingFilledEvent_v2,
   createPodOrderCancelledEvent,
   createPodOrderCreatedEvent,
+  createPodOrderCreatedEvent_pinto,
   createPodOrderCreatedEvent_v2,
   createPodOrderFilledEvent,
+  createPodOrderFilledEvent_pinto,
   createPodOrderFilledEvent_v2
 } from "../event-mocking/Marketplace";
 import { BI_10, ONE_BI, ZERO_BI } from "../../../../core/utils/Decimals";
-import { PodOrderCancelled } from "../../generated/Beanstalk-ABIs/PintoPI13";
+import { getPlotEntityId } from "../../src/entities/Field";
+import {
+  PodListingCreated as PodListingCreated_pinto,
+  PodListingFilled as PodListingFilled_pinto,
+  PodListingCancelled as PodListingCancelled_pinto,
+  PodOrderCreated as PodOrderCreated_pinto,
+  PodOrderFilled as PodOrderFilled_pinto,
+  PodOrderCancelled
+} from "../../generated/Beanstalk-ABIs/PintoPI13";
 import { BEANSTALK } from "../../../../core/constants/raw/BeanstalkEthConstants";
 import { transferPlot } from "./Field";
 import {
@@ -38,7 +51,14 @@ import {
   handlePodOrderCreated_v2,
   handlePodOrderFilled_v2
 } from "../../src/handlers/legacy/LegacyMarketplaceV2Handler";
-import { handlePodOrderCancelled } from "../../src/handlers/MarketplaceHandler";
+import {
+  handlePodListingCancelled,
+  handlePodListingCreated,
+  handlePodListingFilled,
+  handlePodOrderCancelled,
+  handlePodOrderCreated,
+  handlePodOrderFilled
+} from "../../src/handlers/MarketplaceHandler";
 import {
   PodListingCancelled as PodListingCancelled_v2,
   PodListingCreated as PodListingCreated_v2,
@@ -338,6 +358,58 @@ export function createListing_v2(
   return event;
 }
 
+export function createListing_pinto(
+  account: string,
+  fieldId: BigInt,
+  index: BigInt,
+  listedPods: BigInt,
+  start: BigInt,
+  maxHarvestableIndex: BigInt,
+  pricePerPod: i32 = 250000,
+  minFillAmount: BigInt = ZERO_BI,
+  mode: i32 = 0
+): PodListingCreated_pinto {
+  const event = createPodListingCreatedEvent_pinto(
+    account,
+    fieldId,
+    index,
+    start,
+    listedPods,
+    pricePerPod,
+    maxHarvestableIndex,
+    minFillAmount,
+    mode
+  );
+  handlePodListingCreated(event);
+
+  const listingId = account + "-" + index.toString();
+  assert.fieldEquals("PodListing", listingId, "fieldId", fieldId.toString());
+  assert.fieldEquals("PodListing", listingId, "podMarketplace", fieldId.toString());
+  assert.fieldEquals("PodListing", listingId, "plot", getPlotEntityId(index, fieldId));
+
+  return event;
+}
+
+export function fillListing_pinto(
+  from: string,
+  to: string,
+  fieldId: BigInt,
+  index: BigInt,
+  start: BigInt,
+  amount: BigInt,
+  costInBeans: BigInt
+): PodListingFilled_pinto {
+  const event = createPodListingFilledEvent_pinto(from, to, fieldId, index, start, amount, costInBeans);
+  handlePodListingFilled(event);
+
+  transferPlot(from, to, index.plus(start), amount, fieldId);
+
+  const podFillId = getPodFillId(event.params.index, event);
+  assert.fieldEquals("PodFill", podFillId, "listing", from + "-" + index.toString());
+
+  return event;
+}
+
 export function createOrder_v1(
   account: string,
   id: Bytes,
@@ -376,6 +448,59 @@ export function createOrder_v2(
   );
   handlePodOrderCreated_v2(event);
   assertOrderCreated_v2(account, event);
+  return event;
+}
+
+export function createOrder_pinto(
+  account: string,
+  fieldId: BigInt,
+  id: Bytes,
+  beans: BigInt,
+  pricePerPod: i32,
+  maxPlaceInLine: BigInt,
+  minFillAmount: BigInt = ZERO_BI
+): PodOrderCreated_pinto {
+  const event = createPodOrderCreatedEvent_pinto(
+    account,
+    id,
+    beans,
+    fieldId,
+    pricePerPod,
+    maxPlaceInLine,
+    minFillAmount
+  );
+  handlePodOrderCreated(event);
+
+  assert.fieldEquals("PodOrder", id.toHexString(), "fieldId", fieldId.toString());
+  assert.fieldEquals("PodOrder", id.toHexString(), "podMarketplace", fieldId.toString());
+
+  return event;
+}
+
+export function fillOrder_pinto(
+  from: string,
+  to: string,
+  id: Bytes,
+  fieldId: BigInt,
+  index: BigInt,
+  start: BigInt,
+  amount: BigInt,
+  costInBeans: BigInt
+): PodOrderFilled_pinto {
+  const event = createPodOrderFilledEvent_pinto(from, to, id, fieldId, index, start, amount, costInBeans);
+  handlePodOrderFilled(event);
+
+  transferPlot(from, to, index.plus(start), amount, fieldId);
+
+  const podFillId = getPodFillId(index, event);
+  assert.fieldEquals("PodFill", podFillId, "order", id.toHexString());
+
+  return event;
+}
+
+export function cancelListing_pinto(account: string, fieldId: BigInt, index: BigInt): PodListingCancelled_pinto {
+  const event = createPodListingCancelledEvent_pinto(account, fieldId, index);
+  handlePodListingCancelled(event);
   return event;
 }
 

@@ -7,9 +7,13 @@ import {
   assertMarketOrdersState,
   cancelListing,
   cancelOrder,
+  createListing_pinto,
   createListing_v2,
+  createOrder_pinto,
   createOrder_v2,
+  fillListing_pinto,
   fillListing_v2,
+  fillOrder_pinto,
   fillOrder_v2,
   getPodFillId
 } from "./utils/Marketplace";
@@ -17,6 +21,7 @@ import { harvest, setHarvestable, sow } from "./utils/Field";
 import { initL1Version } from "./entity-mocking/MockVersion";
 import { mockSeasonStruct } from "./utils/Season";
 import { BEANSTALK } from "../../../core/constants/raw/BeanstalkEthConstants";
+import { getCurrentSeason } from "../src/entities/Beanstalk";
 
 const account = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266".toLowerCase();
 const account2 = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8".toLowerCase();
@@ -32,6 +37,9 @@ const sowedPods = sowedBeans.times(BigInt.fromU32(temperature));
 const orderBeans = beans_BI(80000);
 const orderPricePerPod = BigInt.fromString("500000"); // 0.5 beans
 const orderId = Bytes.fromHexString("0xabcd");
+const fieldOne = BigInt.fromI32(1);
+const listingIndexFieldOne = podlineMil_BI(12);
+const orderIdFieldOne = Bytes.fromHexString("0xbcde");
 
 describe("Marketplace", () => {
   beforeEach(() => {
@@ -611,6 +619,112 @@ describe("Marketplace", () => {
           ZERO_BI
         );
       });
+    });
+  });
+
+  describe("Marketplace field isolation", () => {
+    beforeEach(() => {
+      sow(account, listingIndexFieldOne, sowedBeans, sowedPods, fieldOne);
+    });
+
+    test("creates independent listings and orders per field", () => {
+      const listingKeyField0 =
+        account + "-" + listingIndex.toString() + "-" + maxHarvestableIndex.toString();
+      createListing_pinto(account, ZERO_BI, listingIndex, sowedPods, ZERO_BI, maxHarvestableIndex);
+      assertMarketListingsState(
+        "0",
+        [listingKeyField0],
+        sowedPods,
+        sowedPods,
+        ZERO_BI,
+        ZERO_BI,
+        ZERO_BI,
+        ZERO_BI,
+        ZERO_BI
+      );
+
+      const listingKeyField1 =
+        account + "-" + listingIndexFieldOne.toString() + "-" + maxHarvestableIndex.toString();
+      createListing_pinto(account, fieldOne, listingIndexFieldOne, sowedPods, ZERO_BI, maxHarvestableIndex);
+      assertMarketListingsState(
+        fieldOne.toString(),
+        [listingKeyField1],
+        sowedPods,
+        sowedPods,
+        ZERO_BI,
+        ZERO_BI,
+        ZERO_BI,
+        ZERO_BI,
+        ZERO_BI
+      );
+
+      const maxPlaceInLine = maxHarvestableIndex;
+      const orderKeyField0 = orderId.toHexString() + "-" + maxPlaceInLine.toString();
+      createOrder_pinto(account, ZERO_BI, orderId, orderBeans, orderPricePerPod.toI32(), maxPlaceInLine);
+      assertMarketOrdersState(
+        "0",
+        [orderKeyField0],
+        orderBeans,
+        orderBeans,
+        ZERO_BI,
+        ZERO_BI,
+        ZERO_BI,
+        ZERO_BI,
+        ZERO_BI
+      );
+
+      const orderKeyField1 = orderIdFieldOne.toHexString() + "-" + maxPlaceInLine.toString();
+      createOrder_pinto(account, fieldOne, orderIdFieldOne, orderBeans, orderPricePerPod.toI32(), maxPlaceInLine);
+      assertMarketOrdersState(
+        fieldOne.toString(),
+        [orderKeyField1],
+        orderBeans,
+        orderBeans,
+        ZERO_BI,
+        ZERO_BI,
+        ZERO_BI,
+        ZERO_BI,
+        ZERO_BI
+      );
+    });
+
+    test("filling field 0 listing leaves field 1 untouched", () => {
+      createListing_pinto(account, ZERO_BI, listingIndex, sowedPods, ZERO_BI, maxHarvestableIndex);
+      createListing_pinto(account, fieldOne, listingIndexFieldOne, sowedPods, ZERO_BI, maxHarvestableIndex);
+
+      const filledAmount = sowedPods.div(BigInt.fromI32(2));
+      const filledBeans = beans_BI(2000);
+      fillListing_pinto(account, account2, ZERO_BI, listingIndex, ZERO_BI, filledAmount, filledBeans);
+
+      assert.fieldEquals("PodMarketplace", "0", "filledListedPods", filledAmount.toString());
+      assert.fieldEquals(
+        "PodMarketplace",
+        "0",
+        "availableListedPods",
+        sowedPods.minus(filledAmount).toString()
+      );
+
+      assert.fieldEquals("PodMarketplace", fieldOne.toString(), "filledListedPods", ZERO_BI.toString());
+      assert.fieldEquals(
+        "PodMarketplace",
+        fieldOne.toString(),
+        "availableListedPods",
+        sowedPods.toString()
+      );
+      assert.fieldEquals("PodMarketplace", fieldOne.toString(), "podVolume", ZERO_BI.toString());
+      assert.fieldEquals("PodMarketplace", fieldOne.toString(), "beanVolume", ZERO_BI.toString());
+    });
+
+    test("marketplace snapshots store data per field", () => {
+      createListing_pinto(account, fieldOne, listingIndexFieldOne, sowedPods, ZERO_BI, maxHarvestableIndex);
+      const maxPlaceInLine = maxHarvestableIndex;
+      createOrder_pinto(account, fieldOne, orderIdFieldOne, orderBeans, orderPricePerPod.toI32(), maxPlaceInLine);
+
+      const season = BigInt.fromI32(getCurrentSeason());
+      const snapshotId = fieldOne.toString() + "-" + season.toString();
+      assert.fieldEquals("PodMarketplaceHourlySnapshot", snapshotId, "podMarketplace", fieldOne.toString());
+      assert.fieldEquals("PodMarketplaceHourlySnapshot", snapshotId, "listedPods", sowedPods.toString());
+      assert.fieldEquals("PodMarketplaceHourlySnapshot", snapshotId, "orderBeans", orderBeans.toString());
     });
   });
 });
