@@ -106,6 +106,8 @@ export function podListingCreated(params: PodListingCreatedParams): void {
   listing.historyID =
     listing.id + "-" + params.event.block.timestamp.toString() + "-" + params.event.logIndex.toString();
   listing.plot = plot.id;
+  listing.fieldId = fieldId;
+  listing.podMarketplace = fieldId.toString();
 
   listing.start = params.start;
   listing.mode = params.mode;
@@ -312,6 +314,7 @@ export function podOrderCreated(params: PodOrderCreatedParams): void {
   order.historyID = order.id + "-" + params.event.block.timestamp.toString() + "-" + params.event.logIndex.toString();
   order.farmer = params.account;
   order.fieldId = params.fieldId;
+  order.podMarketplace = params.fieldId.toString();
   order.createdAt = params.event.block.timestamp;
   order.updatedAt = params.event.block.timestamp;
   order.status = "ACTIVE";
@@ -410,8 +413,15 @@ export function podOrderCancelled(params: PodOrderCancelledParams): void {
     order.updatedAt = params.event.block.timestamp;
     order.save();
 
-    updateActiveOrders(MarketplaceAction.CANCELLED, order.id, order.maxPlaceInLine);
-    updateMarketOrderBalances(ZERO_BI, order.beanAmount.minus(order.beanAmountFilled), ZERO_BI, ZERO_BI, params.event.block);
+    updateActiveOrders(MarketplaceAction.CANCELLED, order.id, order.maxPlaceInLine, order.fieldId);
+    updateMarketOrderBalances(
+      ZERO_BI,
+      order.beanAmount.minus(order.beanAmountFilled),
+      ZERO_BI,
+      ZERO_BI,
+      params.event.block,
+      order.fieldId
+    );
 
     // Save the raw event data
     let id =

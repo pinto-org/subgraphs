@@ -33,7 +33,6 @@ export function handleSupplyIncrease(event: SupplyIncrease): void {
   updateFieldTotals(
     event.address,
     event.address,
-    ZERO_BI,
     event.params.newSoil,
     ZERO_BI,
     ZERO_BI,
@@ -49,7 +48,6 @@ export function handleSupplyDecrease(event: SupplyDecrease): void {
   updateFieldTotals(
     event.address,
     event.address,
-    ZERO_BI,
     event.params.newSoil,
     ZERO_BI,
     ZERO_BI,
@@ -71,7 +69,6 @@ export function handleSupplyNeutral(event: SupplyNeutral): void {
     ZERO_BI,
     ZERO_BI,
     ZERO_BI,
-    ZERO_BI,
     event.block
   );
 }
@@ -85,7 +82,6 @@ export function handleFundFundraiser(event: FundFundraiser): void {
     ZERO_BI,
     ZERO_BI,
     ZERO_BI.minus(event.params.amount),
-    ZERO_BI,
     ZERO_BI,
     ZERO_BI,
     ZERO_BI,
