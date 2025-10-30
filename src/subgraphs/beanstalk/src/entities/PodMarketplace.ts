@@ -5,6 +5,13 @@ import { getCurrentSeason } from "./Beanstalk";
 import { ADDRESS_ZERO } from "../../../../core/utils/Bytes";
 import { getPlotEntityId } from "./Field";
 
+export function getPodListingEntityId(account: Address, index: BigInt, fieldId: BigInt = ZERO_BI): string {
+  if (fieldId.equals(ZERO_BI)) {
+    return account.toHexString() + "-" + index.toString();
+  }
+  return account.toHexString() + "-" + index.toString() + "-" + fieldId.toString();
+}
+
 export function loadPodMarketplace(fieldId: BigInt = ZERO_BI): PodMarketplace {
   let marketplace = PodMarketplace.load(fieldId.toString());
   if (marketplace == null) {
@@ -48,16 +55,16 @@ export function loadPodFill(protocol: Address, index: BigInt, hash: String): Pod
   return fill;
 }
 
-export function loadPodListing(account: Address, index: BigInt): PodListing {
-  let id = account.toHexString() + "-" + index.toString();
+export function loadPodListing(account: Address, index: BigInt, fieldId: BigInt = ZERO_BI): PodListing {
+  let id = getPodListingEntityId(account, index, fieldId);
   let listing = PodListing.load(id);
   if (listing == null) {
     listing = new PodListing(id);
     listing.podMarketplace = "0";
     listing.historyID = "";
-    listing.plot = getPlotEntityId(index, ZERO_BI);
+    listing.plot = getPlotEntityId(index, fieldId);
     listing.farmer = account;
-    listing.fieldId = ZERO_BI;
+    listing.fieldId = fieldId;
     listing.index = index;
     listing.start = ZERO_BI;
     listing.mode = 0;

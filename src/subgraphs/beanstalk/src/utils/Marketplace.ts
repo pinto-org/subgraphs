@@ -3,7 +3,7 @@ import { getPlotEntityId, loadField, loadPlot } from "../entities/Field";
 import { BI_10, ZERO_BI } from "../../../../core/utils/Decimals";
 import { loadPodFill, loadPodMarketplace } from "../entities/PodMarketplace";
 import { createHistoricalPodOrder, loadPodOrder } from "../entities/PodMarketplace";
-import { createHistoricalPodListing, loadPodListing } from "../entities/PodMarketplace";
+import { createHistoricalPodListing, loadPodListing, getPodListingEntityId } from "../entities/PodMarketplace";
 import {
   Plot,
   PodListing,
@@ -272,7 +272,7 @@ export function podListingFilled(params: MarketFillParams): void {
 }
 
 export function podListingCancelled(params: PodListingCancelledParams): void {
-  let listing = PodListing.load(params.account.toHexString() + "-" + params.index.toString());
+  let listing = PodListing.load(getPodListingEntityId(params.account, params.index, params.fieldId));
   if (listing !== null && listing.status == "ACTIVE") {
     updateActiveListings(
       MarketplaceAction.CANCELLED,
@@ -559,7 +559,7 @@ export function expirePodListingIfExists(
   fieldId: BigInt = ZERO_BI,
   activeListingIndex: i32 = -1, // If provided, avoids having to lookup the index
 ): void {
-  let listing = PodListing.load(farmer.toHexString() + "-" + listedPlotIndex.toString());
+  let listing = PodListing.load(getPodListingEntityId(farmer, listedPlotIndex, fieldId));
   if (listing == null || listing.status != "ACTIVE") {
     return;
   }
