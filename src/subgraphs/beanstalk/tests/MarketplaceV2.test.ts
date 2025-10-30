@@ -626,12 +626,13 @@ describe("Marketplace", () => {
 
   describe("Marketplace field isolation", () => {
     beforeEach(() => {
-      sow(account, listingIndexFieldOne, sowedBeans, sowedPods, fieldOne);
+      sow(account, listingIndex, sowedBeans, sowedPods, ZERO_BI);
+      sow(account, listingIndex, sowedBeans, sowedPods, fieldOne);
     });
 
     test("creates independent listings and orders per field", () => {
       const listingKeyField0 =
-        account + "-" + listingIndex.toString() + "-" + maxHarvestableIndex.toString();
+        account + "-" + listingIndex.toString() + "-" + ZERO_BI.toString();
       createListing_pinto(account, ZERO_BI, listingIndex, sowedPods, ZERO_BI, maxHarvestableIndex);
       assertMarketListingsState(
         "0",
@@ -646,8 +647,8 @@ describe("Marketplace", () => {
       );
 
       const listingKeyField1 =
-        account + "-" + listingIndexFieldOne.toString() + "-" + maxHarvestableIndex.toString();
-      createListing_pinto(account, fieldOne, listingIndexFieldOne, sowedPods, ZERO_BI, maxHarvestableIndex);
+        account + "-" + listingIndex.toString() + "-" + fieldOne.toString();
+      createListing_pinto(account, fieldOne, listingIndex, sowedPods, ZERO_BI, maxHarvestableIndex);
       assertMarketListingsState(
         fieldOne.toString(),
         [listingKeyField1],
