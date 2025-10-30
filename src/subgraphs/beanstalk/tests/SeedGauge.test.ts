@@ -1,5 +1,13 @@
-import { afterEach, beforeEach, assert, clearStore, describe, test } from "matchstick-as/assembly/index";
-import { BigInt } from "@graphprotocol/graph-ts";
+import {
+  afterEach,
+  beforeEach,
+  assert,
+  clearStore,
+  describe,
+  test,
+  createMockedFunction
+} from "matchstick-as/assembly/index";
+import { BigInt, ethereum } from "@graphprotocol/graph-ts";
 import {
   handleBeanToMaxLpGpPerBdvRatioChange,
   handleGaugePointChange,
@@ -61,6 +69,7 @@ describe("Seed Gauge", () => {
     test("event: BeanToMaxLpGpPerBdvRatioChange (initialization)", () => {
       const initialRatio = BigInt.fromI32(66).times(ratioDecimals);
       setSeason(20000);
+
       handleBeanToMaxLpGpPerBdvRatioChange(
         createBeanToMaxLpGpPerBdvRatioChangeEvent(BigInt.fromU32(20000), BigInt.fromU32(10), initialRatio)
       );

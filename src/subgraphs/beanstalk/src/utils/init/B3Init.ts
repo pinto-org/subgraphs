@@ -39,6 +39,7 @@ export function init(block: ethereum.Block): void {
 
   let silo = loadSilo(v().protocolAddress);
   silo.beanToMaxLpGpPerBdvRatio = SILO_INITIAL_VALUES.beanToMaxLpGpPerBdvRatio;
+  silo.cropRatio = SILO_INITIAL_VALUES.cropRatio;
   silo.unmigratedL1DepositedBdv = UNMIGRATED_SILO_BDV;
   silo.save();
 

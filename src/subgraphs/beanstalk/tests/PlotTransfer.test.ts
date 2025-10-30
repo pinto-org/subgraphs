@@ -2,7 +2,7 @@
 
 import { beforeEach, afterEach, assert, clearStore, describe, test } from "matchstick-as/assembly/index";
 import { log } from "matchstick-as/assembly/log";
-import { BigInt, Bytes } from "@graphprotocol/graph-ts";
+import { BigDecimal, BigInt, Bytes } from "@graphprotocol/graph-ts";
 
 import { BEANSTALK } from "../../../core/constants/raw/BeanstalkEthConstants";
 import { BI_10, ZERO_BI } from "../../../core/utils/Decimals";
@@ -11,6 +11,7 @@ import { assertFarmerHasPlot, assertFieldHas, setHarvestable, sow, transferPlot 
 import { createListing_v2, createOrder_v2, fillListing_v2, fillOrder_v2 } from "./utils/Marketplace";
 import { initL1Version } from "./entity-mocking/MockVersion";
 import { mockSeasonStruct } from "./utils/Season";
+import { mockCropRatio } from "./utils/Silo";
 
 const account = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266".toLowerCase();
 const account2 = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8".toLowerCase();
@@ -55,6 +56,7 @@ describe("Field: Plot Transfer", () => {
   beforeEach(() => {
     initL1Version();
     mockSeasonStruct(BEANSTALK);
+    mockCropRatio(BEANSTALK, BigDecimal.fromString("100"));
 
     // Create two equally sized plots next to each other
     for (let i = 0; i < initialPlots.length; ++i) {

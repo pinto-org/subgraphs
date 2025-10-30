@@ -7,7 +7,8 @@ import {
   Receipt,
   Shipped,
   SeasonOfPlentyField,
-  SeasonOfPlentyWell
+  SeasonOfPlentyWell,
+  PintoPI13
 } from "../../generated/Beanstalk-ABIs/PintoPI13";
 import { toDecimal, ZERO_BD, ZERO_BI } from "../../../../core/utils/Decimals";
 import { getCurrentSeason, loadBeanstalk, loadSeason } from "../entities/Beanstalk";
@@ -22,6 +23,8 @@ import { isGaugeDeployed, isReplanted } from "../../../../core/constants/Runtime
 import { v } from "../utils/constants/Version";
 import { Beanstalk_harvestableIndex, Beanstalk_isRaining } from "../utils/contracts/Beanstalk";
 import { updateAllWrappedDeposits } from "../utils/WrappedSilo";
+import { loadSilo } from "../entities/Silo";
+import { takeSiloSnapshots } from "../entities/snapshots/Silo";
 
 export function handleSunrise(event: Sunrise): void {
   sunrise(event.address, event.params.season, event.block);
@@ -87,7 +90,12 @@ export function handleIncentive(event: Incentivization): void {
   season.raining = Beanstalk_isRaining();
   season.save();
 
-  let field = loadField(v().protocolAddress);
+  let silo = loadSilo(event.address);
+  silo.cropRatio = toDecimal(PintoPI13.bind(v().protocolAddress).getBeanToMaxLpGpPerBdvRatioScaled(), 18);
+  takeSiloSnapshots(silo, event.block);
+  silo.save();
+
+  let field = loadField(event.address);
   field.harvestableIndex = Beanstalk_harvestableIndex(ZERO_BI);
   takeFieldSnapshots(field, event.block);
   field.save();

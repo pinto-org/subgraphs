@@ -1,4 +1,4 @@
-import { BigInt, Bytes, log } from "@graphprotocol/graph-ts";
+import { BigDecimal, BigInt, Bytes, log } from "@graphprotocol/graph-ts";
 import { afterEach, assert, beforeEach, clearStore, describe, test } from "matchstick-as/assembly/index";
 import { beans_BI, podlineMil_BI } from "../../../core/tests/Values";
 import { BI_10, ONE_BI, ZERO_BI } from "../../../core/utils/Decimals";
@@ -22,6 +22,7 @@ import { initL1Version } from "./entity-mocking/MockVersion";
 import { mockSeasonStruct } from "./utils/Season";
 import { BEANSTALK } from "../../../core/constants/raw/BeanstalkEthConstants";
 import { getCurrentSeason } from "../src/entities/Beanstalk";
+import { mockCropRatio } from "./utils/Silo";
 
 const account = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266".toLowerCase();
 const account2 = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8".toLowerCase();
@@ -46,6 +47,7 @@ describe("Marketplace", () => {
     initL1Version();
 
     mockSeasonStruct(BEANSTALK);
+    mockCropRatio(BEANSTALK, BigDecimal.fromString("100"));
     setHarvestable(currentHarvestable);
     sow(account, listingIndex, sowedBeans, sowedPods);
   });

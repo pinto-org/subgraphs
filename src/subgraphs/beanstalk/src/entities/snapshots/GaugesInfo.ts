@@ -31,6 +31,7 @@ export function takeGaugesInfoSnapshots(gaugesInfo: GaugesInfo, block: ethereum.
   hourly.g2IsActive = gaugesInfo.g2IsActive;
   hourly.g0CultivationFactor = gaugesInfo.g0CultivationFactor;
   hourly.g1ConvertDownPenalty = gaugesInfo.g1ConvertDownPenalty;
+  hourly.g1BlightFactor = gaugesInfo.g1BlightFactor;
   hourly.g2BonusStalkPerBdv = gaugesInfo.g2BonusStalkPerBdv;
   hourly.g2MaxConvertCapacity = gaugesInfo.g2MaxConvertCapacity;
   hourly.g2BdvConvertedThisSeason = gaugesInfo.g2BdvConvertedThisSeason;
@@ -53,6 +54,13 @@ export function takeGaugesInfoSnapshots(gaugesInfo: GaugesInfo, block: ethereum.
         hourly.deltaG1ConvertDownPenalty = hourly.g1ConvertDownPenalty!.minus(baseHourly.g1ConvertDownPenalty!);
       } else {
         hourly.deltaG1ConvertDownPenalty = hourly.g1ConvertDownPenalty;
+      }
+    }
+    if (hourly.g1BlightFactor !== null) {
+      if (baseHourly.g1BlightFactor !== null) {
+        hourly.deltaG1BlightFactor = hourly.g1BlightFactor!.minus(baseHourly.g1BlightFactor!);
+      } else {
+        hourly.deltaG1BlightFactor = hourly.g1BlightFactor;
       }
     }
     if (hourly.g2BonusStalkPerBdv !== null) {
@@ -99,6 +107,9 @@ export function takeGaugesInfoSnapshots(gaugesInfo: GaugesInfo, block: ethereum.
           baseHourly.deltaG1ConvertDownPenalty!
         );
       }
+      if (hourly.deltaG1BlightFactor !== null && baseHourly.deltaG1BlightFactor !== null) {
+        hourly.deltaG1BlightFactor = hourly.deltaG1BlightFactor!.plus(baseHourly.deltaG1BlightFactor!);
+      }
       if (hourly.deltaG2BonusStalkPerBdv !== null && baseHourly.deltaG2BonusStalkPerBdv !== null) {
         hourly.deltaG2BonusStalkPerBdv = hourly.deltaG2BonusStalkPerBdv!.plus(baseHourly.deltaG2BonusStalkPerBdv!);
       }
@@ -122,6 +133,7 @@ export function takeGaugesInfoSnapshots(gaugesInfo: GaugesInfo, block: ethereum.
     hourly.deltaG2IsActive = hourly.g2IsActive;
     hourly.deltaG0CultivationFactor = hourly.g0CultivationFactor;
     hourly.deltaG1ConvertDownPenalty = hourly.g1ConvertDownPenalty;
+    hourly.deltaG1BlightFactor = hourly.g1BlightFactor;
     hourly.deltaG2BonusStalkPerBdv = hourly.g2BonusStalkPerBdv;
     hourly.deltaG2MaxConvertCapacity = hourly.g2MaxConvertCapacity;
     hourly.deltaG2BdvConvertedThisSeason = hourly.g2BdvConvertedThisSeason;
@@ -141,6 +153,7 @@ export function takeGaugesInfoSnapshots(gaugesInfo: GaugesInfo, block: ethereum.
   daily.g2IsActive = gaugesInfo.g2IsActive;
   daily.g0CultivationFactor = gaugesInfo.g0CultivationFactor;
   daily.g1ConvertDownPenalty = gaugesInfo.g1ConvertDownPenalty;
+  daily.g1BlightFactor = gaugesInfo.g1BlightFactor;
   daily.g2BonusStalkPerBdv = gaugesInfo.g2BonusStalkPerBdv;
   daily.g2MaxConvertCapacity = gaugesInfo.g2MaxConvertCapacity;
   daily.g2BdvConvertedThisSeason = gaugesInfo.g2BdvConvertedThisSeason;
@@ -163,6 +176,13 @@ export function takeGaugesInfoSnapshots(gaugesInfo: GaugesInfo, block: ethereum.
         daily.deltaG1ConvertDownPenalty = daily.g1ConvertDownPenalty!.minus(baseDaily.g1ConvertDownPenalty!);
       } else {
         daily.deltaG1ConvertDownPenalty = daily.g1ConvertDownPenalty;
+      }
+    }
+    if (daily.g1BlightFactor !== null) {
+      if (baseDaily.g1BlightFactor !== null) {
+        daily.deltaG1BlightFactor = daily.g1BlightFactor!.minus(baseDaily.g1BlightFactor!);
+      } else {
+        daily.deltaG1BlightFactor = daily.g1BlightFactor;
       }
     }
     if (daily.g2BonusStalkPerBdv !== null) {
@@ -207,6 +227,9 @@ export function takeGaugesInfoSnapshots(gaugesInfo: GaugesInfo, block: ethereum.
       if (daily.deltaG1ConvertDownPenalty !== null && baseDaily.deltaG1ConvertDownPenalty !== null) {
         daily.deltaG1ConvertDownPenalty = daily.deltaG1ConvertDownPenalty!.plus(baseDaily.deltaG1ConvertDownPenalty!);
       }
+      if (daily.deltaG1BlightFactor !== null && baseDaily.deltaG1BlightFactor !== null) {
+        daily.deltaG1BlightFactor = daily.deltaG1BlightFactor!.plus(baseDaily.deltaG1BlightFactor!);
+      }
       if (daily.deltaG2BonusStalkPerBdv !== null && baseDaily.deltaG2BonusStalkPerBdv !== null) {
         daily.deltaG2BonusStalkPerBdv = daily.deltaG2BonusStalkPerBdv!.plus(baseDaily.deltaG2BonusStalkPerBdv!);
       }
@@ -228,6 +251,7 @@ export function takeGaugesInfoSnapshots(gaugesInfo: GaugesInfo, block: ethereum.
     daily.deltaG2IsActive = daily.g2IsActive;
     daily.deltaG0CultivationFactor = daily.g0CultivationFactor;
     daily.deltaG1ConvertDownPenalty = daily.g1ConvertDownPenalty;
+    daily.deltaG1BlightFactor = daily.g1BlightFactor;
     daily.deltaG2BonusStalkPerBdv = daily.g2BonusStalkPerBdv;
     daily.deltaG2MaxConvertCapacity = daily.g2MaxConvertCapacity;
     daily.deltaG2BdvConvertedThisSeason = daily.g2BdvConvertedThisSeason;

@@ -41,6 +41,7 @@ export function takeSiloSnapshots(silo: Silo, block: ethereum.Block): void {
   hourly.beanMints = silo.beanMints;
   hourly.plantableStalk = silo.plantableStalk;
   hourly.beanToMaxLpGpPerBdvRatio = silo.beanToMaxLpGpPerBdvRatio;
+  hourly.cropRatio = silo.cropRatio;
   hourly.avgGrownStalkPerBdvPerSeason = silo.avgGrownStalkPerBdvPerSeason;
   hourly.grownStalkPerSeason = silo.grownStalkPerSeason;
   hourly.activeFarmers = silo.activeFarmers;
@@ -67,6 +68,7 @@ export function takeSiloSnapshots(silo: Silo, block: ethereum.Block): void {
     hourly.deltaBeanMints = hourly.beanMints.minus(baseHourly.beanMints);
     hourly.deltaPlantableStalk = hourly.plantableStalk.minus(baseHourly.plantableStalk);
     hourly.deltaBeanToMaxLpGpPerBdvRatio = hourly.beanToMaxLpGpPerBdvRatio.minus(baseHourly.beanToMaxLpGpPerBdvRatio);
+    hourly.deltaCropRatio = hourly.cropRatio.minus(baseHourly.cropRatio);
     hourly.deltaAvgGrownStalkPerBdvPerSeason = hourly.avgGrownStalkPerBdvPerSeason.minus(
       baseHourly.avgGrownStalkPerBdvPerSeason
     );
@@ -104,6 +106,7 @@ export function takeSiloSnapshots(silo: Silo, block: ethereum.Block): void {
       hourly.deltaBeanToMaxLpGpPerBdvRatio = hourly.deltaBeanToMaxLpGpPerBdvRatio.plus(
         baseHourly.deltaBeanToMaxLpGpPerBdvRatio
       );
+      hourly.deltaCropRatio = hourly.deltaCropRatio.plus(baseHourly.deltaCropRatio);
       hourly.deltaAvgGrownStalkPerBdvPerSeason = hourly.deltaAvgGrownStalkPerBdvPerSeason.plus(
         baseHourly.deltaAvgGrownStalkPerBdvPerSeason
       );
@@ -133,6 +136,7 @@ export function takeSiloSnapshots(silo: Silo, block: ethereum.Block): void {
     hourly.deltaBeanMints = hourly.beanMints;
     hourly.deltaPlantableStalk = hourly.plantableStalk;
     hourly.deltaBeanToMaxLpGpPerBdvRatio = hourly.beanToMaxLpGpPerBdvRatio;
+    hourly.deltaCropRatio = hourly.cropRatio;
     hourly.deltaAvgGrownStalkPerBdvPerSeason = hourly.avgGrownStalkPerBdvPerSeason;
     hourly.deltaGrownStalkPerSeason = hourly.grownStalkPerSeason;
     hourly.deltaActiveFarmers = hourly.activeFarmers;
@@ -162,6 +166,7 @@ export function takeSiloSnapshots(silo: Silo, block: ethereum.Block): void {
   daily.beanMints = silo.beanMints;
   daily.plantableStalk = silo.plantableStalk;
   daily.beanToMaxLpGpPerBdvRatio = silo.beanToMaxLpGpPerBdvRatio;
+  daily.cropRatio = silo.cropRatio;
   daily.avgGrownStalkPerBdvPerSeason = silo.avgGrownStalkPerBdvPerSeason;
   daily.grownStalkPerSeason = silo.grownStalkPerSeason;
   daily.activeFarmers = silo.activeFarmers;
@@ -185,6 +190,7 @@ export function takeSiloSnapshots(silo: Silo, block: ethereum.Block): void {
     daily.deltaBeanMints = daily.beanMints.minus(baseDaily.beanMints);
     daily.deltaPlantableStalk = daily.plantableStalk.minus(baseDaily.plantableStalk);
     daily.deltaBeanToMaxLpGpPerBdvRatio = daily.beanToMaxLpGpPerBdvRatio.minus(baseDaily.beanToMaxLpGpPerBdvRatio);
+    daily.deltaCropRatio = daily.cropRatio.minus(baseDaily.cropRatio);
     daily.deltaAvgGrownStalkPerBdvPerSeason = daily.avgGrownStalkPerBdvPerSeason.minus(
       baseDaily.avgGrownStalkPerBdvPerSeason
     );
@@ -220,6 +226,7 @@ export function takeSiloSnapshots(silo: Silo, block: ethereum.Block): void {
       daily.deltaBeanToMaxLpGpPerBdvRatio = daily.deltaBeanToMaxLpGpPerBdvRatio.plus(
         baseDaily.deltaBeanToMaxLpGpPerBdvRatio
       );
+      daily.deltaCropRatio = daily.deltaCropRatio.plus(baseDaily.deltaCropRatio);
       daily.deltaAvgGrownStalkPerBdvPerSeason = daily.deltaAvgGrownStalkPerBdvPerSeason.plus(
         baseDaily.deltaAvgGrownStalkPerBdvPerSeason
       );
@@ -246,6 +253,7 @@ export function takeSiloSnapshots(silo: Silo, block: ethereum.Block): void {
     daily.deltaBeanMints = daily.beanMints;
     daily.deltaPlantableStalk = daily.plantableStalk;
     daily.deltaBeanToMaxLpGpPerBdvRatio = daily.beanToMaxLpGpPerBdvRatio;
+    daily.deltaCropRatio = daily.cropRatio;
     daily.deltaAvgGrownStalkPerBdvPerSeason = daily.avgGrownStalkPerBdvPerSeason;
     daily.deltaGrownStalkPerSeason = daily.grownStalkPerSeason;
     daily.deltaActiveFarmers = daily.activeFarmers;

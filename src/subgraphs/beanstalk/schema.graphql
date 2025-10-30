@@ -151,6 +151,8 @@ type Silo @entity {
   plantableStalk: BigInt!
   "(protocol) [Seed Gauge] Current target ratio of Bean to LP deposits"
   beanToMaxLpGpPerBdvRatio: BigInt!
+  "(protocol) [Seed Gauge] Measures the difference in seeds of Bean and the max LP; can be derived from beanToMaxLpGpPerBdvRatio"
+  cropRatio: BigDecimal!
   "(protocol) Value emitted by UpdateAverageStalkPerBdvPerSeason event"
   avgGrownStalkPerBdvPerSeason: BigInt!
   "(protocol) Current grown stalk per season according to avgGrownStalkPerBdvPerSeason"
@@ -209,8 +211,10 @@ type SiloHourlySnapshot @entity {
   beanMints: BigInt!
   "Point in time current plantable stalk for bean seigniorage not yet claimed (only set on protocol-level Silo)"
   plantableStalk: BigInt!
-  "[Seed Gauge] Current target ratio of Bean to LP deposits"
+  "[Seed Gauge] Target ratio of Bean to LP deposits"
   beanToMaxLpGpPerBdvRatio: BigInt!
+  "[Seed Gauge] Measures the difference in seeds of Bean and the max LP; can be derived from beanToMaxLpGpPerBdvRatio"
+  cropRatio: BigDecimal!
   "Point in time average grown stalk per bdv per season"
   avgGrownStalkPerBdvPerSeason: BigInt!
   "Point in time grown stalk per season"
@@ -234,6 +238,7 @@ type SiloHourlySnapshot @entity {
   deltaBeanMints: BigInt!
   deltaPlantableStalk: BigInt!
   deltaBeanToMaxLpGpPerBdvRatio: BigInt!
+  deltaCropRatio: BigDecimal!
   deltaAvgGrownStalkPerBdvPerSeason: BigInt!
   deltaGrownStalkPerSeason: BigInt!
   deltaConvertDownPenalty: BigDecimal
@@ -285,6 +290,8 @@ type SiloDailySnapshot @entity {
   plantableStalk: BigInt!
   "[Seed Gauge] Current target ratio of Bean to LP deposits"
   beanToMaxLpGpPerBdvRatio: BigInt!
+  "[Seed Gauge] Measures the difference in seeds of Bean and the max LP; can be derived from beanToMaxLpGpPerBdvRatio"
+  cropRatio: BigDecimal!
   "Point in time average grown stalk per bdv per season"
   avgGrownStalkPerBdvPerSeason: BigInt!
   "Point in time grown stalk per season"
@@ -308,6 +315,7 @@ type SiloDailySnapshot @entity {
   deltaBeanMints: BigInt!
   deltaPlantableStalk: BigInt!
   deltaBeanToMaxLpGpPerBdvRatio: BigInt!
+  deltaCropRatio: BigDecimal!
   deltaAvgGrownStalkPerBdvPerSeason: BigInt!
   deltaGrownStalkPerSeason: BigInt!
   deltaConvertDownPenalty: BigDecimal
@@ -2054,6 +2062,8 @@ type GaugesInfo @entity {
 
   "Convert down penalty ratio"
   g1ConvertDownPenalty: BigDecimal
+  "Blight factor; increments each season the twaDeltaB is above 1 and decrements otherwise (minimum zero)."
+  g1BlightFactor: BigInt
 
   "Convert Up Bonus current bonus stalk per bdv"
   g2BonusStalkPerBdv: BigInt
@@ -2087,6 +2097,7 @@ type GaugesInfoHourlySnapshot @entity {
   g2IsActive: Boolean!
   g0CultivationFactor: BigDecimal
   g1ConvertDownPenalty: BigDecimal
+  g1BlightFactor: BigInt
   g2BonusStalkPerBdv: BigInt
   g2MaxConvertCapacity: BigInt
   g2BdvConvertedThisSeason: BigInt
@@ -2097,6 +2108,7 @@ type GaugesInfoHourlySnapshot @entity {
   deltaG2IsActive: Boolean!
   deltaG0CultivationFactor: BigDecimal
   deltaG1ConvertDownPenalty: BigDecimal
+  deltaG1BlightFactor: BigInt
   deltaG2BonusStalkPerBdv: BigInt
   deltaG2MaxConvertCapacity: BigInt
   deltaG2BdvConvertedThisSeason: BigInt
@@ -2121,6 +2133,7 @@ type GaugesInfoDailySnapshot @entity {
   g2IsActive: Boolean!
   g0CultivationFactor: BigDecimal
   g1ConvertDownPenalty: BigDecimal
+  g1BlightFactor: BigInt
   g2BonusStalkPerBdv: BigInt
   g2MaxConvertCapacity: BigInt
   g2BdvConvertedThisSeason: BigInt
@@ -2131,6 +2144,7 @@ type GaugesInfoDailySnapshot @entity {
   deltaG2IsActive: Boolean!
   deltaG0CultivationFactor: BigDecimal
   deltaG1ConvertDownPenalty: BigDecimal
+  deltaG1BlightFactor: BigInt
   deltaG2BonusStalkPerBdv: BigInt
   deltaG2MaxConvertCapacity: BigInt
   deltaG2BdvConvertedThisSeason: BigInt
