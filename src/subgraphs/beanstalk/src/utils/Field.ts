@@ -500,6 +500,7 @@ export function updateFieldTotals(
   field.harvestablePods = field.harvestablePods.plus(harvestablePods).minus(harvestedPods);
   field.harvestedPods = field.harvestedPods.plus(harvestedPods);
   if (account == protocol) {
+    // TODO(morning): this isnt correct for morning sows when above peg. More than one bean is sown to consume one soil.
     field.soil = field.soil.plus(soil).minus(sownBeans);
     field.podIndex = field.podIndex.plus(sownPods);
   }
