@@ -15,7 +15,7 @@ export function getPlotEntityId(index: BigInt, fieldId: BigInt = ZERO_BI): strin
   if (fieldId.equals(ZERO_BI)) {
     return index.toString();
   }
-  return fieldId.toString() + "-" + index.toString();
+  return index.toString() + "-" + fieldId.toString();
 }
 
 export function loadField(account: Address, fieldId: BigInt = ZERO_BI): Field {
