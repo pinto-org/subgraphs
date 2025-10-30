@@ -36,6 +36,10 @@ export function setHarvestable(harvestableIndex: BigInt): BigInt {
     ethereum.Value.fromUnsignedBigInt(harvestableIndex)
   ]);
 
+  createMockedFunction(BEANSTALK, "getBeanToMaxLpGpPerBdvRatioScaled", "getBeanToMaxLpGpPerBdvRatioScaled():(uint256)").returns([
+    ethereum.Value.fromUnsignedBigInt(BigInt.fromString("1000000000000000000"))
+  ]);
+
   // Incentivization event triggers update of harvestable amount of each plot
   handleIncentive(createIncentivizationEvent(account, BigInt.fromI32(123456)));
 
