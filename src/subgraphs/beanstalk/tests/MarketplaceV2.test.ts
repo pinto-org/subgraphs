@@ -1,7 +1,8 @@
-import { BigDecimal, BigInt, Bytes, log } from "@graphprotocol/graph-ts";
+import { Address, BigDecimal, BigInt, Bytes, log } from "@graphprotocol/graph-ts";
 import { afterEach, assert, beforeEach, clearStore, describe, test } from "matchstick-as/assembly/index";
 import { beans_BI, podlineMil_BI } from "../../../core/tests/Values";
 import { BI_10, ONE_BI, ZERO_BI } from "../../../core/utils/Decimals";
+import { getPodListingEntityId } from "../src/entities/PodMarketplace";
 import {
   assertMarketListingsState,
   assertMarketOrdersState,
@@ -39,7 +40,6 @@ const orderBeans = beans_BI(80000);
 const orderPricePerPod = BigInt.fromString("500000"); // 0.5 beans
 const orderId = Bytes.fromHexString("0xabcd");
 const fieldOne = BigInt.fromI32(1);
-const listingIndexFieldOne = podlineMil_BI(12);
 const orderIdFieldOne = Bytes.fromHexString("0xbcde");
 
 describe("Marketplace", () => {
@@ -181,7 +181,7 @@ describe("Marketplace", () => {
         const filledBeans = beans_BI(7000);
         const event = fillListing_v2(account, account2, listingIndex, listingStart, listedPods, filledBeans);
 
-        let listingID = event.params.from.toHexString() + "-" + event.params.index.toString();
+        let listingID = getPodListingEntityId(event.params.from, event.params.index);
         assert.fieldEquals("PodListing", listingID, "status", "FILLED");
         assert.fieldEquals("PodListing", listingID, "filledAmount", listedPods.toString());
         assert.fieldEquals("PodListing", listingID, "remainingAmount", "0");
@@ -198,7 +198,7 @@ describe("Marketplace", () => {
         const event = fillListing_v2(account, account2, listingIndex, listingStart, filledPods, filledBeans);
 
         const remaining = listedPods.minus(filledPods);
-        const listingID = event.params.from.toHexString() + "-" + event.params.index.toString();
+        const listingID = getPodListingEntityId(event.params.from, event.params.index);
         assert.fieldEquals("PodListing", listingID, "status", "FILLED_PARTIAL");
         assert.fieldEquals("PodListing", listingID, "filledAmount", filledPods.toString());
         assert.fieldEquals("PodListing", listingID, "remainingAmount", remaining.toString());
@@ -206,7 +206,7 @@ describe("Marketplace", () => {
         assert.entityCount("PodListing", 2);
 
         const newListingIndex = event.params.index.plus(listingStart).plus(filledPods);
-        const derivedListingID = event.params.from.toHexString() + "-" + newListingIndex.toString();
+        const derivedListingID = getPodListingEntityId(event.params.from, newListingIndex);
         assert.fieldEquals("PodListing", derivedListingID, "status", "ACTIVE");
         assert.fieldEquals("PodListing", derivedListingID, "filledAmount", "0");
         assert.fieldEquals("PodListing", derivedListingID, "remainingAmount", remaining.toString());
@@ -263,7 +263,7 @@ describe("Marketplace", () => {
 
         const event = cancelListing(account, newListingIndex);
 
-        const newListingID = event.params.account.toHexString() + "-" + event.params.index.toString();
+        const newListingID = getPodListingEntityId(event.params.account, event.params.index);
         assert.fieldEquals("PodListing", newListingID, "status", "CANCELLED_PARTIAL");
         assert.fieldEquals("PodListing", newListingID, "remainingAmount", remaining.toString());
 
@@ -285,7 +285,7 @@ describe("Marketplace", () => {
         cancelListing(account, listingIndex);
         const listEvent = createListing_v2(account, listingIndex, listedPods, listingStart, maxHarvestableIndex);
 
-        const listingID = listEvent.params.account.toHexString() + "-" + listEvent.params.index.toString();
+        const listingID = getPodListingEntityId(listEvent.params.account, listEvent.params.index);
         assert.fieldEquals("PodListing", listingID, "status", "ACTIVE");
         assert.fieldEquals("PodListing", listingID + "-0", "status", "CANCELLED");
         assert.fieldEquals("PodListing", listingID + "-0", "filled", "0");
@@ -313,7 +313,7 @@ describe("Marketplace", () => {
         cancelListing(account, newListingIndex);
         const newListEvent = createListing_v2(account, newListingIndex, remaining, ZERO_BI, maxHarvestableIndex);
 
-        const newListingID = newListEvent.params.account.toHexString() + "-" + newListEvent.params.index.toString();
+        const newListingID = getPodListingEntityId(newListEvent.params.account, newListEvent.params.index);
         assert.notInStore("PodListing", listingID + "-1");
         assert.notInStore("PodListing", newListingID + "-1");
         assert.fieldEquals("PodListing", newListingID + "-0", "status", "CANCELLED_PARTIAL");
@@ -693,7 +693,7 @@ describe("Marketplace", () => {
 
     test("filling field 0 listing leaves field 1 untouched", () => {
       createListing_pinto(account, ZERO_BI, listingIndex, sowedPods, ZERO_BI, maxHarvestableIndex);
-      createListing_pinto(account, fieldOne, listingIndexFieldOne, sowedPods, ZERO_BI, maxHarvestableIndex);
+      createListing_pinto(account, fieldOne, listingIndex, sowedPods, ZERO_BI, maxHarvestableIndex);
 
       const filledAmount = sowedPods.div(BigInt.fromI32(2));
       const filledBeans = beans_BI(2000);
@@ -719,7 +719,7 @@ describe("Marketplace", () => {
     });
 
     test("marketplace snapshots store data per field", () => {
-      createListing_pinto(account, fieldOne, listingIndexFieldOne, sowedPods, ZERO_BI, maxHarvestableIndex);
+      createListing_pinto(account, fieldOne, listingIndex, sowedPods, ZERO_BI, maxHarvestableIndex);
       const maxPlaceInLine = maxHarvestableIndex;
       createOrder_pinto(account, fieldOne, orderIdFieldOne, orderBeans, orderPricePerPod.toI32(), maxPlaceInLine);
 

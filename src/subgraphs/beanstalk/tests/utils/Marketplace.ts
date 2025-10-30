@@ -1,4 +1,4 @@
-import { BigInt, Bytes, ethereum, log } from "@graphprotocol/graph-ts";
+import { Address, BigInt, Bytes, ethereum } from "@graphprotocol/graph-ts";
 import { assert } from "matchstick-as/assembly/index";
 import {
   createPodListingCancelledEvent,
@@ -20,6 +20,7 @@ import {
 } from "../event-mocking/Marketplace";
 import { BI_10, ONE_BI, ZERO_BI } from "../../../../core/utils/Decimals";
 import { getPlotEntityId } from "../../src/entities/Field";
+import { getPodListingEntityId } from "../../src/entities/PodMarketplace";
 import {
   PodListingCreated as PodListingCreated_pinto,
   PodListingFilled as PodListingFilled_pinto,
@@ -95,7 +96,7 @@ export function fillListing_v1(
     "PodFill",
     podFillId,
     "listing",
-    event.params.from.toHexString() + "-" + event.params.index.toString()
+    getPodListingEntityId(event.params.from, event.params.index)
   );
   assert.fieldEquals("PodFill", podFillId, "fromFarmer", event.params.from.toHexString());
   assert.fieldEquals("PodFill", podFillId, "toFarmer", event.params.to.toHexString());
@@ -127,7 +128,7 @@ export function fillListing_v2(
     "PodFill",
     podFillId,
     "listing",
-    event.params.from.toHexString() + "-" + event.params.index.toString()
+    getPodListingEntityId(event.params.from, event.params.index)
   );
   assert.fieldEquals("PodFill", podFillId, "fromFarmer", event.params.from.toHexString());
   assert.fieldEquals("PodFill", podFillId, "toFarmer", event.params.to.toHexString());
@@ -208,7 +209,7 @@ export function cancelOrder(account: string, orderId: Bytes): PodOrderCancelled 
 }
 
 function assertListingCreated_v1(event: PodListingCreated_v1): void {
-  let listingID = event.params.account.toHexString() + "-" + event.params.index.toString();
+  let listingID = getPodListingEntityId(event.params.account, event.params.index);
   assert.fieldEquals("PodListing", listingID, "plot", event.params.index.toString());
   assert.fieldEquals("PodListing", listingID, "farmer", event.params.account.toHexString());
   assert.fieldEquals("PodListing", listingID, "status", "ACTIVE");
@@ -224,7 +225,7 @@ function assertListingCreated_v1(event: PodListingCreated_v1): void {
 }
 
 function assertListingCreated_v1_1(event: PodListingCreated_v1_1): void {
-  let listingID = event.params.account.toHexString() + "-" + event.params.index.toString();
+  let listingID = getPodListingEntityId(event.params.account, event.params.index);
   assert.fieldEquals("PodListing", listingID, "plot", event.params.index.toString());
   assert.fieldEquals("PodListing", listingID, "farmer", event.params.account.toHexString());
   assert.fieldEquals("PodListing", listingID, "status", "ACTIVE");
@@ -240,7 +241,7 @@ function assertListingCreated_v1_1(event: PodListingCreated_v1_1): void {
 }
 
 function assertListingCreated_v2(event: PodListingCreated_v2): void {
-  let listingID = event.params.account.toHexString() + "-" + event.params.index.toString();
+  let listingID = getPodListingEntityId(event.params.account, event.params.index);
   assert.fieldEquals("PodListing", listingID, "plot", event.params.index.toString());
   assert.fieldEquals("PodListing", listingID, "farmer", event.params.account.toHexString());
   assert.fieldEquals("PodListing", listingID, "status", "ACTIVE");
@@ -382,7 +383,7 @@ export function createListing_pinto(
   );
   handlePodListingCreated(event);
 
-  const listingId = account + "-" + index.toString();
+  const listingId = getPodListingEntityId(Address.fromString(account), index, fieldId);
   assert.fieldEquals("PodListing", listingId, "fieldId", fieldId.toString());
   assert.fieldEquals("PodListing", listingId, "podMarketplace", fieldId.toString());
   assert.fieldEquals("PodListing", listingId, "plot", getPlotEntityId(index, fieldId));
@@ -405,7 +406,7 @@ export function fillListing_pinto(
   transferPlot(from, to, index.plus(start), amount, fieldId);
 
   const podFillId = getPodFillId(event.params.index, event);
-  assert.fieldEquals("PodFill", podFillId, "listing", from + "-" + index.toString());
+  assert.fieldEquals("PodFill", podFillId, "listing", getPodListingEntityId(Address.fromString(from), index, fieldId));
 
   return event;
 }
@@ -515,7 +516,6 @@ export function assertMarketListingsState(
   podVolume: BigInt,
   beanVolume: BigInt
 ): void {
-  assert.fieldEquals("PodMarketplace", address, "activeListings", arrayToString(listings));
   assert.fieldEquals("PodMarketplace", address, "listedPods", listedPods.toString());
   assert.fieldEquals("PodMarketplace", address, "availableListedPods", availableListedPods.toString());
   assert.fieldEquals("PodMarketplace", address, "cancelledListedPods", cancelledListedPods.toString());

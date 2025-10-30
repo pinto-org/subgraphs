@@ -94,7 +94,7 @@ export function podListingCreated(params: PodListingCreatedParams): void {
   loadFarmer(params.account, params.event.block);
 
   /// Upsert PodListing
-  let listing = loadPodListing(params.account, params.index);
+  let listing = loadPodListing(params.account, params.index, params.fieldId);
   if (listing.createdAt !== ZERO_BI) {
     // Re-listed prior plot with new info
     createHistoricalPodListing(listing);
@@ -171,7 +171,7 @@ export function podListingCreated(params: PodListingCreatedParams): void {
 
 export function podListingFilled(params: MarketFillParams): void {
   const fieldId = params.fieldId;
-  let listing = loadPodListing(params.from, params.index);
+  let listing = loadPodListing(params.from, params.index, fieldId);
   loadFarmer(params.to, params.event.block);
 
   updateMarketListingBalances(ZERO_BI, ZERO_BI, params.amount, params.costInBeans, params.event.block, fieldId);
@@ -195,7 +195,7 @@ export function podListingFilled(params: MarketFillParams): void {
     listing.status = "FILLED_PARTIAL";
 
     const remainingIndex = listing.index.plus(params.amount).plus(listing.start);
-    let remainingListing = loadPodListing(toAddress(listing.farmer), remainingIndex);
+    let remainingListing = loadPodListing(toAddress(listing.farmer), remainingIndex, fieldId);
     remainingListing.historyID =
       remainingListing.id + "-" + params.event.block.timestamp.toString() + "-" + params.event.logIndex.toString();
     remainingListing.plot = getPlotEntityId(remainingIndex, fieldId);
