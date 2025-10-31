@@ -98,7 +98,11 @@ export function handleSow_v1(event: Sow_v1): void {
     fieldId: ZERO_BI,
     index: event.params.index,
     beans: sownOverride !== null ? sownOverride : event.params.beans,
-    pods: event.params.pods
+    pods: event.params.pods,
+    // This will cause indexing beanstalk to crash; this is intended as its not implemented.
+    // Will need to be revisited if ever deployed to beanstalk.
+    temperature: ZERO_BI,
+    maxTemperature: ZERO_BI
   });
 }
 

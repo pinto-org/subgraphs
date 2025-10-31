@@ -64,6 +64,7 @@ export function loadPlot(diamondAddress: Address, index: BigInt, fieldId: BigInt
     plot.updatedAtBlock = ZERO_BI;
     plot.index = index;
     plot.pods = ZERO_BI;
+    plot.isMorning = false;
     plot.beansPerPod = ZERO_BI;
     plot.initialHarvestableIndex = ZERO_BI;
     plot.sownBeansPerPod = ZERO_BI;

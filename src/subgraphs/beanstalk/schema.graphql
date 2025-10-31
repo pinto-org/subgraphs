@@ -996,6 +996,8 @@ type Plot @entity {
   index: BigInt!
   "Total pods in plot"
   pods: BigInt!
+  "True if this plot was sown during the morning auction"
+  isMorning: Boolean!
 
   "Number of beans spent for each pod, whether through sowing or on the marketplace"
   beansPerPod: BigInt!

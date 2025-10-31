@@ -1,6 +1,6 @@
 import { Address, BigInt, BigDecimal, ethereum } from "@graphprotocol/graph-ts";
 import { BeanstalkPrice_priceOnly } from "./contracts/BeanstalkPrice";
-import { BI_10, ONE_BD, toDecimal, ZERO_BD, ZERO_BI } from "../../../../core/utils/Decimals";
+import { BI_10, ONE_BD, toBigInt, toDecimal, ZERO_BD, ZERO_BI } from "../../../../core/utils/Decimals";
 import {
   calculateCultivationTemperature,
   setDeltaPodDemand,
@@ -21,6 +21,8 @@ class SowParams {
   index: BigInt;
   beans: BigInt;
   pods: BigInt;
+  temperature: BigInt;
+  maxTemperature: BigInt;
 }
 
 class HarvestParams {
@@ -50,8 +52,14 @@ class TemperatureChangedParams {
 
 export function sow(params: SowParams): void {
   const protocol = params.event.address;
-  const fieldId = params.fieldId;
-  let sownBeans = params.beans;
+
+  // Previously there was a bug in the Sow event emission such that the amount of beans indicated
+  // was actually the amount of soil reduced. This occurred during the morning when above peg.
+  // The true amount of beans sown is computed here using the actual temperature.
+  const pods_f64: f64 = parseFloat(toDecimal(params.pods, 6).toString());
+  const temperature_f64: f64 = parseFloat(toDecimal(params.temperature, 6 + 2).toString());
+  const sownBeans = toBigInt(BigDecimal.fromString((pods_f64 / (1.0 + temperature_f64)).toString()), 6);
+
   updateFieldTotals(
     protocol,
     params.account,
@@ -62,14 +70,14 @@ export function sow(params: SowParams): void {
     ZERO_BI,
     ZERO_BI,
     params.event.block,
-    fieldId
+    params.fieldId
   );
 
-  let protocolField = loadField(protocol, fieldId);
+  const protocolField = loadField(protocol, params.fieldId);
   loadFarmer(params.account, params.event.block);
-  let plot = loadPlot(protocol, params.index, fieldId);
+  const plot = loadPlot(protocol, params.index, params.fieldId);
 
-  let newIndexes = protocolField.plotIndexes;
+  const newIndexes = protocolField.plotIndexes;
   newIndexes.push(plot.index);
   protocolField.plotIndexes = newIndexes;
   protocolField.save();
@@ -86,13 +94,14 @@ export function sow(params: SowParams): void {
   plot.updatedAt = params.event.block.timestamp;
   plot.updatedAtBlock = params.event.block.number;
   plot.pods = params.pods;
+  plot.isMorning = params.temperature.notEqual(params.maxTemperature);
   plot.beansPerPod = params.beans.times(BI_10.pow(6)).div(plot.pods);
   plot.sownBeansPerPod = plot.beansPerPod;
   plot.initialHarvestableIndex = protocolField.harvestableIndex;
   plot.sownInitialHarvestableIndex = plot.initialHarvestableIndex;
   plot.save();
 
-  incrementSows(protocol, params.account, params.event.block, fieldId);
+  incrementSows(protocol, params.account, params.event.block, params.fieldId);
 
   const beanstalk = PintoPI13.bind(protocol);
   const deltaPodDemand = beanstalk.getDeltaPodDemand();
@@ -129,7 +138,7 @@ export function harvest(params: HarvestParams): void {
         ZERO_BI,
         plot.pods,
         params.event.block,
-        fieldId,
+        fieldId
       );
 
       plot.harvestedPods = plot.pods;
@@ -146,7 +155,7 @@ export function harvest(params: HarvestParams): void {
         ZERO_BI,
         harvestablePods,
         params.event.block,
-        fieldId,
+        fieldId
       );
 
       remainingIndex = plot.index.plus(harvestablePods);
@@ -432,7 +441,7 @@ export function plotTransfer(params: PlotTransferParams): void {
     ZERO_BI,
     params.event.block,
     fieldId,
-    false,
+    false
   );
   updateFieldTotals(
     protocol,
@@ -445,7 +454,7 @@ export function plotTransfer(params: PlotTransferParams): void {
     ZERO_BI,
     params.event.block,
     fieldId,
-    false,
+    false
   );
 }
 
@@ -564,7 +573,7 @@ export function updateHarvestablePlots(
       deltaHarvestablePods,
       ZERO_BI,
       block,
-      fieldId,
+      fieldId
     );
   }
 }
