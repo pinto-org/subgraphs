@@ -1,4 +1,3 @@
-import { ZERO_BI } from "../../../../core/utils/Decimals";
 import {
   PodListingCreated,
   PodListingFilled,
@@ -17,12 +16,10 @@ import {
 } from "../utils/Marketplace";
 
 export function handlePodListingCreated(event: PodListingCreated): void {
-  if (event.params.fieldId != ZERO_BI) {
-    return;
-  }
   podListingCreated({
     event: event,
     account: event.params.lister,
+    fieldId: event.params.fieldId,
     index: event.params.index,
     start: event.params.start,
     amount: event.params.podAmount,
@@ -36,13 +33,11 @@ export function handlePodListingCreated(event: PodListingCreated): void {
 }
 
 export function handlePodListingFilled(event: PodListingFilled): void {
-  if (event.params.fieldId != ZERO_BI) {
-    return;
-  }
   podListingFilled({
     event: event,
     from: event.params.lister,
     to: event.params.filler,
+    fieldId: event.params.fieldId,
     id: null,
     index: event.params.index,
     start: event.params.start,
@@ -52,12 +47,10 @@ export function handlePodListingFilled(event: PodListingFilled): void {
 }
 
 export function handlePodOrderCreated(event: PodOrderCreated): void {
-  if (event.params.fieldId != ZERO_BI) {
-    return;
-  }
   podOrderCreated({
     event: event,
     account: event.params.orderer,
+    fieldId: event.params.fieldId,
     id: event.params.id,
     beanAmount: event.params.beanAmount,
     pricePerPod: event.params.pricePerPod,
@@ -69,13 +62,11 @@ export function handlePodOrderCreated(event: PodOrderCreated): void {
 }
 
 export function handlePodOrderFilled(event: PodOrderFilled): void {
-  if (event.params.fieldId != ZERO_BI) {
-    return;
-  }
   podOrderFilled({
     event: event,
     from: event.params.filler,
     to: event.params.orderer,
+    fieldId: event.params.fieldId,
     id: event.params.id,
     index: event.params.index,
     start: event.params.start,
@@ -85,12 +76,10 @@ export function handlePodOrderFilled(event: PodOrderFilled): void {
 }
 
 export function handlePodListingCancelled(event: PodListingCancelled): void {
-  if (event.params.fieldId != ZERO_BI) {
-    return;
-  }
   podListingCancelled({
     event,
     account: event.params.lister,
+    fieldId: event.params.fieldId,
     index: event.params.index
   });
 }

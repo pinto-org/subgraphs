@@ -23,7 +23,8 @@ export function handleWeatherChange(event: WeatherChange): void {
     event,
     season: event.params.season,
     caseId: event.params.caseId,
-    absChange: BigInt.fromI32(event.params.change)
+    absChange: BigInt.fromI32(event.params.change),
+    fieldId: ZERO_BI
   });
 }
 
@@ -94,7 +95,7 @@ export function handleSow_v1(event: Sow_v1): void {
   sow({
     event,
     account: event.params.account,
-    fieldId: null,
+    fieldId: ZERO_BI,
     index: event.params.index,
     beans: sownOverride !== null ? sownOverride : event.params.beans,
     pods: event.params.pods
@@ -106,7 +107,7 @@ export function handleHarvest_v1(event: Harvest_v1): void {
   harvest({
     event,
     account: event.params.account,
-    fieldId: null,
+    fieldId: ZERO_BI,
     plots: event.params.plots,
     beans: event.params.beans
   });
@@ -118,7 +119,7 @@ export function handlePlotTransfer_v1(event: PlotTransfer_v1): void {
     event,
     from: event.params.from,
     to: event.params.to,
-    fieldId: null,
+    fieldId: ZERO_BI,
     index: event.params.id,
     amount: event.params.pods
   });
@@ -130,7 +131,8 @@ export function handleTemperatureChange_v1(event: TemperatureChange_v1): void {
     event,
     season: event.params.season,
     caseId: event.params.caseId,
-    absChange: BigInt.fromI32(event.params.absChange).times(BI_10.pow(6))
+    absChange: BigInt.fromI32(event.params.absChange).times(BI_10.pow(6)),
+    fieldId: ZERO_BI
   });
 }
 
@@ -140,6 +142,7 @@ export function handleTemperatureChange_v2(event: TemperatureChange_v2): void {
     event,
     season: event.params.season,
     caseId: event.params.caseId,
-    absChange: BigInt.fromI32(event.params.absChange).times(BI_10.pow(6))
+    absChange: BigInt.fromI32(event.params.absChange).times(BI_10.pow(6)),
+    fieldId: ZERO_BI
   });
 }

@@ -715,10 +715,12 @@ type WhitelistTokenDailySnapshot @entity {
 }
 
 type Field @entity {
-  "Contract address for this field or farmer"
-  id: Bytes!
+  "Contract address for this field or farmer when fieldId is zero. Otherwise address-fieldId"
+  id: ID!
   "'beanstalk'"
   beanstalk: Beanstalk!
+  "Numeric identifier of the field emitted on protocol events"
+  fieldId: BigInt!
   "Farmer address if applicable"
   farmer: Farmer
   "Current season number"
@@ -770,6 +772,8 @@ type FieldHourlySnapshot @entity {
   id: ID!
   "Field associated with this snapshot"
   field: Field!
+  "Numeric identifier of the field"
+  fieldId: BigInt!
   "Season"
   season: Int!
   "Point in time temperature"
@@ -842,6 +846,8 @@ type FieldDailySnapshot @entity {
   id: ID!
   "Field associated with this snapshot"
   field: Field!
+  "Numeric identifier of the field"
+  fieldId: BigInt!
   "Last season in the snapshot"
   season: Int!
   "Point in time temperature"
@@ -968,10 +974,12 @@ type SiloWithdraw @entity {
 }
 
 type Plot @entity {
-  "Plot index"
+  "Plot index when fieldId is 0, otherwise plotIndex-fieldId"
   id: ID!
   "Field to which this plot belongs"
   field: Field!
+  "Numeric identifier of the field"
+  fieldId: BigInt!
   "Farmer who owns this plot"
   farmer: Farmer!
   "Source for this plot"
@@ -1184,12 +1192,14 @@ type PodListing @entity {
   ######################## Identifiers ########################
 
   """
-  The PodListing ID is a unique subgraph ID: `{account}-{index}"
+  The PodListing ID is a unique subgraph ID; if fieldId is 0: `{account}-{index}`, if fieldId isn't 0: `{account}-{index}-{fieldId}`
 
   The on-chain identifier for a PodListing is the `index`.
   """
   id: ID!
 
+  "Numeric identifier of the field for this listing"
+  fieldId: BigInt!
   "Marketplace used for listing"
   podMarketplace: PodMarketplace!
 
@@ -1356,6 +1366,8 @@ type PodOrder @entity {
   "The Farmer that created the Pod Order."
   farmer: Farmer!
 
+  "Numeric identifier of the field for this order"
+  fieldId: BigInt!
   "Marketplace used for Pod Order."
   podMarketplace: PodMarketplace!
 
