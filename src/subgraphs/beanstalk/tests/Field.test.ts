@@ -6,11 +6,13 @@ import { beans_BI as beans, podlineMil_BI as mil } from "../../../core/tests/Val
 import { assertFarmerHasPlot, assertFieldHas, sow } from "./utils/Field";
 import { initL1Version } from "./entity-mocking/MockVersion";
 import { simpleMockPrice } from "../../../core/tests/event-mocking/Price";
-import { handleTemperatureChange } from "../src/handlers/FieldHandler";
-import { createTemperatureChangeEvent } from "./event-mocking/Field";
+import { handleTemperatureChange, handleSowReferral, handleSow } from "../src/handlers/FieldHandler";
+import { createTemperatureChangeEvent, createSowReferralEvent, createSowEvent } from "./event-mocking/Field";
 import { loadField } from "../src/entities/Field";
 import { takeFieldSnapshots } from "../src/entities/snapshots/Field";
 import { mockBlock } from "../../../core/tests/event-mocking/Block";
+import { loadFarmer } from "../src/entities/Beanstalk";
+import { Address } from "@graphprotocol/graph-ts";
 
 const account = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266".toLowerCase();
 
@@ -105,6 +107,165 @@ describe("Field", () => {
 
       const field2 = loadField(BEANSTALK);
       assert.assertTrue(field2.cultivationTemperature!.equals(BigDecimal.fromString("500")));
+    });
+  });
+
+  describe("SowReferral Event Handling", () => {
+    beforeEach(() => {
+      loadField(BEANSTALK);
+      loadFarmer(Address.fromString(account), mockBlock(BEANSTALK_BLOCK));
+      loadFarmer(Address.fromString("0x9876543210987654321098765432109876543210"), mockBlock(BEANSTALK_BLOCK));
+    });
+
+    test("Should handle first referral correctly", () => {
+      const referrerAccount = account;
+      const refereeAccount = "0x9876543210987654321098765432109876543210";
+      const referrerIndex = plotStart.plus(mil(5));
+      const referrerPods = pods.div(BigInt.fromI32(10));
+      const refereeIndex = plotStart;
+      const refereePods = pods;
+
+      // First: Use sow utility for referee plot creation (includes proper mocking)
+      sow(refereeAccount, refereeIndex, beansSown, refereePods);
+
+      // Second: Handle SowReferral event (referrer plot creation)
+      handleSowReferral(createSowReferralEvent(
+        referrerAccount,
+        referrerIndex,
+        referrerPods,
+        refereeAccount,
+        refereeIndex,
+        refereePods
+      ));
+
+      assert.fieldEquals("Farmer", referrerAccount.toLowerCase(), "refereeCount", "1");
+      assert.fieldEquals("Farmer", referrerAccount.toLowerCase(), "totalReferralRewardPodsReceived", referrerPods.toString());
+
+      assert.fieldEquals("Plot", referrerIndex.toString(), "isReferralReward", "true");
+      assert.fieldEquals("Plot", referrerIndex.toString(), "farmer", referrerAccount.toLowerCase());
+      assert.fieldEquals("Plot", referrerIndex.toString(), "pods", referrerPods.toString());
+
+      assert.fieldEquals("Plot", refereeIndex.toString(), "isReferralReward", "false");
+    });
+
+    test("Should handle multiple referrals for same referrer", () => {
+      const referrerAccount = account;
+      const refereeAccount = "0x9876543210987654321098765432109876543210";
+      const referrerIndex = plotStart.plus(mil(5));
+      const referrerPods = pods.div(BigInt.fromI32(10));
+      const refereeIndex = plotStart;
+      const refereePods = pods;
+      
+      const secondRefereeAccount = "0x1111111111111111111111111111111111111111";
+      const secondRefereeIndex = plotStart.plus(mil(10));
+      const secondRefereePods = pods.times(BigInt.fromI32(2));
+      const secondReferrerIndex = plotStart.plus(mil(15));
+      const secondReferrerPods = pods.div(BigInt.fromI32(5));
+      
+      const secondRefereeBeans = beansSown.times(BigInt.fromI32(2));
+
+      loadFarmer(Address.fromString(secondRefereeAccount), mockBlock(BEANSTALK_BLOCK));
+
+      // First sequence: Sow + SowReferral
+      sow(refereeAccount, refereeIndex, beansSown, refereePods);
+      handleSowReferral(createSowReferralEvent(
+        referrerAccount,
+        referrerIndex,
+        referrerPods,
+        refereeAccount,
+        refereeIndex,
+        refereePods
+      ));
+
+      // Second sequence: Sow + SowReferral
+      sow(secondRefereeAccount, secondRefereeIndex, secondRefereeBeans, secondRefereePods);
+      handleSowReferral(createSowReferralEvent(
+        referrerAccount,
+        secondReferrerIndex,
+        secondReferrerPods,
+        secondRefereeAccount,
+        secondRefereeIndex,
+        secondRefereePods
+      ));
+
+      assert.fieldEquals("Farmer", referrerAccount.toLowerCase(), "refereeCount", "2");
+      assert.fieldEquals("Farmer", referrerAccount.toLowerCase(), "totalReferralRewardPodsReceived", 
+        referrerPods.plus(secondReferrerPods).toString());
+
+      assert.fieldEquals("Plot", referrerIndex.toString(), "isReferralReward", "true");
+      assert.fieldEquals("Plot", secondReferrerIndex.toString(), "isReferralReward", "true");
+    });
+
+    test("Should handle multiple different referrers", () => {
+      const referrerAccount = account;
+      const refereeAccount = "0x9876543210987654321098765432109876543210";
+      const referrerIndex = plotStart.plus(mil(5));
+      const referrerPods = pods.div(BigInt.fromI32(10));
+      const refereeIndex = plotStart;
+      const refereePods = pods;
+      
+      const secondReferrerAccount = "0x2222222222222222222222222222222222222222";
+      const secondReferrerIndex = plotStart.plus(mil(20));
+      const secondReferrerPods = pods.div(BigInt.fromI32(8));
+      
+      const secondRefereeBeans = beansSown.times(BigInt.fromI32(2));
+      const secondRefereePods = pods.times(BigInt.fromI32(2));
+
+      loadFarmer(Address.fromString(secondReferrerAccount), mockBlock(BEANSTALK_BLOCK));
+
+      // First sequence: Sow + SowReferral (first referrer)
+      sow(refereeAccount, refereeIndex, beansSown, refereePods);
+      handleSowReferral(createSowReferralEvent(
+        referrerAccount,
+        referrerIndex,
+        referrerPods,
+        refereeAccount,
+        refereeIndex,
+        refereePods
+      ));
+
+      // Second sequence: Sow + SowReferral (second referrer, same referee)
+      sow(refereeAccount, plotStart.plus(mil(25)), secondRefereeBeans, secondRefereePods);
+      handleSowReferral(createSowReferralEvent(
+        secondReferrerAccount,
+        secondReferrerIndex,
+        secondReferrerPods,
+        refereeAccount,
+        plotStart.plus(mil(25)),
+        secondRefereePods
+      ));
+
+      assert.fieldEquals("Farmer", referrerAccount.toLowerCase(), "refereeCount", "1");
+      assert.fieldEquals("Farmer", referrerAccount.toLowerCase(), "totalReferralRewardPodsReceived", referrerPods.toString());
+
+      assert.fieldEquals("Farmer", secondReferrerAccount.toLowerCase(), "refereeCount", "1");
+      assert.fieldEquals("Farmer", secondReferrerAccount.toLowerCase(), "totalReferralRewardPodsReceived", secondReferrerPods.toString());
+    });
+
+    test("Should update field plot indexes", () => {
+      const referrerAccount = account;
+      const refereeAccount = "0x9876543210987654321098765432109876543210";
+      const referrerIndex = plotStart.plus(mil(5));
+      const referrerPods = pods.div(BigInt.fromI32(10));
+      const refereeIndex = plotStart;
+      const refereePods = pods;
+      
+      // First: Use sow utility for referee plot creation (includes proper mocking)
+      sow(refereeAccount, refereeIndex, beansSown, refereePods);
+      
+      // Second: Handle SowReferral event (referrer plot creation)
+      handleSowReferral(createSowReferralEvent(
+        referrerAccount,
+        referrerIndex,
+        referrerPods,
+        refereeAccount,
+        refereeIndex,
+        refereePods
+      ));
+
+      const field = loadField(BEANSTALK);
+      assert.assertTrue(field.plotIndexes.includes(referrerIndex));
+      assert.assertTrue(field.plotIndexes.includes(refereeIndex));
     });
   });
 });

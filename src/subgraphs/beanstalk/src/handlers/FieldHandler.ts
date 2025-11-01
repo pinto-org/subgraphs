@@ -1,5 +1,5 @@
-import { harvest, plotTransfer, sow, temperatureChanged } from "../utils/Field";
-import { Sow, Harvest, PlotTransfer, TemperatureChange } from "../../generated/Beanstalk-ABIs/PintoPI13";
+import { harvest, plotTransfer, sow, temperatureChanged, sowReferral } from "../utils/Field";
+import { Sow, Harvest, PlotTransfer, TemperatureChange, SowReferral } from "../../generated/Beanstalk-ABIs/PintoPI13";
 import { legacySowAmount } from "../utils/legacy/LegacyField";
 import { ZERO_BI } from "../../../../core/utils/Decimals";
 import { BigInt } from "@graphprotocol/graph-ts";
@@ -55,5 +55,17 @@ export function handleTemperatureChange(event: TemperatureChange): void {
     season: event.params.season,
     caseId: event.params.caseId,
     absChange: BigInt.fromI32(event.params.absChange)
+  });
+}
+
+export function handleSowReferral(event: SowReferral): void {
+  sowReferral({
+    event,
+    referrer: event.params.referrer,
+    referrerIndex: event.params.referrerIndex,
+    referrerPods: event.params.referrerPods,
+    referee: event.params.referee,
+    refereeIndex: event.params.refereeIndex,
+    refereePods: event.params.refereePods
   });
 }

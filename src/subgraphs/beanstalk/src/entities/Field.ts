@@ -56,6 +56,7 @@ export function loadPlot(diamondAddress: Address, index: BigInt): Plot {
     plot.sowSeason = 1;
     plot.sowHash = ADDRESS_ZERO;
     plot.sowTimestamp = ZERO_BI;
+    plot.isReferralReward = false;
     plot.save();
   }
   return plot;

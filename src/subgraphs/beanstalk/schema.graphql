@@ -913,6 +913,10 @@ type Farmer @entity {
   orders: [PodOrder!]! @derivedFrom(field: "farmer")
   fills: [PodFill!]! @derivedFrom(field: "toFarmer")
   fertilizers: [FertilizerBalance!]! @derivedFrom(field: "farmer")
+  "Number of accounts this farmer has referred"
+  refereeCount: Int!
+  "Total pods this farmer has received as referral rewards"
+  totalReferralRewardPodsReceived: BigInt!
 }
 
 type SiloDeposit @entity {
@@ -1027,6 +1031,9 @@ type Plot @entity {
   updatedAt: BigInt!
   "Block when updated"
   updatedAtBlock: BigInt!
+  
+  "Flag indicating whether this plot was created as a referral reward"
+  isReferralReward: Boolean!
 }
 
 type PodMarketplace @entity {

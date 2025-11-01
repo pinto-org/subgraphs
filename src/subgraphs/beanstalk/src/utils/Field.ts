@@ -47,6 +47,16 @@ class TemperatureChangedParams {
   absChange: BigInt;
 }
 
+class SowReferralParams {
+  event: ethereum.Event;
+  referrer: Address;
+  referrerIndex: BigInt;
+  referrerPods: BigInt;
+  referee: Address;
+  refereeIndex: BigInt;
+  refereePods: BigInt;
+}
+
 export function sow(params: SowParams): void {
   const protocol = params.event.address;
   let sownBeans = params.beans;
@@ -94,6 +104,63 @@ export function sow(params: SowParams): void {
   const beanstalk = PintoPI13.bind(protocol);
   const deltaPodDemand = beanstalk.getDeltaPodDemand();
   setDeltaPodDemand(deltaPodDemand, protocolField);
+}
+
+export function sowReferral(params: SowReferralParams): void {
+  const protocol = params.event.address;
+  
+  let protocolField = loadField(protocol);
+  let referrerFarmer = loadFarmer(params.referrer, params.event.block);
+  
+  let referrerPlot = loadPlot(protocol, params.referrerIndex);
+  referrerPlot.farmer = params.referrer;
+  referrerPlot.source = "SOW";
+  referrerPlot.sourceHash = params.event.transaction.hash;
+  referrerPlot.season = protocolField.season;
+  referrerPlot.creationHash = params.event.transaction.hash;
+  referrerPlot.createdAt = params.event.block.timestamp;
+  referrerPlot.sowSeason = protocolField.season;
+  referrerPlot.sowHash = params.event.transaction.hash;
+  referrerPlot.sowTimestamp = params.event.block.timestamp;
+  referrerPlot.updatedAt = params.event.block.timestamp;
+  referrerPlot.updatedAtBlock = params.event.block.number;
+  referrerPlot.pods = params.referrerPods;
+  referrerPlot.isReferralReward = true;
+  referrerPlot.initialHarvestableIndex = protocolField.harvestableIndex;
+  referrerPlot.sownInitialHarvestableIndex = protocolField.harvestableIndex;
+
+  let refereePlot = loadPlot(protocol, params.refereeIndex);
+  refereePlot.isReferralReward = false;
+  refereePlot.save();
+  
+  referrerPlot.beansPerPod = refereePlot.beansPerPod;
+  referrerPlot.sownBeansPerPod = refereePlot.sownBeansPerPod;
+  referrerPlot.save();
+  
+  let referrerBeans = params.referrerPods.times(refereePlot.beansPerPod).div(BI_10.pow(6));
+  
+  referrerFarmer.refereeCount += 1;
+  referrerFarmer.totalReferralRewardPodsReceived = referrerFarmer.totalReferralRewardPodsReceived.plus(params.referrerPods);
+  referrerFarmer.save();
+  
+  let newIndexes = protocolField.plotIndexes;
+  newIndexes.push(params.referrerIndex);
+  protocolField.plotIndexes = newIndexes;
+  protocolField.save();
+  
+  updateFieldTotals(
+    protocol,
+    params.referrer,
+    ZERO_BI,
+    referrerBeans,
+    params.referrerPods,
+    ZERO_BI,
+    ZERO_BI,
+    ZERO_BI,
+    params.event.block
+  );
+  
+  takeFieldSnapshots(protocolField, params.event.block);
 }
 
 export function harvest(params: HarvestParams): void {
