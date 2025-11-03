@@ -19,7 +19,8 @@ class SowParams {
   account: Address;
   fieldId: BigInt = ZERO_BI;
   index: BigInt;
-  beans: BigInt;
+  beansSown: BigInt;
+  soilSown: BigInt;
   pods: BigInt;
   temperature: BigInt;
   maxTemperature: BigInt;
@@ -53,18 +54,11 @@ class TemperatureChangedParams {
 export function sow(params: SowParams): void {
   const protocol = params.event.address;
 
-  // Previously there was a bug in the Sow event emission such that the amount of beans indicated
-  // was actually the amount of soil reduced. This occurred during the morning when above peg.
-  // The true amount of beans sown is computed here using the actual temperature.
-  const pods_f64: f64 = parseFloat(toDecimal(params.pods, 6).toString());
-  const temperature_f64: f64 = parseFloat(toDecimal(params.temperature, 6 + 2).toString());
-  const sownBeans = toBigInt(BigDecimal.fromString((pods_f64 / (1.0 + temperature_f64)).toString()), 6);
-
   updateFieldTotals(
     protocol,
     params.account,
-    ZERO_BI,
-    sownBeans,
+    params.soilSown.neg(),
+    params.beansSown,
     params.pods,
     ZERO_BI,
     ZERO_BI,
@@ -95,7 +89,7 @@ export function sow(params: SowParams): void {
   plot.updatedAtBlock = params.event.block.number;
   plot.pods = params.pods;
   plot.isMorning = params.temperature.notEqual(params.maxTemperature);
-  plot.beansPerPod = params.beans.times(BI_10.pow(6)).div(plot.pods);
+  plot.beansPerPod = params.beansSown.times(BI_10.pow(6)).div(plot.pods);
   plot.sownBeansPerPod = plot.beansPerPod;
   plot.initialHarvestableIndex = protocolField.harvestableIndex;
   plot.sownInitialHarvestableIndex = plot.initialHarvestableIndex;
@@ -521,8 +515,7 @@ export function updateFieldTotals(
   field.harvestablePods = field.harvestablePods.plus(harvestablePods).minus(harvestedPods);
   field.harvestedPods = field.harvestedPods.plus(harvestedPods);
   if (account == protocol) {
-    // TODO(morning): this isnt correct for morning sows when above peg. More than one bean is sown to consume one soil.
-    field.soil = field.soil.plus(soil).minus(sownBeans);
+    field.soil = field.soil.plus(soil);
     field.podIndex = field.podIndex.plus(sownPods);
   }
 
