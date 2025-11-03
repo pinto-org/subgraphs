@@ -3,7 +3,7 @@ import { assert, createMockedFunction } from "matchstick-as/assembly/index";
 import { createHarvestEvent, createPlotTransferEvent, createSowEvent } from "../event-mocking/Field";
 import { createIncentivizationEvent } from "../event-mocking/Season";
 import { handleIncentive } from "../../src/handlers/SeasonHandler";
-import { ZERO_BI } from "../../../../core/utils/Decimals";
+import { BI_10, ZERO_BI } from "../../../../core/utils/Decimals";
 import { BEANSTALK } from "../../../../core/constants/raw/BeanstalkEthConstants";
 import { handleHarvest, handlePlotTransfer, handleSow } from "../../src/handlers/FieldHandler";
 import { getFieldEntityId, getPlotEntityId } from "../../src/entities/Field";
@@ -11,9 +11,20 @@ import { getFieldEntityId, getPlotEntityId } from "../../src/entities/Field";
 const account = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266".toLowerCase();
 
 export function sow(account: string, index: BigInt, beans: BigInt, pods: BigInt, fieldId: BigInt = ZERO_BI): void {
+  const effectiveTemp = pods.times(BI_10.pow(8)).div(beans).minus(BI_10.pow(8));
+  createMockedFunction(BEANSTALK, "temperature", "temperature():(uint256)").returns([
+    ethereum.Value.fromUnsignedBigInt(effectiveTemp)
+  ]);
+  createMockedFunction(BEANSTALK, "maxTemperature", "maxTemperature():(uint256)").returns([
+    ethereum.Value.fromUnsignedBigInt(effectiveTemp)
+  ]);
+  createMockedFunction(BEANSTALK, "initialSoil", "initialSoil():(uint256)").returns([
+    ethereum.Value.fromUnsignedBigInt(ZERO_BI)
+  ]);
   createMockedFunction(BEANSTALK, "getDeltaPodDemand", "getDeltaPodDemand():(uint256)").returns([
     ethereum.Value.fromUnsignedBigInt(ZERO_BI)
   ]);
+
   handleSow(createSowEvent(account, index, beans, pods, fieldId));
 }
 
@@ -21,13 +32,7 @@ export function harvest(account: string, plotIndexex: BigInt[], beans: BigInt, f
   handleHarvest(createHarvestEvent(account, plotIndexex, beans, fieldId));
 }
 
-export function transferPlot(
-  from: string,
-  to: string,
-  id: BigInt,
-  amount: BigInt,
-  fieldId: BigInt = ZERO_BI
-): void {
+export function transferPlot(from: string, to: string, id: BigInt, amount: BigInt, fieldId: BigInt = ZERO_BI): void {
   handlePlotTransfer(createPlotTransferEvent(from, to, id, amount, fieldId));
 }
 
@@ -36,9 +41,11 @@ export function setHarvestable(harvestableIndex: BigInt): BigInt {
     ethereum.Value.fromUnsignedBigInt(harvestableIndex)
   ]);
 
-  createMockedFunction(BEANSTALK, "getBeanToMaxLpGpPerBdvRatioScaled", "getBeanToMaxLpGpPerBdvRatioScaled():(uint256)").returns([
-    ethereum.Value.fromUnsignedBigInt(BigInt.fromString("1000000000000000000"))
-  ]);
+  createMockedFunction(
+    BEANSTALK,
+    "getBeanToMaxLpGpPerBdvRatioScaled",
+    "getBeanToMaxLpGpPerBdvRatioScaled():(uint256)"
+  ).returns([ethereum.Value.fromUnsignedBigInt(BigInt.fromString("1000000000000000000"))]);
 
   // Incentivization event triggers update of harvestable amount of each plot
   handleIncentive(createIncentivizationEvent(account, BigInt.fromI32(123456)));
