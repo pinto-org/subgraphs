@@ -256,7 +256,7 @@ dataSources:
       eventHandlers:
         - event: Sow(indexed address,uint256,uint256,uint256,uint256)
           handler: handleSow_buggedPinto
-      file: ../src/handlers/LegacyFieldHandler.ts
+      file: ../src/handlers/legacy/LegacyFieldHandler.ts
   - kind: ethereum/contract
     name: LegacyField-PintoLaunch-PintoPI5
     network: base
