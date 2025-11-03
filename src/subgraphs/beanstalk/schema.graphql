@@ -1031,9 +1031,6 @@ type Plot @entity {
   updatedAt: BigInt!
   "Block when updated"
   updatedAtBlock: BigInt!
-  
-  "Flag indicating whether this plot was created as a referral reward"
-  isReferralReward: Boolean!
 }
 
 type PodMarketplace @entity {
