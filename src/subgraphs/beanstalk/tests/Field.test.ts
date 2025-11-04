@@ -120,10 +120,10 @@ describe("Field", () => {
       sow("0x9876543210987654321098765432109876543210", plotStart, beansSown, pods);
       
       // Second: Referee bonus sow event (10% bonus)
-      sow("0x9876543210987654321098765432109876543210", plotStart.plus(mil(2)), beansSown.div(BigInt.fromI32(10)), pods.div(BigInt.fromI32(10)));
+      sow("0x9876543210987654321098765432109876543210", plotStart.plus(mil(2)), ZERO_BI, pods.div(BigInt.fromI32(10)));
       
       // Third: Referrer bonus sow event (10% bonus)
-      sow(account, plotStart.plus(mil(5)), beansSown.div(BigInt.fromI32(10)), pods.div(BigInt.fromI32(10)));
+      sow(account, plotStart.plus(mil(5)), ZERO_BI, pods.div(BigInt.fromI32(10)));
 
       // Fourth: SowReferral event (marks 2nd and 3rd sows as referral)
       handleSowReferral(createSowReferralEvent(
@@ -169,13 +169,12 @@ describe("Field", () => {
       const secondReferrerBonusPods = pods.div(BigInt.fromI32(5)); // 20% referrer reward
       
       const secondRefereeBeans = beansSown.times(BigInt.fromI32(2));
-      const secondBonusBeans = secondRefereeBeans.div(BigInt.fromI32(5)); // 20% bonus
 
       loadFarmer(Address.fromString(secondRefereeAccount), mockBlock(BEANSTALK_BLOCK));
 
       sow(secondRefereeAccount, secondRefereeIndex, secondRefereeBeans, secondRefereePods);
-      sow(secondRefereeAccount, secondRefereeBonusIndex, secondBonusBeans, secondRefereeBonusPods);
-      sow(referrerAccount, secondReferrerBonusIndex, secondBonusBeans, secondReferrerBonusPods);
+      sow(secondRefereeAccount, secondRefereeBonusIndex, ZERO_BI, secondRefereeBonusPods);
+      sow(referrerAccount, secondReferrerBonusIndex, ZERO_BI, secondReferrerBonusPods);
       handleSowReferral(createSowReferralEvent(
         referrerAccount,
         secondReferrerBonusIndex,
@@ -208,14 +207,13 @@ describe("Field", () => {
       const secondReferrerBonusPods = pods.div(BigInt.fromI32(10)); // 10% referrer reward
       
       const newRefereeBeans = beansSown.times(BigInt.fromI32(2));
-      const newBonusBeans = newRefereeBeans.div(BigInt.fromI32(10)); // 10% bonus
 
       loadFarmer(Address.fromString(secondReferrerAccount), mockBlock(BEANSTALK_BLOCK));
       loadFarmer(Address.fromString(newRefereeAccount), mockBlock(BEANSTALK_BLOCK));
 
       sow(newRefereeAccount, newRefereeIndex, newRefereeBeans, newRefereePods);
-      sow(newRefereeAccount, newRefereeBonusIndex, newBonusBeans, newRefereeBonusPods);
-      sow(secondReferrerAccount, secondReferrerBonusIndex, newBonusBeans, secondReferrerBonusPods);
+      sow(newRefereeAccount, newRefereeBonusIndex, ZERO_BI, newRefereeBonusPods);
+      sow(secondReferrerAccount, secondReferrerBonusIndex, ZERO_BI, secondReferrerBonusPods);
       handleSowReferral(createSowReferralEvent(
         secondReferrerAccount,
         secondReferrerBonusIndex,
