@@ -239,7 +239,7 @@ dataSources:
     network: base
     source:
       address: "0xD1A0D188E861ed9d15773a2F3574a2e94134bA8f"
-      abi: PintoLaunch
+      abi: PintoPI13
       startBlock: 22622961 # Pintostalk Deployment
       endBlock: 22948714 # PI-1
     mapping:
@@ -249,8 +249,8 @@ dataSources:
       entities:
         - Field
       abis:
-        - name: PintoLaunch
-          file: ../../../core/abis/Beanstalk/Pinto-Launch.json
+        - name: PintoPI13
+          file: ../../../core/abis/Beanstalk/Pinto-PI13.json
         - name: BeanstalkPrice
           file: ../../../core/abis/PintostalkPrice.json
       eventHandlers:
