@@ -913,6 +913,10 @@ type Farmer @entity {
   orders: [PodOrder!]! @derivedFrom(field: "farmer")
   fills: [PodFill!]! @derivedFrom(field: "toFarmer")
   fertilizers: [FertilizerBalance!]! @derivedFrom(field: "farmer")
+  "Number of accounts this farmer has referred"
+  refereeCount: Int!
+  "Total pods this farmer has received as referral rewards"
+  totalReferralRewardPodsReceived: BigInt!
 }
 
 type SiloDeposit @entity {

@@ -47,6 +47,16 @@ class TemperatureChangedParams {
   absChange: BigInt;
 }
 
+class SowReferralParams {
+  event: ethereum.Event;
+  referrer: Address;
+  referrerIndex: BigInt;
+  referrerPods: BigInt;
+  referee: Address;
+  refereeIndex: BigInt;
+  refereePods: BigInt;
+}
+
 export function sow(params: SowParams): void {
   const protocol = params.event.address;
   let sownBeans = params.beans;
@@ -94,6 +104,24 @@ export function sow(params: SowParams): void {
   const beanstalk = PintoPI13.bind(protocol);
   const deltaPodDemand = beanstalk.getDeltaPodDemand();
   setDeltaPodDemand(deltaPodDemand, protocolField);
+}
+
+export function sowReferral(params: SowReferralParams): void {
+  const protocol = params.event.address;
+  
+  let referrerFarmer = loadFarmer(params.referrer, params.event.block);
+  
+  let referrerBonusPlot = loadPlot(protocol, params.referrerIndex);
+  referrerBonusPlot.source = "REFERRAL";
+  referrerBonusPlot.save();
+  
+  let refereeBonusPlot = loadPlot(protocol, params.refereeIndex);
+  refereeBonusPlot.source = "REFERRAL";
+  refereeBonusPlot.save();
+  
+  referrerFarmer.refereeCount += 1;
+  referrerFarmer.totalReferralRewardPodsReceived = referrerFarmer.totalReferralRewardPodsReceived.plus(params.referrerPods);
+  referrerFarmer.save();
 }
 
 export function harvest(params: HarvestParams): void {
