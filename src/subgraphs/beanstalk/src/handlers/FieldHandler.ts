@@ -1,18 +1,29 @@
 import { harvest, plotTransfer, sow, temperatureChanged } from "../utils/Field";
-import { Sow, Harvest, PlotTransfer, TemperatureChange } from "../../generated/Beanstalk-ABIs/PintoPI13";
+import { PintoPI13, Sow, Harvest, PlotTransfer, TemperatureChange } from "../../generated/Beanstalk-ABIs/PintoPI13";
 import { legacySowAmount } from "../utils/legacy/LegacyField";
 import { BigInt } from "@graphprotocol/graph-ts";
-import { ZERO_BI } from "../../../../core/utils/Decimals";
+import { loadField } from "../entities/Field";
 
+// PI-1+
 export function handleSow(event: Sow): void {
-  let sownOverride = legacySowAmount(event.address, event.params.account, event.params.fieldId);
+  const sownOverride = legacySowAmount(event.address, event.params.account, event.params.fieldId);
+  const beanstalkContract = PintoPI13.bind(event.address);
+  const temperature = beanstalkContract.temperature();
+  const maxTemperature = beanstalkContract.maxTemperature();
+
+  const field = loadField(event.address, event.params.fieldId);
+  const remainingSoil = beanstalkContract.initialSoil();
+  const soilSown = field.soil.minus(remainingSoil);
   sow({
     event,
     account: event.params.account,
     fieldId: event.params.fieldId,
     index: event.params.index,
-    beans: sownOverride !== null ? sownOverride : event.params.beans,
-    pods: event.params.pods
+    beansSown: sownOverride !== null ? sownOverride : event.params.beans,
+    soilSown: soilSown,
+    pods: event.params.pods,
+    temperature: temperature,
+    maxTemperature: maxTemperature
   });
 }
 
