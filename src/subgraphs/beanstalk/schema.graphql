@@ -715,7 +715,7 @@ type WhitelistTokenDailySnapshot @entity {
 }
 
 type Field @entity {
-  "Contract address for this field or farmer when fieldId is zero. Otherwise address-fieldId"
+  "Contract address for this field or farmer when fieldId is zero. Otherwise address:fieldId"
   id: ID!
   "'beanstalk'"
   beanstalk: Beanstalk!
@@ -974,7 +974,7 @@ type SiloWithdraw @entity {
 }
 
 type Plot @entity {
-  "Plot index when fieldId is 0, otherwise plotIndex-fieldId"
+  "Plot index when fieldId is 0, otherwise plotIndex:fieldId"
   id: ID!
   "Field to which this plot belongs"
   field: Field!
