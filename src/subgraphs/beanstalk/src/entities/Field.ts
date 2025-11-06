@@ -8,14 +8,14 @@ export function getFieldEntityId(account: Address, fieldId: BigInt = ZERO_BI): s
   if (fieldId.equals(ZERO_BI)) {
     return account.toHexString();
   }
-  return account.toHexString() + "-" + fieldId.toString();
+  return account.toHexString() + ":" + fieldId.toString();
 }
 
 export function getPlotEntityId(index: BigInt, fieldId: BigInt = ZERO_BI): string {
   if (fieldId.equals(ZERO_BI)) {
     return index.toString();
   }
-  return index.toString() + "-" + fieldId.toString();
+  return index.toString() + ":" + fieldId.toString();
 }
 
 export function loadField(account: Address, fieldId: BigInt = ZERO_BI): Field {

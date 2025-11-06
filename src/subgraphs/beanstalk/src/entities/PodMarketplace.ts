@@ -9,7 +9,7 @@ export function getPodListingEntityId(account: Address, index: BigInt, fieldId: 
   if (fieldId.equals(ZERO_BI)) {
     return account.toHexString() + "-" + index.toString();
   }
-  return account.toHexString() + "-" + index.toString() + "-" + fieldId.toString();
+  return account.toHexString() + "-" + index.toString() + ":" + fieldId.toString();
 }
 
 export function loadPodMarketplace(fieldId: BigInt = ZERO_BI): PodMarketplace {
