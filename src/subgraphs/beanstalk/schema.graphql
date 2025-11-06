@@ -1192,7 +1192,7 @@ type PodListing @entity {
   ######################## Identifiers ########################
 
   """
-  The PodListing ID is a unique subgraph ID; if fieldId is 0: `{account}-{index}`, if fieldId isn't 0: `{account}-{index}-{fieldId}`
+  The PodListing ID is a unique subgraph ID; if fieldId is 0: `{account}-{index}`, if fieldId isn't 0: `{account}-{index}:{fieldId}`
 
   The on-chain identifier for a PodListing is the `index`.
   """
