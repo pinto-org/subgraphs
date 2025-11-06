@@ -91,7 +91,7 @@ export function createHistoricalPodListing(listing: PodListing): void {
   let created = false;
   let id = listing.id;
   for (let i = 0; !created; i++) {
-    id = listing.id + "-" + i.toString() + (listing.fieldId.equals(ZERO_BI) ? "" : ":" + listing.fieldId.toString());
+    id = listing.id + "-" + i.toString();
     let newListing = PodListing.load(id);
     if (newListing == null) {
       newListing = new PodListing(id);
