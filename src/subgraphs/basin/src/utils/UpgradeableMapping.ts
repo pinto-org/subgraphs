@@ -99,5 +99,9 @@ export const UPGRADEABLE_MAPPING: UpgradeableMapping[] = [
       Address.fromString("0x7ea12704AF23867A8eAE6c6b80e06027A8120b82"),
       Address.fromString("0x72df00123eBb69EF17E941243e0436AB73F71D5D")
     ]
+  },
+  {
+    proxy: PintoBase.PINTO_WSTETH,
+    boredWells: [Address.fromString("TODO(wsteth)")]
   }
 ];
