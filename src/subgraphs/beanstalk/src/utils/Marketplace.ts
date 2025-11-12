@@ -1,9 +1,9 @@
-import { Address, BigInt, Bytes, ethereum, log } from "@graphprotocol/graph-ts";
-import { loadField, loadPlot } from "../entities/Field";
+import { Address, BigInt, Bytes, ethereum } from "@graphprotocol/graph-ts";
+import { getPlotEntityId, loadField, loadPlot } from "../entities/Field";
 import { BI_10, ZERO_BI } from "../../../../core/utils/Decimals";
 import { loadPodFill, loadPodMarketplace } from "../entities/PodMarketplace";
 import { createHistoricalPodOrder, loadPodOrder } from "../entities/PodMarketplace";
-import { createHistoricalPodListing, loadPodListing } from "../entities/PodMarketplace";
+import { createHistoricalPodListing, loadPodListing, getPodListingEntityId } from "../entities/PodMarketplace";
 import {
   Plot,
   PodListing,
@@ -30,6 +30,7 @@ export enum MarketplaceAction {
 class PodListingCreatedParams {
   event: ethereum.Event;
   account: Address;
+  fieldId: BigInt = ZERO_BI;
   index: BigInt;
   start: BigInt;
   amount: BigInt;
@@ -45,12 +46,14 @@ class PodListingCreatedParams {
 class PodListingCancelledParams {
   event: ethereum.Event;
   account: Address;
+  fieldId: BigInt = ZERO_BI;
   index: BigInt;
 }
 
 class PodOrderCreatedParams {
   event: ethereum.Event;
   account: Address;
+  fieldId: BigInt = ZERO_BI;
   id: Bytes;
   beanAmount: BigInt;
   pricePerPod: i32;
@@ -72,6 +75,7 @@ class MarketFillParams {
   event: ethereum.Event;
   from: Address;
   to: Address;
+  fieldId: BigInt = ZERO_BI;
   id: Bytes | null; // For pod order
   index: BigInt;
   start: BigInt;
@@ -81,14 +85,16 @@ class MarketFillParams {
 }
 
 export function podListingCreated(params: PodListingCreatedParams): void {
-  let plot = Plot.load(params.index.toString());
+  const fieldId = params.fieldId;
+  const plotId = getPlotEntityId(params.index, fieldId);
+  let plot = Plot.load(plotId);
   if (plot == null) {
     return;
   }
   loadFarmer(params.account, params.event.block);
 
   /// Upsert PodListing
-  let listing = loadPodListing(params.account, params.index);
+  let listing = loadPodListing(params.account, params.index, params.fieldId);
   if (listing.createdAt !== ZERO_BI) {
     // Re-listed prior plot with new info
     createHistoricalPodListing(listing);
@@ -100,6 +106,8 @@ export function podListingCreated(params: PodListingCreatedParams): void {
   listing.historyID =
     listing.id + "-" + params.event.block.timestamp.toString() + "-" + params.event.logIndex.toString();
   listing.plot = plot.id;
+  listing.fieldId = fieldId;
+  listing.podMarketplace = fieldId.toString();
 
   listing.start = params.start;
   listing.mode = params.mode;
@@ -134,9 +142,10 @@ export function podListingCreated(params: PodListingCreatedParams): void {
     MarketplaceAction.CREATED,
     params.account.toHexString(),
     listing.index,
-    listing.maxHarvestableIndex
+    listing.maxHarvestableIndex,
+    fieldId
   );
-  updateMarketListingBalances(params.amount, ZERO_BI, ZERO_BI, ZERO_BI, params.event.block);
+  updateMarketListingBalances(params.amount, ZERO_BI, ZERO_BI, ZERO_BI, params.event.block, fieldId);
 
   /// Save  raw event data
   let id = "podListingCreated-" + params.event.transaction.hash.toHexString() + "-" + params.event.logIndex.toString();
@@ -161,10 +170,11 @@ export function podListingCreated(params: PodListingCreatedParams): void {
 }
 
 export function podListingFilled(params: MarketFillParams): void {
-  let listing = loadPodListing(params.from, params.index);
+  const fieldId = params.fieldId;
+  let listing = loadPodListing(params.from, params.index, fieldId);
   loadFarmer(params.to, params.event.block);
 
-  updateMarketListingBalances(ZERO_BI, ZERO_BI, params.amount, params.costInBeans, params.event.block);
+  updateMarketListingBalances(ZERO_BI, ZERO_BI, params.amount, params.costInBeans, params.event.block, fieldId);
 
   listing.filledAmount = params.amount;
   listing.remainingAmount = listing.remainingAmount.minus(params.amount);
@@ -178,16 +188,17 @@ export function podListingFilled(params: MarketFillParams): void {
       MarketplaceAction.FILLED_FULL,
       params.from.toHexString(),
       listing.index,
-      listing.maxHarvestableIndex
+      listing.maxHarvestableIndex,
+      fieldId
     );
   } else {
     listing.status = "FILLED_PARTIAL";
 
     const remainingIndex = listing.index.plus(params.amount).plus(listing.start);
-    let remainingListing = loadPodListing(toAddress(listing.farmer), remainingIndex);
+    let remainingListing = loadPodListing(toAddress(listing.farmer), remainingIndex, fieldId);
     remainingListing.historyID =
       remainingListing.id + "-" + params.event.block.timestamp.toString() + "-" + params.event.logIndex.toString();
-    remainingListing.plot = remainingIndex.toString();
+    remainingListing.plot = getPlotEntityId(remainingIndex, fieldId);
     remainingListing.createdAt = listing.createdAt;
     remainingListing.updatedAt = params.event.block.timestamp;
     remainingListing.originalIndex = listing.originalIndex;
@@ -209,17 +220,23 @@ export function podListingFilled(params: MarketFillParams): void {
       MarketplaceAction.FILLED_PARTIAL,
       params.from.toHexString(),
       listing.index,
-      listing.maxHarvestableIndex
+      listing.maxHarvestableIndex,
+      fieldId
     );
     updateActiveListings(
       MarketplaceAction.CREATED,
       params.from.toHexString(),
       remainingListing.index,
-      remainingListing.maxHarvestableIndex
+      remainingListing.maxHarvestableIndex,
+      fieldId
     );
   }
 
-  let fill = loadPodFill(params.event.address, params.index, params.event.transaction.hash.toHexString());
+  let fill = loadPodFill(
+    params.event.address,
+    params.index,
+    params.event.transaction.hash.toHexString()
+  );
   fill.createdAt = params.event.block.timestamp;
   fill.listing = listing.id;
   fill.fromFarmer = params.from;
@@ -234,7 +251,7 @@ export function podListingFilled(params: MarketFillParams): void {
   listing.fill = fill.id;
   listing.save();
 
-  setBeansPerPodAfterFill(params.event, fill.index, fill.start, fill.amount, fill.costInBeans);
+  setBeansPerPodAfterFill(params.event, fill.index, fill.start, fill.amount, fill.costInBeans, fieldId);
 
   // Save the raw event data
   let id = "podListingFilled-" + params.event.transaction.hash.toHexString() + "-" + params.event.logIndex.toString();
@@ -255,15 +272,16 @@ export function podListingFilled(params: MarketFillParams): void {
 }
 
 export function podListingCancelled(params: PodListingCancelledParams): void {
-  let listing = PodListing.load(params.account.toHexString() + "-" + params.index.toString());
+  let listing = PodListing.load(getPodListingEntityId(params.account, params.index, params.fieldId));
   if (listing !== null && listing.status == "ACTIVE") {
     updateActiveListings(
       MarketplaceAction.CANCELLED,
       params.account.toHexString(),
       listing.index,
-      listing.maxHarvestableIndex
+      listing.maxHarvestableIndex,
+      params.fieldId
     );
-    updateMarketListingBalances(ZERO_BI, listing.remainingAmount, ZERO_BI, ZERO_BI, params.event.block);
+    updateMarketListingBalances(ZERO_BI, listing.remainingAmount, ZERO_BI, ZERO_BI, params.event.block, params.fieldId);
 
     listing.status = listing.filled == ZERO_BI ? "CANCELLED" : "CANCELLED_PARTIAL";
     listing.updatedAt = params.event.block.timestamp;
@@ -295,6 +313,8 @@ export function podOrderCreated(params: PodOrderCreatedParams): void {
 
   order.historyID = order.id + "-" + params.event.block.timestamp.toString() + "-" + params.event.logIndex.toString();
   order.farmer = params.account;
+  order.fieldId = params.fieldId;
+  order.podMarketplace = params.fieldId.toString();
   order.createdAt = params.event.block.timestamp;
   order.updatedAt = params.event.block.timestamp;
   order.status = "ACTIVE";
@@ -310,8 +330,8 @@ export function podOrderCreated(params: PodOrderCreatedParams): void {
   order.fills = [];
   order.save();
 
-  updateActiveOrders(MarketplaceAction.CREATED, order.id, order.maxPlaceInLine);
-  updateMarketOrderBalances(params.beanAmount, ZERO_BI, ZERO_BI, ZERO_BI, params.event.block);
+  updateActiveOrders(MarketplaceAction.CREATED, order.id, order.maxPlaceInLine, params.fieldId);
+  updateMarketOrderBalances(params.beanAmount, ZERO_BI, ZERO_BI, ZERO_BI, params.event.block, params.fieldId);
 
   // Save the raw event data
   let id = "podOrderCreated-" + params.event.transaction.hash.toHexString() + "-" + params.event.logIndex.toString();
@@ -333,7 +353,11 @@ export function podOrderCreated(params: PodOrderCreatedParams): void {
 
 export function podOrderFilled(params: MarketFillParams): void {
   let order = loadPodOrder(params.id!);
-  let fill = loadPodFill(params.event.address, params.index, params.event.transaction.hash.toHexString());
+  let fill = loadPodFill(
+    params.event.address,
+    params.index,
+    params.event.transaction.hash.toHexString()
+  );
   loadFarmer(params.to, params.event.block);
 
   order.updatedAt = params.event.block.timestamp;
@@ -356,13 +380,13 @@ export function podOrderFilled(params: MarketFillParams): void {
   fill.costInBeans = params.costInBeans;
   fill.save();
 
-  setBeansPerPodAfterFill(params.event, fill.index, fill.start, fill.amount, fill.costInBeans);
+  setBeansPerPodAfterFill(params.event, fill.index, fill.start, fill.amount, fill.costInBeans, params.fieldId);
 
   if (order.status == "FILLED") {
-    updateActiveOrders(MarketplaceAction.FILLED_FULL, order.id, order.maxPlaceInLine);
+    updateActiveOrders(MarketplaceAction.FILLED_FULL, order.id, order.maxPlaceInLine, params.fieldId);
   }
 
-  updateMarketOrderBalances(ZERO_BI, ZERO_BI, params.amount, params.costInBeans, params.event.block);
+  updateMarketOrderBalances(ZERO_BI, ZERO_BI, params.amount, params.costInBeans, params.event.block, params.fieldId);
 
   // Save the raw event data
   let id = "podOrderFilled-" + params.event.transaction.hash.toHexString() + "-" + params.event.logIndex.toString();
@@ -389,13 +413,14 @@ export function podOrderCancelled(params: PodOrderCancelledParams): void {
     order.updatedAt = params.event.block.timestamp;
     order.save();
 
-    updateActiveOrders(MarketplaceAction.CANCELLED, order.id, order.maxPlaceInLine);
+    updateActiveOrders(MarketplaceAction.CANCELLED, order.id, order.maxPlaceInLine, order.fieldId);
     updateMarketOrderBalances(
       ZERO_BI,
       order.beanAmount.minus(order.beanAmountFilled),
       ZERO_BI,
       ZERO_BI,
-      params.event.block
+      params.event.block,
+      order.fieldId
     );
 
     // Save the raw event data
@@ -418,9 +443,10 @@ export function updateMarketListingBalances(
   cancelledPodAmount: BigInt,
   filledPodAmount: BigInt,
   filledBeanAmount: BigInt,
-  block: ethereum.Block
+  block: ethereum.Block,
+  fieldId: BigInt = ZERO_BI
 ): void {
-  let market = loadPodMarketplace();
+  let market = loadPodMarketplace(fieldId);
 
   const netListingChange = newPodAmount.minus(cancelledPodAmount).minus(filledPodAmount);
 
@@ -440,9 +466,10 @@ export function updateMarketOrderBalances(
   cancelledBeanAmount: BigInt,
   filledPodAmount: BigInt,
   filledBeanAmount: BigInt,
-  block: ethereum.Block
+  block: ethereum.Block,
+  fieldId: BigInt = ZERO_BI
 ): void {
-  let market = loadPodMarketplace();
+  let market = loadPodMarketplace(fieldId);
 
   const netOrderChange = newBeanAmount.minus(cancelledBeanAmount).minus(filledBeanAmount);
 
@@ -458,8 +485,12 @@ export function updateMarketOrderBalances(
   market.save();
 }
 
-export function updateExpiredPlots(harvestableIndex: BigInt, block: ethereum.Block): void {
-  let market = loadPodMarketplace();
+export function updateExpiredPlots(
+  harvestableIndex: BigInt,
+  block: ethereum.Block,
+  fieldId: BigInt = ZERO_BI
+): void {
+  let market = loadPodMarketplace(fieldId);
   let remainingListings = market.activeListings;
 
   // Cancel any pod marketplace listings beyond the index
@@ -468,7 +499,13 @@ export function updateExpiredPlots(harvestableIndex: BigInt, block: ethereum.Blo
     const maxHarvestableIndex = BigInt.fromString(destructured[2]);
     if (harvestableIndex > maxHarvestableIndex) {
       // This method updates the marketplace entity, so it will perform the splice.
-      expirePodListingIfExists(Address.fromString(destructured[0]), BigInt.fromString(destructured[1]), block, i);
+      expirePodListingIfExists(
+        Address.fromString(destructured[0]),
+        BigInt.fromString(destructured[1]),
+        block,
+        fieldId,
+        i
+      );
       // A similar splice is done here also to track the updated index on the underlying array.
       remainingListings.splice(i--, 1);
     }
@@ -480,17 +517,18 @@ function setBeansPerPodAfterFill(
   plotIndex: BigInt,
   start: BigInt,
   length: BigInt,
-  costInBeans: BigInt
+  costInBeans: BigInt,
+  fieldId: BigInt = ZERO_BI
 ): void {
-  const protocolField = loadField(event.address);
+  const protocolField = loadField(event.address, fieldId);
   // Load the plot that is being sent. It may or may not have been created already, depending
   // on whether the PlotTransfer event has already been processed (sometims its emitted after the market transfer).
-  let fillPlot = loadPlot(event.address, plotIndex.plus(start));
+  let fillPlot = loadPlot(event.address, plotIndex.plus(start), fieldId);
 
   if (start == ZERO_BI && length < fillPlot.pods) {
     // When sending the start of a plot via market, these cannot be set in any subsequent transfer,
     // since the start plot has already been modified.
-    let remainderPlot = loadPlot(event.address, plotIndex.plus(length));
+    let remainderPlot = loadPlot(event.address, plotIndex.plus(length), fieldId);
     // If the transfer event came prior to the market event, no need to assign these again
     const transferEvtWasFirst = fillPlot.source == "TRANSFER" && fillPlot.sourceHash == event.transaction.hash;
     if (!transferEvtWasFirst) {
@@ -518,16 +556,17 @@ export function expirePodListingIfExists(
   farmer: Address,
   listedPlotIndex: BigInt,
   block: ethereum.Block,
-  activeListingIndex: i32 = -1 // If provided, avoids having to lookup the index
+  fieldId: BigInt = ZERO_BI,
+  activeListingIndex: i32 = -1, // If provided, avoids having to lookup the index
 ): void {
-  let listing = PodListing.load(farmer.toHexString() + "-" + listedPlotIndex.toString());
+  let listing = PodListing.load(getPodListingEntityId(farmer, listedPlotIndex, fieldId));
   if (listing == null || listing.status != "ACTIVE") {
     return;
   }
   listing.status = "EXPIRED";
   listing.save();
 
-  let market = loadPodMarketplace();
+  let market = loadPodMarketplace(fieldId);
 
   if (activeListingIndex == -1) {
     // There should always be a matching entry in this list because it is verified that the listing is ACTIVE
@@ -555,9 +594,10 @@ export function updateActiveListings(
   action: MarketplaceAction,
   farmer: string,
   plotIndex: BigInt,
-  expiryIndex: BigInt
+  expiryIndex: BigInt,
+  fieldId: BigInt = ZERO_BI
 ): void {
-  let market = loadPodMarketplace();
+  let market = loadPodMarketplace(fieldId);
   let listings = market.activeListings;
 
   if (action == MarketplaceAction.CREATED) {
@@ -578,8 +618,13 @@ export function updateActiveListings(
   market.save();
 }
 
-export function updateActiveOrders(action: MarketplaceAction, orderId: string, maxPlaceInLine: BigInt): void {
-  let market = loadPodMarketplace();
+export function updateActiveOrders(
+  action: MarketplaceAction,
+  orderId: string,
+  maxPlaceInLine: BigInt,
+  fieldId: BigInt = ZERO_BI
+): void {
+  let market = loadPodMarketplace(fieldId);
   let orders = market.activeOrders;
 
   if (action == MarketplaceAction.CREATED) {

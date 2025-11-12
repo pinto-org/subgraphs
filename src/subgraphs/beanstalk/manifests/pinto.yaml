@@ -205,8 +205,6 @@ dataSources:
         - name: BeanstalkPrice
           file: ../../../core/abis/PintostalkPrice.json
       eventHandlers:
-        - event: Sow(indexed address,uint256,uint256,uint256,uint256)
-          handler: handleSow
         - event: Harvest(indexed address,uint256,uint256[],uint256)
           handler: handleHarvest
         - event: PlotTransfer(indexed address,indexed address,uint256,indexed uint256,uint256)
@@ -214,6 +212,53 @@ dataSources:
         - event: TemperatureChange(indexed uint256,uint256,int32,uint256)
           handler: handleTemperatureChange
       file: ../src/handlers/FieldHandler.ts
+  - kind: ethereum/contract
+    name: Field-PintoPI1-
+    network: base
+    source:
+      address: "0xD1A0D188E861ed9d15773a2F3574a2e94134bA8f"
+      abi: PintoPI13
+      startBlock: 22948714 # PI-1
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Field
+      abis:
+        - name: PintoPI13
+          file: ../../../core/abis/Beanstalk/Pinto-PI13.json
+        - name: BeanstalkPrice
+          file: ../../../core/abis/PintostalkPrice.json
+      eventHandlers:
+        - event: Sow(indexed address,uint256,uint256,uint256,uint256)
+          handler: handleSow
+      file: ../src/handlers/FieldHandler.ts
+  - kind: ethereum/contract
+    name: LegacyField-PintoLaunch-PintoPI1
+    network: base
+    source:
+      address: "0xD1A0D188E861ed9d15773a2F3574a2e94134bA8f"
+      abi: PintoLaunch
+      startBlock: 22622961 # Pintostalk Deployment
+      endBlock: 22948714 # PI-1
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Field
+      abis:
+        - name: PintoLaunch
+          file: ../../../core/abis/Beanstalk/Pinto-Launch.json
+        - name: PintoPI13
+          file: ../../../core/abis/Beanstalk/Pinto-PI13.json
+        - name: BeanstalkPrice
+          file: ../../../core/abis/PintostalkPrice.json
+      eventHandlers:
+        - event: Sow(indexed address,uint256,uint256,uint256,uint256)
+          handler: handleSow_buggedPinto
+      file: ../src/handlers/legacy/LegacyFieldHandler.ts
   - kind: ethereum/contract
     name: LegacyField-PintoLaunch-PintoPI5
     network: base
