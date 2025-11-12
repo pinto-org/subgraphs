@@ -1,59 +1,59 @@
 import { harvest, plotTransfer, sow, temperatureChanged } from "../utils/Field";
-import { Sow, Harvest, PlotTransfer, TemperatureChange } from "../../generated/Beanstalk-ABIs/PintoPI13";
+import { PintoPI13, Sow, Harvest, PlotTransfer, TemperatureChange } from "../../generated/Beanstalk-ABIs/PintoPI13";
 import { legacySowAmount } from "../utils/legacy/LegacyField";
-import { ZERO_BI } from "../../../../core/utils/Decimals";
 import { BigInt } from "@graphprotocol/graph-ts";
+import { loadField } from "../entities/Field";
 
+// PI-1+
 export function handleSow(event: Sow): void {
-  if (event.params.fieldId != ZERO_BI) {
-    return;
-  }
-  let sownOverride = legacySowAmount(event.address, event.params.account);
+  const sownOverride = legacySowAmount(event.address, event.params.account, event.params.fieldId);
+  const beanstalkContract = PintoPI13.bind(event.address);
+  const temperature = beanstalkContract.temperature();
+  const maxTemperature = beanstalkContract.maxTemperature();
+
+  const field = loadField(event.address, event.params.fieldId);
+  const remainingSoil = beanstalkContract.initialSoil();
+  const soilSown = field.soil.minus(remainingSoil);
   sow({
     event,
     account: event.params.account,
-    fieldId: null,
+    fieldId: event.params.fieldId,
     index: event.params.index,
-    beans: sownOverride !== null ? sownOverride : event.params.beans,
-    pods: event.params.pods
+    beansSown: sownOverride !== null ? sownOverride : event.params.beans,
+    soilSown: soilSown,
+    pods: event.params.pods,
+    temperature: temperature,
+    maxTemperature: maxTemperature
   });
 }
 
 export function handleHarvest(event: Harvest): void {
-  if (event.params.fieldId != ZERO_BI) {
-    return;
-  }
   harvest({
     event,
     account: event.params.account,
-    fieldId: null,
+    fieldId: event.params.fieldId,
     plots: event.params.plots,
     beans: event.params.beans
   });
 }
 
 export function handlePlotTransfer(event: PlotTransfer): void {
-  if (event.params.fieldId != ZERO_BI) {
-    return;
-  }
   plotTransfer({
     event,
     from: event.params.from,
     to: event.params.to,
-    fieldId: null,
+    fieldId: event.params.fieldId,
     index: event.params.index,
     amount: event.params.amount
   });
 }
 
 export function handleTemperatureChange(event: TemperatureChange): void {
-  if (event.params.fieldId != ZERO_BI) {
-    return;
-  }
   temperatureChanged({
     event,
     season: event.params.season,
     caseId: event.params.caseId,
-    absChange: BigInt.fromI32(event.params.absChange)
+    absChange: BigInt.fromI32(event.params.absChange),
+    fieldId: event.params.fieldId
   });
 }
