@@ -7,6 +7,7 @@ import { convert } from "../utils/Beanstalk";
 import { takeWellSnapshots } from "../entities/snapshots/Well";
 import { loadWell } from "../entities/Well";
 import { takeBeanstalkSnapshots } from "../entities/snapshots/Beanstalk";
+import { Well } from "../../generated/schema";
 
 // Takes snapshots of beanstalk wells only and update beanstalk stats
 export function handleBeanstalkSunrise(event: Sunrise): void {
@@ -18,9 +19,9 @@ export function handleBeanstalkSunrise(event: Sunrise): void {
 
   const wells = getWhitelistedWells(v());
   for (let i = 0; i < wells.length; i++) {
-    const well = loadWell(toAddress(wells[i]));
+    const well = Well.load(toAddress(wells[i]));
     // Verify the well is still whitelisted
-    if (well.isBeanstalk) {
+    if (well !== null && well.isBeanstalk) {
       takeWellSnapshots(well, event.block);
       well.save();
     }
