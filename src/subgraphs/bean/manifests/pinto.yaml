@@ -180,9 +180,9 @@ dataSources:
     name: PintoWstethToken
     network: base
     source:
-      address: "TODO(wsteth)"
+      address: "0x3e1155480Fce43686793dd18E43104A01abCBC92"
       abi: ERC20
-      startBlock: 12345 # TODO(wsteth) PINTO:wstETH deployment
+      startBlock: 38391612 # TODO: PINTO:wstETH deployment once known
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -462,9 +462,9 @@ dataSources:
     name: PintowstETH
     network: base
     source:
-      address: "TODO(wsteth)"
+      address: "0x3e1155480Fce43686793dd18E43104A01abCBC92"
       abi: Well
-      startBlock: 12345 # TODO(wsteth) PINTO:wstETH deployment
+      startBlock: 38391612 # TODO: PINTO:wstETH deployment once known
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
