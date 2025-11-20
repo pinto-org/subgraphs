@@ -9,7 +9,7 @@ export const PINTO_CBETH = Address.fromString("0x3e111115A82dF6190e36ADf0d552880
 export const PINTO_CBBTC = Address.fromString("0x3e11226fe3d85142B734ABCe6e58918d5828d1b4");
 export const PINTO_WSOL = Address.fromString("0x3e11444c7650234c748D743D8d374fcE2eE5E6C9");
 export const PINTO_USDC = Address.fromString("0x3e1133aC082716DDC3114bbEFEeD8B1731eA9cb1");
-export const PINTO_WSTETH = Address.fromString("0x3e1155480Fce43686793dd18E43104A01abCBC92");
+export const PINTO_WSTETH = Address.fromString("0x3e1155245FF9a6a019Bc35827e801c6ED2CE91b9");
 
 // External tokens
 export const WETH = Address.fromString("0x4200000000000000000000000000000000000006");
