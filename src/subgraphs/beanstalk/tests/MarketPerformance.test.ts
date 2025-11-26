@@ -10,7 +10,7 @@ import {
 import { initPintoVersion } from "./entity-mocking/MockVersion";
 import { v } from "../src/utils/constants/Version";
 import { getPoolTokens, PoolTokens } from "../../../core/constants/RuntimeConstants";
-import { Bytes, BigInt, ethereum, BigDecimal } from "@graphprotocol/graph-ts";
+import { Bytes, BigInt, ethereum, BigDecimal, log } from "@graphprotocol/graph-ts";
 import { BI_10, ONE_BD, toBigInt, toDecimal, ZERO_BD } from "../../../core/utils/Decimals";
 import { trackMarketPerformance } from "../src/utils/MarketPerformance";
 import { MarketPerformanceSeasonal } from "../generated/schema";
@@ -259,8 +259,8 @@ describe("Market Performance", () => {
       const newToken = allPoolTokens[2];
 
       // Mock the new token's balance and price
-      const newTokenBalance = BigInt.fromString("3").times(BI_10.pow(18));
-      const newTokenPrice = BigDecimal.fromString("3200.75");
+      const newTokenBalance = BigInt.fromString("3").times(BI_10.pow(8));
+      const newTokenPrice = BigDecimal.fromString("88000");
       mockWellBalance(newToken, newTokenBalance);
       mockNbtPrice(newToken, newTokenPrice);
 
@@ -319,7 +319,7 @@ describe("Market Performance", () => {
       );
       assertBDClose(
         season3Entity.prevSeasonTokenUsdValues[2],
-        toDecimal(newTokenBalance, 18).times(newTokenPrice),
+        toDecimal(newTokenBalance, 8).times(newTokenPrice),
         CMP_BD_PRECISION
       );
       assertBDClose(
@@ -327,15 +327,15 @@ describe("Market Performance", () => {
         toDecimal(initBal[0], 18)
           .times(initPrice[0])
           .plus(toDecimal(initBal[1], 18).times(initPrice[1]))
-          .plus(toDecimal(newTokenBalance, 18).times(newTokenPrice)),
+          .plus(toDecimal(newTokenBalance, 8).times(newTokenPrice)),
         CMP_BD_PRECISION
       );
 
-      // Track season 3 to complete it and create season 4
+      // Complete season 3
       // Use same balances and prices for simplicity (no change scenario)
       trackMarketPerformance(3, getSiloTokens(expandedTokens), B);
 
-      // Verify season 4 entity is now complete (valid = true, has calculated values)
+      // Load completed season 3 entity
       season3Entity = MarketPerformanceSeasonal.load(season3Id)!;
       assert.assertTrue(season3Entity.valid === true);
       // Season 3 should have thisSeason prices with 3 tokens
@@ -358,7 +358,7 @@ describe("Market Performance", () => {
       );
       assertBDClose(
         season3Entity.thisSeasonTokenUsdValues![2],
-        toDecimal(newTokenBalance, 18).times(newTokenPrice),
+        toDecimal(newTokenBalance, 8).times(newTokenPrice),
         CMP_BD_PRECISION
       );
       // Since prices didn't change, USD changes should be 0
@@ -373,11 +373,7 @@ describe("Market Performance", () => {
       assertBDClose(season3Entity.cumulativeUsdChange![0], ZERO_BD, CMP_BD_PRECISION);
       assertBDClose(season3Entity.cumulativeUsdChange![1], ZERO_BD, CMP_BD_PRECISION);
       assertBDClose(season3Entity.cumulativeUsdChange![2], ZERO_BD, CMP_BD_PRECISION);
-      assertBDClose(
-        season3Entity.cumulativeTotalUsdChange!,
-        toDecimal(newTokenBalance, 18).times(newTokenPrice).truncate(2),
-        CMP_BD_PRECISION
-      );
+      assertBDClose(season3Entity.cumulativeTotalUsdChange!, ZERO_BD, CMP_BD_PRECISION);
       assertBDClose(season3Entity.cumulativePercentChange![0], ZERO_BD, CMP_BD_PRECISION);
       assertBDClose(season3Entity.cumulativePercentChange![1], ZERO_BD, CMP_BD_PRECISION);
       assertBDClose(season3Entity.cumulativePercentChange![2], ZERO_BD, CMP_BD_PRECISION);

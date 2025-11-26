@@ -103,23 +103,32 @@ function accumulateSeason(currentSeason: MarketPerformanceSeasonal): void {
     currentSeason.cumulativeTotalPercentChange = currentSeason.totalPercentChange!;
     currentSeason.save();
   } else {
-    // This would be an issue if the number of whitelisted tokens changes.
-    // usdChange/percentChange would have to be removed or refactored to have a direct token mapping.
+    // This may be an issue if the number of whitelisted tokens decreases.
+    // The current implementation works for new tokens appearing only.
+    // However in practice I expect usdChange to have placeholder 0s for dewhitelisted tokens.
     const usdChange: BigDecimal[] = [];
-    for (let i = 0; i < prevSeason.cumulativeUsdChange!.length; i++) {
-      usdChange.push(prevSeason.cumulativeUsdChange![i].plus(currentSeason.usdChange![i]));
+    for (let i = 0; i < currentSeason.usdChange!.length; i++) {
+      if (i < prevSeason.cumulativeUsdChange!.length) {
+        usdChange.push(prevSeason.cumulativeUsdChange![i].plus(currentSeason.usdChange![i]));
+      } else {
+        usdChange.push(currentSeason.usdChange![i]);
+      }
     }
     currentSeason.cumulativeUsdChange = usdChange;
     currentSeason.cumulativeTotalUsdChange = prevSeason.cumulativeTotalUsdChange!.plus(currentSeason.totalUsdChange!);
 
     const percentChange: BigDecimal[] = [];
-    for (let i = 0; i < prevSeason.cumulativePercentChange!.length; i++) {
-      percentChange.push(
-        prevSeason
-          .cumulativePercentChange![i].plus(ONE_BD)
-          .times(currentSeason.percentChange![i].plus(ONE_BD))
-          .minus(ONE_BD)
-      );
+    for (let i = 0; i < currentSeason.percentChange!.length; i++) {
+      if (i < prevSeason.cumulativePercentChange!.length) {
+        percentChange.push(
+          prevSeason
+            .cumulativePercentChange![i].plus(ONE_BD)
+            .times(currentSeason.percentChange![i].plus(ONE_BD))
+            .minus(ONE_BD)
+        );
+      } else {
+        percentChange.push(currentSeason.percentChange![i]);
+      }
     }
     currentSeason.cumulativePercentChange = percentChange.map<BigDecimal>((bd) => bd.truncate(8));
     currentSeason.cumulativeTotalPercentChange = prevSeason
