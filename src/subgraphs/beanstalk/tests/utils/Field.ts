@@ -11,7 +11,10 @@ import { getFieldEntityId, getPlotEntityId } from "../../src/entities/Field";
 const account = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266".toLowerCase();
 
 export function sow(account: string, index: BigInt, beans: BigInt, pods: BigInt, fieldId: BigInt = ZERO_BI): void {
-  const effectiveTemp = pods.times(BI_10.pow(8)).div(beans).minus(BI_10.pow(8));
+  let effectiveTemp = ZERO_BI;
+  if (beans.gt(ZERO_BI)) {
+    effectiveTemp = pods.times(BI_10.pow(8)).div(beans).minus(BI_10.pow(8));
+  }
   createMockedFunction(BEANSTALK, "temperature", "temperature():(uint256)").returns([
     ethereum.Value.fromUnsignedBigInt(effectiveTemp)
   ]);
