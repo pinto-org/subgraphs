@@ -211,6 +211,9 @@ dataSources:
           handler: handlePlotTransfer
         - event: TemperatureChange(indexed uint256,uint256,int32,uint256)
           handler: handleTemperatureChange
+        # Introduced in PI-14
+        - event: SowReferral(indexed address,uint256,uint256,indexed address,uint256,uint256)
+          handler: handleSowReferral
       file: ../src/handlers/FieldHandler.ts
   - kind: ethereum/contract
     name: Field-PintoPI1-
