@@ -114,19 +114,21 @@ export function sow(params: SowParams): void {
 
 export function sowReferral(params: SowReferralParams): void {
   const protocol = params.event.address;
-  
-  let referrerFarmer = loadFarmer(params.referrer, params.event.block);
-  
-  let referrerBonusPlot = loadPlot(protocol, params.referrerIndex);
+
+  // Plots were already created via SOW event, update source to REFERRAL
+  const referrerBonusPlot = loadPlot(protocol, params.referrerIndex);
   referrerBonusPlot.source = "REFERRAL";
   referrerBonusPlot.save();
-  
-  let refereeBonusPlot = loadPlot(protocol, params.refereeIndex);
+
+  const refereeBonusPlot = loadPlot(protocol, params.refereeIndex);
   refereeBonusPlot.source = "REFERRAL";
   refereeBonusPlot.save();
-  
+
+  const referrerFarmer = loadFarmer(params.referrer, params.event.block);
   referrerFarmer.refereeCount += 1;
-  referrerFarmer.totalReferralRewardPodsReceived = referrerFarmer.totalReferralRewardPodsReceived.plus(params.referrerPods);
+  referrerFarmer.totalReferralRewardPodsReceived = referrerFarmer.totalReferralRewardPodsReceived.plus(
+    params.referrerPods
+  );
   referrerFarmer.save();
 }
 
