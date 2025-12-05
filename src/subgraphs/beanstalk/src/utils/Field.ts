@@ -118,10 +118,14 @@ export function sowReferral(params: SowReferralParams): void {
   // Plots were already created via SOW event, update source to REFERRAL
   const referrerBonusPlot = loadPlot(protocol, params.referrerIndex);
   referrerBonusPlot.source = "REFERRAL";
+  referrerBonusPlot.referrer = params.referrer;
+  referrerBonusPlot.referee = params.referee;
   referrerBonusPlot.save();
 
   const refereeBonusPlot = loadPlot(protocol, params.refereeIndex);
   refereeBonusPlot.source = "REFERRAL";
+  refereeBonusPlot.referrer = params.referrer;
+  refereeBonusPlot.referee = params.referee;
   refereeBonusPlot.save();
 
   const referrerFarmer = loadFarmer(params.referrer, params.event.block);

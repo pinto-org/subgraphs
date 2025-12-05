@@ -286,8 +286,12 @@ describe("Field", () => {
       assert.fieldEquals("Plot", referrerBonusIndex.toString(), "source", "REFERRAL");
       assert.fieldEquals("Plot", referrerBonusIndex.toString(), "farmer", referrerAccount.toLowerCase());
       assert.fieldEquals("Plot", referrerBonusIndex.toString(), "pods", referrerBonusPods.toString());
+      assert.fieldEquals("Plot", referrerBonusIndex.toString(), "referrer", referrerAccount.toLowerCase());
+      assert.fieldEquals("Plot", referrerBonusIndex.toString(), "referee", "0x9876543210987654321098765432109876543210".toLowerCase());
 
       assert.fieldEquals("Plot", refereeBonusIndex.toString(), "source", "REFERRAL");
+      assert.fieldEquals("Plot", refereeBonusIndex.toString(), "referrer", referrerAccount.toLowerCase());
+      assert.fieldEquals("Plot", refereeBonusIndex.toString(), "referee", "0x9876543210987654321098765432109876543210".toLowerCase());
       assert.fieldEquals("Plot", refereeIndex.toString(), "source", "SOW"); // Original sow stays normal
     });
 
