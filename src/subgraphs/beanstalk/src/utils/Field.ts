@@ -115,25 +115,24 @@ export function sow(params: SowParams): void {
 export function sowReferral(params: SowReferralParams): void {
   const protocol = params.event.address;
 
-  // Ensure both Farmer entities exist before setting referrer/referee on plots.
-  loadFarmer(params.referrer, params.event.block);
-  loadFarmer(params.referee, params.event.block);
+  // Load both Farmer entities
+  const referrerFarmer = loadFarmer(params.referrer, params.event.block);
+  const refereeFarmer = loadFarmer(params.referee, params.event.block);
 
   // Plots were already created via SOW event, update source to REFERRAL
   const referrerBonusPlot = loadPlot(protocol, params.referrerIndex);
   referrerBonusPlot.source = "REFERRAL";
-  referrerBonusPlot.referrer = params.referrer;
-  referrerBonusPlot.referee = params.referee;
+  referrerBonusPlot.referrer = referrerFarmer.id;
+  referrerBonusPlot.referee = refereeFarmer.id;
   referrerBonusPlot.save();
 
   const refereeBonusPlot = loadPlot(protocol, params.refereeIndex);
   refereeBonusPlot.source = "REFERRAL";
-  refereeBonusPlot.referrer = params.referrer;
-  refereeBonusPlot.referee = params.referee;
+  refereeBonusPlot.referrer = referrerFarmer.id;
+  refereeBonusPlot.referee = refereeFarmer.id;
   refereeBonusPlot.save();
 
   // Update referrer's referral stats
-  const referrerFarmer = loadFarmer(params.referrer, params.event.block);
   referrerFarmer.refereeCount += 1;
   referrerFarmer.totalReferralRewardPodsReceived = referrerFarmer.totalReferralRewardPodsReceived.plus(
     params.referrerPods
