@@ -103,7 +103,7 @@ dataSources:
     network: base
     source:
       address: "0xD1A0D188E861ed9d15773a2F3574a2e94134bA8f"
-      abi: PintoPI13
+      abi: PintoPI14
       startBlock: 22622961 # Pintostalk Deployment
     mapping:
       kind: ethereum/events
@@ -112,14 +112,14 @@ dataSources:
       entities:
         - Season
       abis:
-        - name: PintoPI13
-          file: ../../../core/abis/Beanstalk/Pinto-PI13.json
+        - name: PintoPI14
+          file: ../../../core/abis/Beanstalk/Pinto-PI14.json
       eventHandlers:
         - event: Sunrise(indexed uint256)
           handler: handleBeanstalkSunrise
         - event: DewhitelistToken(indexed address)
           handler: handleDewhitelistToken
-        # New signature in PI-12
+        # New signature in PI-13
         - event: Convert(indexed address,address,address,uint256,uint256,uint256,uint256)
           handler: handleConvert
       file: ../src/handlers/BeanstalkHandler.ts
@@ -161,8 +161,8 @@ templates:
           file: ../../../core/abis/Well.json
         - name: WellFunction
           file: ../../../core/abis/WellFunction.json
-        - name: PintoPI13
-          file: ../../../core/abis/Beanstalk/Pinto-PI13.json
+        - name: PintoPI14
+          file: ../../../core/abis/Beanstalk/Pinto-PI14.json
         - name: BeanstalkPrice
           file: ../../../core/abis/PintostalkPrice.json
         - name: ERC20

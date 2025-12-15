@@ -8,8 +8,8 @@ import {
   Shipped,
   SeasonOfPlentyField,
   SeasonOfPlentyWell,
-  PintoPI13
-} from "../../generated/Beanstalk-ABIs/PintoPI13";
+  PintoPI14
+} from "../../generated/Beanstalk-ABIs/PintoPI14";
 import { toDecimal, ZERO_BD, ZERO_BI } from "../../../../core/utils/Decimals";
 import { getCurrentSeason, loadBeanstalk, loadSeason } from "../entities/Beanstalk";
 import { getBeanstalkPrice } from "../utils/contracts/BeanstalkPrice";
@@ -91,7 +91,7 @@ export function handleIncentive(event: Incentivization): void {
   season.save();
 
   let silo = loadSilo(event.address);
-  silo.cropRatio = toDecimal(PintoPI13.bind(v().protocolAddress).getBeanToMaxLpGpPerBdvRatioScaled(), 18);
+  silo.cropRatio = toDecimal(PintoPI14.bind(v().protocolAddress).getBeanToMaxLpGpPerBdvRatioScaled(), 18);
   takeSiloSnapshots(silo, event.block);
   silo.save();
 
