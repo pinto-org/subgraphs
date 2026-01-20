@@ -27,6 +27,7 @@ enum PlotSource {
   MARKET
   RESEED_MIGRATED
   CONTRACT_RECEIVER_MIGRATED
+  REFERRAL
 }
 
 enum EmaWindow {
@@ -919,6 +920,10 @@ type Farmer @entity {
   orders: [PodOrder!]! @derivedFrom(field: "farmer")
   fills: [PodFill!]! @derivedFrom(field: "toFarmer")
   fertilizers: [FertilizerBalance!]! @derivedFrom(field: "farmer")
+  "Number of accounts this farmer has referred"
+  refereeCount: Int!
+  "Total pods this farmer has received as referral rewards"
+  totalReferralRewardPodsReceived: BigInt!
 }
 
 type SiloDeposit @entity {
@@ -1037,6 +1042,11 @@ type Plot @entity {
   updatedAt: BigInt!
   "Block when updated"
   updatedAtBlock: BigInt!
+
+  "If source === 'REFERRAL': The referrer who referred the farmer."
+  referrer: Farmer
+  "If source === 'REFERRAL': The referee who was referred."
+  referee: Farmer
 }
 
 type PodMarketplace @entity {

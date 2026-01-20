@@ -1,5 +1,5 @@
 import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
-import { Sow, PlotTransfer, Harvest, TemperatureChange } from "../../generated/Beanstalk-ABIs/PintoPI13";
+import { Sow, PlotTransfer, Harvest, TemperatureChange, SowReferral } from "../../generated/Beanstalk-ABIs/PintoPI14";
 import { mockBeanstalkEvent } from "../../../../core/tests/event-mocking/Util";
 import { ZERO_BI } from "../../../../core/utils/Decimals";
 
@@ -52,6 +52,35 @@ export function createSowEvent(
 
   return event as Sow;
 }
+
+export function createSowReferralEvent(
+  referrer: string,
+  referrerIndex: BigInt,
+  referrerPods: BigInt,
+  referee: string,
+  refereeIndex: BigInt,
+  refereePods: BigInt
+): SowReferral {
+  let event = changetype<SowReferral>(mockBeanstalkEvent());
+  event.parameters = new Array();
+
+  let param1 = new ethereum.EventParam("referrer", ethereum.Value.fromAddress(Address.fromString(referrer)));
+  let param2 = new ethereum.EventParam("referrerIndex", ethereum.Value.fromUnsignedBigInt(referrerIndex));
+  let param3 = new ethereum.EventParam("referrerPods", ethereum.Value.fromUnsignedBigInt(referrerPods));
+  let param4 = new ethereum.EventParam("referee", ethereum.Value.fromAddress(Address.fromString(referee)));
+  let param5 = new ethereum.EventParam("refereeIndex", ethereum.Value.fromUnsignedBigInt(refereeIndex));
+  let param6 = new ethereum.EventParam("refereePods", ethereum.Value.fromUnsignedBigInt(refereePods));
+
+  event.parameters.push(param1);
+  event.parameters.push(param2);
+  event.parameters.push(param3);
+  event.parameters.push(param4);
+  event.parameters.push(param5);
+  event.parameters.push(param6);
+
+  return event as SowReferral;
+}
+
 export function createHarvestEvent(
   account: string,
   plots: BigInt[],

@@ -12,7 +12,7 @@ import { getCurrentSeason, getHarvestableIndex, loadBeanstalk, loadFarmer, loadS
 import { loadField, loadPlot } from "../entities/Field";
 import { expirePodListingIfExists } from "./Marketplace";
 import { toAddress } from "../../../../core/utils/Bytes";
-import { PintoPI13 } from "../../generated/Beanstalk-ABIs/PintoPI13";
+import { PintoPI14 } from "../../generated/Beanstalk-ABIs/PintoPI14";
 
 class SowParams {
   event: ethereum.Event;
@@ -49,6 +49,16 @@ class TemperatureChangedParams {
   caseId: BigInt;
   absChange: BigInt;
   fieldId: BigInt = ZERO_BI;
+}
+
+class SowReferralParams {
+  event: ethereum.Event;
+  referrer: Address;
+  referrerIndex: BigInt;
+  referrerPods: BigInt;
+  referee: Address;
+  refereeIndex: BigInt;
+  refereePods: BigInt;
 }
 
 export function sow(params: SowParams): void {
@@ -97,9 +107,37 @@ export function sow(params: SowParams): void {
 
   incrementSows(protocol, params.account, params.event.block, params.fieldId);
 
-  const beanstalk = PintoPI13.bind(protocol);
+  const beanstalk = PintoPI14.bind(protocol);
   const deltaPodDemand = beanstalk.getDeltaPodDemand();
   setDeltaPodDemand(deltaPodDemand, protocolField);
+}
+
+export function sowReferral(params: SowReferralParams): void {
+  const protocol = params.event.address;
+
+  // Load both Farmer entities
+  const referrerFarmer = loadFarmer(params.referrer, params.event.block);
+  const refereeFarmer = loadFarmer(params.referee, params.event.block);
+
+  // Plots were already created via SOW event, update source to REFERRAL
+  const referrerBonusPlot = loadPlot(protocol, params.referrerIndex);
+  referrerBonusPlot.source = "REFERRAL";
+  referrerBonusPlot.referrer = referrerFarmer.id;
+  referrerBonusPlot.referee = refereeFarmer.id;
+  referrerBonusPlot.save();
+
+  const refereeBonusPlot = loadPlot(protocol, params.refereeIndex);
+  refereeBonusPlot.source = "REFERRAL";
+  refereeBonusPlot.referrer = referrerFarmer.id;
+  refereeBonusPlot.referee = refereeFarmer.id;
+  refereeBonusPlot.save();
+
+  // Update referrer's referral stats
+  referrerFarmer.refereeCount += 1;
+  referrerFarmer.totalReferralRewardPodsReceived = referrerFarmer.totalReferralRewardPodsReceived.plus(
+    params.referrerPods
+  );
+  referrerFarmer.save();
 }
 
 export function harvest(params: HarvestParams): void {

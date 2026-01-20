@@ -10,7 +10,7 @@ import {
 import { initPintoVersion } from "./entity-mocking/MockVersion";
 import { v } from "../src/utils/constants/Version";
 import { getPoolTokens, PoolTokens } from "../../../core/constants/RuntimeConstants";
-import { Bytes, BigInt, ethereum, BigDecimal } from "@graphprotocol/graph-ts";
+import { Bytes, BigInt, ethereum, BigDecimal, log } from "@graphprotocol/graph-ts";
 import { BI_10, ONE_BD, toBigInt, toDecimal, ZERO_BD } from "../../../core/utils/Decimals";
 import { trackMarketPerformance } from "../src/utils/MarketPerformance";
 import { MarketPerformanceSeasonal } from "../generated/schema";
@@ -247,6 +247,137 @@ describe("Market Performance", () => {
       assert.fieldEquals("MarketPerformanceSeasonal", ID, "cumulativeTotalUsdChange", "0");
       assert.fieldEquals("MarketPerformanceSeasonal", ID, "cumulativePercentChange", "[0, 0]");
       assert.fieldEquals("MarketPerformanceSeasonal", ID, "cumulativeTotalPercentChange", "0");
+    });
+
+    test("Handles new token whitelisted between seasons", () => {
+      // Season 1: Track with 2 tokens
+      const initialTokens = getAllToWhitelist();
+      trackMarketPerformance(1, getSiloTokens(initialTokens), B);
+
+      // Get a third token to whitelist
+      const allPoolTokens = getPoolTokens(v());
+      const newToken = allPoolTokens[2];
+
+      // Mock the new token's balance and price
+      const newTokenBalance = BigInt.fromString("3").times(BI_10.pow(8));
+      const newTokenPrice = BigDecimal.fromString("88000");
+      mockWellBalance(newToken, newTokenBalance);
+      mockNbtPrice(newToken, newTokenPrice);
+
+      // Season 2: Track with 3 tokens (original 2 + new token)
+      const expandedTokens = [initialTokens[0], initialTokens[1], newToken];
+      trackMarketPerformance(2, getSiloTokens(expandedTokens), B);
+
+      // Verify season 2 entity (should have 2 prev tokens)
+      const season2Id = `${v().protocolAddress.toHexString()}-2`;
+      const season2Entity = MarketPerformanceSeasonal.load(season2Id)!;
+      assert.assertTrue(season2Entity.valid === true);
+      assert.fieldEquals(
+        "MarketPerformanceSeasonal",
+        season2Id,
+        "prevSeasonTokenBalances",
+        `[${initBal[0]}, ${initBal[1]}]`
+      );
+      assert.fieldEquals(
+        "MarketPerformanceSeasonal",
+        season2Id,
+        "prevSeasonTokenUsdPrices",
+        `[${initPrice[0]}, ${initPrice[1]}]`
+      );
+      assert.assertTrue(
+        season2Entity.thisSeasonTokenUsdValues!.length === 2,
+        "thisSeasonTokenUsdValues should have 2 values"
+      );
+
+      // Verify season 3 entity (created when tracking season 2) includes the new token
+      const season3Id = `${v().protocolAddress.toHexString()}-3`;
+      let season3Entity = MarketPerformanceSeasonal.load(season3Id)!;
+      assert.assertTrue(season3Entity.valid === false);
+      // Season 3 should have prevSeason data with 3 tokens (from season 2)
+      assert.fieldEquals(
+        "MarketPerformanceSeasonal",
+        season3Id,
+        "prevSeasonTokenBalances",
+        `[${initBal[0]}, ${initBal[1]}, ${newTokenBalance}]`
+      );
+      assert.fieldEquals(
+        "MarketPerformanceSeasonal",
+        season3Id,
+        "prevSeasonTokenUsdPrices",
+        `[${initPrice[0]}, ${initPrice[1]}, ${newTokenPrice}]`
+      );
+      // Verify prevSeason USD values include the new token
+      assertBDClose(
+        season3Entity.prevSeasonTokenUsdValues[0],
+        toDecimal(initBal[0], 18).times(initPrice[0]),
+        CMP_BD_PRECISION
+      );
+      assertBDClose(
+        season3Entity.prevSeasonTokenUsdValues[1],
+        toDecimal(initBal[1], 18).times(initPrice[1]),
+        CMP_BD_PRECISION
+      );
+      assertBDClose(
+        season3Entity.prevSeasonTokenUsdValues[2],
+        toDecimal(newTokenBalance, 8).times(newTokenPrice),
+        CMP_BD_PRECISION
+      );
+      assertBDClose(
+        season3Entity.prevSeasonTotalUsd,
+        toDecimal(initBal[0], 18)
+          .times(initPrice[0])
+          .plus(toDecimal(initBal[1], 18).times(initPrice[1]))
+          .plus(toDecimal(newTokenBalance, 8).times(newTokenPrice)),
+        CMP_BD_PRECISION
+      );
+
+      // Complete season 3
+      // Use same balances and prices for simplicity (no change scenario)
+      trackMarketPerformance(3, getSiloTokens(expandedTokens), B);
+
+      // Load completed season 3 entity
+      season3Entity = MarketPerformanceSeasonal.load(season3Id)!;
+      assert.assertTrue(season3Entity.valid === true);
+      // Season 3 should have thisSeason prices with 3 tokens
+      assert.fieldEquals(
+        "MarketPerformanceSeasonal",
+        season3Id,
+        "thisSeasonTokenUsdPrices",
+        `[${initPrice[0]}, ${initPrice[1]}, ${newTokenPrice}]`
+      );
+      // Verify thisSeasonTokenUsdValues has 3 entries
+      assertBDClose(
+        season3Entity.thisSeasonTokenUsdValues![0],
+        toDecimal(initBal[0], 18).times(initPrice[0]),
+        CMP_BD_PRECISION
+      );
+      assertBDClose(
+        season3Entity.thisSeasonTokenUsdValues![1],
+        toDecimal(initBal[1], 18).times(initPrice[1]),
+        CMP_BD_PRECISION
+      );
+      assertBDClose(
+        season3Entity.thisSeasonTokenUsdValues![2],
+        toDecimal(newTokenBalance, 8).times(newTokenPrice),
+        CMP_BD_PRECISION
+      );
+      // Since prices didn't change, USD changes should be 0
+      assertBDClose(season3Entity.usdChange![0], ZERO_BD, CMP_BD_PRECISION);
+      assertBDClose(season3Entity.usdChange![1], ZERO_BD, CMP_BD_PRECISION);
+      assertBDClose(season3Entity.usdChange![2], ZERO_BD, CMP_BD_PRECISION);
+      assertBDClose(season3Entity.totalUsdChange!, ZERO_BD, CMP_BD_PRECISION);
+      assertBDClose(season3Entity.percentChange![0], ZERO_BD, CMP_BD_PRECISION);
+      assertBDClose(season3Entity.percentChange![1], ZERO_BD, CMP_BD_PRECISION);
+      assertBDClose(season3Entity.percentChange![2], ZERO_BD, CMP_BD_PRECISION);
+      assertBDClose(season3Entity.totalPercentChange!, ZERO_BD, CMP_BD_PRECISION);
+      assertBDClose(season3Entity.cumulativeUsdChange![0], ZERO_BD, CMP_BD_PRECISION);
+      assertBDClose(season3Entity.cumulativeUsdChange![1], ZERO_BD, CMP_BD_PRECISION);
+      assertBDClose(season3Entity.cumulativeUsdChange![2], ZERO_BD, CMP_BD_PRECISION);
+      assertBDClose(season3Entity.cumulativeTotalUsdChange!, ZERO_BD, CMP_BD_PRECISION);
+      assertBDClose(season3Entity.cumulativePercentChange![0], ZERO_BD, CMP_BD_PRECISION);
+      assertBDClose(season3Entity.cumulativePercentChange![1], ZERO_BD, CMP_BD_PRECISION);
+      assertBDClose(season3Entity.cumulativePercentChange![2], ZERO_BD, CMP_BD_PRECISION);
+      assertBDClose(season3Entity.cumulativeTotalPercentChange!, ZERO_BD, CMP_BD_PRECISION);
     });
   });
 });

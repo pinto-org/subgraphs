@@ -16,7 +16,7 @@ import {
 import { PintoLaunch, TemperatureChange as TemperatureChange_v2 } from "../../../generated/Beanstalk-ABIs/PintoLaunch";
 import { harvest, plotTransfer, sow, temperatureChanged, updateFieldTotals } from "../../utils/Field";
 import { legacySowAmount } from "../../utils/legacy/LegacyField";
-import { Sow as Sow_buggedPinto } from "../../../generated/Beanstalk-ABIs/PintoPI13";
+import { Sow as Sow_buggedPinto } from "../../../generated/Beanstalk-ABIs/PintoPI14";
 
 // PreReplant -> SeedGauge
 export function handleWeatherChange(event: WeatherChange): void {

@@ -55,7 +55,7 @@ export function loadPlot(diamondAddress: Address, index: BigInt, fieldId: BigInt
     plot.field = getFieldEntityId(diamondAddress, fieldId);
     plot.fieldId = fieldId;
     plot.farmer = ADDRESS_ZERO;
-    plot.source = "SOW"; // Should be overwritten in case of a transfer creating a new plot
+    plot.source = "SOW"; // Should be overwritten in case of a transfer creating a new plot, or sow referral
     plot.sourceHash = ADDRESS_ZERO;
     plot.season = 1;
     plot.creationHash = ADDRESS_ZERO;
