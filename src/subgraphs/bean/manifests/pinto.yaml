@@ -182,7 +182,7 @@ dataSources:
     source:
       address: "0x3e1155245FF9a6a019Bc35827e801c6ED2CE91b9"
       abi: ERC20
-      startBlock: 38391612 # TODO: PINTO:wstETH deployment once known
+      startBlock: 41041175 # PINTO:wstETH deployment
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -464,7 +464,7 @@ dataSources:
     source:
       address: "0x3e1155245FF9a6a019Bc35827e801c6ED2CE91b9"
       abi: Well
-      startBlock: 38391612 # TODO: PINTO:wstETH deployment once known
+      startBlock: 41041175 # PINTO:wstETH deployment
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
