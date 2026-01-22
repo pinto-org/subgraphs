@@ -120,17 +120,21 @@ export function sowReferral(params: SowReferralParams): void {
   const refereeFarmer = loadFarmer(params.referee, params.event.block);
 
   // Plots were already created via SOW event, update source to REFERRAL
-  const referrerBonusPlot = loadPlot(protocol, params.referrerIndex);
-  referrerBonusPlot.source = "REFERRAL";
-  referrerBonusPlot.referrer = referrerFarmer.id;
-  referrerBonusPlot.referee = refereeFarmer.id;
-  referrerBonusPlot.save();
-
   const refereeBonusPlot = loadPlot(protocol, params.refereeIndex);
   refereeBonusPlot.source = "REFERRAL";
   refereeBonusPlot.referrer = referrerFarmer.id;
   refereeBonusPlot.referee = refereeFarmer.id;
   refereeBonusPlot.save();
+
+  // If the referral system runs out of pods, the referrer will receive less or potentially no plot.
+  // This only occurs once when the referral pods are exhausted.
+  if (params.referrerPods.gt(ZERO_BI)) {
+    const referrerBonusPlot = loadPlot(protocol, params.referrerIndex);
+    referrerBonusPlot.source = "REFERRAL";
+    referrerBonusPlot.referrer = referrerFarmer.id;
+    referrerBonusPlot.referee = refereeFarmer.id;
+    referrerBonusPlot.save();
+  }
 
   // Update referrer's referral stats
   referrerFarmer.refereeCount += 1;
