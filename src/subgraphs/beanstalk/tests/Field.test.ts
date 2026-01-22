@@ -287,11 +287,21 @@ describe("Field", () => {
       assert.fieldEquals("Plot", referrerBonusIndex.toString(), "farmer", referrerAccount.toLowerCase());
       assert.fieldEquals("Plot", referrerBonusIndex.toString(), "pods", referrerBonusPods.toString());
       assert.fieldEquals("Plot", referrerBonusIndex.toString(), "referrer", referrerAccount.toLowerCase());
-      assert.fieldEquals("Plot", referrerBonusIndex.toString(), "referee", "0x9876543210987654321098765432109876543210".toLowerCase());
+      assert.fieldEquals(
+        "Plot",
+        referrerBonusIndex.toString(),
+        "referee",
+        "0x9876543210987654321098765432109876543210".toLowerCase()
+      );
 
       assert.fieldEquals("Plot", refereeBonusIndex.toString(), "source", "REFERRAL");
       assert.fieldEquals("Plot", refereeBonusIndex.toString(), "referrer", referrerAccount.toLowerCase());
-      assert.fieldEquals("Plot", refereeBonusIndex.toString(), "referee", "0x9876543210987654321098765432109876543210".toLowerCase());
+      assert.fieldEquals(
+        "Plot",
+        refereeBonusIndex.toString(),
+        "referee",
+        "0x9876543210987654321098765432109876543210".toLowerCase()
+      );
       assert.fieldEquals("Plot", refereeIndex.toString(), "source", "SOW"); // Original sow stays normal
     });
 
@@ -399,5 +409,45 @@ describe("Field", () => {
       assert.assertTrue(field.plotIndexes.includes(refereeBonusIndex));
       assert.assertTrue(field.plotIndexes.includes(refereeIndex));
     });
+  });
+
+  test("Should handle referral when it runs out of referral pods", () => {
+    const referrerAccount = account;
+    const refereeAccount = "0x4444444444444444444444444444444444444444";
+    const refereeIndex = plotStart.plus(mil(30));
+    const refereeBonusIndex = plotStart.plus(mil(32));
+
+    loadFarmer(Address.fromString(referrerAccount), mockBlock(BEANSTALK_BLOCK));
+    loadFarmer(Address.fromString(refereeAccount), mockBlock(BEANSTALK_BLOCK));
+
+    // Normal sow and referee pods
+    sow(refereeAccount, refereeIndex, beansSown, pods);
+    sow(refereeAccount, refereeBonusIndex, ZERO_BI, pods.div(BigInt.fromI32(10)));
+
+    handleSowReferral(
+      createSowReferralEvent(
+        referrerAccount,
+        // Referrer values 0 as pods ran out
+        ZERO_BI,
+        ZERO_BI,
+        refereeAccount,
+        refereeBonusIndex,
+        pods.div(BigInt.fromI32(10))
+      )
+    );
+
+    assert.fieldEquals("Farmer", referrerAccount.toLowerCase(), "refereeCount", "1");
+    assert.fieldEquals(
+      "Farmer",
+      referrerAccount.toLowerCase(),
+      "totalReferralRewardPodsReceived",
+      "0" // No pods received because referrerPods was 0
+    );
+
+    assert.entityCount("Plot", 2);
+    assert.fieldEquals("Plot", refereeIndex.toString(), "source", "SOW");
+    assert.fieldEquals("Plot", refereeBonusIndex.toString(), "source", "REFERRAL");
+    assert.fieldEquals("Plot", refereeBonusIndex.toString(), "referrer", referrerAccount.toLowerCase());
+    assert.fieldEquals("Plot", refereeBonusIndex.toString(), "referee", refereeAccount.toLowerCase());
   });
 });
