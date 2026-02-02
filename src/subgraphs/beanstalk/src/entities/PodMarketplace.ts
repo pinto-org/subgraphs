@@ -1,13 +1,21 @@
-import { Address, BigInt, Bytes, log } from "@graphprotocol/graph-ts";
+import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
 import { PodFill, PodListing, PodMarketplace, PodOrder } from "../../generated/schema";
 import { ZERO_BI } from "../../../../core/utils/Decimals";
 import { getCurrentSeason } from "./Beanstalk";
 import { ADDRESS_ZERO } from "../../../../core/utils/Bytes";
+import { getPlotEntityId } from "./Field";
 
-export function loadPodMarketplace(): PodMarketplace {
-  let marketplace = PodMarketplace.load("0");
+export function getPodListingEntityId(account: Address, index: BigInt, fieldId: BigInt = ZERO_BI): string {
+  if (fieldId.equals(ZERO_BI)) {
+    return account.toHexString() + "-" + index.toString();
+  }
+  return account.toHexString() + "-" + index.toString() + ":" + fieldId.toString();
+}
+
+export function loadPodMarketplace(fieldId: BigInt = ZERO_BI): PodMarketplace {
+  let marketplace = PodMarketplace.load(fieldId.toString());
   if (marketplace == null) {
-    marketplace = new PodMarketplace("0");
+    marketplace = new PodMarketplace(fieldId.toString());
     marketplace.season = getCurrentSeason();
     marketplace.activeListings = [];
     marketplace.activeOrders = [];
@@ -47,15 +55,16 @@ export function loadPodFill(protocol: Address, index: BigInt, hash: String): Pod
   return fill;
 }
 
-export function loadPodListing(account: Address, index: BigInt): PodListing {
-  let id = account.toHexString() + "-" + index.toString();
+export function loadPodListing(account: Address, index: BigInt, fieldId: BigInt = ZERO_BI): PodListing {
+  let id = getPodListingEntityId(account, index, fieldId);
   let listing = PodListing.load(id);
   if (listing == null) {
     listing = new PodListing(id);
     listing.podMarketplace = "0";
     listing.historyID = "";
-    listing.plot = index.toString();
+    listing.plot = getPlotEntityId(index, fieldId);
     listing.farmer = account;
+    listing.fieldId = fieldId;
     listing.index = index;
     listing.start = ZERO_BI;
     listing.mode = 0;
@@ -90,6 +99,7 @@ export function createHistoricalPodListing(listing: PodListing): void {
       newListing.historyID = listing.historyID;
       newListing.plot = listing.plot;
       newListing.farmer = listing.farmer;
+      newListing.fieldId = listing.fieldId;
       newListing.index = listing.index;
       newListing.start = listing.start;
       newListing.mode = listing.mode;
@@ -121,6 +131,7 @@ export function loadPodOrder(orderID: Bytes): PodOrder {
     order.podMarketplace = "0";
     order.historyID = "";
     order.farmer = ADDRESS_ZERO;
+    order.fieldId = ZERO_BI;
     order.createdAt = ZERO_BI;
     order.updatedAt = ZERO_BI;
     order.status = "";
@@ -148,6 +159,7 @@ export function createHistoricalPodOrder(order: PodOrder): void {
       newOrder.podMarketplace = order.podMarketplace;
       newOrder.historyID = order.historyID;
       newOrder.farmer = order.farmer;
+      newOrder.fieldId = order.fieldId;
       newOrder.createdAt = order.createdAt;
       newOrder.updatedAt = order.updatedAt;
       newOrder.status = order.status;

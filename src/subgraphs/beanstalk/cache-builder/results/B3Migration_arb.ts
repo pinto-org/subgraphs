@@ -4,6 +4,7 @@ import { BigInt, BigDecimal, Bytes, Address } from "@graphprotocol/graph-ts";
 
 class SiloInitialValues {
   beanToMaxLpGpPerBdvRatio: BigInt;
+  cropRatio: BigDecimal;
 }
 
 class FieldInitialValues {
@@ -54,7 +55,8 @@ class WhitelistTokenEvent {
 export const SEASON_INITIAL = 25129;
 
 export const SILO_INITIAL_VALUES: SiloInitialValues = {
-  beanToMaxLpGpPerBdvRatio: BigInt.fromString("100000000000000000000")
+  beanToMaxLpGpPerBdvRatio: BigInt.fromString("100000000000000000000"),
+  cropRatio: BigDecimal.fromString("100")
 };
 
 export const FIELD_INITIAL_VALUES: FieldInitialValues = {

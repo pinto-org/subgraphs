@@ -27,6 +27,7 @@ enum PlotSource {
   MARKET
   RESEED_MIGRATED
   CONTRACT_RECEIVER_MIGRATED
+  REFERRAL
 }
 
 enum EmaWindow {
@@ -151,6 +152,8 @@ type Silo @entity {
   plantableStalk: BigInt!
   "(protocol) [Seed Gauge] Current target ratio of Bean to LP deposits"
   beanToMaxLpGpPerBdvRatio: BigInt!
+  "(protocol) [Seed Gauge] Measures the difference in seeds of Bean and the max LP; can be derived from beanToMaxLpGpPerBdvRatio"
+  cropRatio: BigDecimal!
   "(protocol) Value emitted by UpdateAverageStalkPerBdvPerSeason event"
   avgGrownStalkPerBdvPerSeason: BigInt!
   "(protocol) Current grown stalk per season according to avgGrownStalkPerBdvPerSeason"
@@ -209,8 +212,10 @@ type SiloHourlySnapshot @entity {
   beanMints: BigInt!
   "Point in time current plantable stalk for bean seigniorage not yet claimed (only set on protocol-level Silo)"
   plantableStalk: BigInt!
-  "[Seed Gauge] Current target ratio of Bean to LP deposits"
+  "[Seed Gauge] Target ratio of Bean to LP deposits"
   beanToMaxLpGpPerBdvRatio: BigInt!
+  "[Seed Gauge] Measures the difference in seeds of Bean and the max LP; can be derived from beanToMaxLpGpPerBdvRatio"
+  cropRatio: BigDecimal!
   "Point in time average grown stalk per bdv per season"
   avgGrownStalkPerBdvPerSeason: BigInt!
   "Point in time grown stalk per season"
@@ -234,6 +239,7 @@ type SiloHourlySnapshot @entity {
   deltaBeanMints: BigInt!
   deltaPlantableStalk: BigInt!
   deltaBeanToMaxLpGpPerBdvRatio: BigInt!
+  deltaCropRatio: BigDecimal!
   deltaAvgGrownStalkPerBdvPerSeason: BigInt!
   deltaGrownStalkPerSeason: BigInt!
   deltaConvertDownPenalty: BigDecimal
@@ -285,6 +291,8 @@ type SiloDailySnapshot @entity {
   plantableStalk: BigInt!
   "[Seed Gauge] Current target ratio of Bean to LP deposits"
   beanToMaxLpGpPerBdvRatio: BigInt!
+  "[Seed Gauge] Measures the difference in seeds of Bean and the max LP; can be derived from beanToMaxLpGpPerBdvRatio"
+  cropRatio: BigDecimal!
   "Point in time average grown stalk per bdv per season"
   avgGrownStalkPerBdvPerSeason: BigInt!
   "Point in time grown stalk per season"
@@ -308,6 +316,7 @@ type SiloDailySnapshot @entity {
   deltaBeanMints: BigInt!
   deltaPlantableStalk: BigInt!
   deltaBeanToMaxLpGpPerBdvRatio: BigInt!
+  deltaCropRatio: BigDecimal!
   deltaAvgGrownStalkPerBdvPerSeason: BigInt!
   deltaGrownStalkPerSeason: BigInt!
   deltaConvertDownPenalty: BigDecimal
@@ -707,10 +716,12 @@ type WhitelistTokenDailySnapshot @entity {
 }
 
 type Field @entity {
-  "Contract address for this field or farmer"
-  id: Bytes!
+  "Contract address for this field or farmer when fieldId is zero. Otherwise address:fieldId"
+  id: ID!
   "'beanstalk'"
   beanstalk: Beanstalk!
+  "Numeric identifier of the field emitted on protocol events"
+  fieldId: BigInt!
   "Farmer address if applicable"
   farmer: Farmer
   "Current season number"
@@ -762,6 +773,8 @@ type FieldHourlySnapshot @entity {
   id: ID!
   "Field associated with this snapshot"
   field: Field!
+  "Numeric identifier of the field"
+  fieldId: BigInt!
   "Season"
   season: Int!
   "Point in time temperature"
@@ -834,6 +847,8 @@ type FieldDailySnapshot @entity {
   id: ID!
   "Field associated with this snapshot"
   field: Field!
+  "Numeric identifier of the field"
+  fieldId: BigInt!
   "Last season in the snapshot"
   season: Int!
   "Point in time temperature"
@@ -905,6 +920,10 @@ type Farmer @entity {
   orders: [PodOrder!]! @derivedFrom(field: "farmer")
   fills: [PodFill!]! @derivedFrom(field: "toFarmer")
   fertilizers: [FertilizerBalance!]! @derivedFrom(field: "farmer")
+  "Number of accounts this farmer has referred"
+  refereeCount: Int!
+  "Total pods this farmer has received as referral rewards"
+  totalReferralRewardPodsReceived: BigInt!
 }
 
 type SiloDeposit @entity {
@@ -960,10 +979,12 @@ type SiloWithdraw @entity {
 }
 
 type Plot @entity {
-  "Plot index"
+  "Plot index when fieldId is 0, otherwise plotIndex:fieldId"
   id: ID!
   "Field to which this plot belongs"
   field: Field!
+  "Numeric identifier of the field"
+  fieldId: BigInt!
   "Farmer who owns this plot"
   farmer: Farmer!
   "Source for this plot"
@@ -980,6 +1001,8 @@ type Plot @entity {
   index: BigInt!
   "Total pods in plot"
   pods: BigInt!
+  "True if this plot was sown during the morning auction"
+  isMorning: Boolean!
 
   "Number of beans spent for each pod, whether through sowing or on the marketplace"
   beansPerPod: BigInt!
@@ -1014,6 +1037,11 @@ type Plot @entity {
   sowHash: Bytes!
   "Timestamp of initial sowing"
   sowTimestamp: BigInt!
+
+  "If source === 'REFERRAL': The referrer who referred the farmer."
+  referrer: Farmer
+  "If source === 'REFERRAL': The referee who was referred."
+  referee: Farmer
 
   "Timestamp when updated"
   updatedAt: BigInt!
@@ -1178,12 +1206,14 @@ type PodListing @entity {
   ######################## Identifiers ########################
 
   """
-  The PodListing ID is a unique subgraph ID: `{account}-{index}"
+  The PodListing ID is a unique subgraph ID; if fieldId is 0: `{account}-{index}`, if fieldId isn't 0: `{account}-{index}:{fieldId}`
 
   The on-chain identifier for a PodListing is the `index`.
   """
   id: ID!
 
+  "Numeric identifier of the field for this listing"
+  fieldId: BigInt!
   "Marketplace used for listing"
   podMarketplace: PodMarketplace!
 
@@ -1350,6 +1380,8 @@ type PodOrder @entity {
   "The Farmer that created the Pod Order."
   farmer: Farmer!
 
+  "Numeric identifier of the field for this order"
+  fieldId: BigInt!
   "Marketplace used for Pod Order."
   podMarketplace: PodMarketplace!
 
@@ -2044,6 +2076,8 @@ type GaugesInfo @entity {
 
   "Convert down penalty ratio"
   g1ConvertDownPenalty: BigDecimal
+  "Blight factor; increments each season the twaDeltaB is above 1 and decrements otherwise (minimum zero)."
+  g1BlightFactor: BigInt
 
   "Convert Up Bonus current bonus stalk per bdv"
   g2BonusStalkPerBdv: BigInt
@@ -2077,6 +2111,7 @@ type GaugesInfoHourlySnapshot @entity {
   g2IsActive: Boolean!
   g0CultivationFactor: BigDecimal
   g1ConvertDownPenalty: BigDecimal
+  g1BlightFactor: BigInt
   g2BonusStalkPerBdv: BigInt
   g2MaxConvertCapacity: BigInt
   g2BdvConvertedThisSeason: BigInt
@@ -2087,6 +2122,7 @@ type GaugesInfoHourlySnapshot @entity {
   deltaG2IsActive: Boolean!
   deltaG0CultivationFactor: BigDecimal
   deltaG1ConvertDownPenalty: BigDecimal
+  deltaG1BlightFactor: BigInt
   deltaG2BonusStalkPerBdv: BigInt
   deltaG2MaxConvertCapacity: BigInt
   deltaG2BdvConvertedThisSeason: BigInt
@@ -2111,6 +2147,7 @@ type GaugesInfoDailySnapshot @entity {
   g2IsActive: Boolean!
   g0CultivationFactor: BigDecimal
   g1ConvertDownPenalty: BigDecimal
+  g1BlightFactor: BigInt
   g2BonusStalkPerBdv: BigInt
   g2MaxConvertCapacity: BigInt
   g2BdvConvertedThisSeason: BigInt
@@ -2121,6 +2158,7 @@ type GaugesInfoDailySnapshot @entity {
   deltaG2IsActive: Boolean!
   deltaG0CultivationFactor: BigDecimal
   deltaG1ConvertDownPenalty: BigDecimal
+  deltaG1BlightFactor: BigInt
   deltaG2BonusStalkPerBdv: BigInt
   deltaG2MaxConvertCapacity: BigInt
   deltaG2BdvConvertedThisSeason: BigInt

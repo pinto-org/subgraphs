@@ -9,6 +9,7 @@ export const PINTO_CBETH = Address.fromString("0x3e111115A82dF6190e36ADf0d552880
 export const PINTO_CBBTC = Address.fromString("0x3e11226fe3d85142B734ABCe6e58918d5828d1b4");
 export const PINTO_WSOL = Address.fromString("0x3e11444c7650234c748D743D8d374fcE2eE5E6C9");
 export const PINTO_USDC = Address.fromString("0x3e1133aC082716DDC3114bbEFEeD8B1731eA9cb1");
+export const PINTO_WSTETH = Address.fromString("0x3e1155245FF9a6a019Bc35827e801c6ED2CE91b9");
 
 // External tokens
 export const WETH = Address.fromString("0x4200000000000000000000000000000000000006");
@@ -16,6 +17,7 @@ export const CBETH = Address.fromString("0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DE
 export const CBBTC = Address.fromString("0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf");
 export const WSOL = Address.fromString("0x1C61629598e4a901136a81BC138E5828dc150d67");
 export const USDC = Address.fromString("0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913");
+export const WSTETH = Address.fromString("0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452");
 
 // Contracts
 export const BEANSTALK = Address.fromString("0xD1A0D188E861ed9d15773a2F3574a2e94134bA8f");
@@ -52,6 +54,10 @@ export const POOL_TOKENS: PoolTokens[] = [
   {
     pool: PINTO_WSOL,
     tokens: [BEAN_ERC20, WSOL]
+  },
+  {
+    pool: PINTO_WSTETH,
+    tokens: [BEAN_ERC20, WSTETH]
   }
 ];
 
@@ -85,6 +91,10 @@ export const TOKEN_INFOS: Token[] = [
     info: { name: "USDC", decimals: BigInt.fromU32(6) }
   },
   {
+    address: WSTETH,
+    info: { name: "wstETH", decimals: BigInt.fromU32(18) }
+  },
+  {
     address: PINTO_WETH,
     info: { name: "PINTOWETH LP", decimals: BigInt.fromU32(18) }
   },
@@ -103,5 +113,9 @@ export const TOKEN_INFOS: Token[] = [
   {
     address: PINTO_USDC,
     info: { name: "PINTOUSDC LP", decimals: BigInt.fromU32(18) }
+  },
+  {
+    address: PINTO_WSTETH,
+    info: { name: "PINTOWSTETH LP", decimals: BigInt.fromU32(18) }
   }
 ];

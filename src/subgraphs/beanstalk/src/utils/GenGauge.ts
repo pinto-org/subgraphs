@@ -1,5 +1,5 @@
 import { BigDecimal, Bytes, ethereum } from "@graphprotocol/graph-ts";
-import { AddedGaugeGaugeStruct } from "../../generated/Beanstalk-ABIs/PintoPI13";
+import { AddedGaugeGaugeStruct } from "../../generated/Beanstalk-ABIs/PintoPI14";
 import { loadField } from "../entities/Field";
 import { v } from "./constants/Version";
 import { takeFieldSnapshots } from "../entities/snapshots/Field";
@@ -64,6 +64,7 @@ export function engagedConvertDownPenalty(value: Bytes, block: ethereum.Block): 
   const genGauge = loadGaugesInfo();
   const decoded = ethereum.decode("(uint256, uint256)", value)!.toTuple();
   genGauge.g1ConvertDownPenalty = toDecimal(decoded[0].toBigInt(), 18);
+  genGauge.g1BlightFactor = decoded[1].toBigInt();
   takeGaugesInfoSnapshots(genGauge, block);
   genGauge.save();
   // Legacy gauge value location
@@ -82,10 +83,10 @@ export function engagedConvertUpBonus(value: Bytes, block: ethereum.Block): void
 export function engagedDataConvertUpBonus(data: Bytes, block: ethereum.Block): void {
   const genGauge = loadGaugesInfo();
   const decoded = ethereum
-    .decode("(uint256, uint256, uint256, uint256, uint256, uint256, uint256, uint256)", data)!
+    .decode("(uint256, uint256, uint256, uint256, uint256, uint256, uint256, uint256, uint256)", data)!
     .toTuple();
-  genGauge.g2BdvConvertedThisSeason = decoded[4].toBigInt();
-  genGauge.g2MaxTwaDeltaB = decoded[6].toBigInt();
+  genGauge.g2BdvConvertedThisSeason = decoded[5].toBigInt();
+  genGauge.g2MaxTwaDeltaB = decoded[7].toBigInt();
   takeGaugesInfoSnapshots(genGauge, block);
   genGauge.save();
 }

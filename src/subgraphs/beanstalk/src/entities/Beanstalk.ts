@@ -27,6 +27,8 @@ export function loadFarmer(account: Address, block: ethereum.Block): Farmer {
   if (farmer == null) {
     farmer = new Farmer(account);
     farmer.creationBlock = block.number;
+    farmer.refereeCount = 0;
+    farmer.totalReferralRewardPodsReceived = ZERO_BI;
     farmer.save();
   }
   return farmer;

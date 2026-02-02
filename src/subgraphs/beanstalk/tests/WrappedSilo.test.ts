@@ -7,7 +7,7 @@ import {
   test,
   createMockedFunction
 } from "matchstick-as/assembly/index";
-import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
+import { Address, BigDecimal, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import { createERC20TransferEvent } from "./event-mocking/Token";
 import { v } from "../src/utils/constants/Version";
 import { BI_MAX, ZERO_BI } from "../../../core/utils/Decimals";
@@ -24,6 +24,7 @@ import { handleIncentive } from "../src/handlers/SeasonHandler";
 import { createIncentivizationEvent } from "./event-mocking/Season";
 import { mockSeasonStruct } from "./utils/Season";
 import { mockHarvestableIndexWithFieldId } from "./utils/Field";
+import { mockCropRatio } from "./utils/Silo";
 
 const sBean = Address.fromString("0x00b174d66adA7d63789087F50A9b9e0e48446dc1");
 const ADDR1 = Address.fromString("0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266");
@@ -41,6 +42,7 @@ const setSeason = (seasonNumber: i32): void => {
 
 const advanceSeason = (): void => {
   mockSeasonStruct(BEANSTALK);
+  mockCropRatio(BEANSTALK, BigDecimal.fromString("100"));
   mockHarvestableIndexWithFieldId(BEANSTALK, BigInt.fromString("25000"), ZERO_BI);
   handleIncentive(createIncentivizationEvent(ADDR1.toHexString(), BigInt.fromString("123456")));
 };

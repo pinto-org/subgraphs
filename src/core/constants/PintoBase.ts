@@ -12,7 +12,9 @@ import {
   TOKEN_INFOS,
   PRICE_2_BLOCK,
   BEANSTALK_PRICE_1,
-  BEANSTALK_PRICE_2
+  BEANSTALK_PRICE_2,
+  PINTO_WSTETH,
+  WELL_CP2
 } from "./raw/PintoBaseConstants";
 import { beanDecimals, PoolTokens, Token, WellFnInfo } from "./RuntimeConstants";
 import { BI_10 } from "../utils/Decimals";
@@ -64,6 +66,8 @@ export function getTokenDecimals(token: Address): i32 {
     return 18;
   } else if (token == PINTO_USDC) {
     return 18;
+  } else if (token == PINTO_WSTETH) {
+    return 18;
   } else {
     for (let i = 0; i < TOKEN_INFOS.length; ++i) {
       if (TOKEN_INFOS[i].address.equals(token)) {
@@ -79,7 +83,7 @@ export function protocolHasUnripe(): boolean {
 }
 
 export function getWhitelistedWells(): Address[] {
-  return [PINTO_WETH, PINTO_CBETH, PINTO_CBBTC, PINTO_WSOL, PINTO_USDC];
+  return [PINTO_WETH, PINTO_CBETH, PINTO_CBBTC, PINTO_WSOL, PINTO_USDC, PINTO_WSTETH];
 }
 
 /// MILESTONE ///
@@ -129,14 +133,14 @@ export function isStable2WellFn(wellFnAddress: Address): boolean {
 export function wellFnInfoForWell(wellAddress: Address): WellFnInfo {
   if (wellAddress == PINTO_USDC) {
     return {
-      address: Address.fromString("0xba51055a97b40d7f41f3f64b57469b5d45b67c87"),
+      address: WELL_STABLE2,
       data: Bytes.fromHexString(
         "0x00000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006"
       )
     };
   } else {
     return {
-      address: Address.fromString("0xba510c289fd067ebba41335afa11f0591940d6fe"),
+      address: WELL_CP2,
       data: Bytes.fromHexString("0x")
     };
   }

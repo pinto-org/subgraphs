@@ -8,26 +8,40 @@ import {
 } from "../event-mocking/Field";
 import { createIncentivizationEvent } from "../event-mocking/Season";
 import { handleIncentive } from "../../src/handlers/SeasonHandler";
-import { ZERO_BI } from "../../../../core/utils/Decimals";
+import { BI_10, ZERO_BI } from "../../../../core/utils/Decimals";
 import { BEANSTALK } from "../../../../core/constants/raw/BeanstalkEthConstants";
 import { handleHarvest, handlePlotCombined, handlePlotTransfer, handleSow } from "../../src/handlers/FieldHandler";
-import { loadPlot } from "../../src/entities/Field";
+import { loadPlot, getFieldEntityId, getPlotEntityId } from "../../src/entities/Field";
 
 const account = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266".toLowerCase();
 
-export function sow(account: string, index: BigInt, beans: BigInt, pods: BigInt): void {
+export function sow(account: string, index: BigInt, beans: BigInt, pods: BigInt, fieldId: BigInt = ZERO_BI): void {
+  let effectiveTemp = BigInt.fromI32(100000);
+  if (beans.gt(ZERO_BI)) {
+    effectiveTemp = pods.times(BI_10.pow(8)).div(beans).minus(BI_10.pow(8));
+  }
+  createMockedFunction(BEANSTALK, "temperature", "temperature():(uint256)").returns([
+    ethereum.Value.fromUnsignedBigInt(effectiveTemp)
+  ]);
+  createMockedFunction(BEANSTALK, "maxTemperature", "maxTemperature():(uint256)").returns([
+    ethereum.Value.fromUnsignedBigInt(effectiveTemp)
+  ]);
+  createMockedFunction(BEANSTALK, "initialSoil", "initialSoil():(uint256)").returns([
+    ethereum.Value.fromUnsignedBigInt(ZERO_BI)
+  ]);
   createMockedFunction(BEANSTALK, "getDeltaPodDemand", "getDeltaPodDemand():(uint256)").returns([
     ethereum.Value.fromUnsignedBigInt(ZERO_BI)
   ]);
-  handleSow(createSowEvent(account, index, beans, pods));
+
+  handleSow(createSowEvent(account, index, beans, pods, fieldId));
 }
 
-export function harvest(account: string, plotIndexex: BigInt[], beans: BigInt): void {
-  handleHarvest(createHarvestEvent(account, plotIndexex, beans));
+export function harvest(account: string, plotIndexex: BigInt[], beans: BigInt, fieldId: BigInt = ZERO_BI): void {
+  handleHarvest(createHarvestEvent(account, plotIndexex, beans, fieldId));
 }
 
-export function transferPlot(from: string, to: string, id: BigInt, amount: BigInt): void {
-  handlePlotTransfer(createPlotTransferEvent(from, to, id, amount));
+export function transferPlot(from: string, to: string, id: BigInt, amount: BigInt, fieldId: BigInt = ZERO_BI): void {
+  handlePlotTransfer(createPlotTransferEvent(from, to, id, amount, fieldId));
 }
 
 export function combinePlots(
@@ -77,6 +91,12 @@ export function setHarvestable(harvestableIndex: BigInt): BigInt {
     ethereum.Value.fromUnsignedBigInt(harvestableIndex)
   ]);
 
+  createMockedFunction(
+    BEANSTALK,
+    "getBeanToMaxLpGpPerBdvRatioScaled",
+    "getBeanToMaxLpGpPerBdvRatioScaled():(uint256)"
+  ).returns([ethereum.Value.fromUnsignedBigInt(BigInt.fromString("1000000000000000000"))]);
+
   // Incentivization event triggers update of harvestable amount of each plot
   handleIncentive(createIncentivizationEvent(account, BigInt.fromI32(123456)));
 
@@ -97,15 +117,17 @@ export function assertFarmerHasPlot(
   index: BigInt,
   numPods: BigInt,
   numHarvestable: BigInt = ZERO_BI,
+  fieldId: BigInt = ZERO_BI,
   debug: boolean = false
 ): void {
   if (debug) {
     log.debug("about to assert plot {}", [farmer]);
   }
-  assert.fieldEquals("Plot", index.toString(), "farmer", farmer);
-  assert.fieldEquals("Plot", index.toString(), "pods", numPods.toString());
+  const plotId = getPlotEntityId(index, fieldId);
+  assert.fieldEquals("Plot", plotId, "farmer", farmer);
+  assert.fieldEquals("Plot", plotId, "pods", numPods.toString());
   // log.debug("about to assert harvestable {}", [numHarvestable.toString()]);
-  assert.fieldEquals("Plot", index.toString(), "harvestablePods", numHarvestable.toString());
+  assert.fieldEquals("Plot", plotId, "harvestablePods", numHarvestable.toString());
 }
 
 // Field can be either a farmer or beanstalk address
@@ -113,11 +135,13 @@ export function assertFieldHas(
   field: string,
   unharvestable: BigInt,
   harvestable: BigInt,
+  fieldId: BigInt = ZERO_BI,
   debug: boolean = false
 ): void {
   if (debug) {
     log.debug("about to assert field {}", [field]);
   }
-  assert.fieldEquals("Field", field, "unharvestablePods", unharvestable.toString());
-  assert.fieldEquals("Field", field, "harvestablePods", harvestable.toString());
+  const fieldEntityId = getFieldEntityId(Address.fromString(field), fieldId);
+  assert.fieldEquals("Field", fieldEntityId, "unharvestablePods", unharvestable.toString());
+  assert.fieldEquals("Field", fieldEntityId, "harvestablePods", harvestable.toString());
 }
