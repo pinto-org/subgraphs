@@ -63,9 +63,9 @@ export class PlotSeedScenario {
 
   constructor(index: BigInt, pods: BigInt, harvestable: BigInt, harvested: BigInt, combine: bool) {
     this.index = index;
-    this.pods = pods;
-    this.harvestable = harvestable;
-    this.harvested = harvested;
+    this.pods = pods.times(BI_10.pow(6));
+    this.harvestable = harvestable.times(BI_10.pow(6));
+    this.harvested = harvested.times(BI_10.pow(6));
     this.combine = combine;
   }
 }
