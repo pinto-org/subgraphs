@@ -213,6 +213,8 @@ dataSources:
           handler: handlePlotTransfer
         - event: TemperatureChange(indexed uint256,uint256,int32,uint256)
           handler: handleTemperatureChange
+        - event: PlotCombined(indexed address,uint256,uint256[],uint256)
+          handler: handlePlotCombined
       file: ../src/handlers/FieldHandler.ts
   - kind: ethereum/contract
     name: LegacyField-PintoLaunch-PintoPI5
