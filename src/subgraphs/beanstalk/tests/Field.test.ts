@@ -183,7 +183,7 @@ describe("Field", () => {
     });
   });
 
-  test("PlotCombined merges sequential plots into the earliest index", () => {
+  test("PlotsCombined merges sequential plots into the earliest index", () => {
     // Fixtures mirror the spec example: plots 1000, 3000, 5000 combine into 1000, 9000 stays untouched.
     const plotConfigs = [
       // 1000: fully harvested plot that becomes the target.

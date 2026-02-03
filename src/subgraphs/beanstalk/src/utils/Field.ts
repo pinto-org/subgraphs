@@ -12,7 +12,7 @@ import { getCurrentSeason, getHarvestableIndex, loadBeanstalk, loadFarmer, loadS
 import { loadField, loadPlot } from "../entities/Field";
 import { expirePodListingIfExists } from "./Marketplace";
 import { toAddress } from "../../../../core/utils/Bytes";
-import { PintoPI14 } from "../../generated/Beanstalk-ABIs/PintoPI14";
+import { PintoPI15 } from "../../generated/Beanstalk-ABIs/PintoPI15";
 
 class SowParams {
   event: ethereum.Event;
@@ -61,7 +61,7 @@ class SowReferralParams {
   refereePods: BigInt;
 }
 
-class PlotCombinedParams {
+class PlotsCombinedParams {
   event: ethereum.Event;
   account: Address;
   fieldId: BigInt | null;
@@ -115,7 +115,7 @@ export function sow(params: SowParams): void {
 
   incrementSows(protocol, params.account, params.event.block, params.fieldId);
 
-  const beanstalk = PintoPI14.bind(protocol);
+  const beanstalk = PintoPI15.bind(protocol);
   const deltaPodDemand = beanstalk.getDeltaPodDemand();
   setDeltaPodDemand(deltaPodDemand, protocolField);
 }
@@ -502,7 +502,7 @@ export function plotTransfer(params: PlotTransferParams): void {
   );
 }
 
-export function plotCombined(params: PlotCombinedParams): void {
+export function plotsCombined(params: PlotsCombinedParams): void {
   const protocol = params.event.address;
   const field = loadField(protocol);
 

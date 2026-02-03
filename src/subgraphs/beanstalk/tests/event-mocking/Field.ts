@@ -4,9 +4,9 @@ import {
   PlotTransfer,
   Harvest,
   TemperatureChange,
-  PlotCombined,
+  PlotsCombined,
   SowReferral
-} from "../../generated/Beanstalk-ABIs/PintoPI14";
+} from "../../generated/Beanstalk-ABIs/PintoPI15";
 import { mockBeanstalkEvent } from "../../../../core/tests/event-mocking/Util";
 import { ZERO_BI } from "../../../../core/utils/Decimals";
 
@@ -140,14 +140,14 @@ export function createPlotTransferEvent(
   return event as PlotTransfer;
 }
 
-export function createPlotCombinedEvent(
+export function createPlotsCombinedEvent(
   account: string,
   fieldId: BigInt,
   indexes: BigInt[],
   totalPods: BigInt,
   blockNumber: BigInt | null = null
-): PlotCombined {
-  let event = changetype<PlotCombined>(mockBeanstalkEvent());
+): PlotsCombined {
+  let event = changetype<PlotsCombined>(mockBeanstalkEvent());
   event.parameters = new Array();
 
   if (blockNumber !== null) {
@@ -170,7 +170,7 @@ export function createPlotCombinedEvent(
   event.parameters.push(param3);
   event.parameters.push(param4);
 
-  return event as PlotCombined;
+  return event as PlotsCombined;
 }
 export function createSupplyIncreaseEvent(
   season: BigInt,

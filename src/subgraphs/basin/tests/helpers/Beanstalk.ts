@@ -1,6 +1,6 @@
 import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import { mockBeanstalkEvent } from "../../../../core/tests/event-mocking/Util";
-import { Convert, DewhitelistToken } from "../../generated/Basin-ABIs/PintoPI14";
+import { Convert, DewhitelistToken } from "../../generated/Basin-ABIs/PintoPI15";
 
 export function createConvertEvent(
   account: Address,

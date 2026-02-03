@@ -2,7 +2,7 @@ import { Address, BigInt, ethereum, log } from "@graphprotocol/graph-ts";
 import { assert, createMockedFunction } from "matchstick-as/assembly/index";
 import {
   createHarvestEvent,
-  createPlotCombinedEvent,
+  createPlotsCombinedEvent,
   createPlotTransferEvent,
   createSowEvent
 } from "../event-mocking/Field";
@@ -10,7 +10,7 @@ import { createIncentivizationEvent } from "../event-mocking/Season";
 import { handleIncentive } from "../../src/handlers/SeasonHandler";
 import { BI_10, ZERO_BI } from "../../../../core/utils/Decimals";
 import { BEANSTALK } from "../../../../core/constants/raw/BeanstalkEthConstants";
-import { handleHarvest, handlePlotCombined, handlePlotTransfer, handleSow } from "../../src/handlers/FieldHandler";
+import { handleHarvest, handlePlotsCombined, handlePlotTransfer, handleSow } from "../../src/handlers/FieldHandler";
 import { loadPlot, getFieldEntityId, getPlotEntityId } from "../../src/entities/Field";
 
 const account = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266".toLowerCase();
@@ -51,7 +51,7 @@ export function combinePlots(
   blockNumber: BigInt = BigInt.fromI32(1),
   fieldId: BigInt = ZERO_BI
 ): void {
-  handlePlotCombined(createPlotCombinedEvent(account, fieldId, indexes, totalPods, blockNumber));
+  handlePlotsCombined(createPlotsCombinedEvent(account, fieldId, indexes, totalPods, blockNumber));
 }
 
 export class PlotSeedScenario {

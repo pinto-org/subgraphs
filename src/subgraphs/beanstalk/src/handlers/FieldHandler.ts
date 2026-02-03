@@ -1,13 +1,13 @@
-import { harvest, plotCombined, plotTransfer, sow, temperatureChanged, sowReferral } from "../utils/Field";
+import { harvest, plotsCombined, plotTransfer, sow, temperatureChanged, sowReferral } from "../utils/Field";
 import {
-  PintoPI14,
+  PintoPI15,
   Sow,
   Harvest,
   PlotTransfer,
   TemperatureChange,
   SowReferral,
-  PlotCombined
-} from "../../generated/Beanstalk-ABIs/PintoPI14";
+  PlotsCombined
+} from "../../generated/Beanstalk-ABIs/PintoPI15";
 import { legacySowAmount } from "../utils/legacy/LegacyField";
 import { BigInt } from "@graphprotocol/graph-ts";
 import { loadField } from "../entities/Field";
@@ -16,7 +16,7 @@ import { ZERO_BI } from "../../../../core/utils/Decimals";
 // PI-1+
 export function handleSow(event: Sow): void {
   const sownOverride = legacySowAmount(event.address, event.params.account, event.params.fieldId);
-  const beanstalkContract = PintoPI14.bind(event.address);
+  const beanstalkContract = PintoPI15.bind(event.address);
   const temperature = beanstalkContract.temperature();
   const maxTemperature = beanstalkContract.maxTemperature();
 
@@ -79,12 +79,12 @@ export function handleSowReferral(event: SowReferral): void {
   });
 }
 
-export function handlePlotCombined(event: PlotCombined): void {
+export function handlePlotsCombined(event: PlotsCombined): void {
   if (event.params.fieldId != ZERO_BI) {
     return;
   }
 
-  plotCombined({
+  plotsCombined({
     event,
     account: event.params.account,
     fieldId: null,
