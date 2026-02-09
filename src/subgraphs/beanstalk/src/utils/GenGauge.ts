@@ -1,5 +1,5 @@
 import { BigDecimal, Bytes, ethereum } from "@graphprotocol/graph-ts";
-import { AddedGaugeGaugeStruct } from "../../generated/Beanstalk-ABIs/PintoPI14";
+import { AddedGaugeGaugeStruct } from "../../generated/Beanstalk-ABIs/PintoPI15";
 import { loadField } from "../entities/Field";
 import { v } from "./constants/Version";
 import { takeFieldSnapshots } from "../entities/snapshots/Field";

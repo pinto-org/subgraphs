@@ -1038,15 +1038,17 @@ type Plot @entity {
   "Timestamp of initial sowing"
   sowTimestamp: BigInt!
 
-  "Timestamp when updated"
-  updatedAt: BigInt!
-  "Block when updated"
-  updatedAtBlock: BigInt!
-
   "If source === 'REFERRAL': The referrer who referred the farmer."
   referrer: Farmer
   "If source === 'REFERRAL': The referee who was referred."
   referee: Farmer
+
+  "Timestamp when updated"
+  updatedAt: BigInt!
+  "Block when updated"
+  updatedAtBlock: BigInt!
+  "Block number of the most recent plot combination, null if never combined"
+  combinedAtBlock: BigInt
 }
 
 type PodMarketplace @entity {

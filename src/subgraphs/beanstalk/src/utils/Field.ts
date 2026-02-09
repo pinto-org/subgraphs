@@ -1,4 +1,4 @@
-import { Address, BigInt, BigDecimal, ethereum } from "@graphprotocol/graph-ts";
+import { Address, BigInt, BigDecimal, ethereum, store } from "@graphprotocol/graph-ts";
 import { BeanstalkPrice_priceOnly } from "./contracts/BeanstalkPrice";
 import { BI_10, ONE_BD, toBigInt, toDecimal, ZERO_BD, ZERO_BI } from "../../../../core/utils/Decimals";
 import {
@@ -12,7 +12,7 @@ import { getCurrentSeason, getHarvestableIndex, loadBeanstalk, loadFarmer, loadS
 import { loadField, loadPlot } from "../entities/Field";
 import { expirePodListingIfExists } from "./Marketplace";
 import { toAddress } from "../../../../core/utils/Bytes";
-import { PintoPI14 } from "../../generated/Beanstalk-ABIs/PintoPI14";
+import { PintoPI15 } from "../../generated/Beanstalk-ABIs/PintoPI15";
 
 class SowParams {
   event: ethereum.Event;
@@ -61,6 +61,14 @@ class SowReferralParams {
   refereePods: BigInt;
 }
 
+class PlotsCombinedParams {
+  event: ethereum.Event;
+  account: Address;
+  fieldId: BigInt | null;
+  plotIndexes: BigInt[];
+  totalPods: BigInt;
+}
+
 export function sow(params: SowParams): void {
   const protocol = params.event.address;
 
@@ -107,7 +115,7 @@ export function sow(params: SowParams): void {
 
   incrementSows(protocol, params.account, params.event.block, params.fieldId);
 
-  const beanstalk = PintoPI14.bind(protocol);
+  const beanstalk = PintoPI15.bind(protocol);
   const deltaPodDemand = beanstalk.getDeltaPodDemand();
   setDeltaPodDemand(deltaPodDemand, protocolField);
 }
@@ -492,6 +500,54 @@ export function plotTransfer(params: PlotTransferParams): void {
     fieldId,
     false
   );
+}
+
+export function plotsCombined(params: PlotsCombinedParams): void {
+  const protocol = params.event.address;
+  const field = loadField(protocol);
+
+  const targetIndex = params.plotIndexes[0];
+  let targetPlot = loadPlot(protocol, targetIndex);
+
+  let totalHarvestable = targetPlot.harvestablePods;
+  let totalHarvested = targetPlot.harvestedPods;
+  let beansPerPodSum = targetPlot.beansPerPod.times(targetPlot.pods);
+  let sownBeansPerPodSum = targetPlot.sownBeansPerPod.times(targetPlot.pods);
+  const indexesToRemove = new Array<BigInt>();
+
+  for (let i = 1; i < params.plotIndexes.length; ++i) {
+    const index = params.plotIndexes[i];
+    const plot = loadPlot(protocol, index);
+
+    totalHarvestable = totalHarvestable.plus(plot.harvestablePods);
+    totalHarvested = totalHarvested.plus(plot.harvestedPods);
+    beansPerPodSum = beansPerPodSum.plus(plot.beansPerPod.times(plot.pods));
+    sownBeansPerPodSum = sownBeansPerPodSum.plus(plot.sownBeansPerPod.times(plot.pods));
+    indexesToRemove.push(index);
+    store.remove("Plot", plot.id);
+  }
+
+  targetPlot.pods = params.totalPods;
+  targetPlot.harvestedPods = totalHarvested;
+  targetPlot.harvestablePods = totalHarvestable;
+  targetPlot.beansPerPod = beansPerPodSum.div(params.totalPods);
+  targetPlot.sownBeansPerPod = sownBeansPerPodSum.div(params.totalPods);
+  targetPlot.fullyHarvested = targetPlot.harvestedPods >= targetPlot.pods;
+  targetPlot.updatedAt = params.event.block.timestamp;
+  targetPlot.updatedAtBlock = params.event.block.number;
+  targetPlot.combinedAtBlock = params.event.block.number;
+  targetPlot.save();
+
+  let fieldIndexes = field.plotIndexes;
+  for (let i = 0; i < indexesToRemove.length; ++i) {
+    const removalIndex = indexesToRemove[i];
+    const position = fieldIndexes.indexOf(removalIndex);
+    if (position >= 0) {
+      fieldIndexes.splice(position, 1);
+    }
+  }
+  field.plotIndexes = fieldIndexes;
+  field.save();
 }
 
 // This function is for handling both the WeatherChange and TemperatureChange events.

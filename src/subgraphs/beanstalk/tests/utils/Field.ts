@@ -1,12 +1,17 @@
 import { Address, BigInt, ethereum, log } from "@graphprotocol/graph-ts";
 import { assert, createMockedFunction } from "matchstick-as/assembly/index";
-import { createHarvestEvent, createPlotTransferEvent, createSowEvent } from "../event-mocking/Field";
+import {
+  createHarvestEvent,
+  createPlotsCombinedEvent,
+  createPlotTransferEvent,
+  createSowEvent
+} from "../event-mocking/Field";
 import { createIncentivizationEvent } from "../event-mocking/Season";
 import { handleIncentive } from "../../src/handlers/SeasonHandler";
 import { BI_10, ZERO_BI } from "../../../../core/utils/Decimals";
 import { BEANSTALK } from "../../../../core/constants/raw/BeanstalkEthConstants";
-import { handleHarvest, handlePlotTransfer, handleSow } from "../../src/handlers/FieldHandler";
-import { getFieldEntityId, getPlotEntityId } from "../../src/entities/Field";
+import { handleHarvest, handlePlotsCombined, handlePlotTransfer, handleSow } from "../../src/handlers/FieldHandler";
+import { loadPlot, getFieldEntityId, getPlotEntityId } from "../../src/entities/Field";
 
 const account = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266".toLowerCase();
 
@@ -37,6 +42,48 @@ export function harvest(account: string, plotIndexex: BigInt[], beans: BigInt, f
 
 export function transferPlot(from: string, to: string, id: BigInt, amount: BigInt, fieldId: BigInt = ZERO_BI): void {
   handlePlotTransfer(createPlotTransferEvent(from, to, id, amount, fieldId));
+}
+
+export function combinePlots(
+  account: string,
+  indexes: BigInt[],
+  totalPods: BigInt,
+  blockNumber: BigInt = BigInt.fromI32(1),
+  fieldId: BigInt = ZERO_BI
+): void {
+  handlePlotsCombined(createPlotsCombinedEvent(account, fieldId, indexes, totalPods, blockNumber));
+}
+
+export class PlotSeedScenario {
+  index: BigInt;
+  pods: BigInt;
+  harvestable: BigInt;
+  harvested: BigInt;
+  combine: bool;
+
+  constructor(index: BigInt, pods: BigInt, harvestable: BigInt, harvested: BigInt, combine: bool) {
+    this.index = index;
+    this.pods = pods.times(BI_10.pow(6));
+    this.harvestable = harvestable.times(BI_10.pow(6));
+    this.harvested = harvested.times(BI_10.pow(6));
+    this.combine = combine;
+  }
+}
+
+export function seedPlotWithHarvests(
+  account: string,
+  index: BigInt,
+  beans: BigInt,
+  pods: BigInt,
+  harvestablePods: BigInt,
+  harvestedPods: BigInt
+): void {
+  sow(account, index, beans, pods);
+
+  const plot = loadPlot(BEANSTALK, index);
+  plot.harvestablePods = harvestablePods;
+  plot.harvestedPods = harvestedPods;
+  plot.save();
 }
 
 export function setHarvestable(harvestableIndex: BigInt): BigInt {
