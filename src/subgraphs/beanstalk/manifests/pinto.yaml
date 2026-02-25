@@ -485,12 +485,20 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - Tractor
+        - TractorRequisition
+        - TractorExecution
       abis:
         - name: PintoPI15
           file: ../../../core/abis/Beanstalk/Pinto-PI15.json
       eventHandlers:
         - event: Tractor(indexed address,indexed address,indexed bytes32,uint256,uint256)
           handler: handleTractor
+        - event: PublishRequisition(((address,bytes,bytes32[],uint256,uint256,uint256),bytes32,bytes))
+          handler: handlePublishRequisition
+        - event: CancelBlueprint(indexed bytes32)
+          handler: handleCancelBlueprint
+        - event: TractorExecutionBegan(indexed address,indexed address,indexed bytes32,uint256,uint256)
+          handler: handleTractorExecutionBegan
       file: ../src/handlers/TractorHandler.ts
   - kind: ethereum/contract
     name: TractorHelpersSowV0
