@@ -1915,6 +1915,94 @@ type TractorDailySnapshot @entity {
   updatedAt: BigInt!
 }
 
+type TractorRequisition @entity {
+  "blueprintHash (bytes32)"
+  id: Bytes!
+
+  "The publisher (farmer) who created this requisition"
+  publisher: Farmer!
+
+  "Raw blueprint data (encoded calldata)"
+  blueprintData: Bytes!
+
+  "Operator paste instructions"
+  operatorPasteInstrs: [Bytes!]!
+
+  "Maximum nonce (max number of times blueprint can execute)"
+  maxNonce: BigInt!
+
+  "Unix timestamp when blueprint becomes valid"
+  startTime: BigInt!
+
+  "Unix timestamp when blueprint expires"
+  endTime: BigInt!
+
+  "EIP-712 signature"
+  signature: Bytes!
+
+  "Whether this blueprint has been cancelled"
+  cancelled: Boolean!
+
+  "Number of times this blueprint has been executed"
+  executionCount: Int!
+
+  "Block number when published"
+  createdBlock: BigInt!
+
+  "Timestamp when published"
+  createdAt: BigInt!
+
+  "Transaction hash of publication"
+  createdHash: Bytes!
+
+  "Block number when cancelled (null if not cancelled)"
+  cancelledBlock: BigInt
+
+  "Timestamp when cancelled (null if not cancelled)"
+  cancelledAt: BigInt
+
+  "Transaction hash of cancellation (null if not cancelled)"
+  cancelledHash: Bytes
+
+  "Executions of this requisition"
+  executions: [TractorExecution!]! @derivedFrom(field: "requisition")
+}
+
+type TractorExecution @entity(immutable: true) {
+  "{txHash}-{logIndex}"
+  id: ID!
+
+  "The requisition this execution belongs to"
+  requisition: TractorRequisition!
+
+  "The operator who executed the blueprint"
+  operator: Bytes!
+
+  "The publisher whose blueprint was executed"
+  publisher: Farmer!
+
+  "Blueprint hash"
+  blueprintHash: Bytes!
+
+  "Nonce of this execution"
+  nonce: BigInt!
+
+  "Remaining gas at execution start"
+  gasleft: BigInt!
+
+  "Block number"
+  blockNumber: BigInt!
+
+  "Block timestamp"
+  timestamp: BigInt!
+
+  "Transaction hash"
+  transactionHash: Bytes!
+
+  "Log index within the transaction"
+  logIndex: BigInt!
+}
+
 ### LEGACY/BEANSTALK ###
 
 type UnripeToken @entity {
