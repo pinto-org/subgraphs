@@ -18,6 +18,7 @@ import {
 } from "./raw/PintoBaseConstants";
 import { beanDecimals, PoolTokens, Token, WellFnInfo } from "./RuntimeConstants";
 import { BI_10 } from "../utils/Decimals";
+import { releaseActive, releaseAddress } from "./PintoRelease";
 
 /// ADDRESSES ///
 
@@ -101,6 +102,8 @@ export function getUnripeUnderlying(unripeToken: Address, blockNumber: BigInt): 
 }
 
 export function getBeanstalkPriceAddress(blockNumber: BigInt): Address {
+  const replacement = releaseAddress("pintoPriceAddress");
+  if (replacement !== null && releaseActive(blockNumber)) return replacement;
   if (blockNumber < PRICE_2_BLOCK) {
     return BEANSTALK_PRICE_1;
   } else {
@@ -127,13 +130,15 @@ export function wellFnSupportsRate(wellFnAddress: Address): boolean {
 }
 
 export function isStable2WellFn(wellFnAddress: Address): boolean {
-  return wellFnAddress == WELL_STABLE2;
+  const replacement = releaseAddress("pintoStable2Address");
+  return wellFnAddress == WELL_STABLE2 || (replacement !== null && wellFnAddress.equals(replacement));
 }
 
-export function wellFnInfoForWell(wellAddress: Address): WellFnInfo {
+export function wellFnInfoForWell(wellAddress: Address, blockNumber: BigInt): WellFnInfo {
   if (wellAddress == PINTO_USDC) {
+    const replacement = releaseAddress("pintoStable2Address");
     return {
-      address: WELL_STABLE2,
+      address: replacement !== null && releaseActive(blockNumber) ? replacement : WELL_STABLE2,
       data: Bytes.fromHexString(
         "0x00000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006"
       )

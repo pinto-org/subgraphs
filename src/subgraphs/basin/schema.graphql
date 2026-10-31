@@ -329,6 +329,15 @@ type BeanstalkDailySnapshot @entity {
   lastUpdateBlockNumber: BigInt!
 }
 
+type PintoFeeBurnRecord @entity(immutable: true) {
+  id: ID!
+  well: Well!
+  amount: BigInt!
+  transactionHash: Bytes!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+}
+
 type Well @entity {
   "Well address. For upgradeable wells, this is the proxy address."
   id: Bytes!

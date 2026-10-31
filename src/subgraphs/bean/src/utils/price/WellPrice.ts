@@ -79,7 +79,7 @@ function wellTwaResults(
     PintoLaunch.bind(v().protocolAddress).getTokenUsdTwap(poolTokens[token2Idx], BigInt.fromI32(seasonDuration))
   );
 
-  const wellFnInfo = wellFnInfoForWell(v(), wellAddress);
+  const wellFnInfo = wellFnInfoForWell(v(), wellAddress, block.number);
   const beanRate = WellFunction.bind(wellFnInfo.address).calcRate(
     twaBalances,
     BigInt.fromI32(token2Idx),

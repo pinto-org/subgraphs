@@ -40,7 +40,7 @@ export function swap(swapInfo: SwapInfo, deltaReserves: BigInt[], event: ethereu
 }
 
 // Common functionality to process for all exchange types
-function finalTradeProcessing(wellAddress: Address, block: ethereum.Block): void {
+export function finalTradeProcessing(wellAddress: Address, block: ethereum.Block): void {
   const well = loadWell(wellAddress);
   well.tokenRates = getTokenRates(well);
   takeWellSnapshots(well, block);

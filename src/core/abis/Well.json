@@ -1459,5 +1459,11 @@
     ],
     "stateMutability": "pure",
     "type": "function"
+  },
+  {
+    "type": "event",
+    "name": "PintoFeeBurned",
+    "anonymous": false,
+    "inputs": [{ "name": "amount", "type": "uint256", "indexed": false }]
   }
 ]

@@ -5,6 +5,7 @@ node_modules/
 # graphprotocol
 src/subgraphs/*/build
 src/subgraphs/*/generated
+.release-manifests/
 
 # matchstick tests
 src/subgraphs/*/tests/.latest.json

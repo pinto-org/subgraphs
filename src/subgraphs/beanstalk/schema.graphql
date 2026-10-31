@@ -2169,3 +2169,86 @@ type GaugesInfoDailySnapshot @entity {
   "Timestamp of last entity update"
   updatedAt: BigInt!
 }
+
+# Auto Convert observations are event records, not reconstructed live eligibility.
+
+type AutoConvertBatchRecord @entity(immutable: true) {
+  id: ID!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  programId: BigInt!
+  observationSeason: BigInt!
+  wellCount: BigInt!
+  bdvConverted: BigInt!
+  executor: Bytes!
+  reward: BigInt!
+}
+
+type AutoConvertPositionRecord @entity(immutable: true) {
+  id: ID!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  programId: BigInt!
+  account: Bytes!
+  well: Bytes!
+  stem: BigInt!
+  lpAmount: BigInt!
+  beanAmount: BigInt!
+  bdv: BigInt!
+}
+
+type AutoConvertWellRecord @entity(immutable: true) {
+  id: ID!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  programId: BigInt!
+  observationSeason: BigInt!
+  well: Bytes!
+  lpAmount: BigInt!
+  beanAmount: BigInt!
+  bdvConverted: BigInt!
+}
+
+type SunriseAutoConvertAttemptRecord @entity(immutable: true) {
+  id: ID!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  season: BigInt!
+  success: Boolean!
+  reason: Bytes!
+  gasUsed: BigInt!
+}
+
+type AutoConvertFlowBaselineRecord @entity(immutable: true) {
+  id: ID!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  season: BigInt!
+  valid: Boolean!
+  pintoPriceUsd: BigInt!
+  allowanceUsd: BigInt!
+}
+
+type AutoConvertFlowObservationRecord @entity(immutable: true) {
+  id: ID!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  season: BigInt!
+  status: Int!
+  eligibility: BigInt!
+  waiting: BigInt!
+  allowanceUsd: BigInt!
+  adverseUsd: BigInt!
+}

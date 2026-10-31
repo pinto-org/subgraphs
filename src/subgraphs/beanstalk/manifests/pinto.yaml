@@ -4,6 +4,42 @@ schema:
 indexerHints:
   prune: never
 dataSources:
+  # Event-only additions are safe before activation: no new getters are called.
+  - kind: ethereum/contract
+    name: AutoConvert
+    network: base
+    source:
+      address: "0xD1A0D188E861ed9d15773a2F3574a2e94134bA8f"
+      abi: PintoAutoConvert
+      startBlock: 22622961
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - AutoConvertBatchRecord
+        - AutoConvertPositionRecord
+        - AutoConvertWellRecord
+        - SunriseAutoConvertAttemptRecord
+        - AutoConvertFlowBaselineRecord
+        - AutoConvertFlowObservationRecord
+      abis:
+        - name: PintoAutoConvert
+          file: ../../../core/abis/Beanstalk/Pinto-AutoConvert.json
+      eventHandlers:
+        - event: AutoConvertBatch(indexed uint32,indexed uint32,uint256,uint256,address,uint256)
+          handler: handleAutoConvertBatch
+        - event: AutoConvertPosition(indexed uint32,indexed address,indexed address,int96,uint256,uint256,uint256)
+          handler: handleAutoConvertPosition
+        - event: AutoConvertWell(indexed uint32,indexed uint32,indexed address,uint256,uint256,uint256)
+          handler: handleAutoConvertWell
+        - event: SunriseAutoConvertAttempt(indexed uint32,bool,bytes4,uint256)
+          handler: handleSunriseAutoConvertAttempt
+        - event: AutoConvertFlowBaseline(indexed uint32,bool,uint256,uint256)
+          handler: handleAutoConvertFlowBaseline
+        - event: AutoConvertFlowObservation(indexed uint32,uint8,uint256,uint256,uint256,uint256)
+          handler: handleAutoConvertFlowObservation
+      file: ../src/handlers/AutoConvertHandler.ts
   ###
   # INITIALIZATION
   ###

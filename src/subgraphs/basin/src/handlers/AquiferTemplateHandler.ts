@@ -1,4 +1,4 @@
-import { Bytes } from "@graphprotocol/graph-ts";
+import { Bytes, dataSource } from "@graphprotocol/graph-ts";
 import { BoreWell } from "../../generated/Basin-ABIs/Aquifer";
 import { Well } from "../../generated/templates";
 import { loadOrCreateToken } from "../entities/Token";
@@ -14,11 +14,15 @@ import { getWhitelistedWells } from "../../../../core/constants/RuntimeConstants
 import { v } from "../utils/constants/Version";
 import { loadBeanstalk } from "../entities/Beanstalk";
 import { takeWellSnapshots } from "../entities/snapshots/Well";
+import { releaseProxy } from "../../../../core/constants/PintoRelease";
 
 export function handleBoreWell(event: BoreWell): void {
+  // Release implementations may be bored well before the proxy upgrade. Do not
+  // create phantom pools or switch the proxy's pricing before its upgrade event.
+  if (releaseProxy(event.params.well) !== null) return;
   // Accounts for well proxies here
   const actualAddress = getActualWell(event.params.well);
-  Well.create(actualAddress);
+  Well.createWithContext(actualAddress, dataSource.context());
 
   let well = loadOrCreateWell(actualAddress, event.params.tokens, event.block);
   well.boredWell = event.params.well;

@@ -22,6 +22,8 @@ dataSources:
       entities:
         - Silo-V3
       abis:
+        - name: PintoAutoConvert
+          file: ../../../core/abis/Beanstalk/Pinto-AutoConvert.json
         - name: PreReplant
           file: ../../../core/abis/Beanstalk/Beanstalk-Pre-Replant.json
         - name: Replanted
