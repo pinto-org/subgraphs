@@ -3,15 +3,12 @@ import { Address, BigInt, Bytes, ethereum, DataSourceContext } from "@graphproto
 import { dataSourceMock } from "matchstick-as/assembly/data_source_mock";
 import { initPintoVersion } from "./entity-mocking/MockVersion";
 import {
-  AutoConvertPosition,
-  SunriseAutoConvertAttempt,
-  AutoConvertFlowObservation
+  AutoConvertPosition
 } from "../generated/Beanstalk-ABIs/PintoAutoConvert";
 import {
-  handleAutoConvertPosition,
-  handleSunriseAutoConvertAttempt,
-  handleAutoConvertFlowObservation
+  handleAutoConvertPosition
 } from "../src/handlers/AutoConvertHandler";
+import { handleAutoConvertDecision, handleAutoConvertFlowState } from "../src/handlers/AutoConvertEventsHandler";
 import { loadGaugesInfo } from "../src/utils/GenGauge";
 import { v } from "../src/utils/constants/Version";
 import { getBeanstalkPriceAddress, wellFnInfoForWell, isStable2WellFn } from "../../../core/constants/PintoBase";
@@ -60,40 +57,47 @@ test("multiple automatic positions in one transaction preserve negative stems an
   assert.fieldEquals("Silo", account.toHexString(), "bonusStalkConvertUp", "0");
   assert.fieldEquals("Silo", account.toHexString(), "depositedBDV", "0");
 });
-test("failed Sunrise attempt preserves reason/gas and creates no successful conversion", () => {
-  const event = changetype<SunriseAutoConvertAttempt>(newMockEvent());
+test("failed Sunrise decision preserves reason/gas and creates no successful conversion", () => {
+  const event = newMockEvent();
   event.parameters = [
-    uint("season", 100),
-    new ethereum.EventParam("success", ethereum.Value.fromBoolean(false)),
-    new ethereum.EventParam("reason", ethereum.Value.fromFixedBytes(Bytes.fromHexString("0x01020304"))),
+    uint("programId", 1), uint("season", 100), uint("configVersion", 2),
+    uint("outcome", 2), uint("reason", 0),
+    new ethereum.EventParam("well", ethereum.Value.fromAddress(Address.zero())),
+    uint("windowUnits", 352), uint("gasAllowance", 10012000),
+    new ethereum.EventParam("failureSelector", ethereum.Value.fromFixedBytes(Bytes.fromHexString("0x01020304"))),
     uint("gasUsed", 12345)
   ];
-  handleSunriseAutoConvertAttempt(event);
-  assert.fieldEquals(
-    "SunriseAutoConvertAttemptRecord",
-    event.transaction.hash.toHexString() + "-" + event.logIndex.toString(),
-    "success",
-    "false"
-  );
+  handleAutoConvertDecision(event);
+  const id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
+  assert.fieldEquals("AutoConvertDecisionRecord", id, "outcome", "2");
+  assert.fieldEquals("AutoConvertDecisionRecord", id, "failureSelector", "0x01020304");
+  assert.fieldEquals("AutoConvertDecisionRecord", id, "gasUsed", "12345");
   assert.entityCount("AutoConvertBatchRecord", 0);
 });
-test("flow observation stores emitted zero waiting without inventing eligibility", () => {
-  const event = changetype<AutoConvertFlowObservation>(newMockEvent());
-  event.parameters = [
-    uint("season", 100),
-    uint("status", 0),
-    uint("eligibility", 24),
-    uint("waiting", 0),
-    uint("allowanceUsd", 123),
-    uint("adverseUsd", 0)
-  ];
-  handleAutoConvertFlowObservation(event);
-  assert.fieldEquals(
-    "AutoConvertFlowObservationRecord",
-    event.transaction.hash.toHexString() + "-" + event.logIndex.toString(),
-    "waiting",
-    "0"
-  );
+test("flow close stores zero observation allowance independently of measurement validity", () => {
+  const event = newMockEvent();
+  const data = new ethereum.Tuple();
+  data.push(ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(48)));
+  data.push(ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(24)));
+  data.push(ethereum.Value.fromBoolean(true));
+  data.push(ethereum.Value.fromBoolean(true));
+  data.push(ethereum.Value.fromBoolean(false));
+  data.push(ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(1000)));
+  data.push(ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(2000)));
+  data.push(ethereum.Value.fromBoolean(true));
+  data.push(ethereum.Value.fromUnsignedBigInt(BigInt.zero()));
+  data.push(ethereum.Value.fromUnsignedBigInt(BigInt.zero()));
+  data.push(ethereum.Value.fromUnsignedBigInt(BigInt.zero()));
+  data.push(ethereum.Value.fromBoolean(false));
+  data.push(ethereum.Value.fromUnsignedBigInt(BigInt.zero()));
+  data.push(ethereum.Value.fromUnsignedBigInt(BigInt.zero()));
+  event.parameters = [uint("programId", 1), uint("season", 100), uint("configVersion", 2), uint("phase", 0),
+    new ethereum.EventParam("state", ethereum.Value.fromTuple(data))];
+  handleAutoConvertFlowState(event);
+  const id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
+  assert.fieldEquals("AutoConvertFlowStateRecord", id, "state_observationAllowanceUsd", "0");
+  assert.fieldEquals("AutoConvertFlowStateRecord", id, "state_measurementValid", "true");
+  assert.fieldEquals("AutoConvertFlowStateRecord", id, "state_chillFactor", "24");
 });
 test("release addresses apply only at the configured block; historical Stable2 remains recognized", () => {
   const context = new DataSourceContext();

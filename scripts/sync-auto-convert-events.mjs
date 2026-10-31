@@ -49,9 +49,6 @@ const existing = new Set([
   "AutoConvertBatch",
   "AutoConvertPosition",
   "AutoConvertWell",
-  "SunriseAutoConvertAttempt",
-  "AutoConvertFlowBaseline",
-  "AutoConvertFlowObservation",
   "PintoFeeWellUpgraded",
   "WellFunctionReplaced"
 ]);
@@ -137,6 +134,25 @@ const block =
     .map((l) => "  " + l)
     .join("\n") + "\n";
 manifest = manifest.replace("dataSources:\n", "dataSources:\n" + start + block + end);
+// Synchronize the accounting source as well as generated telemetry. Both use the
+// same ABI, so a tuple/schema change cannot silently leave an old topic installed.
+const accountingNames = ["AutoConvertBatch", "AutoConvertPosition", "AutoConvertWell"];
+const accountingSource = YAML.parse(manifest).dataSources.find((s) => s.name === "AutoConvert");
+assert.ok(accountingSource, "Missing AutoConvert accounting data source");
+accountingSource.mapping.entities = accountingNames.map((name) => name + "Record");
+accountingSource.mapping.eventHandlers = accountingNames.map((name) => ({
+  event: signature(abi.find((e) => e.name === name)), handler: "handle" + name
+}));
+const accountingBlock = YAML.stringify([accountingSource], { lineWidth: 0 })
+  .trimEnd().split("\n").map((line) => "  " + line).join("\n") + "\n";
+manifest = manifest.replace(/  - kind: ethereum\/contract\n    name: AutoConvert\n[\s\S]*?(?=  ###)/, accountingBlock);
+const basinPath = "src/subgraphs/basin/manifests/pinto.yaml";
+let basin = fs.readFileSync(basinPath, "utf8");
+for (const name of ["AutoConvertWell", "AutoConvertFeePolicyBound"]) {
+  const e = abi.find((entry) => entry.name === name);
+  basin = basin.replace(new RegExp("(- event: )" + name + "\\([^\n]+"), "$1" + signature(e));
+}
+fs.writeFileSync(basinPath, basin);
 fs.writeFileSync(manifestPath, manifest);
 // Auditable coverage list used by tests and release review.
 fs.writeFileSync(

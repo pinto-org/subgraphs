@@ -22,19 +22,17 @@ dataSources:
         - AutoConvertConfiguredRecord
         - AutoConvertDecisionRecord
         - AutoConvertEndedRecord
-        - AutoConvertExecutionSummaryRecord
         - AutoConvertFeePolicyBoundRecord
         - AutoConvertFlowEnabledRecord
         - AutoConvertFlowSampleRecord
         - AutoConvertFlowStateRecord
         - AutoConvertFlowWindowUpdatedRecord
         - AutoConvertLaunchCreditAppliedRecord
-        - AutoConvertOracleDetailRecord
         - AutoConvertOutflowPauseChangedRecord
         - AutoConvertParametersRecord
         - AutoConvertPauseChangedRecord
-        - AutoConvertPegConfirmedRecord
         - AutoConvertPolicyConfiguredRecord
+        - AutoConvertPositionFloorReleasedRecord
         - AutoConvertPositionFloorSetRecord
         - AutoConvertPriorityFloorSetRecord
         - AutoConvertPriorityProgressRecord
@@ -47,9 +45,7 @@ dataSources:
         - AutoConvertScheduleDeferredRecord
         - AutoConvertScheduleResetRecord
         - AutoConvertScheduleStartedRecord
-        - AutoConvertWellConfiguredRecord
         - AutoConvertWellOracleRecord
-        - AutoConvertWellPlanRecord
         - AutoConvertWellPolicyRecord
         - AutoConvertWhitelistChangedRecord
         - DepositGrownStalkAdjustmentRecord
@@ -69,42 +65,38 @@ dataSources:
         - name: PintoAutoConvert
           file: ../../../core/abis/Beanstalk/Pinto-AutoConvert.json
       eventHandlers:
-        - event: AutoConvertActivated(indexed uint32,indexed uint32,uint40)
+        - event: AutoConvertActivated(indexed uint32,indexed uint32)
           handler: handleAutoConvertActivated
         - event: AutoConvertConfigurationVersion(indexed uint32,uint32)
           handler: handleAutoConvertConfigurationVersion
         - event: AutoConvertConfigured(indexed uint32,indexed uint32,address[])
           handler: handleAutoConvertConfigured
-        - event: AutoConvertDecision(indexed uint32,indexed uint32,uint32,uint8,uint8,address,uint256,uint256)
+        - event: AutoConvertDecision(indexed uint32,indexed uint32,uint32,uint8,uint8,address,uint256,uint256,bytes4,uint256)
           handler: handleAutoConvertDecision
         - event: AutoConvertEnded(indexed uint32,uint256)
           handler: handleAutoConvertEnded
-        - event: AutoConvertExecutionSummary(indexed uint32,indexed uint32,uint32,uint8,uint256,uint256,uint256,bool)
-          handler: handleAutoConvertExecutionSummary
         - event: AutoConvertFeePolicyBound(indexed address,indexed address,uint256,uint256)
           handler: handleAutoConvertFeePolicyBound
         - event: AutoConvertFlowEnabled(uint8)
           handler: handleAutoConvertFlowEnabled
         - event: AutoConvertFlowSample(indexed uint32,indexed address,uint40,int256,uint256,uint256,int256)
           handler: handleAutoConvertFlowSample
-        - event: AutoConvertFlowState(indexed uint32,indexed uint32,uint32,uint8,uint256,uint256,bool,bool,bool,uint256,uint256)
+        - event: AutoConvertFlowState(indexed uint32,indexed uint32,uint32,uint8,(uint256,uint256,bool,bool,bool,uint256,uint256,bool,uint8,uint256,uint256,bool,uint256,uint256))
           handler: handleAutoConvertFlowState
         - event: AutoConvertFlowWindowUpdated(uint40,uint40,int256,int256,bool)
           handler: handleAutoConvertFlowWindowUpdated
         - event: AutoConvertLaunchCreditApplied(indexed uint32,uint256,uint256)
           handler: handleAutoConvertLaunchCreditApplied
-        - event: AutoConvertOracleDetail(indexed uint32,indexed address,uint8,uint256,uint256,uint256)
-          handler: handleAutoConvertOracleDetail
         - event: AutoConvertOutflowPauseChanged(indexed uint32,bool,uint256,uint256)
           handler: handleAutoConvertOutflowPauseChanged
         - event: AutoConvertParameters(indexed uint32,indexed uint32,uint256,uint256,uint256)
           handler: handleAutoConvertParameters
         - event: AutoConvertPauseChanged(indexed uint32,bool)
           handler: handleAutoConvertPauseChanged
-        - event: AutoConvertPegConfirmed(indexed uint32,uint40,uint40)
-          handler: handleAutoConvertPegConfirmed
         - event: AutoConvertPolicyConfigured(indexed uint32,(uint16,uint256,uint256))
           handler: handleAutoConvertPolicyConfigured
+        - event: AutoConvertPositionFloorReleased(indexed uint32,indexed address,indexed uint32,uint256,uint256)
+          handler: handleAutoConvertPositionFloorReleased
         - event: AutoConvertPositionFloorSet(indexed uint32,indexed uint32,uint256,uint256,bool)
           handler: handleAutoConvertPositionFloorSet
         - event: AutoConvertPriorityFloorSet(indexed uint32,uint256)
@@ -129,12 +121,8 @@ dataSources:
           handler: handleAutoConvertScheduleReset
         - event: AutoConvertScheduleStarted(indexed uint32,indexed uint32,uint256,uint256,uint256)
           handler: handleAutoConvertScheduleStarted
-        - event: AutoConvertWellConfigured(indexed address,uint256,uint256)
-          handler: handleAutoConvertWellConfigured
-        - event: AutoConvertWellOracle(indexed uint32,indexed uint32,indexed address,bool,int256,uint256)
+        - event: AutoConvertWellOracle(indexed uint32,indexed uint32,indexed address,bool,int256,uint256,(uint8,uint256,uint256,uint256))
           handler: handleAutoConvertWellOracle
-        - event: AutoConvertWellPlan(indexed uint32,indexed uint32,indexed address,uint256,uint256,uint256,uint256,uint8)
-          handler: handleAutoConvertWellPlan
         - event: AutoConvertWellPolicy(indexed uint32,indexed uint32,indexed address,uint256,uint256,bytes32)
           handler: handleAutoConvertWellPolicy
         - event: AutoConvertWhitelistChanged(indexed address,uint32)
@@ -175,25 +163,16 @@ dataSources:
         - AutoConvertBatchRecord
         - AutoConvertPositionRecord
         - AutoConvertWellRecord
-        - SunriseAutoConvertAttemptRecord
-        - AutoConvertFlowBaselineRecord
-        - AutoConvertFlowObservationRecord
       abis:
         - name: PintoAutoConvert
           file: ../../../core/abis/Beanstalk/Pinto-AutoConvert.json
       eventHandlers:
-        - event: AutoConvertBatch(indexed uint32,indexed uint32,uint256,uint256,address,uint256)
+        - event: AutoConvertBatch(indexed uint32,indexed uint32,uint256,uint256,address,uint256,(uint32,uint8,uint256,uint256,uint256,bool))
           handler: handleAutoConvertBatch
         - event: AutoConvertPosition(indexed uint32,indexed address,indexed address,int96,uint256,uint256,uint256)
           handler: handleAutoConvertPosition
-        - event: AutoConvertWell(indexed uint32,indexed uint32,indexed address,uint256,uint256,uint256)
+        - event: AutoConvertWell(indexed uint32,indexed uint32,indexed address,uint256,uint256,uint256,(uint256,uint256,uint256,uint256,uint8))
           handler: handleAutoConvertWell
-        - event: SunriseAutoConvertAttempt(indexed uint32,bool,bytes4,uint256)
-          handler: handleSunriseAutoConvertAttempt
-        - event: AutoConvertFlowBaseline(indexed uint32,bool,uint256,uint256)
-          handler: handleAutoConvertFlowBaseline
-        - event: AutoConvertFlowObservation(indexed uint32,uint8,uint256,uint256,uint256,uint256)
-          handler: handleAutoConvertFlowObservation
       file: ../src/handlers/AutoConvertHandler.ts
   ###
   # INITIALIZATION

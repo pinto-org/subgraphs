@@ -21,8 +21,8 @@ import {
   handleSiloDepositsRedeemed,
   handleSiloPintoDepositsSwapped
 } from "../src/handlers/AutoConvertEventsHandler";
-import { handleAutoConvertBatch } from "../src/handlers/AutoConvertHandler";
-import { AutoConvertBatch } from "../generated/Beanstalk-ABIs/PintoAutoConvert";
+import { handleAutoConvertBatch, handleAutoConvertWell } from "../src/handlers/AutoConvertHandler";
+import { AutoConvertBatch, AutoConvertWell } from "../generated/Beanstalk-ABIs/PintoAutoConvert";
 import {
   handleFeeSettingsInitialized,
   handleFeeChanged,
@@ -46,6 +46,11 @@ function event(params: ethereum.EventParam[], index: i32): ethereum.Event {
   e.logIndex = BigInt.fromI32(index);
   return e;
 }
+function tuple(name: string, params: ethereum.EventParam[]): ethereum.EventParam {
+  const values = new ethereum.Tuple();
+  for (let i = 0; i < params.length; ++i) values.push(params[i].value);
+  return new ethereum.EventParam(name, ethereum.Value.fromTuple(values));
+}
 function id(e: ethereum.Event): string {
   return e.transaction.hash.toHexString() + "-" + e.logIndex.toString();
 }
@@ -61,7 +66,7 @@ test("controller lifecycle survives pauses, expiry and program replacement; rewa
   );
   handleAutoConvertConfigured(e);
   const p = e.address.toHexString() + "-1";
-  handleAutoConvertActivated(event([n("programId", 1), n("activationSeason", 100), n("nextEligibleAt", 1000)], 2));
+  handleAutoConvertActivated(event([n("programId", 1), n("activationSeason", 100)], 2));
   handleAutoConvertPauseChanged(event([n("programId", 1), bool("paused", true)], 3));
   assert.fieldEquals("AutoConvertProgram", p, "active", "true");
   assert.fieldEquals("AutoConvertProgram", p, "paused", "true");
@@ -85,12 +90,16 @@ test("controller lifecycle survives pauses, expiry and program replacement; rewa
         n("wellCount", 1),
         n("bdvConverted", 50),
         address("executor", account),
-        n("reward", 10)
+        n("reward", 10),
+        tuple("details", [n("configVersion", 3), n("mode", 2), n("marketTargetWad", 1000),
+          n("targetPriceWad", 950), n("referenceLossUsd", 15), bool("inventoryLimited", true)])
       ],
       8
     )
   );
   handleAutoConvertBatch(batch);
+  assert.fieldEquals("AutoConvertBatchRecord", id(batch), "details_referenceLossUsd", "15");
+  assert.fieldEquals("AutoConvertBatchRecord", id(batch), "details_inventoryLimited", "true");
   handleAutoConvertRewardWithdrawn(event([address("recipient", account), n("amount", 20)], 9));
   assert.fieldEquals("AutoConvertController", e.address.toHexString(), "rewardReserve", "70");
   assert.fieldEquals("AutoConvertProgram", p, "totalBdvConverted", "50");
@@ -114,6 +123,17 @@ test("controller lifecycle survives pauses, expiry and program replacement; rewa
     e.address.toHexString() + "-2"
   );
   assert.entityCount("AutoConvertProgram", 2);
+});
+test("merged Well keeps zero-leg plan flags without inventing account balances", () => {
+  const e = event([n("programId", 1), n("observationSeason", 101), address("well", well),
+    n("lpAmount", 0), n("beanAmount", 0), n("bdvConverted", 0),
+    tuple("plan", [n("currentPriceWad", 1100), n("postPriceWad", 1100), n("valueUsd", 0),
+      n("lossUsd", 0), n("flags", 1)])], 1);
+  handleAutoConvertWell(changetype<AutoConvertWell>(e));
+  assert.fieldEquals("AutoConvertWellRecord", id(e), "plan_flags", "1");
+  assert.fieldEquals("AutoConvertWellRecord", id(e), "plan_currentPriceWad", "1100");
+  assert.fieldEquals("AutoConvertWellRecord", id(e), "lpAmount", "0");
+  assert.entityCount("Silo", 0);
 });
 test("grown Stalk is absolute, signed, and clears before deposit re-add", () => {
   for (let i = 0; i < 4; i++) {
@@ -161,19 +181,19 @@ test("flow snapshots distinguish interval close from opening and preserve invali
         n("season", 100),
         n("configVersion", 2),
         n("phase", phase),
-        n("requiredChillFactor", 48),
-        n("chillFactor", 24),
-        bool("qualified", false),
-        bool("measurementValid", false),
-        bool("outflowPaused", true),
-        n("liquidityUsd", 1000 + phase),
-        n("supplyUsd", 2000)
+        tuple("state", [n("requiredChillFactor", 48), n("chillFactor", 24), bool("qualified", false),
+          bool("measurementValid", false), bool("outflowPaused", true), n("liquidityUsd", 1000 + phase),
+          n("supplyUsd", 2000), bool("observationProcessed", phase == 0), n("status", 1),
+          n("observationAllowanceUsd", 0), n("adverseUsd", 0), bool("openingValid", phase == 1),
+          n("pintoPriceUsd", 900000), n("openingAllowanceUsd", 100)])
       ],
       phase
     );
     handleAutoConvertFlowState(e);
     assert.fieldEquals("AutoConvertFlowStateRecord", id(e), "phase", phase.toString());
-    assert.fieldEquals("AutoConvertFlowStateRecord", id(e), "measurementValid", "false");
+    assert.fieldEquals("AutoConvertFlowStateRecord", id(e), "state_measurementValid", "false");
+    assert.fieldEquals("AutoConvertFlowStateRecord", id(e), "state_openingValid", phase == 1 ? "true" : "false");
+    assert.fieldEquals("AutoConvertFlowStateRecord", id(e), "state_liquidityUsd", (1000 + phase).toString());
   }
   const sample = event(
     [
@@ -198,7 +218,9 @@ test("flow snapshots distinguish interval close from opening and preserve invali
       n("reason", 0),
       address("well", Address.zero()),
       n("windowUnits", 352),
-      n("gasAllowance", 10012000)
+      n("gasAllowance", 10012000),
+      new ethereum.EventParam("failureSelector", ethereum.Value.fromFixedBytes(Bytes.fromHexString("0x01020304"))),
+      n("gasUsed", 12345)
     ],
     4
   );

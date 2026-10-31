@@ -1,20 +1,14 @@
 import { updateAutoConvertState } from "../utils/AutoConvertState";
-import { ethereum } from "@graphprotocol/graph-ts";
+import { BigInt, ethereum } from "@graphprotocol/graph-ts";
 import {
   AutoConvertBatch,
   AutoConvertPosition,
-  AutoConvertWell,
-  SunriseAutoConvertAttempt,
-  AutoConvertFlowBaseline,
-  AutoConvertFlowObservation
+  AutoConvertWell
 } from "../../generated/Beanstalk-ABIs/PintoAutoConvert";
 import {
   AutoConvertBatchRecord,
   AutoConvertPositionRecord,
-  AutoConvertWellRecord,
-  SunriseAutoConvertAttemptRecord,
-  AutoConvertFlowBaselineRecord,
-  AutoConvertFlowObservationRecord
+  AutoConvertWellRecord
 } from "../../generated/schema";
 import { convert } from "../utils/Silo";
 import { getProtocolToken } from "../../../../core/constants/RuntimeConstants";
@@ -37,6 +31,12 @@ export function handleAutoConvertBatch(event: AutoConvertBatch): void {
   row.bdvConverted = event.params.bdvConverted;
   row.executor = event.params.executor;
   row.reward = event.params.reward;
+  row.details_configVersion = event.params.details.configVersion;
+  row.details_mode = BigInt.fromI32(event.params.details.mode);
+  row.details_marketTargetWad = event.params.details.marketTargetWad;
+  row.details_targetPriceWad = event.params.details.targetPriceWad;
+  row.details_referenceLossUsd = event.params.details.referenceLossUsd;
+  row.details_inventoryLimited = event.params.details.inventoryLimited;
   row.save();
   updateAutoConvertState("AutoConvertBatch", event, row.id);
 }
@@ -81,46 +81,10 @@ export function handleAutoConvertWell(event: AutoConvertWell): void {
   row.lpAmount = event.params.lpAmount;
   row.beanAmount = event.params.beanAmount;
   row.bdvConverted = event.params.bdvConverted;
-  row.save();
-}
-
-export function handleSunriseAutoConvertAttempt(event: SunriseAutoConvertAttempt): void {
-  const row = new SunriseAutoConvertAttemptRecord(eventId(event));
-  row.transactionHash = event.transaction.hash;
-  row.logIndex = event.logIndex;
-  row.blockNumber = event.block.number;
-  row.timestamp = event.block.timestamp;
-  row.season = event.params.season;
-  row.success = event.params.success;
-  row.reason = event.params.reason;
-  row.gasUsed = event.params.gasUsed;
-  row.save();
-}
-
-export function handleAutoConvertFlowBaseline(event: AutoConvertFlowBaseline): void {
-  const row = new AutoConvertFlowBaselineRecord(eventId(event));
-  row.transactionHash = event.transaction.hash;
-  row.logIndex = event.logIndex;
-  row.blockNumber = event.block.number;
-  row.timestamp = event.block.timestamp;
-  row.season = event.params.season;
-  row.valid = event.params.valid;
-  row.pintoPriceUsd = event.params.pintoPriceUsd;
-  row.allowanceUsd = event.params.allowanceUsd;
-  row.save();
-}
-
-export function handleAutoConvertFlowObservation(event: AutoConvertFlowObservation): void {
-  const row = new AutoConvertFlowObservationRecord(eventId(event));
-  row.transactionHash = event.transaction.hash;
-  row.logIndex = event.logIndex;
-  row.blockNumber = event.block.number;
-  row.timestamp = event.block.timestamp;
-  row.season = event.params.season;
-  row.status = event.params.status;
-  row.eligibility = event.params.eligibility;
-  row.waiting = event.params.waiting;
-  row.allowanceUsd = event.params.allowanceUsd;
-  row.adverseUsd = event.params.adverseUsd;
+  row.plan_currentPriceWad = event.params.plan.currentPriceWad;
+  row.plan_postPriceWad = event.params.plan.postPriceWad;
+  row.plan_valueUsd = event.params.plan.valueUsd;
+  row.plan_lossUsd = event.params.plan.lossUsd;
+  row.plan_flags = BigInt.fromI32(event.params.plan.flags);
   row.save();
 }

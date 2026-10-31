@@ -2184,6 +2184,12 @@ type AutoConvertBatchRecord @entity(immutable: true) {
   bdvConverted: BigInt!
   executor: Bytes!
   reward: BigInt!
+  details_configVersion: BigInt!
+  details_mode: BigInt!
+  details_marketTargetWad: BigInt!
+  details_targetPriceWad: BigInt!
+  details_referenceLossUsd: BigInt!
+  details_inventoryLimited: Boolean!
 }
 
 type AutoConvertPositionRecord @entity(immutable: true) {
@@ -2213,44 +2219,11 @@ type AutoConvertWellRecord @entity(immutable: true) {
   lpAmount: BigInt!
   beanAmount: BigInt!
   bdvConverted: BigInt!
-}
-
-type SunriseAutoConvertAttemptRecord @entity(immutable: true) {
-  id: ID!
-  transactionHash: Bytes!
-  logIndex: BigInt!
-  blockNumber: BigInt!
-  timestamp: BigInt!
-  season: BigInt!
-  success: Boolean!
-  reason: Bytes!
-  gasUsed: BigInt!
-}
-
-type AutoConvertFlowBaselineRecord @entity(immutable: true) {
-  id: ID!
-  transactionHash: Bytes!
-  logIndex: BigInt!
-  blockNumber: BigInt!
-  timestamp: BigInt!
-  season: BigInt!
-  valid: Boolean!
-  pintoPriceUsd: BigInt!
-  allowanceUsd: BigInt!
-}
-
-type AutoConvertFlowObservationRecord @entity(immutable: true) {
-  id: ID!
-  transactionHash: Bytes!
-  logIndex: BigInt!
-  blockNumber: BigInt!
-  timestamp: BigInt!
-  season: BigInt!
-  status: Int!
-  eligibility: BigInt!
-  waiting: BigInt!
-  allowanceUsd: BigInt!
-  adverseUsd: BigInt!
+  plan_currentPriceWad: BigInt!
+  plan_postPriceWad: BigInt!
+  plan_valueUsd: BigInt!
+  plan_lossUsd: BigInt!
+  plan_flags: BigInt!
 }
 
 # Current controller/program metadata. Account/Silo balance handlers remain authoritative.
@@ -2336,7 +2309,6 @@ type AutoConvertActivatedRecord @entity(immutable: true) {
   timestamp: BigInt!
   programId: BigInt!
   activationSeason: BigInt!
-  nextEligibleAt: BigInt!
 }
 
 type AutoConvertConfigurationVersionRecord @entity(immutable: true) {
@@ -2377,6 +2349,8 @@ type AutoConvertDecisionRecord @entity(immutable: true) {
   well: Bytes!
   windowUnits: BigInt!
   gasAllowance: BigInt!
+  failureSelector: Bytes!
+  gasUsed: BigInt!
 }
 
 type AutoConvertEndedRecord @entity(immutable: true) {
@@ -2388,23 +2362,6 @@ type AutoConvertEndedRecord @entity(immutable: true) {
   timestamp: BigInt!
   programId: BigInt!
   totalBdvConverted: BigInt!
-}
-
-type AutoConvertExecutionSummaryRecord @entity(immutable: true) {
-  id: ID!
-  emitter: Bytes!
-  transactionHash: Bytes!
-  logIndex: BigInt!
-  blockNumber: BigInt!
-  timestamp: BigInt!
-  programId: BigInt!
-  season: BigInt!
-  configVersion: BigInt!
-  mode: BigInt!
-  marketTargetWad: BigInt!
-  targetPriceWad: BigInt!
-  referenceLossUsd: BigInt!
-  inventoryLimited: Boolean!
 }
 
 type AutoConvertFeePolicyBoundRecord @entity(immutable: true) {
@@ -2457,13 +2414,20 @@ type AutoConvertFlowStateRecord @entity(immutable: true) {
   season: BigInt!
   configVersion: BigInt!
   phase: BigInt!
-  requiredChillFactor: BigInt!
-  chillFactor: BigInt!
-  qualified: Boolean!
-  measurementValid: Boolean!
-  outflowPaused: Boolean!
-  liquidityUsd: BigInt!
-  supplyUsd: BigInt!
+  state_requiredChillFactor: BigInt!
+  state_chillFactor: BigInt!
+  state_qualified: Boolean!
+  state_measurementValid: Boolean!
+  state_outflowPaused: Boolean!
+  state_liquidityUsd: BigInt!
+  state_supplyUsd: BigInt!
+  state_observationProcessed: Boolean!
+  state_status: BigInt!
+  state_observationAllowanceUsd: BigInt!
+  state_adverseUsd: BigInt!
+  state_openingValid: Boolean!
+  state_pintoPriceUsd: BigInt!
+  state_openingAllowanceUsd: BigInt!
 }
 
 type AutoConvertFlowWindowUpdatedRecord @entity(immutable: true) {
@@ -2490,21 +2454,6 @@ type AutoConvertLaunchCreditAppliedRecord @entity(immutable: true) {
   season: BigInt!
   requiredChillFactor: BigInt!
   initialChillFactor: BigInt!
-}
-
-type AutoConvertOracleDetailRecord @entity(immutable: true) {
-  id: ID!
-  emitter: Bytes!
-  transactionHash: Bytes!
-  logIndex: BigInt!
-  blockNumber: BigInt!
-  timestamp: BigInt!
-  season: BigInt!
-  well: Bytes!
-  reason: BigInt!
-  lookback: BigInt!
-  reserve0: BigInt!
-  reserve1: BigInt!
 }
 
 type AutoConvertOutflowPauseChangedRecord @entity(immutable: true) {
@@ -2545,18 +2494,6 @@ type AutoConvertPauseChangedRecord @entity(immutable: true) {
   paused: Boolean!
 }
 
-type AutoConvertPegConfirmedRecord @entity(immutable: true) {
-  id: ID!
-  emitter: Bytes!
-  transactionHash: Bytes!
-  logIndex: BigInt!
-  blockNumber: BigInt!
-  timestamp: BigInt!
-  season: BigInt!
-  confirmedAt: BigInt!
-  cooldownUntil: BigInt!
-}
-
 type AutoConvertPolicyConfiguredRecord @entity(immutable: true) {
   id: ID!
   emitter: Bytes!
@@ -2568,6 +2505,20 @@ type AutoConvertPolicyConfiguredRecord @entity(immutable: true) {
   policy_maxRewardBps: BigInt!
   policy_maxValuePerWellUsd: BigInt!
   policy_maxLossPerExecutionUsd: BigInt!
+}
+
+type AutoConvertPositionFloorReleasedRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  programId: BigInt!
+  well: Bytes!
+  season: BigInt!
+  previousFloorBdv: BigInt!
+  floorBdv: BigInt!
 }
 
 type AutoConvertPositionFloorSetRecord @entity(immutable: true) {
@@ -2723,18 +2674,6 @@ type AutoConvertScheduleStartedRecord @entity(immutable: true) {
   hourlyPriceFactor: BigInt!
 }
 
-type AutoConvertWellConfiguredRecord @entity(immutable: true) {
-  id: ID!
-  emitter: Bytes!
-  transactionHash: Bytes!
-  logIndex: BigInt!
-  blockNumber: BigInt!
-  timestamp: BigInt!
-  well: Bytes!
-  minLp: BigInt!
-  maxLp: BigInt!
-}
-
 type AutoConvertWellOracleRecord @entity(immutable: true) {
   id: ID!
   emitter: Bytes!
@@ -2748,23 +2687,10 @@ type AutoConvertWellOracleRecord @entity(immutable: true) {
   valid: Boolean!
   twaDeltaB: BigInt!
   beanUsdPrice: BigInt!
-}
-
-type AutoConvertWellPlanRecord @entity(immutable: true) {
-  id: ID!
-  emitter: Bytes!
-  transactionHash: Bytes!
-  logIndex: BigInt!
-  blockNumber: BigInt!
-  timestamp: BigInt!
-  programId: BigInt!
-  season: BigInt!
-  well: Bytes!
-  currentPriceWad: BigInt!
-  postPriceWad: BigInt!
-  valueUsd: BigInt!
-  lossUsd: BigInt!
-  flags: BigInt!
+  details_reason: BigInt!
+  details_lookback: BigInt!
+  details_reserve0: BigInt!
+  details_reserve1: BigInt!
 }
 
 type AutoConvertWellPolicyRecord @entity(immutable: true) {

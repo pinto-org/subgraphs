@@ -1,11 +1,10 @@
 [
   {
     "name": "AutoConvertActivated",
-    "signature": "AutoConvertActivated(indexed uint32,indexed uint32,uint40)",
+    "signature": "AutoConvertActivated(indexed uint32,indexed uint32)",
     "fields": [
       "programId",
-      "activationSeason",
-      "nextEligibleAt"
+      "activationSeason"
     ]
   },
   {
@@ -27,7 +26,7 @@
   },
   {
     "name": "AutoConvertDecision",
-    "signature": "AutoConvertDecision(indexed uint32,indexed uint32,uint32,uint8,uint8,address,uint256,uint256)",
+    "signature": "AutoConvertDecision(indexed uint32,indexed uint32,uint32,uint8,uint8,address,uint256,uint256,bytes4,uint256)",
     "fields": [
       "programId",
       "season",
@@ -36,7 +35,9 @@
       "reason",
       "well",
       "windowUnits",
-      "gasAllowance"
+      "gasAllowance",
+      "failureSelector",
+      "gasUsed"
     ]
   },
   {
@@ -45,20 +46,6 @@
     "fields": [
       "programId",
       "totalBdvConverted"
-    ]
-  },
-  {
-    "name": "AutoConvertExecutionSummary",
-    "signature": "AutoConvertExecutionSummary(indexed uint32,indexed uint32,uint32,uint8,uint256,uint256,uint256,bool)",
-    "fields": [
-      "programId",
-      "season",
-      "configVersion",
-      "mode",
-      "marketTargetWad",
-      "targetPriceWad",
-      "referenceLossUsd",
-      "inventoryLimited"
     ]
   },
   {
@@ -93,19 +80,26 @@
   },
   {
     "name": "AutoConvertFlowState",
-    "signature": "AutoConvertFlowState(indexed uint32,indexed uint32,uint32,uint8,uint256,uint256,bool,bool,bool,uint256,uint256)",
+    "signature": "AutoConvertFlowState(indexed uint32,indexed uint32,uint32,uint8,(uint256,uint256,bool,bool,bool,uint256,uint256,bool,uint8,uint256,uint256,bool,uint256,uint256))",
     "fields": [
       "programId",
       "season",
       "configVersion",
       "phase",
-      "requiredChillFactor",
-      "chillFactor",
-      "qualified",
-      "measurementValid",
-      "outflowPaused",
-      "liquidityUsd",
-      "supplyUsd"
+      "state_requiredChillFactor",
+      "state_chillFactor",
+      "state_qualified",
+      "state_measurementValid",
+      "state_outflowPaused",
+      "state_liquidityUsd",
+      "state_supplyUsd",
+      "state_observationProcessed",
+      "state_status",
+      "state_observationAllowanceUsd",
+      "state_adverseUsd",
+      "state_openingValid",
+      "state_pintoPriceUsd",
+      "state_openingAllowanceUsd"
     ]
   },
   {
@@ -126,18 +120,6 @@
       "season",
       "requiredChillFactor",
       "initialChillFactor"
-    ]
-  },
-  {
-    "name": "AutoConvertOracleDetail",
-    "signature": "AutoConvertOracleDetail(indexed uint32,indexed address,uint8,uint256,uint256,uint256)",
-    "fields": [
-      "season",
-      "well",
-      "reason",
-      "lookback",
-      "reserve0",
-      "reserve1"
     ]
   },
   {
@@ -170,15 +152,6 @@
     ]
   },
   {
-    "name": "AutoConvertPegConfirmed",
-    "signature": "AutoConvertPegConfirmed(indexed uint32,uint40,uint40)",
-    "fields": [
-      "season",
-      "confirmedAt",
-      "cooldownUntil"
-    ]
-  },
-  {
     "name": "AutoConvertPolicyConfigured",
     "signature": "AutoConvertPolicyConfigured(indexed uint32,(uint16,uint256,uint256))",
     "fields": [
@@ -186,6 +159,17 @@
       "policy_maxRewardBps",
       "policy_maxValuePerWellUsd",
       "policy_maxLossPerExecutionUsd"
+    ]
+  },
+  {
+    "name": "AutoConvertPositionFloorReleased",
+    "signature": "AutoConvertPositionFloorReleased(indexed uint32,indexed address,indexed uint32,uint256,uint256)",
+    "fields": [
+      "programId",
+      "well",
+      "season",
+      "previousFloorBdv",
+      "floorBdv"
     ]
   },
   {
@@ -306,38 +290,19 @@
     ]
   },
   {
-    "name": "AutoConvertWellConfigured",
-    "signature": "AutoConvertWellConfigured(indexed address,uint256,uint256)",
-    "fields": [
-      "well",
-      "minLp",
-      "maxLp"
-    ]
-  },
-  {
     "name": "AutoConvertWellOracle",
-    "signature": "AutoConvertWellOracle(indexed uint32,indexed uint32,indexed address,bool,int256,uint256)",
+    "signature": "AutoConvertWellOracle(indexed uint32,indexed uint32,indexed address,bool,int256,uint256,(uint8,uint256,uint256,uint256))",
     "fields": [
       "season",
       "configVersion",
       "well",
       "valid",
       "twaDeltaB",
-      "beanUsdPrice"
-    ]
-  },
-  {
-    "name": "AutoConvertWellPlan",
-    "signature": "AutoConvertWellPlan(indexed uint32,indexed uint32,indexed address,uint256,uint256,uint256,uint256,uint8)",
-    "fields": [
-      "programId",
-      "season",
-      "well",
-      "currentPriceWad",
-      "postPriceWad",
-      "valueUsd",
-      "lossUsd",
-      "flags"
+      "beanUsdPrice",
+      "details_reason",
+      "details_lookback",
+      "details_reserve0",
+      "details_reserve1"
     ]
   },
   {

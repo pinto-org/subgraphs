@@ -107,5 +107,9 @@ test("every protocol event in the auto-convert ABI has exactly one matching Bean
     const signature = e.name + "(" + e.inputs.map((p) => (p.indexed ? "indexed " : "") + type(p)).join(",") + ")";
     assert.equal(covered.filter((h) => h.event === signature).length, 1, signature);
   }
-  assert.equal(covered.length, 50);
+  assert.equal(covered.length, abi.filter((e) => !["PintoFeeWellUpgraded", "WellFunctionReplaced"].includes(e.name)).length);
+  for (const retired of ["AutoConvertWellConfigured", "AutoConvertExecutionSummary", "AutoConvertWellPlan",
+    "AutoConvertOracleDetail", "SunriseAutoConvertAttempt", "AutoConvertFlowObservation", "AutoConvertFlowBaseline", "AutoConvertPegConfirmed"]) {
+    assert(!abi.some((e) => e.name === retired), `Retired companion event ${retired}`);
+  }
 });

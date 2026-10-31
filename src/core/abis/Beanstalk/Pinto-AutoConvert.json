@@ -14,12 +14,6 @@
         "type": "uint32",
         "indexed": true,
         "internalType": "uint32"
-      },
-      {
-        "name": "nextEligibleAt",
-        "type": "uint40",
-        "indexed": false,
-        "internalType": "uint40"
       }
     ],
     "anonymous": false
@@ -63,6 +57,44 @@
         "type": "uint256",
         "indexed": false,
         "internalType": "uint256"
+      },
+      {
+        "name": "details",
+        "type": "tuple",
+        "indexed": false,
+        "internalType": "struct IAutoConvertEvents.ExecutionDetails",
+        "components": [
+          {
+            "name": "configVersion",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "mode",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "marketTargetWad",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "targetPriceWad",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "referenceLossUsd",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "inventoryLimited",
+            "type": "bool",
+            "internalType": "bool"
+          }
+        ]
       }
     ],
     "anonymous": false
@@ -162,6 +194,18 @@
         "type": "uint256",
         "indexed": false,
         "internalType": "uint256"
+      },
+      {
+        "name": "failureSelector",
+        "type": "bytes4",
+        "indexed": false,
+        "internalType": "bytes4"
+      },
+      {
+        "name": "gasUsed",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
       }
     ],
     "anonymous": false
@@ -181,61 +225,6 @@
         "type": "uint256",
         "indexed": false,
         "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "AutoConvertExecutionSummary",
-    "inputs": [
-      {
-        "name": "programId",
-        "type": "uint32",
-        "indexed": true,
-        "internalType": "uint32"
-      },
-      {
-        "name": "season",
-        "type": "uint32",
-        "indexed": true,
-        "internalType": "uint32"
-      },
-      {
-        "name": "configVersion",
-        "type": "uint32",
-        "indexed": false,
-        "internalType": "uint32"
-      },
-      {
-        "name": "mode",
-        "type": "uint8",
-        "indexed": false,
-        "internalType": "uint8"
-      },
-      {
-        "name": "marketTargetWad",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "targetPriceWad",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "referenceLossUsd",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "inventoryLimited",
-        "type": "bool",
-        "indexed": false,
-        "internalType": "bool"
       }
     ],
     "anonymous": false
@@ -273,37 +262,6 @@
   },
   {
     "type": "event",
-    "name": "AutoConvertFlowBaseline",
-    "inputs": [
-      {
-        "name": "season",
-        "type": "uint32",
-        "indexed": true,
-        "internalType": "uint32"
-      },
-      {
-        "name": "valid",
-        "type": "bool",
-        "indexed": false,
-        "internalType": "bool"
-      },
-      {
-        "name": "pintoPriceUsd",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "allowanceUsd",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
     "name": "AutoConvertFlowEnabled",
     "inputs": [
       {
@@ -311,49 +269,6 @@
         "type": "uint8",
         "indexed": false,
         "internalType": "enum LibAutoConvertFlowStorage.PriceAggregation"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "AutoConvertFlowObservation",
-    "inputs": [
-      {
-        "name": "season",
-        "type": "uint32",
-        "indexed": true,
-        "internalType": "uint32"
-      },
-      {
-        "name": "status",
-        "type": "uint8",
-        "indexed": false,
-        "internalType": "enum LibAutoConvertFlowCounter.Status"
-      },
-      {
-        "name": "eligibility",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "waiting",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "allowanceUsd",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "adverseUsd",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
       }
     ],
     "anonymous": false
@@ -436,46 +351,82 @@
         "internalType": "uint8"
       },
       {
-        "name": "requiredChillFactor",
-        "type": "uint256",
+        "name": "state",
+        "type": "tuple",
         "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "chillFactor",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "qualified",
-        "type": "bool",
-        "indexed": false,
-        "internalType": "bool"
-      },
-      {
-        "name": "measurementValid",
-        "type": "bool",
-        "indexed": false,
-        "internalType": "bool"
-      },
-      {
-        "name": "outflowPaused",
-        "type": "bool",
-        "indexed": false,
-        "internalType": "bool"
-      },
-      {
-        "name": "liquidityUsd",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "supplyUsd",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
+        "internalType": "struct IAutoConvertEvents.FlowStateData",
+        "components": [
+          {
+            "name": "requiredChillFactor",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "chillFactor",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "qualified",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "measurementValid",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "outflowPaused",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "liquidityUsd",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "supplyUsd",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "observationProcessed",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "status",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "observationAllowanceUsd",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "adverseUsd",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "openingValid",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "pintoPriceUsd",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "openingAllowanceUsd",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
       }
     ],
     "anonymous": false
@@ -535,49 +486,6 @@
       },
       {
         "name": "initialChillFactor",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "AutoConvertOracleDetail",
-    "inputs": [
-      {
-        "name": "season",
-        "type": "uint32",
-        "indexed": true,
-        "internalType": "uint32"
-      },
-      {
-        "name": "well",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "reason",
-        "type": "uint8",
-        "indexed": false,
-        "internalType": "uint8"
-      },
-      {
-        "name": "lookback",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "reserve0",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "reserve1",
         "type": "uint256",
         "indexed": false,
         "internalType": "uint256"
@@ -674,31 +582,6 @@
   },
   {
     "type": "event",
-    "name": "AutoConvertPegConfirmed",
-    "inputs": [
-      {
-        "name": "season",
-        "type": "uint32",
-        "indexed": true,
-        "internalType": "uint32"
-      },
-      {
-        "name": "confirmedAt",
-        "type": "uint40",
-        "indexed": false,
-        "internalType": "uint40"
-      },
-      {
-        "name": "cooldownUntil",
-        "type": "uint40",
-        "indexed": false,
-        "internalType": "uint40"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
     "name": "AutoConvertPolicyConfigured",
     "inputs": [
       {
@@ -775,6 +658,43 @@
       },
       {
         "name": "bdv",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "AutoConvertPositionFloorReleased",
+    "inputs": [
+      {
+        "name": "programId",
+        "type": "uint32",
+        "indexed": true,
+        "internalType": "uint32"
+      },
+      {
+        "name": "well",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "season",
+        "type": "uint32",
+        "indexed": true,
+        "internalType": "uint32"
+      },
+      {
+        "name": "previousFloorBdv",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "floorBdv",
         "type": "uint256",
         "indexed": false,
         "internalType": "uint256"
@@ -1175,31 +1095,39 @@
         "type": "uint256",
         "indexed": false,
         "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "AutoConvertWellConfigured",
-    "inputs": [
-      {
-        "name": "well",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
       },
       {
-        "name": "minLp",
-        "type": "uint256",
+        "name": "plan",
+        "type": "tuple",
         "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "maxLp",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
+        "internalType": "struct IAutoConvertEvents.WellPlanDetails",
+        "components": [
+          {
+            "name": "currentPriceWad",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "postPriceWad",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "valueUsd",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "lossUsd",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "flags",
+            "type": "uint8",
+            "internalType": "uint8"
+          }
+        ]
       }
     ],
     "anonymous": false
@@ -1243,61 +1171,34 @@
         "type": "uint256",
         "indexed": false,
         "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "AutoConvertWellPlan",
-    "inputs": [
-      {
-        "name": "programId",
-        "type": "uint32",
-        "indexed": true,
-        "internalType": "uint32"
       },
       {
-        "name": "season",
-        "type": "uint32",
-        "indexed": true,
-        "internalType": "uint32"
-      },
-      {
-        "name": "well",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "currentPriceWad",
-        "type": "uint256",
+        "name": "details",
+        "type": "tuple",
         "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "postPriceWad",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "valueUsd",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "lossUsd",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "flags",
-        "type": "uint8",
-        "indexed": false,
-        "internalType": "uint8"
+        "internalType": "struct IAutoConvertEvents.OracleDetails",
+        "components": [
+          {
+            "name": "reason",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "lookback",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "reserve0",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "reserve1",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
       }
     ],
     "anonymous": false
@@ -1646,37 +1547,6 @@
         "type": "address",
         "indexed": true,
         "internalType": "address"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "SunriseAutoConvertAttempt",
-    "inputs": [
-      {
-        "name": "season",
-        "type": "uint32",
-        "indexed": true,
-        "internalType": "uint32"
-      },
-      {
-        "name": "success",
-        "type": "bool",
-        "indexed": false,
-        "internalType": "bool"
-      },
-      {
-        "name": "reason",
-        "type": "bytes4",
-        "indexed": false,
-        "internalType": "bytes4"
-      },
-      {
-        "name": "gasUsed",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
       }
     ],
     "anonymous": false

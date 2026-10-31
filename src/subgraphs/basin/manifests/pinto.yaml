@@ -23,7 +23,7 @@ dataSources:
       eventHandlers:
         - event: AutoConvertFeePolicyBound(indexed address,indexed address,uint256,uint256)
           handler: handleAutoConvertFeePolicyBound
-        - event: AutoConvertWell(indexed uint32,indexed uint32,indexed address,uint256,uint256,uint256)
+        - event: AutoConvertWell(indexed uint32,indexed uint32,indexed address,uint256,uint256,uint256,(uint256,uint256,uint256,uint256,uint8))
           handler: handleAutoConvertWell
         - event: PintoFeeWellUpgraded(indexed address,indexed address,address)
           handler: handlePintoFeeWellUpgraded
