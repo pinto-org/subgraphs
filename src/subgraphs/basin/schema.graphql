@@ -738,3 +738,21 @@ type ConvertCandidate @entity {
   "The most recent remove liquidity Trade"
   removeLiquidityTrade: Trade
 }
+
+# Admission comes from protocol configuration, never a permissionless Well event.
+type PintoCanonicalFeeWell @entity(immutable: false) {
+  id: Bytes!
+  settings: Bytes!
+  boundFeeBps: BigInt!
+  boundFeeVersion: BigInt!
+}
+type PintoTradingFlowInvalidationRecord @entity(immutable: true) {
+  id: ID!
+  well: Bytes!
+  invalidity: BigInt!
+  reason: BigInt!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+}

@@ -1464,6 +1464,31 @@
     "type": "event",
     "name": "PintoFeeBurned",
     "anonymous": false,
-    "inputs": [{ "name": "amount", "type": "uint256", "indexed": false }]
+    "inputs": [
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "PintoTradingFlowInvalidated",
+    "inputs": [
+      {
+        "name": "invalidity",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "reason",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "uint8"
+      }
+    ],
+    "anonymous": false
   }
 ]

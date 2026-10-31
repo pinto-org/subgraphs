@@ -2252,3 +2252,657 @@ type AutoConvertFlowObservationRecord @entity(immutable: true) {
   allowanceUsd: BigInt!
   adverseUsd: BigInt!
 }
+
+# Current controller/program metadata. Account/Silo balance handlers remain authoritative.
+type AutoConvertController @entity(immutable: false) {
+  id: ID!
+  currentProgram: AutoConvertProgram
+  rewardReserve: BigInt!
+}
+type AutoConvertProgram @entity(immutable: false) {
+  id: ID!
+  programId: BigInt!
+  configVersion: BigInt
+  active: Boolean!
+  paused: Boolean!
+  configuration: AutoConvertConfiguredRecord
+  parameters: AutoConvertParametersRecord
+  policy: AutoConvertPolicyConfiguredRecord
+  resetPolicy: AutoConvertResetPolicyConfiguredRecord
+  resetPauseDuration: BigInt
+  resetPauseUntil: BigInt
+  scheduleStarted: AutoConvertScheduleStartedRecord
+  scheduleReset: AutoConvertScheduleResetRecord
+  priorityFloorBdv: BigInt
+  cycleFloorBdv: BigInt
+  flowState: AutoConvertFlowStateRecord
+  lastDecision: AutoConvertDecisionRecord
+  totalBdvConverted: BigInt!
+}
+type AutoConvertWellState @entity(immutable: false) {
+  id: ID!
+  program: AutoConvertProgram!
+  well: Bytes!
+  policy: AutoConvertWellPolicyRecord
+  oracle: AutoConvertWellOracleRecord
+}
+# Absolute signed adjustment, keyed by account + packed token/stem depositId.
+# Keep zero tombstones: a removal/re-add must never inherit a stale adjustment.
+type DepositGrownStalkState @entity(immutable: false) {
+  id: ID!
+  account: Bytes!
+  depositId: BigInt!
+  adjustment: BigInt!
+  lastEvent: DepositGrownStalkAdjustmentRecord!
+}
+
+
+type PintoFeeSettingsState @entity(immutable: false) {
+  id: ID!
+  defaultFeeBps: BigInt!
+  defaultVersion: BigInt!
+  version: BigInt!
+}
+type PintoWellFeeOverride @entity(immutable: false) {
+  id: ID!
+  settings: PintoFeeSettingsState!
+  well: Bytes!
+  configured: Boolean!
+  feeBps: BigInt!
+  version: BigInt!
+}
+type PintoFeeChangeRecord @entity(immutable: true) {
+  id: ID!
+  settings: Bytes!
+  action: String!
+  well: Bytes
+  previousFeeBps: BigInt
+  feeBps: BigInt!
+  version: BigInt!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+}
+
+# BEGIN GENERATED AUTO CONVERT EVENTS
+
+type AutoConvertActivatedRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  programId: BigInt!
+  activationSeason: BigInt!
+  nextEligibleAt: BigInt!
+}
+
+type AutoConvertConfigurationVersionRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  programId: BigInt!
+  configVersion: BigInt!
+}
+
+type AutoConvertConfiguredRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  programId: BigInt!
+  configVersion: BigInt!
+  wells: [Bytes!]!
+}
+
+type AutoConvertDecisionRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  programId: BigInt!
+  season: BigInt!
+  configVersion: BigInt!
+  outcome: BigInt!
+  reason: BigInt!
+  well: Bytes!
+  windowUnits: BigInt!
+  gasAllowance: BigInt!
+}
+
+type AutoConvertEndedRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  programId: BigInt!
+  totalBdvConverted: BigInt!
+}
+
+type AutoConvertExecutionSummaryRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  programId: BigInt!
+  season: BigInt!
+  configVersion: BigInt!
+  mode: BigInt!
+  marketTargetWad: BigInt!
+  targetPriceWad: BigInt!
+  referenceLossUsd: BigInt!
+  inventoryLimited: Boolean!
+}
+
+type AutoConvertFeePolicyBoundRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  well: Bytes!
+  settings: Bytes!
+  feeBps: BigInt!
+  feeVersion: BigInt!
+}
+
+type AutoConvertFlowEnabledRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  aggregation: BigInt!
+}
+
+type AutoConvertFlowSampleRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  season: BigInt!
+  well: Bytes!
+  openedAt: BigInt!
+  nativeFlow: BigInt!
+  quotePriceUsd: BigInt!
+  tokenUnit: BigInt!
+  flowUsd: BigInt!
+}
+
+type AutoConvertFlowStateRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  programId: BigInt!
+  season: BigInt!
+  configVersion: BigInt!
+  phase: BigInt!
+  requiredChillFactor: BigInt!
+  chillFactor: BigInt!
+  qualified: Boolean!
+  measurementValid: Boolean!
+  outflowPaused: Boolean!
+  liquidityUsd: BigInt!
+  supplyUsd: BigInt!
+}
+
+type AutoConvertFlowWindowUpdatedRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  openedAt: BigInt!
+  closedAt: BigInt!
+  netFlowUsd: BigInt!
+  averageHourlyFlowUsd: BigInt!
+  ready: Boolean!
+}
+
+type AutoConvertLaunchCreditAppliedRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  season: BigInt!
+  requiredChillFactor: BigInt!
+  initialChillFactor: BigInt!
+}
+
+type AutoConvertOracleDetailRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  season: BigInt!
+  well: Bytes!
+  reason: BigInt!
+  lookback: BigInt!
+  reserve0: BigInt!
+  reserve1: BigInt!
+}
+
+type AutoConvertOutflowPauseChangedRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  season: BigInt!
+  paused: Boolean!
+  averageOutflowUsd: BigInt!
+  allowanceUsd: BigInt!
+}
+
+type AutoConvertParametersRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  programId: BigInt!
+  configVersion: BigInt!
+  minExecutionBdv: BigInt!
+  fixedReward: BigInt!
+  minPositionBdv: BigInt!
+}
+
+type AutoConvertPauseChangedRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  programId: BigInt!
+  paused: Boolean!
+}
+
+type AutoConvertPegConfirmedRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  season: BigInt!
+  confirmedAt: BigInt!
+  cooldownUntil: BigInt!
+}
+
+type AutoConvertPolicyConfiguredRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  programId: BigInt!
+  policy_maxRewardBps: BigInt!
+  policy_maxValuePerWellUsd: BigInt!
+  policy_maxLossPerExecutionUsd: BigInt!
+}
+
+type AutoConvertPositionFloorSetRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  programId: BigInt!
+  season: BigInt!
+  previousFloorBdv: BigInt!
+  floorBdv: BigInt!
+  rewound: Boolean!
+}
+
+type AutoConvertPriorityFloorSetRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  programId: BigInt!
+  minPositionBdv: BigInt!
+}
+
+type AutoConvertPriorityProgressRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  programId: BigInt!
+  well: Bytes!
+  newestFirst: Boolean!
+  nextNode: Bytes!
+  candidate: Bytes!
+  stem: BigInt!
+  amount: BigInt!
+  ready: Boolean!
+}
+
+type AutoConvertResetPauseDurationConfiguredRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  programId: BigInt!
+  durationSeconds: BigInt!
+}
+
+type AutoConvertResetPauseExpiredRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  programId: BigInt!
+  pauseUntil: BigInt!
+}
+
+type AutoConvertResetPauseStartedRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  programId: BigInt!
+  season: BigInt!
+  triggeredAt: BigInt!
+  previousPauseUntil: BigInt!
+  pauseUntil: BigInt!
+}
+
+type AutoConvertResetPolicyConfiguredRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  programId: BigInt!
+  bufferBps: [BigInt!]!
+}
+
+type AutoConvertRewardFundedRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  funder: Bytes!
+  amount: BigInt!
+}
+
+type AutoConvertRewardWithdrawnRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  recipient: Bytes!
+  amount: BigInt!
+}
+
+type AutoConvertScheduleDeferredRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  programId: BigInt!
+  season: BigInt!
+  stage: BigInt!
+}
+
+type AutoConvertScheduleResetRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  programId: BigInt!
+  season: BigInt!
+  previousReferencePriceUsd: BigInt!
+  referencePriceUsd: BigInt!
+  durationSeasons: BigInt!
+  hourlyPriceFactor: BigInt!
+  bufferBps: BigInt!
+}
+
+type AutoConvertScheduleStartedRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  programId: BigInt!
+  season: BigInt!
+  referencePriceUsd: BigInt!
+  durationSeasons: BigInt!
+  hourlyPriceFactor: BigInt!
+}
+
+type AutoConvertWellConfiguredRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  well: Bytes!
+  minLp: BigInt!
+  maxLp: BigInt!
+}
+
+type AutoConvertWellOracleRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  season: BigInt!
+  configVersion: BigInt!
+  well: Bytes!
+  valid: Boolean!
+  twaDeltaB: BigInt!
+  beanUsdPrice: BigInt!
+}
+
+type AutoConvertWellPlanRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  programId: BigInt!
+  season: BigInt!
+  well: Bytes!
+  currentPriceWad: BigInt!
+  postPriceWad: BigInt!
+  valueUsd: BigInt!
+  lossUsd: BigInt!
+  flags: BigInt!
+}
+
+type AutoConvertWellPolicyRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  programId: BigInt!
+  configVersion: BigInt!
+  well: Bytes!
+  minLp: BigInt!
+  maxLp: BigInt!
+  configurationHash: Bytes!
+}
+
+type AutoConvertWhitelistChangedRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  well: Bytes!
+  configVersion: BigInt!
+}
+
+type DepositGrownStalkAdjustmentRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  account: Bytes!
+  depositId: BigInt!
+  adjustment: BigInt!
+}
+
+type OrderedDepositInsertedRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  token: Bytes!
+  depositId: Bytes!
+  account: Bytes!
+  stem: BigInt!
+  previous: Bytes!
+  next: Bytes!
+}
+
+type OrderedDepositRemovedRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  token: Bytes!
+  depositId: Bytes!
+}
+
+type OrderedDepositsEnabledRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  token: Bytes!
+}
+
+type SiloDepositsRedeemedRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  account: Bytes!
+  well: Bytes!
+  lpAmount: BigInt!
+  pintoAmount: BigInt!
+  mode: BigInt!
+}
+
+type SiloDepositsRedeemedToPairedTokenRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  account: Bytes!
+  well: Bytes!
+  tokenOut: Bytes!
+  lpAmount: BigInt!
+  amountOut: BigInt!
+  mode: BigInt!
+}
+
+type SiloPintoDepositsSwappedRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  account: Bytes!
+  well: Bytes!
+  tokenOut: Bytes!
+  pintoAmount: BigInt!
+  amountOut: BigInt!
+  mode: BigInt!
+}
+
+type SiloRedemptionInitializedRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  referenceWell: Bytes!
+  minGrownStalkPerBdv: BigInt!
+  season: BigInt!
+}
+
+type SiloRedemptionWellEnabledRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  well: Bytes!
+}

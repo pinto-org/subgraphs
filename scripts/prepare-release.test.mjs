@@ -13,6 +13,7 @@ const config = () => ({
   upgradeBlock: 53000000,
   priceAddress: "0x" + "11".repeat(20),
   stable2Address: "0x" + "22".repeat(20),
+  feeSettings: [{ address: "0x" + "55".repeat(20), startBlock: 52999980 }],
   boredWells: [{ proxy: "0x3e1133aC082716DDC3114bbEFEeD8B1731eA9cb1", implementation: "0x" + "33".repeat(20) }],
   tractorHelpers: [{ address: "0x" + "44".repeat(20), startBlock: 52999990 }]
 });
@@ -28,7 +29,7 @@ for (const project of ["beanstalk", "bean", "basin"]) {
       assert.equal(ds.context.pintoStable2Address.type, "Bytes");
     }
     for (const template of prepared.templates ?? []) assert.equal(template.context, undefined);
-    assert.equal(prepared.dataSources.length, source.dataSources.length + (project === "beanstalk" ? 1 : 0));
+    assert.equal(prepared.dataSources.length, source.dataSources.length + (project === "beanstalk" ? 2 : 0));
   });
 }
 
@@ -76,3 +77,35 @@ for (const invalid of [
     assert.throws(() => validateRelease(c));
   });
 }
+
+test("fee settings sources start at deployment and cover default and override changes exactly once", () => {
+  const source = YAML.parse(readFileSync("src/subgraphs/beanstalk/manifests/pinto.yaml", "utf8"));
+  const prepared = configureManifest(source, config(), "beanstalk");
+  const settings = prepared.dataSources.filter((s) => s.name.startsWith("PintoFeeSettings"));
+  assert.equal(settings.length, 1);
+  assert.equal(settings[0].source.startBlock, 52999980);
+  assert.equal(settings[0].mapping.eventHandlers.length, 4);
+  const duplicate = config();
+  duplicate.feeSettings.push(duplicate.feeSettings[0]);
+  assert.throws(() => validateRelease(duplicate), /Duplicate fee settings/);
+  const missing = config();
+  delete missing.feeSettings;
+  assert.throws(() => validateRelease(missing), /Missing fee settings/);
+});
+
+test("every protocol event in the auto-convert ABI has exactly one matching Beanstalk handler", () => {
+  const manifest = YAML.parse(readFileSync("src/subgraphs/beanstalk/manifests/pinto.yaml", "utf8"));
+  const abi = JSON.parse(readFileSync("src/core/abis/Beanstalk/Pinto-AutoConvert.json"));
+  const covered = manifest.dataSources
+    .filter((s) => ["AutoConvert", "AutoConvertEvents"].includes(s.name))
+    .flatMap((s) => s.mapping.eventHandlers);
+  function type(p) {
+    return p.type === "tuple" ? `(${p.components.map(type).join(",")})` : p.type;
+  }
+  for (const e of abi) {
+    if (["PintoFeeWellUpgraded", "WellFunctionReplaced"].includes(e.name)) continue; // Basin owns these.
+    const signature = e.name + "(" + e.inputs.map((p) => (p.indexed ? "indexed " : "") + type(p)).join(",") + ")";
+    assert.equal(covered.filter((h) => h.event === signature).length, 1, signature);
+  }
+  assert.equal(covered.length, 50);
+});

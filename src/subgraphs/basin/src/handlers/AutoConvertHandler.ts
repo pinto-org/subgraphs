@@ -1,3 +1,5 @@
+import { AutoConvertFeePolicyBound } from "../../generated/Basin-ABIs/PintoAutoConvert";
+import { PintoCanonicalFeeWell } from "../../generated/schema";
 import {
   AutoConvertWell,
   WellFunctionReplaced,
@@ -50,4 +52,12 @@ export function handlePintoFeeWellUpgraded(event: PintoFeeWellUpgraded): void {
   well.boredWell = event.params.boredImplementation;
   well.save();
   createWellUpgradeHistoryEntry(well, event.block);
+}
+
+export function handleAutoConvertFeePolicyBound(event: AutoConvertFeePolicyBound): void {
+  const row = new PintoCanonicalFeeWell(event.params.well);
+  row.settings = event.params.settings;
+  row.boundFeeBps = event.params.feeBps;
+  row.boundFeeVersion = event.params.feeVersion;
+  row.save();
 }

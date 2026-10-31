@@ -4,6 +4,161 @@ schema:
 indexerHints:
   prune: never
 dataSources:
+  # BEGIN AUTO CONVERT EVENT COVERAGE
+  - kind: ethereum/contract
+    name: AutoConvertEvents
+    network: base
+    source:
+      address: "0xD1A0D188E861ed9d15773a2F3574a2e94134bA8f"
+      abi: PintoAutoConvert
+      startBlock: 22622961
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - AutoConvertActivatedRecord
+        - AutoConvertConfigurationVersionRecord
+        - AutoConvertConfiguredRecord
+        - AutoConvertDecisionRecord
+        - AutoConvertEndedRecord
+        - AutoConvertExecutionSummaryRecord
+        - AutoConvertFeePolicyBoundRecord
+        - AutoConvertFlowEnabledRecord
+        - AutoConvertFlowSampleRecord
+        - AutoConvertFlowStateRecord
+        - AutoConvertFlowWindowUpdatedRecord
+        - AutoConvertLaunchCreditAppliedRecord
+        - AutoConvertOracleDetailRecord
+        - AutoConvertOutflowPauseChangedRecord
+        - AutoConvertParametersRecord
+        - AutoConvertPauseChangedRecord
+        - AutoConvertPegConfirmedRecord
+        - AutoConvertPolicyConfiguredRecord
+        - AutoConvertPositionFloorSetRecord
+        - AutoConvertPriorityFloorSetRecord
+        - AutoConvertPriorityProgressRecord
+        - AutoConvertResetPauseDurationConfiguredRecord
+        - AutoConvertResetPauseExpiredRecord
+        - AutoConvertResetPauseStartedRecord
+        - AutoConvertResetPolicyConfiguredRecord
+        - AutoConvertRewardFundedRecord
+        - AutoConvertRewardWithdrawnRecord
+        - AutoConvertScheduleDeferredRecord
+        - AutoConvertScheduleResetRecord
+        - AutoConvertScheduleStartedRecord
+        - AutoConvertWellConfiguredRecord
+        - AutoConvertWellOracleRecord
+        - AutoConvertWellPlanRecord
+        - AutoConvertWellPolicyRecord
+        - AutoConvertWhitelistChangedRecord
+        - DepositGrownStalkAdjustmentRecord
+        - OrderedDepositInsertedRecord
+        - OrderedDepositRemovedRecord
+        - OrderedDepositsEnabledRecord
+        - SiloDepositsRedeemedRecord
+        - SiloDepositsRedeemedToPairedTokenRecord
+        - SiloPintoDepositsSwappedRecord
+        - SiloRedemptionInitializedRecord
+        - SiloRedemptionWellEnabledRecord
+        - AutoConvertProgram
+        - AutoConvertController
+        - AutoConvertWellState
+        - DepositGrownStalkState
+      abis:
+        - name: PintoAutoConvert
+          file: ../../../core/abis/Beanstalk/Pinto-AutoConvert.json
+      eventHandlers:
+        - event: AutoConvertActivated(indexed uint32,indexed uint32,uint40)
+          handler: handleAutoConvertActivated
+        - event: AutoConvertConfigurationVersion(indexed uint32,uint32)
+          handler: handleAutoConvertConfigurationVersion
+        - event: AutoConvertConfigured(indexed uint32,indexed uint32,address[])
+          handler: handleAutoConvertConfigured
+        - event: AutoConvertDecision(indexed uint32,indexed uint32,uint32,uint8,uint8,address,uint256,uint256)
+          handler: handleAutoConvertDecision
+        - event: AutoConvertEnded(indexed uint32,uint256)
+          handler: handleAutoConvertEnded
+        - event: AutoConvertExecutionSummary(indexed uint32,indexed uint32,uint32,uint8,uint256,uint256,uint256,bool)
+          handler: handleAutoConvertExecutionSummary
+        - event: AutoConvertFeePolicyBound(indexed address,indexed address,uint256,uint256)
+          handler: handleAutoConvertFeePolicyBound
+        - event: AutoConvertFlowEnabled(uint8)
+          handler: handleAutoConvertFlowEnabled
+        - event: AutoConvertFlowSample(indexed uint32,indexed address,uint40,int256,uint256,uint256,int256)
+          handler: handleAutoConvertFlowSample
+        - event: AutoConvertFlowState(indexed uint32,indexed uint32,uint32,uint8,uint256,uint256,bool,bool,bool,uint256,uint256)
+          handler: handleAutoConvertFlowState
+        - event: AutoConvertFlowWindowUpdated(uint40,uint40,int256,int256,bool)
+          handler: handleAutoConvertFlowWindowUpdated
+        - event: AutoConvertLaunchCreditApplied(indexed uint32,uint256,uint256)
+          handler: handleAutoConvertLaunchCreditApplied
+        - event: AutoConvertOracleDetail(indexed uint32,indexed address,uint8,uint256,uint256,uint256)
+          handler: handleAutoConvertOracleDetail
+        - event: AutoConvertOutflowPauseChanged(indexed uint32,bool,uint256,uint256)
+          handler: handleAutoConvertOutflowPauseChanged
+        - event: AutoConvertParameters(indexed uint32,indexed uint32,uint256,uint256,uint256)
+          handler: handleAutoConvertParameters
+        - event: AutoConvertPauseChanged(indexed uint32,bool)
+          handler: handleAutoConvertPauseChanged
+        - event: AutoConvertPegConfirmed(indexed uint32,uint40,uint40)
+          handler: handleAutoConvertPegConfirmed
+        - event: AutoConvertPolicyConfigured(indexed uint32,(uint16,uint256,uint256))
+          handler: handleAutoConvertPolicyConfigured
+        - event: AutoConvertPositionFloorSet(indexed uint32,indexed uint32,uint256,uint256,bool)
+          handler: handleAutoConvertPositionFloorSet
+        - event: AutoConvertPriorityFloorSet(indexed uint32,uint256)
+          handler: handleAutoConvertPriorityFloorSet
+        - event: AutoConvertPriorityProgress(indexed uint32,indexed address,bool,bytes32,address,int96,uint256,bool)
+          handler: handleAutoConvertPriorityProgress
+        - event: AutoConvertResetPauseDurationConfigured(indexed uint32,uint32)
+          handler: handleAutoConvertResetPauseDurationConfigured
+        - event: AutoConvertResetPauseExpired(indexed uint32,uint40)
+          handler: handleAutoConvertResetPauseExpired
+        - event: AutoConvertResetPauseStarted(indexed uint32,indexed uint32,uint40,uint40,uint40)
+          handler: handleAutoConvertResetPauseStarted
+        - event: AutoConvertResetPolicyConfigured(indexed uint32,uint16[4])
+          handler: handleAutoConvertResetPolicyConfigured
+        - event: AutoConvertRewardFunded(indexed address,uint256)
+          handler: handleAutoConvertRewardFunded
+        - event: AutoConvertRewardWithdrawn(indexed address,uint256)
+          handler: handleAutoConvertRewardWithdrawn
+        - event: AutoConvertScheduleDeferred(indexed uint32,indexed uint32,uint8)
+          handler: handleAutoConvertScheduleDeferred
+        - event: AutoConvertScheduleReset(indexed uint32,indexed uint32,uint256,uint256,uint256,uint256,uint16)
+          handler: handleAutoConvertScheduleReset
+        - event: AutoConvertScheduleStarted(indexed uint32,indexed uint32,uint256,uint256,uint256)
+          handler: handleAutoConvertScheduleStarted
+        - event: AutoConvertWellConfigured(indexed address,uint256,uint256)
+          handler: handleAutoConvertWellConfigured
+        - event: AutoConvertWellOracle(indexed uint32,indexed uint32,indexed address,bool,int256,uint256)
+          handler: handleAutoConvertWellOracle
+        - event: AutoConvertWellPlan(indexed uint32,indexed uint32,indexed address,uint256,uint256,uint256,uint256,uint8)
+          handler: handleAutoConvertWellPlan
+        - event: AutoConvertWellPolicy(indexed uint32,indexed uint32,indexed address,uint256,uint256,bytes32)
+          handler: handleAutoConvertWellPolicy
+        - event: AutoConvertWhitelistChanged(indexed address,uint32)
+          handler: handleAutoConvertWhitelistChanged
+        - event: DepositGrownStalkAdjustment(indexed address,indexed uint256,int256)
+          handler: handleDepositGrownStalkAdjustment
+        - event: OrderedDepositInserted(indexed address,indexed bytes32,indexed address,int96,bytes32,bytes32)
+          handler: handleOrderedDepositInserted
+        - event: OrderedDepositRemoved(indexed address,indexed bytes32)
+          handler: handleOrderedDepositRemoved
+        - event: OrderedDepositsEnabled(indexed address)
+          handler: handleOrderedDepositsEnabled
+        - event: SiloDepositsRedeemed(indexed address,indexed address,uint256,uint256,uint8)
+          handler: handleSiloDepositsRedeemed
+        - event: SiloDepositsRedeemedToPairedToken(indexed address,indexed address,indexed address,uint256,uint256,uint8)
+          handler: handleSiloDepositsRedeemedToPairedToken
+        - event: SiloPintoDepositsSwapped(indexed address,indexed address,indexed address,uint256,uint256,uint8)
+          handler: handleSiloPintoDepositsSwapped
+        - event: SiloRedemptionInitialized(indexed address,uint96,uint32)
+          handler: handleSiloRedemptionInitialized
+        - event: SiloRedemptionWellEnabled(indexed address)
+          handler: handleSiloRedemptionWellEnabled
+      file: ../src/handlers/AutoConvertEventsHandler.ts
+  # END AUTO CONVERT EVENT COVERAGE
   # Event-only additions are safe before activation: no new getters are called.
   - kind: ethereum/contract
     name: AutoConvert

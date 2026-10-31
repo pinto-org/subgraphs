@@ -1,3 +1,4 @@
+import { updateAutoConvertState } from "../utils/AutoConvertState";
 import { ethereum } from "@graphprotocol/graph-ts";
 import {
   AutoConvertBatch,
@@ -37,6 +38,7 @@ export function handleAutoConvertBatch(event: AutoConvertBatch): void {
   row.executor = event.params.executor;
   row.reward = event.params.reward;
   row.save();
+  updateAutoConvertState("AutoConvertBatch", event, row.id);
 }
 
 export function handleAutoConvertPosition(event: AutoConvertPosition): void {

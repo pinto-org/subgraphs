@@ -21,6 +21,8 @@ dataSources:
         - name: PintoAutoConvert
           file: ../../../core/abis/Beanstalk/Pinto-AutoConvert.json
       eventHandlers:
+        - event: AutoConvertFeePolicyBound(indexed address,indexed address,uint256,uint256)
+          handler: handleAutoConvertFeePolicyBound
         - event: AutoConvertWell(indexed uint32,indexed uint32,indexed address,uint256,uint256,uint256)
           handler: handleAutoConvertWell
         - event: PintoFeeWellUpgraded(indexed address,indexed address,address)
@@ -198,6 +200,8 @@ templates:
         - name: CurvePrice
           file: ../../../core/abis/CurvePrice.json
       eventHandlers:
+        - event: PintoTradingFlowInvalidated(uint256,uint8)
+          handler: handlePintoTradingFlowInvalidated
         - event: PintoFeeBurned(uint256)
           handler: handlePintoFeeBurned
         - event: AddLiquidity(uint256[],uint256,address)

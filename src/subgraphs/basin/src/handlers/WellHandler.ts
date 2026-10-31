@@ -13,8 +13,8 @@ import { loadOrCreateAccount } from "../entities/Account";
 import { SwapInfo } from "../utils/Volume";
 import { toAddress } from "../../../../core/utils/Bytes";
 import { finalTradeProcessing, liquidity, swap } from "../utils/Exchange";
-import { PintoFeeBurned } from "../../generated/Basin-ABIs/PintoFeeWell";
-import { PintoFeeBurnRecord } from "../../generated/schema";
+import { PintoFeeBurned, PintoTradingFlowInvalidated } from "../../generated/Basin-ABIs/PintoFeeWell";
+import { PintoFeeBurnRecord, PintoCanonicalFeeWell, PintoTradingFlowInvalidationRecord } from "../../generated/schema";
 import { getProtocolToken, getWhitelistedWells } from "../../../../core/constants/RuntimeConstants";
 import { v } from "../utils/constants/Version";
 import { ZERO_BI } from "../../../../core/utils/Decimals";
@@ -24,7 +24,7 @@ import { updateWellTokenUSDPrices } from "../utils/Well";
 export function handlePintoFeeBurned(event: PintoFeeBurned): void {
   // Aquifer is permissionless. Only canonical Pinto Wells have this fee policy;
   // a third-party Well emitting the same signature must not alter our accounting.
-  if (!getWhitelistedWells(v()).includes(event.address)) return;
+  if (!getWhitelistedWells(v()).includes(event.address) && PintoCanonicalFeeWell.load(event.address) == null) return;
   const row = new PintoFeeBurnRecord(event.transaction.hash.toHexString() + "-" + event.logIndex.toString());
   row.well = event.address;
   row.amount = event.params.amount;
@@ -110,4 +110,19 @@ export function handleShift(event: Shift): void {
     amountOut: event.params.amountOut
   };
   swap(swapInfo, deltaReserves, event);
+}
+
+export function handlePintoTradingFlowInvalidated(event: PintoTradingFlowInvalidated): void {
+  if (!getWhitelistedWells(v()).includes(event.address) && PintoCanonicalFeeWell.load(event.address) == null) return;
+  const row = new PintoTradingFlowInvalidationRecord(
+    event.transaction.hash.toHexString() + "-" + event.logIndex.toString()
+  );
+  row.well = event.address;
+  row.invalidity = event.params.invalidity;
+  row.reason = BigInt.fromI32(event.params.reason);
+  row.transactionHash = event.transaction.hash;
+  row.logIndex = event.logIndex;
+  row.blockNumber = event.block.number;
+  row.timestamp = event.block.timestamp;
+  row.save();
 }

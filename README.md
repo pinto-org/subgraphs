@@ -86,3 +86,31 @@ Underlying logic should be included in a separate file provided in the `utils` f
 ## License
 
 [MIT](https://github.com/pinto-org/subgraphs/blob/main/LICENSE.txt)
+
+### Auto-convert observability
+
+The Pinto Beanstalk manifest indexes 50 protocol event types: the six original execution/flow events plus 44 additional events covering controller configuration and lifecycle, schedule/reset pauses, priority maintenance, oracle observations, Chill Factor and trading-flow inputs, reward funding, ordered-deposit membership, exact grown-Stalk adjustments, and Silo redemption. `scripts/auto-convert-event-coverage.json` lists the added signatures and fields. Each immutable `*Record` uses `transactionHash-logIndex`, including multiple records in the same transaction or season.
+
+`AutoConvertController` points to the current `AutoConvertProgram` and tracks the global funded reward reserve. Programs retain their configuration, policy, schedule, pause, floor, latest decision, and flow-state records. `AutoConvertWellState` retains policy and oracle records; compare their configuration versions with the current program before treating an observation as usable. Old program records remain queryable. `resetPauseUntil` is a timestamp: the pause can expire before the later `AutoConvertResetPauseExpired` log. `AutoConvertEnded` means administrative shutdown, not completion of a recurring peg-recovery cycle.
+
+`AutoConvertDecision` outcomes are 0 skipped, 1 precheck failed, 2 child failed, and 3 executed. Reason codes are 0 none, 1 inactive, 2 policy missing, 3 governance pause, 4 reset pause, 5 outflow pause, 6 qualification, 7 invalid basket, 8 cadence, 9 observation already used, 10 no schedule, 11 Well unconfigured, 12 incomplete index, 13 invalid oracle, 14 no gas window, and 15 no Well below peg (matching `IAutoConvertEvents.Reason`). A child failure's four-byte revert selector and measured gas remain in `SunriseAutoConvertAttemptRecord`; the decision adds the program/configuration, allocated window, and child gas allowance. A reverted standalone call or reverted outer Sunrise leaves no on-chain records. Failed child execution logs roll back while the parent's failure decision survives.
+
+Execution summaries record explicit/automatic/Sunrise mode (0/1/2), market and executed targets, conservative reference loss including reward, and whether inventory reduced the target. Per-Well plans record prices, value, loss, target-already-met (flags bit 0), and exhausted source inventory (bit 1). Legacy Well/Position records retain the actual amounts. Correlate records by transaction and log order: per-Well plans precede settlement, then the execution summary and final batch event terminate that batch. A batch's Well count includes zero legs. These records do not alter the existing Silo balance or conversion-accounting handlers.
+
+Flow-state phase 0 describes the completed interval using its opening liquidity/supply values; phase 1 describes the next opening. `measurementValid` refers to the closed interval in both. Per-Well samples use the frozen opening quote and token units; a sample alone does not establish validity for the whole basket. Read the accompanying flow observation/window/state. Flow values and conservative losses use the protocol's emitted units (USD6 for USD fields); native-flow meters carry 18 extra decimal places. Oracle details distinguish base-data, mature-window, reserve, pricing and bounded-call failures without logging unbounded revert data.
+
+`DepositGrownStalkState` stores the **absolute signed** adjustment for account + packed deposit ID. A zero event clears it; it is never accumulated as a delta or applied again to account Stalk balances. Ordered-deposit and redemption records are metadata/history only. A redemption-enabled Well must also remain whitelisted before it is currently usable.
+
+Fee settings live at separate addresses. Release preparation now requires `feeSettings: [{address, startBlock}]` with each actual deployment block, so changes made before the protocol binds a Well are replayed too. Include future replacement settings in this list when preparing an updated deployment. The release manifest indexes initialization, default changes, per-Well overrides, and clears. `PintoWellFeeOverride.configured = true` includes an explicit zero fee. When false/absent, use `PintoFeeSettingsState.defaultFeeBps`; the effective version is the larger of the clear revision and default revision. `AutoConvertFeePolicyBoundRecord` is a snapshot at binding, not a continually refreshed fee quote.
+
+Basin indexes rare trading-flow invalidations and admits future fee Wells only from the protocol's `AutoConvertFeePolicyBound` event. A permissionless Well cannot authorize itself by emitting a fee/flow event. Ordinary trades receive no extra flow log.
+
+To synchronize after compiling the adjacent protocol checkout:
+
+```sh
+node scripts/sync-auto-convert-events.mjs ../protocol
+npm run codegen
+node --test scripts/prepare-release.test.mjs
+```
+
+The generator changes only event ABIs, the marked schema/manifest sections, and `AutoConvertEventsHandler.ts`. State reconstruction and accounting remain hand-written. Run Matchstick for Beanstalk and Basin and build the prepared release manifest before deployment. Release preparation does not deploy anything; deployment addresses and blocks must come from receipts.

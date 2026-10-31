@@ -28,6 +28,17 @@ export function validateRelease(config) {
   block(config.upgradeBlock);
   address(config.priceAddress);
   address(config.stable2Address);
+  assert.ok(
+    Array.isArray(config.feeSettings) && config.feeSettings.length > 0,
+    "Missing fee settings deployment receipts"
+  );
+  const settings = new Set();
+  for (const entry of config.feeSettings) {
+    const value = address(entry.address);
+    assert.ok(!settings.has(value), "Duplicate fee settings source");
+    settings.add(value);
+    assert.ok(block(entry.startBlock) <= config.upgradeBlock, "Fee settings starts after upgrade");
+  }
   assert.ok(Array.isArray(config.boredWells) && config.boredWells.length > 0, "Missing proxy/implementation mapping");
   const bored = new Set(),
     proxies = new Set();
@@ -73,6 +84,33 @@ export function configureManifest(manifest, config, project) {
     ds.context = { ...ds.context, ...context };
   }
   if (project === "beanstalk") {
+    for (const [i, settings] of config.feeSettings.entries()) {
+      assert.ok(
+        !result.dataSources.some((s) => s.source.address?.toLowerCase() === address(settings.address)),
+        "Fee settings already indexed"
+      );
+      result.dataSources.push({
+        kind: "ethereum/contract",
+        name: `PintoFeeSettings${i}`,
+        network: "base",
+        context,
+        source: { address: address(settings.address), abi: "PintoFeeSettings", startBlock: settings.startBlock },
+        mapping: {
+          kind: "ethereum/events",
+          apiVersion: "0.0.7",
+          language: "wasm/assemblyscript",
+          entities: ["PintoFeeSettingsState", "PintoWellFeeOverride", "PintoFeeChangeRecord"],
+          abis: [{ name: "PintoFeeSettings", file: "../../../core/abis/PintoFeeSettings.json" }],
+          eventHandlers: [
+            { event: "PintoFeeSettingsInitialized(uint256,uint256)", handler: "handleFeeSettingsInitialized" },
+            { event: "FeeChanged(uint256,uint256,uint256)", handler: "handleFeeChanged" },
+            { event: "WellFeeSet(indexed address,uint256,uint256,uint256)", handler: "handleWellFeeSet" },
+            { event: "WellFeeCleared(indexed address,uint256,uint256,uint256)", handler: "handleWellFeeCleared" }
+          ],
+          file: "../src/handlers/PintoFeeSettingsHandler.ts"
+        }
+      });
+    }
     const source = result.dataSources.find((s) => s.name === "TractorHelpersConvertUpV0");
     assert.ok(source, "Missing Tractor template source");
     for (const [i, helper] of config.tractorHelpers.entries()) {
