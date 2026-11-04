@@ -1,3 +1,5 @@
+import { SiloRedemptionPolicyState } from "../generated/schema";
+import { removeAutoConvertWell } from "../src/utils/AutoConvertState";
 import { afterEach, assert, clearStore, test, newMockEvent } from "matchstick-as/assembly/index";
 import { Address, BigInt, Bytes, ethereum } from "@graphprotocol/graph-ts";
 import {
@@ -6,12 +8,27 @@ import {
   handleAutoConvertPauseChanged,
   handleAutoConvertEnded,
   handleAutoConvertConfigurationVersion,
-  handleAutoConvertRewardFunded,
-  handleAutoConvertRewardWithdrawn,
   handleAutoConvertResetPauseStarted,
   handleAutoConvertResetPauseExpired,
-  handleAutoConvertPolicyConfigured,
   handleAutoConvertResetPolicyConfigured,
+  handleAutoConvertParameters,
+  handleAutoConvertWaitingPolicyConfigured,
+  handleAutoConvertDurationsConfigured,
+  handleAutoConvertPricePolicyConfigured,
+  handleAutoConvertFlowAllowanceConfigured,
+  handleAutoConvertOutflowMultiplierConfigured,
+  handleAutoConvertMinPositionValueConfigured,
+  handleAutoConvertMinPositionValueApplied,
+  handleAutoConvertPositionFloorSet,
+  handleAutoConvertPositionFloorReleased,
+  handleAutoConvertResetPauseUpdated,
+  handleAutoConvertResetPauseClearedByCompletion,
+  handleAutoConvertWhitelistChanged,
+  handleOrderedDepositBackfillOperatorSet,
+  handleOrderedDepositMigrationVerified,
+  handleSiloRedemptionInitialized,
+  handleSiloRedemptionEmaConfigured,
+  handleSiloRedemptionEmaUpdated,
   handleDepositGrownStalkAdjustment,
   handleAutoConvertFlowSample,
   handleAutoConvertFlowState,
@@ -55,7 +72,7 @@ function id(e: ethereum.Event): string {
   return e.transaction.hash.toHexString() + "-" + e.logIndex.toString();
 }
 afterEach(() => clearStore());
-test("controller lifecycle survives pauses, expiry and program replacement; rewards are global", () => {
+test("controller lifecycle survives pauses, expiry and program replacement", () => {
   const e = event(
     [
       n("programId", 1),
@@ -81,7 +98,6 @@ test("controller lifecycle survives pauses, expiry and program replacement; rewa
   assert.fieldEquals("AutoConvertProgram", p, "resetPauseUntil", "0");
   handleAutoConvertConfigurationVersion(event([n("programId", 1), n("configVersion", 3)], 6));
   assert.fieldEquals("AutoConvertProgram", p, "configVersion", "3");
-  handleAutoConvertRewardFunded(event([address("funder", account), n("amount", 100)], 7));
   const batch = changetype<AutoConvertBatch>(
     event(
       [
@@ -90,9 +106,15 @@ test("controller lifecycle survives pauses, expiry and program replacement; rewa
         n("wellCount", 1),
         n("bdvConverted", 50),
         address("executor", account),
-        n("reward", 10),
-        tuple("details", [n("configVersion", 3), n("mode", 2), n("marketTargetWad", 1000),
-          n("targetPriceWad", 950), n("referenceLossUsd", 15), bool("inventoryLimited", true)])
+        n("reward", 0),
+        tuple("details", [
+          n("configVersion", 3),
+          n("mode", 2),
+          n("marketTargetWad", 1000),
+          n("targetPriceWad", 950),
+          n("referenceLossUsd", 15),
+          bool("inventoryLimited", true)
+        ])
       ],
       8
     )
@@ -100,8 +122,6 @@ test("controller lifecycle survives pauses, expiry and program replacement; rewa
   handleAutoConvertBatch(batch);
   assert.fieldEquals("AutoConvertBatchRecord", id(batch), "details_referenceLossUsd", "15");
   assert.fieldEquals("AutoConvertBatchRecord", id(batch), "details_inventoryLimited", "true");
-  handleAutoConvertRewardWithdrawn(event([address("recipient", account), n("amount", 20)], 9));
-  assert.fieldEquals("AutoConvertController", e.address.toHexString(), "rewardReserve", "70");
   assert.fieldEquals("AutoConvertProgram", p, "totalBdvConverted", "50");
   handleAutoConvertEnded(event([n("programId", 1), n("totalBdvConverted", 50)], 10));
   assert.fieldEquals("AutoConvertProgram", p, "active", "false");
@@ -115,7 +135,6 @@ test("controller lifecycle survives pauses, expiry and program replacement; rewa
       11
     )
   );
-  assert.fieldEquals("AutoConvertController", e.address.toHexString(), "rewardReserve", "70");
   assert.fieldEquals(
     "AutoConvertController",
     e.address.toHexString(),
@@ -125,10 +144,24 @@ test("controller lifecycle survives pauses, expiry and program replacement; rewa
   assert.entityCount("AutoConvertProgram", 2);
 });
 test("merged Well keeps zero-leg plan flags without inventing account balances", () => {
-  const e = event([n("programId", 1), n("observationSeason", 101), address("well", well),
-    n("lpAmount", 0), n("beanAmount", 0), n("bdvConverted", 0),
-    tuple("plan", [n("currentPriceWad", 1100), n("postPriceWad", 1100), n("valueUsd", 0),
-      n("lossUsd", 0), n("flags", 1)])], 1);
+  const e = event(
+    [
+      n("programId", 1),
+      n("observationSeason", 101),
+      address("well", well),
+      n("lpAmount", 0),
+      n("beanAmount", 0),
+      n("bdvConverted", 0),
+      tuple("plan", [
+        n("currentPriceWad", 1100),
+        n("postPriceWad", 1100),
+        n("valueUsd", 0),
+        n("lossUsd", 0),
+        n("flags", 1)
+      ])
+    ],
+    1
+  );
   handleAutoConvertWell(changetype<AutoConvertWell>(e));
   assert.fieldEquals("AutoConvertWellRecord", id(e), "plan_flags", "1");
   assert.fieldEquals("AutoConvertWellRecord", id(e), "plan_currentPriceWad", "1100");
@@ -145,33 +178,184 @@ test("grown Stalk is absolute, signed, and clears before deposit re-add", () => 
   assert.entityCount("DepositGrownStalkAdjustmentRecord", 4);
   assert.entityCount("Silo", 0);
 });
-test("tuple policies and fixed arrays retain every bound", () => {
-  const tuple = new ethereum.Tuple();
-  tuple.push(ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(25)));
-  tuple.push(ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(1000000)));
-  tuple.push(ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(500)));
-  const e = event([n("programId", 1), new ethereum.EventParam("policy", ethereum.Value.fromTuple(tuple))], 1);
-  handleAutoConvertPolicyConfigured(e);
-  assert.fieldEquals("AutoConvertPolicyConfiguredRecord", id(e), "policy_maxRewardBps", "25");
-  assert.fieldEquals("AutoConvertPolicyConfiguredRecord", id(e), "policy_maxValuePerWellUsd", "1000000");
-  assert.fieldEquals("AutoConvertPolicyConfiguredRecord", id(e), "policy_maxLossPerExecutionUsd", "500");
-  const reset = event(
-    [
-      n("programId", 1),
-      new ethereum.EventParam(
-        "bufferBps",
-        ethereum.Value.fromUnsignedBigIntArray([
-          BigInt.fromI32(1),
-          BigInt.fromI32(2),
-          BigInt.fromI32(3),
-          BigInt.fromI32(4)
-        ])
-      )
-    ],
+test("global policies retain all matrix cells and durations without inventing a program", () => {
+  const rows = new Array<ethereum.Value>();
+  for (let row = 0; row < 4; ++row) {
+    const values = new Array<BigInt>();
+    for (let col = 0; col < 4; ++col) values.push(BigInt.fromI32(row * 4 + col));
+    rows.push(ethereum.Value.fromUnsignedBigIntArray(values));
+  }
+  const waits = event(
+    [new ethereum.EventParam("waitingObservations", ethereum.Value.fromArray(rows)), n("launchRemaining", 10)],
+    1
+  );
+  handleAutoConvertWaitingPolicyConfigured(waits);
+  assert.fieldEquals(
+    "AutoConvertWaitingPolicyConfiguredRecord",
+    id(waits),
+    "waitingObservations",
+    "[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]"
+  );
+  const durations = new Array<BigInt>();
+  for (let i = 0; i < 144; ++i) durations.push(BigInt.fromI32(i + 1));
+  const duration = event(
+    [new ethereum.EventParam("durationSeasonsByCase", ethereum.Value.fromUnsignedBigIntArray(durations))],
     2
   );
+  handleAutoConvertDurationsConfigured(duration);
+  assert.fieldEquals(
+    "AutoConvertDurationsConfiguredRecord",
+    id(duration),
+    "durationSeasonsByCase",
+    "[" + durations.map<string>((x) => x.toString()).join(", ") + "]"
+  );
+  const price = event([n("maxStepBps", 100), n("minimumFeeBps", 25)], 3);
+  handleAutoConvertPricePolicyConfigured(price);
+  const flow = event([n("liquidityFraction", 10), n("supplyFraction", 20), n("minimumUsd", 1000000)], 4);
+  handleAutoConvertFlowAllowanceConfigured(flow);
+  handleAutoConvertOutflowMultiplierConfigured(
+    event([n("previousMultiplierBps", 30000), n("multiplierBps", 20000)], 5)
+  );
+  const c = waits.address.toHexString();
+  assert.fieldEquals("AutoConvertController", c, "waitingPolicy", id(waits));
+  assert.fieldEquals("AutoConvertController", c, "durations", id(duration));
+  assert.fieldEquals("AutoConvertController", c, "pricePolicy", id(price));
+  assert.fieldEquals("AutoConvertController", c, "flowAllowancePolicy", id(flow));
+  assert.fieldEquals("AutoConvertController", c, "outflowMultiplierBps", "20000");
+  assert.entityCount("AutoConvertProgram", 0);
+});
+test("USD policy staging cannot publish a Well floor before its pass boundary", () => {
+  const e = event([n("programId", 1), n("configVersion", 2)], 1);
+  handleAutoConvertParameters(e); // Latest event has only two parameters.
+  const p = e.address.toHexString() + "-1";
+  const w = p + "-" + well.toHexString();
+  const other = Address.fromString("0x0000000000000000000000000000000000000003");
+  handleAutoConvertPositionFloorSet(
+    event(
+      [
+        n("programId", 1),
+        address("well", well),
+        n("season", 100),
+        n("previousFloorLp", 0),
+        n("floorLp", 50),
+        bool("rewound", true)
+      ],
+      2
+    )
+  );
+  handleAutoConvertPositionFloorSet(
+    event(
+      [
+        n("programId", 1),
+        address("well", other),
+        n("season", 100),
+        n("previousFloorLp", 0),
+        n("floorLp", 70),
+        bool("rewound", false)
+      ],
+      3
+    )
+  );
+  handleAutoConvertMinPositionValueConfigured(event([n("valueUsd", 20000000)], 4));
+  const c = e.address.toHexString();
+  assert.fieldEquals("AutoConvertController", c, "minPositionValueConfiguredUsd", "20000000");
+  handleAutoConvertMinPositionValueApplied(event([n("valueUsd", 20000000), n("season", 101)], 5));
+  assert.fieldEquals("AutoConvertController", c, "minPositionValueAppliedSeason", "101");
+  assert.fieldEquals("AutoConvertWellState", w, "minPositionLp", "50");
+  handleAutoConvertPositionFloorSet(
+    event(
+      [
+        n("programId", 1),
+        address("well", well),
+        n("season", 102),
+        n("previousFloorLp", 50),
+        n("floorLp", 90),
+        bool("rewound", true)
+      ],
+      6
+    )
+  );
+  assert.fieldEquals("AutoConvertWellState", w, "minPositionLp", "90");
+  assert.fieldEquals("AutoConvertWellState", p + "-" + other.toHexString(), "minPositionLp", "70");
+  handleAutoConvertPositionFloorReleased(
+    event([n("programId", 1), address("well", well), n("season", 103), n("previousFloorLp", 90), n("floorLp", 1)], 7)
+  );
+  assert.fieldEquals("AutoConvertWellState", w, "minPositionLp", "1");
+  assert.entityCount("Silo", 0);
+});
+test("scalar reset policy and live pause updates clear on completion", () => {
+  const reset = event([n("programId", 1), n("bufferBps", 250)], 1);
   handleAutoConvertResetPolicyConfigured(reset);
-  assert.fieldEquals("AutoConvertResetPolicyConfiguredRecord", id(reset), "bufferBps", "[1, 2, 3, 4]");
+  assert.fieldEquals("AutoConvertResetPolicyConfiguredRecord", id(reset), "bufferBps", "250");
+  const p = reset.address.toHexString() + "-1";
+  handleAutoConvertResetPauseUpdated(event([n("programId", 1), n("previousUntil", 2000), n("pauseUntil", 1500)], 2));
+  assert.fieldEquals("AutoConvertProgram", p, "resetPauseUntil", "1500");
+  handleAutoConvertResetPauseClearedByCompletion(event([n("programId", 1), n("pauseUntil", 1500)], 3));
+  assert.fieldEquals("AutoConvertProgram", p, "resetPauseUntil", "0");
+});
+test("EMA configuration remains distinct from the active threshold until Sunrise", () => {
+  const init = event([n("minGrownStalkPerBdv", 48), n("season", 100)], 1);
+  handleSiloRedemptionInitialized(init);
+  const initial = SiloRedemptionPolicyState.load(init.address.toHexString())!;
+  assert.bigIntEquals(initial.activeSeasons, BigInt.fromI32(24));
+  assert.bigIntEquals(initial.configuredSeasons, BigInt.fromI32(24));
+  assert.bigIntEquals(initial.lastSeason, BigInt.fromI32(100));
+  assert.assertTrue(initial.get("meanScaled") === null);
+  handleSiloRedemptionEmaUpdated(
+    event(
+      [
+        n("season", 101),
+        new ethereum.EventParam(
+          "meanScaled",
+          ethereum.Value.fromUnsignedBigInt(BigInt.fromString("2000000000000000000"))
+        ),
+        n("seasons", 24),
+        n("threshold", 48)
+      ],
+      3
+    )
+  );
+  assert.fieldEquals("SiloRedemptionPolicyState", init.address.toHexString(), "configuredSeasons", "24");
+  handleSiloRedemptionEmaConfigured(event([n("seasons", 36)], 4));
+  const key = init.address.toHexString();
+  assert.fieldEquals("SiloRedemptionPolicyState", key, "configuredSeasons", "36");
+  assert.fieldEquals("SiloRedemptionPolicyState", key, "activeSeasons", "24");
+  assert.fieldEquals("SiloRedemptionPolicyState", key, "threshold", "48");
+  handleSiloRedemptionEmaUpdated(
+    event(
+      [
+        n("season", 102),
+        new ethereum.EventParam(
+          "meanScaled",
+          ethereum.Value.fromUnsignedBigInt(BigInt.fromString("3000000000000000000"))
+        ),
+        n("seasons", 36),
+        n("threshold", 108)
+      ],
+      5
+    )
+  );
+  assert.fieldEquals("SiloRedemptionPolicyState", key, "activeSeasons", "36");
+  assert.fieldEquals("SiloRedemptionPolicyState", key, "threshold", "108");
+  assert.fieldEquals("SiloRedemptionPolicyState", key, "initializedSeason", "100");
+});
+test("backfill verification preserves its digest and closes operator access", () => {
+  const e = event([address("token", well), address("operator", account)], 1);
+  handleOrderedDepositBackfillOperatorSet(e);
+  const key = e.address.toHexString() + "-" + well.toHexString();
+  assert.fieldEquals("OrderedDepositMigrationState", key, "configured", "true");
+  assert.fieldEquals("OrderedDepositMigrationState", key, "verified", "false");
+  const digest = Bytes.fromHexString("0x" + "11".repeat(32));
+  handleOrderedDepositMigrationVerified(
+    event(
+      [address("token", well), new ethereum.EventParam("verificationDigest", ethereum.Value.fromFixedBytes(digest))],
+      2
+    )
+  );
+  assert.fieldEquals("OrderedDepositMigrationState", key, "operator", Address.zero().toHexString());
+  assert.fieldEquals("OrderedDepositMigrationState", key, "verified", "true");
+  assert.fieldEquals("OrderedDepositMigrationState", key, "verificationDigest", digest.toHexString());
+  assert.entityCount("Silo", 0);
 });
 test("flow snapshots distinguish interval close from opening and preserve invalid measurements", () => {
   for (let phase = 0; phase < 2; phase++) {
@@ -181,11 +365,22 @@ test("flow snapshots distinguish interval close from opening and preserve invali
         n("season", 100),
         n("configVersion", 2),
         n("phase", phase),
-        tuple("state", [n("requiredChillFactor", 48), n("chillFactor", 24), bool("qualified", false),
-          bool("measurementValid", false), bool("outflowPaused", true), n("liquidityUsd", 1000 + phase),
-          n("supplyUsd", 2000), bool("observationProcessed", phase == 0), n("status", 1),
-          n("observationAllowanceUsd", 0), n("adverseUsd", 0), bool("openingValid", phase == 1),
-          n("pintoPriceUsd", 900000), n("openingAllowanceUsd", 100)])
+        tuple("state", [
+          n("requiredChillFactor", 48),
+          n("chillFactor", 24),
+          bool("qualified", false),
+          bool("measurementValid", false),
+          bool("outflowPaused", true),
+          n("liquidityUsd", 1000 + phase),
+          n("supplyUsd", 2000),
+          bool("observationProcessed", phase == 0),
+          n("status", 1),
+          n("observationAllowanceUsd", 0),
+          n("adverseUsd", 0),
+          bool("openingValid", phase == 1),
+          n("pintoPriceUsd", 900000),
+          n("openingAllowanceUsd", 100)
+        ])
       ],
       phase
     );
@@ -282,4 +477,76 @@ test("ordered deposit and redemption records never apply balances twice", () => 
   assert.entityCount("SiloDeposit", 0);
   assert.entityCount("SiloDepositsRedeemedRecord", 1);
   assert.entityCount("SiloPintoDepositsSwappedRecord", 1);
+});
+
+test("removing a Well clears only its effective floor and keeps survivor flow history", () => {
+  const configured = event(
+    [
+      n("programId", 1),
+      n("configVersion", 1),
+      new ethereum.EventParam("wells", ethereum.Value.fromAddressArray([well, account]))
+    ],
+    1
+  );
+  handleAutoConvertConfigured(configured);
+  const p = configured.address.toHexString() + "-1";
+  handleAutoConvertPositionFloorSet(
+    event(
+      [
+        n("programId", 1),
+        address("well", well),
+        n("season", 100),
+        n("previousFloorLp", 0),
+        n("floorLp", 50),
+        bool("rewound", true)
+      ],
+      2
+    )
+  );
+  handleAutoConvertPositionFloorSet(
+    event(
+      [
+        n("programId", 1),
+        address("well", account),
+        n("season", 100),
+        n("previousFloorLp", 0),
+        n("floorLp", 70),
+        bool("rewound", true)
+      ],
+      3
+    )
+  );
+  const flow = event(
+    [
+      n("programId", 1),
+      n("season", 100),
+      n("configVersion", 1),
+      n("phase", 1),
+      tuple("state", [
+        n("requiredChillFactor", 48),
+        n("chillFactor", 48),
+        bool("qualified", true),
+        bool("measurementValid", true),
+        bool("outflowPaused", false),
+        n("liquidityUsd", 1000),
+        n("supplyUsd", 2000),
+        bool("observationProcessed", true),
+        n("status", 0),
+        n("observationAllowanceUsd", 100),
+        n("adverseUsd", 0),
+        bool("openingValid", true),
+        n("pintoPriceUsd", 900000),
+        n("openingAllowanceUsd", 100)
+      ])
+    ],
+    4
+  );
+  handleAutoConvertFlowState(flow);
+  handleAutoConvertWhitelistChanged(event([address("well", well), n("configVersion", 2)], 5));
+  assert.fieldEquals("AutoConvertProgram", p, "configVersion", "2");
+  removeAutoConvertWell(configured, well);
+  assert.fieldEquals("AutoConvertWellState", p + "-" + well.toHexString(), "whitelisted", "false");
+  assert.fieldEquals("AutoConvertWellState", p + "-" + account.toHexString(), "minPositionLp", "70");
+  assert.fieldEquals("AutoConvertProgram", p, "flowState", id(flow));
+  assert.entityCount("AutoConvertPositionFloorSetRecord", 2);
 });

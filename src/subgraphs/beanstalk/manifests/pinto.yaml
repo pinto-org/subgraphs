@@ -21,46 +21,57 @@ dataSources:
         - AutoConvertConfigurationVersionRecord
         - AutoConvertConfiguredRecord
         - AutoConvertDecisionRecord
+        - AutoConvertDurationsConfiguredRecord
         - AutoConvertEndedRecord
         - AutoConvertFeePolicyBoundRecord
+        - AutoConvertFlowAllowanceConfiguredRecord
         - AutoConvertFlowEnabledRecord
         - AutoConvertFlowSampleRecord
         - AutoConvertFlowStateRecord
         - AutoConvertFlowWindowUpdatedRecord
         - AutoConvertLaunchCreditAppliedRecord
+        - AutoConvertMinPositionValueAppliedRecord
+        - AutoConvertMinPositionValueConfiguredRecord
+        - AutoConvertOutflowMultiplierConfiguredRecord
         - AutoConvertOutflowPauseChangedRecord
         - AutoConvertParametersRecord
         - AutoConvertPauseChangedRecord
-        - AutoConvertPolicyConfiguredRecord
         - AutoConvertPositionFloorReleasedRecord
         - AutoConvertPositionFloorSetRecord
-        - AutoConvertPriorityFloorSetRecord
+        - AutoConvertPricePolicyConfiguredRecord
         - AutoConvertPriorityProgressRecord
+        - AutoConvertResetPauseClearedByCompletionRecord
         - AutoConvertResetPauseDurationConfiguredRecord
         - AutoConvertResetPauseExpiredRecord
         - AutoConvertResetPauseStartedRecord
+        - AutoConvertResetPauseUpdatedRecord
         - AutoConvertResetPolicyConfiguredRecord
-        - AutoConvertRewardFundedRecord
-        - AutoConvertRewardWithdrawnRecord
         - AutoConvertScheduleDeferredRecord
         - AutoConvertScheduleResetRecord
         - AutoConvertScheduleStartedRecord
+        - AutoConvertWaitingPolicyConfiguredRecord
         - AutoConvertWellOracleRecord
         - AutoConvertWellPolicyRecord
         - AutoConvertWhitelistChangedRecord
         - DepositGrownStalkAdjustmentRecord
+        - OrderedDepositBackfillOperatorSetRecord
         - OrderedDepositInsertedRecord
+        - OrderedDepositMigrationVerifiedRecord
         - OrderedDepositRemovedRecord
         - OrderedDepositsEnabledRecord
         - SiloDepositsRedeemedRecord
         - SiloDepositsRedeemedToPairedTokenRecord
         - SiloPintoDepositsSwappedRecord
+        - SiloRedemptionEmaConfiguredRecord
+        - SiloRedemptionEmaUpdatedRecord
         - SiloRedemptionInitializedRecord
         - SiloRedemptionWellEnabledRecord
         - AutoConvertProgram
         - AutoConvertController
         - AutoConvertWellState
         - DepositGrownStalkState
+        - SiloRedemptionPolicyState
+        - OrderedDepositMigrationState
       abis:
         - name: PintoAutoConvert
           file: ../../../core/abis/Beanstalk/Pinto-AutoConvert.json
@@ -73,10 +84,14 @@ dataSources:
           handler: handleAutoConvertConfigured
         - event: AutoConvertDecision(indexed uint32,indexed uint32,uint32,uint8,uint8,address,uint256,uint256,bytes4,uint256)
           handler: handleAutoConvertDecision
+        - event: AutoConvertDurationsConfigured(uint16[144])
+          handler: handleAutoConvertDurationsConfigured
         - event: AutoConvertEnded(indexed uint32,uint256)
           handler: handleAutoConvertEnded
         - event: AutoConvertFeePolicyBound(indexed address,indexed address,uint256,uint256)
           handler: handleAutoConvertFeePolicyBound
+        - event: AutoConvertFlowAllowanceConfigured(uint256,uint256,uint256)
+          handler: handleAutoConvertFlowAllowanceConfigured
         - event: AutoConvertFlowEnabled(uint8)
           handler: handleAutoConvertFlowEnabled
         - event: AutoConvertFlowSample(indexed uint32,indexed address,uint40,int256,uint256,uint256,int256)
@@ -87,40 +102,46 @@ dataSources:
           handler: handleAutoConvertFlowWindowUpdated
         - event: AutoConvertLaunchCreditApplied(indexed uint32,uint256,uint256)
           handler: handleAutoConvertLaunchCreditApplied
+        - event: AutoConvertMinPositionValueApplied(uint256,indexed uint32)
+          handler: handleAutoConvertMinPositionValueApplied
+        - event: AutoConvertMinPositionValueConfigured(uint256)
+          handler: handleAutoConvertMinPositionValueConfigured
+        - event: AutoConvertOutflowMultiplierConfigured(uint32,uint32)
+          handler: handleAutoConvertOutflowMultiplierConfigured
         - event: AutoConvertOutflowPauseChanged(indexed uint32,bool,uint256,uint256)
           handler: handleAutoConvertOutflowPauseChanged
-        - event: AutoConvertParameters(indexed uint32,indexed uint32,uint256,uint256,uint256)
+        - event: AutoConvertParameters(indexed uint32,indexed uint32)
           handler: handleAutoConvertParameters
         - event: AutoConvertPauseChanged(indexed uint32,bool)
           handler: handleAutoConvertPauseChanged
-        - event: AutoConvertPolicyConfigured(indexed uint32,(uint16,uint256,uint256))
-          handler: handleAutoConvertPolicyConfigured
         - event: AutoConvertPositionFloorReleased(indexed uint32,indexed address,indexed uint32,uint256,uint256)
           handler: handleAutoConvertPositionFloorReleased
-        - event: AutoConvertPositionFloorSet(indexed uint32,indexed uint32,uint256,uint256,bool)
+        - event: AutoConvertPositionFloorSet(indexed uint32,indexed address,indexed uint32,uint256,uint256,bool)
           handler: handleAutoConvertPositionFloorSet
-        - event: AutoConvertPriorityFloorSet(indexed uint32,uint256)
-          handler: handleAutoConvertPriorityFloorSet
+        - event: AutoConvertPricePolicyConfigured(uint16,uint16)
+          handler: handleAutoConvertPricePolicyConfigured
         - event: AutoConvertPriorityProgress(indexed uint32,indexed address,bool,bytes32,address,int96,uint256,bool)
           handler: handleAutoConvertPriorityProgress
+        - event: AutoConvertResetPauseClearedByCompletion(indexed uint32,uint40)
+          handler: handleAutoConvertResetPauseClearedByCompletion
         - event: AutoConvertResetPauseDurationConfigured(indexed uint32,uint32)
           handler: handleAutoConvertResetPauseDurationConfigured
         - event: AutoConvertResetPauseExpired(indexed uint32,uint40)
           handler: handleAutoConvertResetPauseExpired
         - event: AutoConvertResetPauseStarted(indexed uint32,indexed uint32,uint40,uint40,uint40)
           handler: handleAutoConvertResetPauseStarted
-        - event: AutoConvertResetPolicyConfigured(indexed uint32,uint16[4])
+        - event: AutoConvertResetPauseUpdated(indexed uint32,uint40,uint40)
+          handler: handleAutoConvertResetPauseUpdated
+        - event: AutoConvertResetPolicyConfigured(indexed uint32,uint16)
           handler: handleAutoConvertResetPolicyConfigured
-        - event: AutoConvertRewardFunded(indexed address,uint256)
-          handler: handleAutoConvertRewardFunded
-        - event: AutoConvertRewardWithdrawn(indexed address,uint256)
-          handler: handleAutoConvertRewardWithdrawn
         - event: AutoConvertScheduleDeferred(indexed uint32,indexed uint32,uint8)
           handler: handleAutoConvertScheduleDeferred
         - event: AutoConvertScheduleReset(indexed uint32,indexed uint32,uint256,uint256,uint256,uint256,uint16)
           handler: handleAutoConvertScheduleReset
         - event: AutoConvertScheduleStarted(indexed uint32,indexed uint32,uint256,uint256,uint256)
           handler: handleAutoConvertScheduleStarted
+        - event: AutoConvertWaitingPolicyConfigured(uint16[4][4],uint16)
+          handler: handleAutoConvertWaitingPolicyConfigured
         - event: AutoConvertWellOracle(indexed uint32,indexed uint32,indexed address,bool,int256,uint256,(uint8,uint256,uint256,uint256))
           handler: handleAutoConvertWellOracle
         - event: AutoConvertWellPolicy(indexed uint32,indexed uint32,indexed address,uint256,uint256,bytes32)
@@ -129,8 +150,12 @@ dataSources:
           handler: handleAutoConvertWhitelistChanged
         - event: DepositGrownStalkAdjustment(indexed address,indexed uint256,int256)
           handler: handleDepositGrownStalkAdjustment
+        - event: OrderedDepositBackfillOperatorSet(indexed address,indexed address)
+          handler: handleOrderedDepositBackfillOperatorSet
         - event: OrderedDepositInserted(indexed address,indexed bytes32,indexed address,int96,bytes32,bytes32)
           handler: handleOrderedDepositInserted
+        - event: OrderedDepositMigrationVerified(indexed address,indexed bytes32)
+          handler: handleOrderedDepositMigrationVerified
         - event: OrderedDepositRemoved(indexed address,indexed bytes32)
           handler: handleOrderedDepositRemoved
         - event: OrderedDepositsEnabled(indexed address)
@@ -141,7 +166,11 @@ dataSources:
           handler: handleSiloDepositsRedeemedToPairedToken
         - event: SiloPintoDepositsSwapped(indexed address,indexed address,indexed address,uint256,uint256,uint8)
           handler: handleSiloPintoDepositsSwapped
-        - event: SiloRedemptionInitialized(indexed address,uint96,uint32)
+        - event: SiloRedemptionEmaConfigured(uint16)
+          handler: handleSiloRedemptionEmaConfigured
+        - event: SiloRedemptionEmaUpdated(indexed uint32,uint128,uint16,uint96)
+          handler: handleSiloRedemptionEmaUpdated
+        - event: SiloRedemptionInitialized(uint96,uint32)
           handler: handleSiloRedemptionInitialized
         - event: SiloRedemptionWellEnabled(indexed address)
           handler: handleSiloRedemptionWellEnabled

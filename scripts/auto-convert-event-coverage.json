@@ -41,6 +41,13 @@
     ]
   },
   {
+    "name": "AutoConvertDurationsConfigured",
+    "signature": "AutoConvertDurationsConfigured(uint16[144])",
+    "fields": [
+      "durationSeasonsByCase"
+    ]
+  },
+  {
     "name": "AutoConvertEnded",
     "signature": "AutoConvertEnded(indexed uint32,uint256)",
     "fields": [
@@ -56,6 +63,15 @@
       "settings",
       "feeBps",
       "feeVersion"
+    ]
+  },
+  {
+    "name": "AutoConvertFlowAllowanceConfigured",
+    "signature": "AutoConvertFlowAllowanceConfigured(uint256,uint256,uint256)",
+    "fields": [
+      "liquidityFraction",
+      "supplyFraction",
+      "minimumUsd"
     ]
   },
   {
@@ -123,6 +139,29 @@
     ]
   },
   {
+    "name": "AutoConvertMinPositionValueApplied",
+    "signature": "AutoConvertMinPositionValueApplied(uint256,indexed uint32)",
+    "fields": [
+      "valueUsd",
+      "season"
+    ]
+  },
+  {
+    "name": "AutoConvertMinPositionValueConfigured",
+    "signature": "AutoConvertMinPositionValueConfigured(uint256)",
+    "fields": [
+      "valueUsd"
+    ]
+  },
+  {
+    "name": "AutoConvertOutflowMultiplierConfigured",
+    "signature": "AutoConvertOutflowMultiplierConfigured(uint32,uint32)",
+    "fields": [
+      "previousMultiplierBps",
+      "multiplierBps"
+    ]
+  },
+  {
     "name": "AutoConvertOutflowPauseChanged",
     "signature": "AutoConvertOutflowPauseChanged(indexed uint32,bool,uint256,uint256)",
     "fields": [
@@ -134,13 +173,10 @@
   },
   {
     "name": "AutoConvertParameters",
-    "signature": "AutoConvertParameters(indexed uint32,indexed uint32,uint256,uint256,uint256)",
+    "signature": "AutoConvertParameters(indexed uint32,indexed uint32)",
     "fields": [
       "programId",
-      "configVersion",
-      "minExecutionBdv",
-      "fixedReward",
-      "minPositionBdv"
+      "configVersion"
     ]
   },
   {
@@ -152,43 +188,34 @@
     ]
   },
   {
-    "name": "AutoConvertPolicyConfigured",
-    "signature": "AutoConvertPolicyConfigured(indexed uint32,(uint16,uint256,uint256))",
-    "fields": [
-      "programId",
-      "policy_maxRewardBps",
-      "policy_maxValuePerWellUsd",
-      "policy_maxLossPerExecutionUsd"
-    ]
-  },
-  {
     "name": "AutoConvertPositionFloorReleased",
     "signature": "AutoConvertPositionFloorReleased(indexed uint32,indexed address,indexed uint32,uint256,uint256)",
     "fields": [
       "programId",
       "well",
       "season",
-      "previousFloorBdv",
-      "floorBdv"
+      "previousFloorLp",
+      "floorLp"
     ]
   },
   {
     "name": "AutoConvertPositionFloorSet",
-    "signature": "AutoConvertPositionFloorSet(indexed uint32,indexed uint32,uint256,uint256,bool)",
+    "signature": "AutoConvertPositionFloorSet(indexed uint32,indexed address,indexed uint32,uint256,uint256,bool)",
     "fields": [
       "programId",
+      "well",
       "season",
-      "previousFloorBdv",
-      "floorBdv",
+      "previousFloorLp",
+      "floorLp",
       "rewound"
     ]
   },
   {
-    "name": "AutoConvertPriorityFloorSet",
-    "signature": "AutoConvertPriorityFloorSet(indexed uint32,uint256)",
+    "name": "AutoConvertPricePolicyConfigured",
+    "signature": "AutoConvertPricePolicyConfigured(uint16,uint16)",
     "fields": [
-      "programId",
-      "minPositionBdv"
+      "maxStepBps",
+      "minimumFeeBps"
     ]
   },
   {
@@ -203,6 +230,14 @@
       "stem",
       "amount",
       "ready"
+    ]
+  },
+  {
+    "name": "AutoConvertResetPauseClearedByCompletion",
+    "signature": "AutoConvertResetPauseClearedByCompletion(indexed uint32,uint40)",
+    "fields": [
+      "programId",
+      "pauseUntil"
     ]
   },
   {
@@ -233,27 +268,20 @@
     ]
   },
   {
+    "name": "AutoConvertResetPauseUpdated",
+    "signature": "AutoConvertResetPauseUpdated(indexed uint32,uint40,uint40)",
+    "fields": [
+      "programId",
+      "previousUntil",
+      "pauseUntil"
+    ]
+  },
+  {
     "name": "AutoConvertResetPolicyConfigured",
-    "signature": "AutoConvertResetPolicyConfigured(indexed uint32,uint16[4])",
+    "signature": "AutoConvertResetPolicyConfigured(indexed uint32,uint16)",
     "fields": [
       "programId",
       "bufferBps"
-    ]
-  },
-  {
-    "name": "AutoConvertRewardFunded",
-    "signature": "AutoConvertRewardFunded(indexed address,uint256)",
-    "fields": [
-      "funder",
-      "amount"
-    ]
-  },
-  {
-    "name": "AutoConvertRewardWithdrawn",
-    "signature": "AutoConvertRewardWithdrawn(indexed address,uint256)",
-    "fields": [
-      "recipient",
-      "amount"
     ]
   },
   {
@@ -287,6 +315,14 @@
       "referencePriceUsd",
       "durationSeasons",
       "hourlyPriceFactor"
+    ]
+  },
+  {
+    "name": "AutoConvertWaitingPolicyConfigured",
+    "signature": "AutoConvertWaitingPolicyConfigured(uint16[4][4],uint16)",
+    "fields": [
+      "waitingObservations",
+      "launchRemaining"
     ]
   },
   {
@@ -335,6 +371,14 @@
     ]
   },
   {
+    "name": "OrderedDepositBackfillOperatorSet",
+    "signature": "OrderedDepositBackfillOperatorSet(indexed address,indexed address)",
+    "fields": [
+      "token",
+      "operator"
+    ]
+  },
+  {
     "name": "OrderedDepositInserted",
     "signature": "OrderedDepositInserted(indexed address,indexed bytes32,indexed address,int96,bytes32,bytes32)",
     "fields": [
@@ -344,6 +388,14 @@
       "stem",
       "previous",
       "next"
+    ]
+  },
+  {
+    "name": "OrderedDepositMigrationVerified",
+    "signature": "OrderedDepositMigrationVerified(indexed address,indexed bytes32)",
+    "fields": [
+      "token",
+      "verificationDigest"
     ]
   },
   {
@@ -397,10 +449,26 @@
     ]
   },
   {
-    "name": "SiloRedemptionInitialized",
-    "signature": "SiloRedemptionInitialized(indexed address,uint96,uint32)",
+    "name": "SiloRedemptionEmaConfigured",
+    "signature": "SiloRedemptionEmaConfigured(uint16)",
     "fields": [
-      "referenceWell",
+      "seasons"
+    ]
+  },
+  {
+    "name": "SiloRedemptionEmaUpdated",
+    "signature": "SiloRedemptionEmaUpdated(indexed uint32,uint128,uint16,uint96)",
+    "fields": [
+      "season",
+      "meanScaled",
+      "seasons",
+      "threshold"
+    ]
+  },
+  {
+    "name": "SiloRedemptionInitialized",
+    "signature": "SiloRedemptionInitialized(uint96,uint32)",
+    "fields": [
       "minGrownStalkPerBdv",
       "season"
     ]

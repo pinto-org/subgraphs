@@ -12,22 +12,22 @@
     ]
   },
   {
-    "type": "event",
-    "name": "PintoTradingFlowInvalidated",
+    "anonymous": false,
     "inputs": [
       {
-        "name": "invalidity",
-        "type": "uint256",
         "indexed": false,
-        "internalType": "uint256"
+        "internalType": "uint256",
+        "name": "invalidity",
+        "type": "uint256"
       },
       {
-        "name": "reason",
-        "type": "uint8",
         "indexed": false,
-        "internalType": "uint8"
+        "internalType": "uint8",
+        "name": "reason",
+        "type": "uint8"
       }
     ],
-    "anonymous": false
+    "name": "PintoTradingFlowInvalidated",
+    "type": "event"
   }
 ]

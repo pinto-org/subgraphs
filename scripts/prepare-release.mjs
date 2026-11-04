@@ -60,7 +60,9 @@ export function validateRelease(config) {
     const helper = address(entry.address);
     assert.ok(!helpers.has(helper), "Duplicate Tractor helper");
     helpers.add(helper);
-    assert.ok(block(entry.startBlock) <= config.upgradeBlock, "Helper starts after upgrade");
+    // Replacement helpers can be deployed after the core cut. Start indexing
+    // each helper at its actual deployment block, independently of the cut.
+    block(entry.startBlock);
   }
   return config;
 }
@@ -82,6 +84,7 @@ export function configureManifest(manifest, config, project) {
   for (const ds of result.dataSources) {
     assert.equal(ds.network, "base");
     ds.context = { ...ds.context, ...context };
+    if (ds.name === "AutoConvert" || ds.name === "AutoConvertEvents") ds.source.startBlock = config.upgradeBlock;
   }
   if (project === "beanstalk") {
     for (const [i, settings] of config.feeSettings.entries()) {

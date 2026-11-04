@@ -2230,7 +2230,15 @@ type AutoConvertWellRecord @entity(immutable: true) {
 type AutoConvertController @entity(immutable: false) {
   id: ID!
   currentProgram: AutoConvertProgram
-  rewardReserve: BigInt!
+  # Global policies have no programId; retain their latest records across programs.
+  durations: AutoConvertDurationsConfiguredRecord
+  pricePolicy: AutoConvertPricePolicyConfiguredRecord
+  flowAllowancePolicy: AutoConvertFlowAllowanceConfiguredRecord
+  waitingPolicy: AutoConvertWaitingPolicyConfiguredRecord
+  outflowMultiplierBps: BigInt
+  minPositionValueConfiguredUsd: BigInt
+  minPositionValueAppliedUsd: BigInt
+  minPositionValueAppliedSeason: BigInt
 }
 type AutoConvertProgram @entity(immutable: false) {
   id: ID!
@@ -2240,14 +2248,11 @@ type AutoConvertProgram @entity(immutable: false) {
   paused: Boolean!
   configuration: AutoConvertConfiguredRecord
   parameters: AutoConvertParametersRecord
-  policy: AutoConvertPolicyConfiguredRecord
   resetPolicy: AutoConvertResetPolicyConfiguredRecord
   resetPauseDuration: BigInt
   resetPauseUntil: BigInt
   scheduleStarted: AutoConvertScheduleStartedRecord
   scheduleReset: AutoConvertScheduleResetRecord
-  priorityFloorBdv: BigInt
-  cycleFloorBdv: BigInt
   flowState: AutoConvertFlowStateRecord
   lastDecision: AutoConvertDecisionRecord
   totalBdvConverted: BigInt!
@@ -2257,7 +2262,13 @@ type AutoConvertWellState @entity(immutable: false) {
   program: AutoConvertProgram!
   well: Bytes!
   policy: AutoConvertWellPolicyRecord
+  whitelisted: Boolean
   oracle: AutoConvertWellOracleRecord
+  # Effective native LP floor; USD policy valuation does not publish this floor.
+  minPositionLp: BigInt
+  floorSeason: BigInt
+  lastFloorEvent: String
+  floorRewound: Boolean
 }
 # Absolute signed adjustment, keyed by account + packed token/stem depositId.
 # Keep zero tombstones: a removal/re-add must never inherit a stale adjustment.
@@ -2268,7 +2279,6 @@ type DepositGrownStalkState @entity(immutable: false) {
   adjustment: BigInt!
   lastEvent: DepositGrownStalkAdjustmentRecord!
 }
-
 
 type PintoFeeSettingsState @entity(immutable: false) {
   id: ID!
@@ -2296,6 +2306,30 @@ type PintoFeeChangeRecord @entity(immutable: true) {
   logIndex: BigInt!
   blockNumber: BigInt!
   timestamp: BigInt!
+}
+
+# Current EMA policy. Configured X changes before active X/threshold at Sunrise.
+type SiloRedemptionPolicyState @entity(immutable: false) {
+  id: ID!
+  threshold: BigInt!
+  initializedSeason: BigInt!
+  # Unknown until the first EmaUpdated; initialization emits only a rounded threshold.
+  meanScaled: BigInt
+  activeSeasons: BigInt!
+  configuredSeasons: BigInt!
+  lastSeason: BigInt!
+  lastEvent: String!
+}
+# Migration attestation is independent of live index coverage, not overall readiness.
+type OrderedDepositMigrationState @entity(immutable: false) {
+  id: ID!
+  protocol: Bytes!
+  token: Bytes!
+  operator: Bytes!
+  configured: Boolean!
+  verified: Boolean!
+  verificationDigest: Bytes
+  lastEvent: String!
 }
 
 # BEGIN GENERATED AUTO CONVERT EVENTS
@@ -2353,6 +2387,16 @@ type AutoConvertDecisionRecord @entity(immutable: true) {
   gasUsed: BigInt!
 }
 
+type AutoConvertDurationsConfiguredRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  durationSeasonsByCase: [BigInt!]!
+}
+
 type AutoConvertEndedRecord @entity(immutable: true) {
   id: ID!
   emitter: Bytes!
@@ -2375,6 +2419,18 @@ type AutoConvertFeePolicyBoundRecord @entity(immutable: true) {
   settings: Bytes!
   feeBps: BigInt!
   feeVersion: BigInt!
+}
+
+type AutoConvertFlowAllowanceConfiguredRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  liquidityFraction: BigInt!
+  supplyFraction: BigInt!
+  minimumUsd: BigInt!
 }
 
 type AutoConvertFlowEnabledRecord @entity(immutable: true) {
@@ -2456,6 +2512,38 @@ type AutoConvertLaunchCreditAppliedRecord @entity(immutable: true) {
   initialChillFactor: BigInt!
 }
 
+type AutoConvertMinPositionValueAppliedRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  valueUsd: BigInt!
+  season: BigInt!
+}
+
+type AutoConvertMinPositionValueConfiguredRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  valueUsd: BigInt!
+}
+
+type AutoConvertOutflowMultiplierConfiguredRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  previousMultiplierBps: BigInt!
+  multiplierBps: BigInt!
+}
+
 type AutoConvertOutflowPauseChangedRecord @entity(immutable: true) {
   id: ID!
   emitter: Bytes!
@@ -2478,9 +2566,6 @@ type AutoConvertParametersRecord @entity(immutable: true) {
   timestamp: BigInt!
   programId: BigInt!
   configVersion: BigInt!
-  minExecutionBdv: BigInt!
-  fixedReward: BigInt!
-  minPositionBdv: BigInt!
 }
 
 type AutoConvertPauseChangedRecord @entity(immutable: true) {
@@ -2494,19 +2579,6 @@ type AutoConvertPauseChangedRecord @entity(immutable: true) {
   paused: Boolean!
 }
 
-type AutoConvertPolicyConfiguredRecord @entity(immutable: true) {
-  id: ID!
-  emitter: Bytes!
-  transactionHash: Bytes!
-  logIndex: BigInt!
-  blockNumber: BigInt!
-  timestamp: BigInt!
-  programId: BigInt!
-  policy_maxRewardBps: BigInt!
-  policy_maxValuePerWellUsd: BigInt!
-  policy_maxLossPerExecutionUsd: BigInt!
-}
-
 type AutoConvertPositionFloorReleasedRecord @entity(immutable: true) {
   id: ID!
   emitter: Bytes!
@@ -2517,8 +2589,8 @@ type AutoConvertPositionFloorReleasedRecord @entity(immutable: true) {
   programId: BigInt!
   well: Bytes!
   season: BigInt!
-  previousFloorBdv: BigInt!
-  floorBdv: BigInt!
+  previousFloorLp: BigInt!
+  floorLp: BigInt!
 }
 
 type AutoConvertPositionFloorSetRecord @entity(immutable: true) {
@@ -2529,21 +2601,22 @@ type AutoConvertPositionFloorSetRecord @entity(immutable: true) {
   blockNumber: BigInt!
   timestamp: BigInt!
   programId: BigInt!
+  well: Bytes!
   season: BigInt!
-  previousFloorBdv: BigInt!
-  floorBdv: BigInt!
+  previousFloorLp: BigInt!
+  floorLp: BigInt!
   rewound: Boolean!
 }
 
-type AutoConvertPriorityFloorSetRecord @entity(immutable: true) {
+type AutoConvertPricePolicyConfiguredRecord @entity(immutable: true) {
   id: ID!
   emitter: Bytes!
   transactionHash: Bytes!
   logIndex: BigInt!
   blockNumber: BigInt!
   timestamp: BigInt!
-  programId: BigInt!
-  minPositionBdv: BigInt!
+  maxStepBps: BigInt!
+  minimumFeeBps: BigInt!
 }
 
 type AutoConvertPriorityProgressRecord @entity(immutable: true) {
@@ -2561,6 +2634,17 @@ type AutoConvertPriorityProgressRecord @entity(immutable: true) {
   stem: BigInt!
   amount: BigInt!
   ready: Boolean!
+}
+
+type AutoConvertResetPauseClearedByCompletionRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  programId: BigInt!
+  pauseUntil: BigInt!
 }
 
 type AutoConvertResetPauseDurationConfiguredRecord @entity(immutable: true) {
@@ -2599,6 +2683,18 @@ type AutoConvertResetPauseStartedRecord @entity(immutable: true) {
   pauseUntil: BigInt!
 }
 
+type AutoConvertResetPauseUpdatedRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  programId: BigInt!
+  previousUntil: BigInt!
+  pauseUntil: BigInt!
+}
+
 type AutoConvertResetPolicyConfiguredRecord @entity(immutable: true) {
   id: ID!
   emitter: Bytes!
@@ -2607,29 +2703,7 @@ type AutoConvertResetPolicyConfiguredRecord @entity(immutable: true) {
   blockNumber: BigInt!
   timestamp: BigInt!
   programId: BigInt!
-  bufferBps: [BigInt!]!
-}
-
-type AutoConvertRewardFundedRecord @entity(immutable: true) {
-  id: ID!
-  emitter: Bytes!
-  transactionHash: Bytes!
-  logIndex: BigInt!
-  blockNumber: BigInt!
-  timestamp: BigInt!
-  funder: Bytes!
-  amount: BigInt!
-}
-
-type AutoConvertRewardWithdrawnRecord @entity(immutable: true) {
-  id: ID!
-  emitter: Bytes!
-  transactionHash: Bytes!
-  logIndex: BigInt!
-  blockNumber: BigInt!
-  timestamp: BigInt!
-  recipient: Bytes!
-  amount: BigInt!
+  bufferBps: BigInt!
 }
 
 type AutoConvertScheduleDeferredRecord @entity(immutable: true) {
@@ -2672,6 +2746,17 @@ type AutoConvertScheduleStartedRecord @entity(immutable: true) {
   referencePriceUsd: BigInt!
   durationSeasons: BigInt!
   hourlyPriceFactor: BigInt!
+}
+
+type AutoConvertWaitingPolicyConfiguredRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  waitingObservations: [BigInt!]!
+  launchRemaining: BigInt!
 }
 
 type AutoConvertWellOracleRecord @entity(immutable: true) {
@@ -2731,6 +2816,17 @@ type DepositGrownStalkAdjustmentRecord @entity(immutable: true) {
   adjustment: BigInt!
 }
 
+type OrderedDepositBackfillOperatorSetRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  token: Bytes!
+  operator: Bytes!
+}
+
 type OrderedDepositInsertedRecord @entity(immutable: true) {
   id: ID!
   emitter: Bytes!
@@ -2744,6 +2840,17 @@ type OrderedDepositInsertedRecord @entity(immutable: true) {
   stem: BigInt!
   previous: Bytes!
   next: Bytes!
+}
+
+type OrderedDepositMigrationVerifiedRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  token: Bytes!
+  verificationDigest: Bytes!
 }
 
 type OrderedDepositRemovedRecord @entity(immutable: true) {
@@ -2811,6 +2918,29 @@ type SiloPintoDepositsSwappedRecord @entity(immutable: true) {
   mode: BigInt!
 }
 
+type SiloRedemptionEmaConfiguredRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  seasons: BigInt!
+}
+
+type SiloRedemptionEmaUpdatedRecord @entity(immutable: true) {
+  id: ID!
+  emitter: Bytes!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  season: BigInt!
+  meanScaled: BigInt!
+  seasons: BigInt!
+  threshold: BigInt!
+}
+
 type SiloRedemptionInitializedRecord @entity(immutable: true) {
   id: ID!
   emitter: Bytes!
@@ -2818,7 +2948,6 @@ type SiloRedemptionInitializedRecord @entity(immutable: true) {
   logIndex: BigInt!
   blockNumber: BigInt!
   timestamp: BigInt!
-  referenceWell: Bytes!
   minGrownStalkPerBdv: BigInt!
   season: BigInt!
 }

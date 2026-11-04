@@ -23,7 +23,12 @@ for (const project of ["beanstalk", "bean", "basin"]) {
     const previous = JSON.stringify(source);
     const prepared = configureManifest(source, config(), project);
     assert.equal(JSON.stringify(source), previous);
-    assert.equal(prepared.dataSources[0].source.startBlock, source.dataSources[0].source.startBlock);
+    assert.equal(
+      prepared.dataSources[0].source.startBlock,
+      ["AutoConvert", "AutoConvertEvents"].includes(source.dataSources[0].name)
+        ? config().upgradeBlock
+        : source.dataSources[0].source.startBlock
+    );
     for (const ds of prepared.dataSources) {
       assert.equal(ds.context.pintoUpgradeBlock.data, "53000000");
       assert.equal(ds.context.pintoStable2Address.type, "Bytes");
@@ -107,9 +112,36 @@ test("every protocol event in the auto-convert ABI has exactly one matching Bean
     const signature = e.name + "(" + e.inputs.map((p) => (p.indexed ? "indexed " : "") + type(p)).join(",") + ")";
     assert.equal(covered.filter((h) => h.event === signature).length, 1, signature);
   }
-  assert.equal(covered.length, abi.filter((e) => !["PintoFeeWellUpgraded", "WellFunctionReplaced"].includes(e.name)).length);
-  for (const retired of ["AutoConvertWellConfigured", "AutoConvertExecutionSummary", "AutoConvertWellPlan",
-    "AutoConvertOracleDetail", "SunriseAutoConvertAttempt", "AutoConvertFlowObservation", "AutoConvertFlowBaseline", "AutoConvertPegConfirmed"]) {
+  assert.equal(
+    covered.length,
+    abi.filter((e) => !["PintoFeeWellUpgraded", "WellFunctionReplaced"].includes(e.name)).length
+  );
+  for (const retired of [
+    "AutoConvertWellConfigured",
+    "AutoConvertExecutionSummary",
+    "AutoConvertWellPlan",
+    "AutoConvertOracleDetail",
+    "SunriseAutoConvertAttempt",
+    "AutoConvertFlowObservation",
+    "AutoConvertFlowBaseline",
+    "AutoConvertPegConfirmed"
+  ]) {
     assert(!abi.some((e) => e.name === retired), `Retired companion event ${retired}`);
+  }
+});
+
+test("post-cut helpers start at their receipt block and Auto Convert starts at the cut", () => {
+  const c = config();
+  c.tractorHelpers[0].startBlock = c.upgradeBlock + 7;
+  for (const project of ["beanstalk", "bean", "basin"]) {
+    const source = YAML.parse(readFileSync(`src/subgraphs/${project}/manifests/pinto.yaml`, "utf8"));
+    const prepared = configureManifest(source, c, project);
+    for (const ds of prepared.dataSources.filter((s) => ["AutoConvert", "AutoConvertEvents"].includes(s.name)))
+      assert.equal(ds.source.startBlock, c.upgradeBlock);
+    if (project === "beanstalk") {
+      const helper = prepared.dataSources.find((s) => s.name === "TractorHelpersAutoConvertRelease0");
+      assert.equal(helper.source.startBlock, c.tractorHelpers[0].startBlock);
+      assert.ok(helper.source.startBlock > c.upgradeBlock);
+    }
   }
 });
