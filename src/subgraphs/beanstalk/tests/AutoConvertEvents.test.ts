@@ -1,5 +1,5 @@
 import { SiloRedemptionPolicyState } from "../generated/schema";
-import { removeAutoConvertWell } from "../src/utils/AutoConvertState";
+import { removeAutoConvertWell, updateDeferredRedemptionSeason } from "../src/utils/AutoConvertState";
 import { afterEach, assert, clearStore, test, newMockEvent } from "matchstick-as/assembly/index";
 import { Address, BigInt, Bytes, ethereum } from "@graphprotocol/graph-ts";
 import {
@@ -300,7 +300,7 @@ test("EMA configuration remains distinct from the active threshold until Sunrise
   assert.bigIntEquals(initial.activeSeasons, BigInt.fromI32(24));
   assert.bigIntEquals(initial.configuredSeasons, BigInt.fromI32(24));
   assert.bigIntEquals(initial.lastSeason, BigInt.fromI32(100));
-  assert.assertTrue(initial.get("meanScaled") === null);
+  assert.assertTrue(initial.meanScaled === null);
   handleSiloRedemptionEmaUpdated(
     event(
       [
@@ -549,4 +549,52 @@ test("removing a Well clears only its effective floor and keeps survivor flow hi
   assert.fieldEquals("AutoConvertWellState", p + "-" + account.toHexString(), "minPositionLp", "70");
   assert.fieldEquals("AutoConvertProgram", p, "flowState", id(flow));
   assert.entityCount("AutoConvertPositionFloorSetRecord", 2);
+});
+
+test("deferred redemption tracks every Sunrise without manufacturing EMA updates", () => {
+  const init = event([n("minGrownStalkPerBdv", 0), n("season", 100)], 100);
+  const key = init.address.toHexString();
+  updateDeferredRedemptionSeason(init, BigInt.fromI32(99));
+  assert.entityCount("SiloRedemptionPolicyState", 0);
+  handleSiloRedemptionInitialized(init);
+  assert.fieldEquals("SiloRedemptionPolicyState", key, "meanScaled", "0");
+  handleSiloRedemptionEmaConfigured(event([n("seasons", 36)], 101));
+  for (let season = 101; season <= 104; season++) {
+    updateDeferredRedemptionSeason(init, BigInt.fromI32(season));
+    assert.fieldEquals("SiloRedemptionPolicyState", key, "lastSeason", season.toString());
+    assert.fieldEquals("SiloRedemptionPolicyState", key, "threshold", "0");
+    assert.fieldEquals("SiloRedemptionPolicyState", key, "meanScaled", "0");
+    assert.fieldEquals("SiloRedemptionPolicyState", key, "activeSeasons", "24");
+    assert.fieldEquals("SiloRedemptionPolicyState", key, "configuredSeasons", "36");
+  }
+  assert.entityCount("SiloRedemptionEmaUpdatedRecord", 0);
+  updateDeferredRedemptionSeason(init, BigInt.fromI32(103));
+  assert.fieldEquals("SiloRedemptionPolicyState", key, "lastSeason", "104");
+  const opened = event([n("season", 105), n("meanScaled", 3000), n("seasons", 36), n("threshold", 108)], 102);
+  handleSiloRedemptionEmaUpdated(opened);
+  assert.fieldEquals("SiloRedemptionPolicyState", key, "lastSeason", "105");
+  assert.fieldEquals("SiloRedemptionPolicyState", key, "threshold", "108");
+  assert.fieldEquals("SiloRedemptionPolicyState", key, "meanScaled", "3000");
+  assert.fieldEquals("SiloRedemptionPolicyState", key, "activeSeasons", "36");
+  updateDeferredRedemptionSeason(init, BigInt.fromI32(106));
+  assert.fieldEquals("SiloRedemptionPolicyState", key, "lastSeason", "105");
+  assert.fieldEquals("SiloRedemptionPolicyState", key, "lastEvent", id(opened));
+  handleSiloRedemptionEmaUpdated(event([n("season", 106), n("meanScaled", 4000), n("seasons", 36), n("threshold", 144)], 103));
+  assert.fieldEquals("SiloRedemptionPolicyState", key, "lastSeason", "106");
+  assert.entityCount("SiloRedemptionEmaUpdatedRecord", 2);
+});
+
+test("above-peg freeze status 6 is retained as valid raw close-phase telemetry", () => {
+  const e = event([
+    n("programId", 1), n("season", 101), n("configVersion", 1), n("phase", 0),
+    tuple("state", [n("requiredChillFactor", 48), n("chillFactor", 24), bool("qualified", false),
+      bool("measurementValid", true), bool("outflowPaused", false), n("liquidityUsd", 1000),
+      n("supplyUsd", 2000), bool("observationProcessed", true), n("status", 6),
+      n("observationAllowanceUsd", 0), n("adverseUsd", 0), bool("openingValid", true),
+      n("pintoPriceUsd", 1000000), n("openingAllowanceUsd", 100)])
+  ], 110);
+  handleAutoConvertFlowState(e);
+  assert.fieldEquals("AutoConvertFlowStateRecord", id(e), "state_status", "6");
+  assert.fieldEquals("AutoConvertFlowStateRecord", id(e), "state_measurementValid", "true");
+  assert.entityCount("AutoConvertBatchRecord", 0);
 });

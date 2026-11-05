@@ -2313,10 +2313,11 @@ type SiloRedemptionPolicyState @entity(immutable: false) {
   id: ID!
   threshold: BigInt!
   initializedSeason: BigInt!
-  # Unknown until the first EmaUpdated; initialization emits only a rounded threshold.
+  # Deferred initialization starts at zero; a standalone rounded threshold leaves the exact mean unknown.
   meanScaled: BigInt
   activeSeasons: BigInt!
   configuredSeasons: BigInt!
+  # Last processed Season, including deferred Sunrises that emit no EMA update.
   lastSeason: BigInt!
   lastEvent: String!
 }

@@ -52,6 +52,15 @@ export function removeAutoConvertWell(event: ethereum.Event, well: Address): voi
   w.unset("floorRewound");
   w.save();
 }
+// Deferred EMA processing advances its cursor without emitting EmaUpdated. Sunrise
+// precedes stepEma; a later update log in the same transaction supplies seeded values.
+// Keep lastEvent tied to a real policy record rather than inventing an EMA event.
+export function updateDeferredRedemptionSeason(event: ethereum.Event, season: BigInt): void {
+  const row = SiloRedemptionPolicyState.load(event.address.toHexString());
+  if (row == null || !row.threshold.isZero() || row.configuredSeasons.isZero() || season.le(row.lastSeason)) return;
+  row.lastSeason = season;
+  row.save();
+}
 // Called after immutable payloads are saved. No eth_calls and no balance writes.
 export function updateAutoConvertState(name: string, event: ethereum.Event, record: string): void {
   const a = event.parameters;
@@ -104,8 +113,10 @@ export function updateAutoConvertState(name: string, event: ethereum.Event, reco
     if (name == "SiloRedemptionInitialized") {
       row.threshold = a[0].value.toBigInt();
       row.initializedSeason = a[1].value.toBigInt();
-      // initialize() installs both windows as 24 but emits no configuration/update
-      // event. Its ceil-rounded threshold cannot recover the exact initial mean.
+      // Deferred release initialization publishes zero, whose initial mean is known.
+      // The standalone initializer publishes a rounded threshold, not its exact mean.
+      if (row.threshold.isZero()) row.meanScaled = BigInt.zero();
+      else row.unset("meanScaled");
       row.activeSeasons = BigInt.fromI32(24);
       row.configuredSeasons = BigInt.fromI32(24);
       row.lastSeason = a[1].value.toBigInt();
