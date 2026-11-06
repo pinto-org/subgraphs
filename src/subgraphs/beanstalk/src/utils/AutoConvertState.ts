@@ -52,7 +52,8 @@ export function removeAutoConvertWell(event: ethereum.Event, well: Address): voi
   w.unset("floorRewound");
   w.save();
 }
-// Deferred EMA processing advances its cursor without emitting EmaUpdated. Sunrise
+// Legacy deferred builds advance the cursor without EmaUpdated; current releases
+// initialize a nonzero threshold and never enter this path. Sunrise
 // precedes stepEma; a later update log in the same transaction supplies seeded values.
 // Keep lastEvent tied to a real policy record rather than inventing an EMA event.
 export function updateDeferredRedemptionSeason(event: ethereum.Event, season: BigInt): void {
@@ -113,8 +114,8 @@ export function updateAutoConvertState(name: string, event: ethereum.Event, reco
     if (name == "SiloRedemptionInitialized") {
       row.threshold = a[0].value.toBigInt();
       row.initializedSeason = a[1].value.toBigInt();
-      // Deferred release initialization publishes zero, whose initial mean is known.
-      // The standalone initializer publishes a rounded threshold, not its exact mean.
+      // Legacy deferred initialization publishes zero, whose initial mean is known.
+      // Current release/standalone initialization publishes only a rounded threshold.
       if (row.threshold.isZero()) row.meanScaled = BigInt.zero();
       else row.unset("meanScaled");
       row.activeSeasons = BigInt.fromI32(24);
