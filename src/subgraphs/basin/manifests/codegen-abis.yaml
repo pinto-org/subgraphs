@@ -21,6 +21,10 @@ dataSources:
       entities:
         - Aquifer
       abis:
+        - name: PintoAutoConvert
+          file: ../../../core/abis/Beanstalk/Pinto-AutoConvert.json
+        - name: PintoFeeWell
+          file: ../../../core/abis/PintoFeeWell.json
         - name: Aquifer
           file: ../../../core/abis/Aquifer.json
         - name: ERC20

@@ -261,9 +261,9 @@ export class WellFnInfo {
   address: Address;
   data: Bytes;
 }
-export function wellFnInfoForWell(v: VersionDto, wellAddress: Address): WellFnInfo {
+export function wellFnInfoForWell(v: VersionDto, wellAddress: Address, blockNumber: BigInt): WellFnInfo {
   if (v.chain == "base" && v.protocolAddress == ConstantsPintoBase.BEANSTALK) {
-    return PintoBase.wellFnInfoForWell(wellAddress);
+    return PintoBase.wellFnInfoForWell(wellAddress, blockNumber);
   }
   throw new Error("Unsupported protocol");
 }

@@ -1,3 +1,4 @@
+import { removeAutoConvertWell } from "../utils/AutoConvertState";
 import {
   addDeposits,
   applyConvertDownPenalty,
@@ -145,6 +146,7 @@ export function handleUpdateWhitelistStatus(event: UpdateWhitelistStatus): void 
 }
 
 export function handleDewhitelistToken(event: DewhitelistToken): void {
+  removeAutoConvertWell(event, event.params.token);
   let silo = loadSilo(event.address);
   let currentWhitelist = silo.whitelistedTokens;
   let currentDewhitelist = silo.dewhitelistedTokens;

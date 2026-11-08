@@ -22,7 +22,8 @@
   "devDependencies": {
     "graphql-request": "^6.1.0",
     "matchstick-as": "^0.6.0",
-    "prettier": "^3.3.3"
+    "prettier": "^3.3.3",
+    "yaml": "2.7.0"
   },
   "private": true
 }

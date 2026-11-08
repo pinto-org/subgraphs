@@ -1,10 +1,13 @@
 import { Address } from "@graphprotocol/graph-ts";
 import * as BeanstalkArb from "../../../../core/constants/raw/BeanstalkArbConstants";
 import * as PintoBase from "../../../../core/constants/raw/PintoBaseConstants";
+import { releaseProxy } from "../../../../core/constants/PintoRelease";
 
 // For the upgradeable wells used in Beanstalk 3, the BoreWell event does not indicate the proxy address.
 // A manual mapping is required.
 export function getActualWell(boredWell: Address): Address {
+  const configured = releaseProxy(boredWell);
+  if (configured !== null) return configured;
   for (let i = 0; i < UPGRADEABLE_MAPPING.length; ++i) {
     if (UPGRADEABLE_MAPPING[i].boredWells.includes(boredWell)) {
       return UPGRADEABLE_MAPPING[i].proxy;

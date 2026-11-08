@@ -1,0 +1,115 @@
+import { afterEach, beforeEach, assert, clearStore, test, newMockEvent } from "matchstick-as/assembly/index";
+import { Address, BigInt, Bytes, ethereum, DataSourceContext } from "@graphprotocol/graph-ts";
+import { dataSourceMock } from "matchstick-as/assembly/data_source_mock";
+import { initPintoVersion } from "./entity-mocking/MockVersion";
+import {
+  AutoConvertPosition
+} from "../generated/Beanstalk-ABIs/PintoAutoConvert";
+import {
+  handleAutoConvertPosition
+} from "../src/handlers/AutoConvertHandler";
+import { handleAutoConvertDecision, handleAutoConvertFlowState } from "../src/handlers/AutoConvertEventsHandler";
+import { loadGaugesInfo } from "../src/utils/GenGauge";
+import { v } from "../src/utils/constants/Version";
+import { getBeanstalkPriceAddress, wellFnInfoForWell, isStable2WellFn } from "../../../core/constants/PintoBase";
+import { PINTO_USDC, WELL_STABLE2 } from "../../../core/constants/raw/PintoBaseConstants";
+
+const account = Address.fromString("0x0000000000000000000000000000000000000001");
+function uint(name: string, n: i32): ethereum.EventParam {
+  return new ethereum.EventParam(name, ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(n)));
+}
+beforeEach(() => {
+  dataSourceMock.resetValues();
+  initPintoVersion();
+});
+afterEach(() => {
+  clearStore();
+  dataSourceMock.resetValues();
+});
+
+test("multiple automatic positions in one transaction preserve negative stems and update convert totals once", () => {
+  const gauge = loadGaugesInfo();
+  gauge.g2IsActive = true;
+  gauge.save();
+  for (let i = 1; i <= 2; i++) {
+    const event = changetype<AutoConvertPosition>(newMockEvent());
+    event.address = v().protocolAddress;
+    event.logIndex = BigInt.fromI32(i);
+    event.parameters = [
+      uint("programId", 1),
+      new ethereum.EventParam("account", ethereum.Value.fromAddress(account)),
+      new ethereum.EventParam("well", ethereum.Value.fromAddress(PINTO_USDC)),
+      new ethereum.EventParam("stem", ethereum.Value.fromSignedBigInt(BigInt.fromI32(-i))),
+      uint("lpAmount", 100),
+      uint("beanAmount", 90),
+      uint("bdv", 95)
+    ];
+    handleAutoConvertPosition(event);
+    assert.fieldEquals(
+      "AutoConvertPositionRecord",
+      event.transaction.hash.toHexString() + "-" + i.toString(),
+      "stem",
+      (-i).toString()
+    );
+  }
+  assert.entityCount("AutoConvertPositionRecord", 2);
+  assert.fieldEquals("Silo", account.toHexString(), "totalBdvConvertUp", "180");
+  assert.fieldEquals("Silo", account.toHexString(), "bonusStalkConvertUp", "0");
+  assert.fieldEquals("Silo", account.toHexString(), "depositedBDV", "0");
+});
+test("failed Sunrise decision preserves reason/gas and creates no successful conversion", () => {
+  const event = newMockEvent();
+  event.parameters = [
+    uint("programId", 1), uint("season", 100), uint("configVersion", 2),
+    uint("outcome", 2), uint("reason", 0),
+    new ethereum.EventParam("well", ethereum.Value.fromAddress(Address.zero())),
+    uint("windowUnits", 352), uint("gasAllowance", 10012000),
+    new ethereum.EventParam("failureSelector", ethereum.Value.fromFixedBytes(Bytes.fromHexString("0x01020304"))),
+    uint("gasUsed", 12345)
+  ];
+  handleAutoConvertDecision(event);
+  const id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
+  assert.fieldEquals("AutoConvertDecisionRecord", id, "outcome", "2");
+  assert.fieldEquals("AutoConvertDecisionRecord", id, "failureSelector", "0x01020304");
+  assert.fieldEquals("AutoConvertDecisionRecord", id, "gasUsed", "12345");
+  assert.entityCount("AutoConvertBatchRecord", 0);
+});
+test("flow close stores zero observation allowance independently of measurement validity", () => {
+  const event = newMockEvent();
+  const data = new ethereum.Tuple();
+  data.push(ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(48)));
+  data.push(ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(24)));
+  data.push(ethereum.Value.fromBoolean(true));
+  data.push(ethereum.Value.fromBoolean(true));
+  data.push(ethereum.Value.fromBoolean(false));
+  data.push(ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(1000)));
+  data.push(ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(2000)));
+  data.push(ethereum.Value.fromBoolean(true));
+  data.push(ethereum.Value.fromUnsignedBigInt(BigInt.zero()));
+  data.push(ethereum.Value.fromUnsignedBigInt(BigInt.zero()));
+  data.push(ethereum.Value.fromUnsignedBigInt(BigInt.zero()));
+  data.push(ethereum.Value.fromBoolean(false));
+  data.push(ethereum.Value.fromUnsignedBigInt(BigInt.zero()));
+  data.push(ethereum.Value.fromUnsignedBigInt(BigInt.zero()));
+  event.parameters = [uint("programId", 1), uint("season", 100), uint("configVersion", 2), uint("phase", 0),
+    new ethereum.EventParam("state", ethereum.Value.fromTuple(data))];
+  handleAutoConvertFlowState(event);
+  const id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
+  assert.fieldEquals("AutoConvertFlowStateRecord", id, "state_observationAllowanceUsd", "0");
+  assert.fieldEquals("AutoConvertFlowStateRecord", id, "state_measurementValid", "true");
+  assert.fieldEquals("AutoConvertFlowStateRecord", id, "state_chillFactor", "24");
+});
+test("release addresses apply only at the configured block; historical Stable2 remains recognized", () => {
+  const context = new DataSourceContext();
+  const replacement = Address.fromString("0x0000000000000000000000000000000000000011");
+  context.setBigInt("pintoUpgradeBlock", BigInt.fromI32(53000000));
+  context.setBytes("pintoPriceAddress", replacement);
+  context.setBytes("pintoStable2Address", replacement);
+  dataSourceMock.setContext(context);
+  assert.assertTrue(!getBeanstalkPriceAddress(BigInt.fromI32(52999999)).equals(replacement));
+  assert.assertTrue(getBeanstalkPriceAddress(BigInt.fromI32(53000000)).equals(replacement));
+  assert.assertTrue(wellFnInfoForWell(PINTO_USDC, BigInt.fromI32(52999999)).address.equals(WELL_STABLE2));
+  assert.assertTrue(wellFnInfoForWell(PINTO_USDC, BigInt.fromI32(53000000)).address.equals(replacement));
+  assert.assertTrue(isStable2WellFn(replacement));
+  assert.assertTrue(isStable2WellFn(WELL_STABLE2));
+});

@@ -22,6 +22,10 @@ dataSources:
       entities:
         - Silo-V3
       abis:
+        - name: PintoFeeSettings
+          file: ../../../core/abis/PintoFeeSettings.json
+        - name: PintoAutoConvert
+          file: ../../../core/abis/Beanstalk/Pinto-AutoConvert.json
         - name: PreReplant
           file: ../../../core/abis/Beanstalk/Beanstalk-Pre-Replant.json
         - name: Replanted

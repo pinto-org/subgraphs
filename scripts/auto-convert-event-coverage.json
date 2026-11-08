@@ -1,0 +1,483 @@
+[
+  {
+    "name": "AutoConvertActivated",
+    "signature": "AutoConvertActivated(indexed uint32,indexed uint32)",
+    "fields": [
+      "programId",
+      "activationSeason"
+    ]
+  },
+  {
+    "name": "AutoConvertConfigurationVersion",
+    "signature": "AutoConvertConfigurationVersion(indexed uint32,uint32)",
+    "fields": [
+      "programId",
+      "configVersion"
+    ]
+  },
+  {
+    "name": "AutoConvertConfigured",
+    "signature": "AutoConvertConfigured(indexed uint32,indexed uint32,address[])",
+    "fields": [
+      "programId",
+      "configVersion",
+      "wells"
+    ]
+  },
+  {
+    "name": "AutoConvertDecision",
+    "signature": "AutoConvertDecision(indexed uint32,indexed uint32,uint32,uint8,uint8,address,uint256,uint256,bytes4,uint256)",
+    "fields": [
+      "programId",
+      "season",
+      "configVersion",
+      "outcome",
+      "reason",
+      "well",
+      "windowUnits",
+      "gasAllowance",
+      "failureSelector",
+      "gasUsed"
+    ]
+  },
+  {
+    "name": "AutoConvertDurationsConfigured",
+    "signature": "AutoConvertDurationsConfigured(uint16[144])",
+    "fields": [
+      "durationSeasonsByCase"
+    ]
+  },
+  {
+    "name": "AutoConvertEnded",
+    "signature": "AutoConvertEnded(indexed uint32,uint256)",
+    "fields": [
+      "programId",
+      "totalBdvConverted"
+    ]
+  },
+  {
+    "name": "AutoConvertFeePolicyBound",
+    "signature": "AutoConvertFeePolicyBound(indexed address,indexed address,uint256,uint256)",
+    "fields": [
+      "well",
+      "settings",
+      "feeBps",
+      "feeVersion"
+    ]
+  },
+  {
+    "name": "AutoConvertFlowAllowanceConfigured",
+    "signature": "AutoConvertFlowAllowanceConfigured(uint256,uint256,uint256)",
+    "fields": [
+      "liquidityFraction",
+      "supplyFraction",
+      "minimumUsd"
+    ]
+  },
+  {
+    "name": "AutoConvertFlowEnabled",
+    "signature": "AutoConvertFlowEnabled(uint8)",
+    "fields": [
+      "aggregation"
+    ]
+  },
+  {
+    "name": "AutoConvertFlowSample",
+    "signature": "AutoConvertFlowSample(indexed uint32,indexed address,uint40,int256,uint256,uint256,int256)",
+    "fields": [
+      "season",
+      "well",
+      "openedAt",
+      "nativeFlow",
+      "quotePriceUsd",
+      "tokenUnit",
+      "flowUsd"
+    ]
+  },
+  {
+    "name": "AutoConvertFlowState",
+    "signature": "AutoConvertFlowState(indexed uint32,indexed uint32,uint32,uint8,(uint256,uint256,bool,bool,bool,uint256,uint256,bool,uint8,uint256,uint256,bool,uint256,uint256))",
+    "fields": [
+      "programId",
+      "season",
+      "configVersion",
+      "phase",
+      "state_requiredChillFactor",
+      "state_chillFactor",
+      "state_qualified",
+      "state_measurementValid",
+      "state_outflowPaused",
+      "state_liquidityUsd",
+      "state_supplyUsd",
+      "state_observationProcessed",
+      "state_status",
+      "state_observationAllowanceUsd",
+      "state_adverseUsd",
+      "state_openingValid",
+      "state_pintoPriceUsd",
+      "state_openingAllowanceUsd"
+    ]
+  },
+  {
+    "name": "AutoConvertFlowWindowUpdated",
+    "signature": "AutoConvertFlowWindowUpdated(uint40,uint40,int256,int256,bool)",
+    "fields": [
+      "openedAt",
+      "closedAt",
+      "netFlowUsd",
+      "averageHourlyFlowUsd",
+      "ready"
+    ]
+  },
+  {
+    "name": "AutoConvertLaunchCreditApplied",
+    "signature": "AutoConvertLaunchCreditApplied(indexed uint32,uint256,uint256)",
+    "fields": [
+      "season",
+      "requiredChillFactor",
+      "initialChillFactor"
+    ]
+  },
+  {
+    "name": "AutoConvertMinPositionValueApplied",
+    "signature": "AutoConvertMinPositionValueApplied(uint256,indexed uint32)",
+    "fields": [
+      "valueUsd",
+      "season"
+    ]
+  },
+  {
+    "name": "AutoConvertMinPositionValueConfigured",
+    "signature": "AutoConvertMinPositionValueConfigured(uint256)",
+    "fields": [
+      "valueUsd"
+    ]
+  },
+  {
+    "name": "AutoConvertOutflowMultiplierConfigured",
+    "signature": "AutoConvertOutflowMultiplierConfigured(uint32,uint32)",
+    "fields": [
+      "previousMultiplierBps",
+      "multiplierBps"
+    ]
+  },
+  {
+    "name": "AutoConvertOutflowPauseChanged",
+    "signature": "AutoConvertOutflowPauseChanged(indexed uint32,bool,uint256,uint256)",
+    "fields": [
+      "season",
+      "paused",
+      "averageOutflowUsd",
+      "allowanceUsd"
+    ]
+  },
+  {
+    "name": "AutoConvertParameters",
+    "signature": "AutoConvertParameters(indexed uint32,indexed uint32)",
+    "fields": [
+      "programId",
+      "configVersion"
+    ]
+  },
+  {
+    "name": "AutoConvertPauseChanged",
+    "signature": "AutoConvertPauseChanged(indexed uint32,bool)",
+    "fields": [
+      "programId",
+      "paused"
+    ]
+  },
+  {
+    "name": "AutoConvertPositionFloorReleased",
+    "signature": "AutoConvertPositionFloorReleased(indexed uint32,indexed address,indexed uint32,uint256,uint256)",
+    "fields": [
+      "programId",
+      "well",
+      "season",
+      "previousFloorLp",
+      "floorLp"
+    ]
+  },
+  {
+    "name": "AutoConvertPositionFloorSet",
+    "signature": "AutoConvertPositionFloorSet(indexed uint32,indexed address,indexed uint32,uint256,uint256,bool)",
+    "fields": [
+      "programId",
+      "well",
+      "season",
+      "previousFloorLp",
+      "floorLp",
+      "rewound"
+    ]
+  },
+  {
+    "name": "AutoConvertPricePolicyConfigured",
+    "signature": "AutoConvertPricePolicyConfigured(uint16,uint16)",
+    "fields": [
+      "maxStepBps",
+      "minimumFeeBps"
+    ]
+  },
+  {
+    "name": "AutoConvertPriorityProgress",
+    "signature": "AutoConvertPriorityProgress(indexed uint32,indexed address,bool,bytes32,address,int96,uint256,bool)",
+    "fields": [
+      "programId",
+      "well",
+      "newestFirst",
+      "nextNode",
+      "candidate",
+      "stem",
+      "amount",
+      "ready"
+    ]
+  },
+  {
+    "name": "AutoConvertResetPauseClearedByCompletion",
+    "signature": "AutoConvertResetPauseClearedByCompletion(indexed uint32,uint40)",
+    "fields": [
+      "programId",
+      "pauseUntilSeason"
+    ]
+  },
+  {
+    "name": "AutoConvertResetPauseDurationConfigured",
+    "signature": "AutoConvertResetPauseDurationConfigured(indexed uint32,uint32)",
+    "fields": [
+      "programId",
+      "durationSunrises"
+    ]
+  },
+  {
+    "name": "AutoConvertResetPauseExpired",
+    "signature": "AutoConvertResetPauseExpired(indexed uint32,uint40)",
+    "fields": [
+      "programId",
+      "pauseUntilSeason"
+    ]
+  },
+  {
+    "name": "AutoConvertResetPauseStarted",
+    "signature": "AutoConvertResetPauseStarted(indexed uint32,indexed uint32,uint40,uint40,uint40)",
+    "fields": [
+      "programId",
+      "season",
+      "triggeredAt",
+      "previousPauseUntilSeason",
+      "pauseUntilSeason"
+    ]
+  },
+  {
+    "name": "AutoConvertResetPauseUpdated",
+    "signature": "AutoConvertResetPauseUpdated(indexed uint32,uint40,uint40)",
+    "fields": [
+      "programId",
+      "previousPauseUntilSeason",
+      "pauseUntilSeason"
+    ]
+  },
+  {
+    "name": "AutoConvertResetPolicyConfigured",
+    "signature": "AutoConvertResetPolicyConfigured(indexed uint32,uint16)",
+    "fields": [
+      "programId",
+      "bufferBps"
+    ]
+  },
+  {
+    "name": "AutoConvertScheduleDeferred",
+    "signature": "AutoConvertScheduleDeferred(indexed uint32,indexed uint32,uint8)",
+    "fields": [
+      "programId",
+      "season",
+      "stage"
+    ]
+  },
+  {
+    "name": "AutoConvertScheduleReset",
+    "signature": "AutoConvertScheduleReset(indexed uint32,indexed uint32,uint256,uint256,uint256,uint256,uint16)",
+    "fields": [
+      "programId",
+      "season",
+      "previousReferencePriceUsd",
+      "referencePriceUsd",
+      "durationSeasons",
+      "hourlyPriceFactor",
+      "bufferBps"
+    ]
+  },
+  {
+    "name": "AutoConvertScheduleStarted",
+    "signature": "AutoConvertScheduleStarted(indexed uint32,indexed uint32,uint256,uint256,uint256)",
+    "fields": [
+      "programId",
+      "season",
+      "referencePriceUsd",
+      "durationSeasons",
+      "hourlyPriceFactor"
+    ]
+  },
+  {
+    "name": "AutoConvertWaitingPolicyConfigured",
+    "signature": "AutoConvertWaitingPolicyConfigured(uint16[4][4],uint16)",
+    "fields": [
+      "waitingObservations",
+      "launchRemaining"
+    ]
+  },
+  {
+    "name": "AutoConvertWellOracle",
+    "signature": "AutoConvertWellOracle(indexed uint32,indexed uint32,indexed address,bool,int256,uint256,(uint8,uint256,uint256,uint256))",
+    "fields": [
+      "season",
+      "configVersion",
+      "well",
+      "valid",
+      "twaDeltaB",
+      "beanUsdPrice",
+      "details_reason",
+      "details_lookback",
+      "details_reserve0",
+      "details_reserve1"
+    ]
+  },
+  {
+    "name": "AutoConvertWellPolicy",
+    "signature": "AutoConvertWellPolicy(indexed uint32,indexed uint32,indexed address,uint256,uint256,bytes32)",
+    "fields": [
+      "programId",
+      "configVersion",
+      "well",
+      "minLp",
+      "maxLp",
+      "configurationHash"
+    ]
+  },
+  {
+    "name": "AutoConvertWhitelistChanged",
+    "signature": "AutoConvertWhitelistChanged(indexed address,uint32)",
+    "fields": [
+      "well",
+      "configVersion"
+    ]
+  },
+  {
+    "name": "DepositGrownStalkAdjustment",
+    "signature": "DepositGrownStalkAdjustment(indexed address,indexed uint256,int256)",
+    "fields": [
+      "account",
+      "depositId",
+      "adjustment"
+    ]
+  },
+  {
+    "name": "OrderedDepositBackfillOperatorSet",
+    "signature": "OrderedDepositBackfillOperatorSet(indexed address,indexed address)",
+    "fields": [
+      "token",
+      "operator"
+    ]
+  },
+  {
+    "name": "OrderedDepositInserted",
+    "signature": "OrderedDepositInserted(indexed address,indexed bytes32,indexed address,int96,bytes32,bytes32)",
+    "fields": [
+      "token",
+      "depositId",
+      "account",
+      "stem",
+      "previous",
+      "next"
+    ]
+  },
+  {
+    "name": "OrderedDepositMigrationVerified",
+    "signature": "OrderedDepositMigrationVerified(indexed address,indexed bytes32)",
+    "fields": [
+      "token",
+      "verificationDigest"
+    ]
+  },
+  {
+    "name": "OrderedDepositRemoved",
+    "signature": "OrderedDepositRemoved(indexed address,indexed bytes32)",
+    "fields": [
+      "token",
+      "depositId"
+    ]
+  },
+  {
+    "name": "OrderedDepositsEnabled",
+    "signature": "OrderedDepositsEnabled(indexed address)",
+    "fields": [
+      "token"
+    ]
+  },
+  {
+    "name": "SiloDepositsRedeemed",
+    "signature": "SiloDepositsRedeemed(indexed address,indexed address,uint256,uint256,uint8)",
+    "fields": [
+      "account",
+      "well",
+      "lpAmount",
+      "pintoAmount",
+      "mode"
+    ]
+  },
+  {
+    "name": "SiloDepositsRedeemedToPairedToken",
+    "signature": "SiloDepositsRedeemedToPairedToken(indexed address,indexed address,indexed address,uint256,uint256,uint8)",
+    "fields": [
+      "account",
+      "well",
+      "tokenOut",
+      "lpAmount",
+      "amountOut",
+      "mode"
+    ]
+  },
+  {
+    "name": "SiloPintoDepositsSwapped",
+    "signature": "SiloPintoDepositsSwapped(indexed address,indexed address,indexed address,uint256,uint256,uint8)",
+    "fields": [
+      "account",
+      "well",
+      "tokenOut",
+      "pintoAmount",
+      "amountOut",
+      "mode"
+    ]
+  },
+  {
+    "name": "SiloRedemptionEmaConfigured",
+    "signature": "SiloRedemptionEmaConfigured(uint16)",
+    "fields": [
+      "seasons"
+    ]
+  },
+  {
+    "name": "SiloRedemptionEmaUpdated",
+    "signature": "SiloRedemptionEmaUpdated(indexed uint32,uint128,uint16,uint96)",
+    "fields": [
+      "season",
+      "meanScaled",
+      "seasons",
+      "threshold"
+    ]
+  },
+  {
+    "name": "SiloRedemptionInitialized",
+    "signature": "SiloRedemptionInitialized(uint96,uint32)",
+    "fields": [
+      "minGrownStalkPerBdv",
+      "season"
+    ]
+  },
+  {
+    "name": "SiloRedemptionWellEnabled",
+    "signature": "SiloRedemptionWellEnabled(indexed address)",
+    "fields": [
+      "well"
+    ]
+  }
+]

@@ -329,6 +329,15 @@ type BeanstalkDailySnapshot @entity {
   lastUpdateBlockNumber: BigInt!
 }
 
+type PintoFeeBurnRecord @entity(immutable: true) {
+  id: ID!
+  well: Well!
+  amount: BigInt!
+  transactionHash: Bytes!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+}
+
 type Well @entity {
   "Well address. For upgradeable wells, this is the proxy address."
   id: Bytes!
@@ -728,4 +737,22 @@ type ConvertCandidate @entity {
   addLiquidityTrade: Trade
   "The most recent remove liquidity Trade"
   removeLiquidityTrade: Trade
+}
+
+# Admission comes from protocol configuration, never a permissionless Well event.
+type PintoCanonicalFeeWell @entity(immutable: false) {
+  id: Bytes!
+  settings: Bytes!
+  boundFeeBps: BigInt!
+  boundFeeVersion: BigInt!
+}
+type PintoTradingFlowInvalidationRecord @entity(immutable: true) {
+  id: ID!
+  well: Bytes!
+  invalidity: BigInt!
+  reason: BigInt!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
 }

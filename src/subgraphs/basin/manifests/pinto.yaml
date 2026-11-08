@@ -4,6 +4,32 @@ schema:
 indexerHints:
   prune: never
 dataSources:
+  - kind: ethereum/contract
+    name: AutoConvert
+    network: base
+    source:
+      address: "0xD1A0D188E861ed9d15773a2F3574a2e94134bA8f"
+      abi: PintoAutoConvert
+      startBlock: 22622961
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Well
+      abis:
+        - name: PintoAutoConvert
+          file: ../../../core/abis/Beanstalk/Pinto-AutoConvert.json
+      eventHandlers:
+        - event: AutoConvertFeePolicyBound(indexed address,indexed address,uint256,uint256)
+          handler: handleAutoConvertFeePolicyBound
+        - event: AutoConvertWell(indexed uint32,indexed uint32,indexed address,uint256,uint256,uint256,(uint256,uint256,uint256,uint256,uint8))
+          handler: handleAutoConvertWell
+        - event: PintoFeeWellUpgraded(indexed address,indexed address,address)
+          handler: handlePintoFeeWellUpgraded
+        - event: WellFunctionReplaced(indexed address,address,address)
+          handler: handleWellFunctionReplaced
+      file: ../src/handlers/AutoConvertHandler.ts
   ###
   # INITIALIZATION
   ###
@@ -157,6 +183,8 @@ templates:
       entities:
         - Well
       abis:
+        - name: PintoFeeWell
+          file: ../../../core/abis/PintoFeeWell.json
         - name: Well
           file: ../../../core/abis/Well.json
         - name: WellFunction
@@ -172,6 +200,10 @@ templates:
         - name: CurvePrice
           file: ../../../core/abis/CurvePrice.json
       eventHandlers:
+        - event: PintoTradingFlowInvalidated(uint256,uint8)
+          handler: handlePintoTradingFlowInvalidated
+        - event: PintoFeeBurned(uint256)
+          handler: handlePintoFeeBurned
         - event: AddLiquidity(uint256[],uint256,address)
           handler: handleAddLiquidity
         - event: RemoveLiquidity(uint256,uint256[],address)

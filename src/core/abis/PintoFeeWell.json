@@ -1,0 +1,33 @@
+[
+  {
+    "type": "event",
+    "name": "PintoFeeBurned",
+    "anonymous": false,
+    "inputs": [
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false
+      }
+    ]
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "invalidity",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "reason",
+        "type": "uint8"
+      }
+    ],
+    "name": "PintoTradingFlowInvalidated",
+    "type": "event"
+  }
+]

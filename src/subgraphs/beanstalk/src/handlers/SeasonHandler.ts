@@ -1,3 +1,4 @@
+import { updateDeferredRedemptionSeason } from "../utils/AutoConvertState";
 import { BigInt } from "@graphprotocol/graph-ts";
 import {
   Soil,
@@ -27,6 +28,7 @@ import { loadSilo } from "../entities/Silo";
 import { takeSiloSnapshots } from "../entities/snapshots/Silo";
 
 export function handleSunrise(event: Sunrise): void {
+  updateDeferredRedemptionSeason(event, event.params.season);
   sunrise(event.address, event.params.season, event.block);
 }
 
