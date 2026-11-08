@@ -393,7 +393,7 @@ export function handleAutoConvertResetPauseClearedByCompletion(event: ethereum.E
   row.blockNumber = event.block.number;
   row.timestamp = event.block.timestamp;
   row.programId = event.parameters[0].value.toBigInt();
-  row.pauseUntil = event.parameters[1].value.toBigInt();
+  row.pauseUntilSeason = event.parameters[1].value.toBigInt();
   row.save();
   updateAutoConvertState("AutoConvertResetPauseClearedByCompletion", event, id);
 }
@@ -407,7 +407,7 @@ export function handleAutoConvertResetPauseDurationConfigured(event: ethereum.Ev
   row.blockNumber = event.block.number;
   row.timestamp = event.block.timestamp;
   row.programId = event.parameters[0].value.toBigInt();
-  row.durationSeconds = event.parameters[1].value.toBigInt();
+  row.durationSunrises = event.parameters[1].value.toBigInt();
   row.save();
   updateAutoConvertState("AutoConvertResetPauseDurationConfigured", event, id);
 }
@@ -421,7 +421,7 @@ export function handleAutoConvertResetPauseExpired(event: ethereum.Event): void 
   row.blockNumber = event.block.number;
   row.timestamp = event.block.timestamp;
   row.programId = event.parameters[0].value.toBigInt();
-  row.pauseUntil = event.parameters[1].value.toBigInt();
+  row.pauseUntilSeason = event.parameters[1].value.toBigInt();
   row.save();
   updateAutoConvertState("AutoConvertResetPauseExpired", event, id);
 }
@@ -437,8 +437,8 @@ export function handleAutoConvertResetPauseStarted(event: ethereum.Event): void 
   row.programId = event.parameters[0].value.toBigInt();
   row.season = event.parameters[1].value.toBigInt();
   row.triggeredAt = event.parameters[2].value.toBigInt();
-  row.previousPauseUntil = event.parameters[3].value.toBigInt();
-  row.pauseUntil = event.parameters[4].value.toBigInt();
+  row.previousPauseUntilSeason = event.parameters[3].value.toBigInt();
+  row.pauseUntilSeason = event.parameters[4].value.toBigInt();
   row.save();
   updateAutoConvertState("AutoConvertResetPauseStarted", event, id);
 }
@@ -452,8 +452,8 @@ export function handleAutoConvertResetPauseUpdated(event: ethereum.Event): void 
   row.blockNumber = event.block.number;
   row.timestamp = event.block.timestamp;
   row.programId = event.parameters[0].value.toBigInt();
-  row.previousUntil = event.parameters[1].value.toBigInt();
-  row.pauseUntil = event.parameters[2].value.toBigInt();
+  row.previousPauseUntilSeason = event.parameters[1].value.toBigInt();
+  row.pauseUntilSeason = event.parameters[2].value.toBigInt();
   row.save();
   updateAutoConvertState("AutoConvertResetPauseUpdated", event, id);
 }

@@ -237,7 +237,7 @@
     "signature": "AutoConvertResetPauseClearedByCompletion(indexed uint32,uint40)",
     "fields": [
       "programId",
-      "pauseUntil"
+      "pauseUntilSeason"
     ]
   },
   {
@@ -245,7 +245,7 @@
     "signature": "AutoConvertResetPauseDurationConfigured(indexed uint32,uint32)",
     "fields": [
       "programId",
-      "durationSeconds"
+      "durationSunrises"
     ]
   },
   {
@@ -253,7 +253,7 @@
     "signature": "AutoConvertResetPauseExpired(indexed uint32,uint40)",
     "fields": [
       "programId",
-      "pauseUntil"
+      "pauseUntilSeason"
     ]
   },
   {
@@ -263,8 +263,8 @@
       "programId",
       "season",
       "triggeredAt",
-      "previousPauseUntil",
-      "pauseUntil"
+      "previousPauseUntilSeason",
+      "pauseUntilSeason"
     ]
   },
   {
@@ -272,8 +272,8 @@
     "signature": "AutoConvertResetPauseUpdated(indexed uint32,uint40,uint40)",
     "fields": [
       "programId",
-      "previousUntil",
-      "pauseUntil"
+      "previousPauseUntilSeason",
+      "pauseUntilSeason"
     ]
   },
   {

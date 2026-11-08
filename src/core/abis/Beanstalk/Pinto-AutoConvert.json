@@ -866,7 +866,7 @@
       {
         "indexed": false,
         "internalType": "uint40",
-        "name": "pauseUntil",
+        "name": "pauseUntilSeason",
         "type": "uint40"
       }
     ],
@@ -885,7 +885,7 @@
       {
         "indexed": false,
         "internalType": "uint32",
-        "name": "durationSeconds",
+        "name": "durationSunrises",
         "type": "uint32"
       }
     ],
@@ -904,7 +904,7 @@
       {
         "indexed": false,
         "internalType": "uint40",
-        "name": "pauseUntil",
+        "name": "pauseUntilSeason",
         "type": "uint40"
       }
     ],
@@ -935,13 +935,13 @@
       {
         "indexed": false,
         "internalType": "uint40",
-        "name": "previousPauseUntil",
+        "name": "previousPauseUntilSeason",
         "type": "uint40"
       },
       {
         "indexed": false,
         "internalType": "uint40",
-        "name": "pauseUntil",
+        "name": "pauseUntilSeason",
         "type": "uint40"
       }
     ],
@@ -960,13 +960,13 @@
       {
         "indexed": false,
         "internalType": "uint40",
-        "name": "previousUntil",
+        "name": "previousPauseUntilSeason",
         "type": "uint40"
       },
       {
         "indexed": false,
         "internalType": "uint40",
-        "name": "pauseUntil",
+        "name": "pauseUntilSeason",
         "type": "uint40"
       }
     ],

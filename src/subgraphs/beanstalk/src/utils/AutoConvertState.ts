@@ -183,11 +183,11 @@ export function updateAutoConvertState(name: string, event: ethereum.Event, reco
     p.totalBdvConverted = a[1].value.toBigInt();
   } else if (name == "AutoConvertPauseChanged") p.paused = a[1].value.toBoolean();
   else if (name == "AutoConvertResetPolicyConfigured") p.resetPolicy = record;
-  else if (name == "AutoConvertResetPauseDurationConfigured") p.resetPauseDuration = a[1].value.toBigInt();
-  else if (name == "AutoConvertResetPauseStarted") p.resetPauseUntil = a[4].value.toBigInt();
-  else if (name == "AutoConvertResetPauseUpdated") p.resetPauseUntil = a[2].value.toBigInt();
+  else if (name == "AutoConvertResetPauseDurationConfigured") p.resetPauseDurationSunrises = a[1].value.toBigInt();
+  else if (name == "AutoConvertResetPauseStarted") p.resetPauseUntilSeason = a[4].value.toBigInt();
+  else if (name == "AutoConvertResetPauseUpdated") p.resetPauseUntilSeason = a[2].value.toBigInt();
   else if (name == "AutoConvertResetPauseExpired" || name == "AutoConvertResetPauseClearedByCompletion")
-    p.resetPauseUntil = BigInt.zero();
+    p.resetPauseUntilSeason = BigInt.zero();
   else if (name == "AutoConvertScheduleStarted") p.scheduleStarted = record;
   else if (name == "AutoConvertScheduleReset") p.scheduleReset = record;
   else if (name == "AutoConvertPositionFloorSet" || name == "AutoConvertPositionFloorReleased") {

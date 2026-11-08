@@ -5,6 +5,17 @@ import path from "node:path";
 import assert from "node:assert/strict";
 import YAML from "yaml";
 const protocol = path.resolve(process.argv[2] || "../protocol");
+// Compiler tools serialize ABI object keys differently; preserve stable generated diffs.
+const canonical = (value) =>
+  Array.isArray(value)
+    ? value.map(canonical)
+    : value && typeof value === "object"
+      ? Object.fromEntries(
+          Object.keys(value)
+            .sort()
+            .map((key) => [key, canonical(value[key])])
+        )
+      : value;
 const root = path.resolve(import.meta.dirname, "..");
 process.chdir(root);
 const sources = [
@@ -32,7 +43,7 @@ const byName = new Map(
     .map((e) => [e.name, e])
 );
 for (const source of sources) {
-  const artifact = JSON.parse(fs.readFileSync(path.join(protocol, `out/${source}.sol/${source}.json`)));
+  const artifact = canonical(JSON.parse(fs.readFileSync(path.join(protocol, `out/${source}.sol/${source}.json`))));
   for (const e of artifact.abi)
     if (
       e.type === "event" &&
@@ -200,17 +211,17 @@ fs.writeFileSync(
 console.log(`Generated ${events.length} additional protocol event handlers.`);
 
 // Fee settings emit from their own deployment address; invalidations emit from Well proxies.
-const settings = JSON.parse(
-  fs.readFileSync(path.join(protocol, "out/PintoFeeSettings.sol/PintoFeeSettings.json"))
+const settings = canonical(
+  JSON.parse(fs.readFileSync(path.join(protocol, "out/PintoFeeSettings.sol/PintoFeeSettings.json")))
 ).abi.filter(
   (e) =>
     e.type === "event" && ["PintoFeeSettingsInitialized", "FeeChanged", "WellFeeSet", "WellFeeCleared"].includes(e.name)
 );
 assert.equal(settings.length, 4, "Compile the current fee settings before synchronizing");
 fs.writeFileSync("src/core/abis/PintoFeeSettings.json", JSON.stringify(settings, null, 2) + "\n");
-const flow = JSON.parse(fs.readFileSync(path.join(protocol, "out/PintoWellFlow.sol/PintoWellFlow.json"))).abi.find(
-  (e) => e.name === "PintoTradingFlowInvalidated"
-);
+const flow = canonical(
+  JSON.parse(fs.readFileSync(path.join(protocol, "out/PintoWellFlow.sol/PintoWellFlow.json")))
+).abi.find((e) => e.name === "PintoTradingFlowInvalidated");
 assert.ok(flow, "Compile the current flow meter before synchronizing");
 for (const file of ["src/core/abis/PintoFeeWell.json", "src/core/abis/Well.json"]) {
   const entries = JSON.parse(fs.readFileSync(file)).filter((e) => e.name !== flow.name);

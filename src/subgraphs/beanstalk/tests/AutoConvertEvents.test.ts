@@ -9,6 +9,7 @@ import {
   handleAutoConvertEnded,
   handleAutoConvertConfigurationVersion,
   handleAutoConvertResetPauseStarted,
+  handleAutoConvertResetPauseDurationConfigured,
   handleAutoConvertResetPauseExpired,
   handleAutoConvertResetPolicyConfigured,
   handleAutoConvertParameters,
@@ -72,6 +73,34 @@ function id(e: ethereum.Event): string {
   return e.transaction.hash.toHexString() + "-" + e.logIndex.toString();
 }
 afterEach(() => clearStore());
+test("reset pauses retain Sunrise counts and ending Seasons separately from timestamps", () => {
+  const duration = event([n("programId", 1), n("durationSunrises", 24)], 1);
+  handleAutoConvertResetPauseDurationConfigured(duration);
+  const p = duration.address.toHexString() + "-1";
+  assert.fieldEquals("AutoConvertProgram", p, "resetPauseDurationSunrises", "24");
+  assert.fieldEquals("AutoConvertResetPauseDurationConfiguredRecord", id(duration), "durationSunrises", "24");
+  const start = event(
+    [
+      n("programId", 1),
+      n("season", 100),
+      n("triggeredAt", 1700000000),
+      n("previousPauseUntilSeason", 0),
+      n("pauseUntilSeason", 124)
+    ],
+    2
+  );
+  handleAutoConvertResetPauseStarted(start);
+  assert.fieldEquals("AutoConvertResetPauseStartedRecord", id(start), "triggeredAt", "1700000000");
+  assert.fieldEquals("AutoConvertResetPauseStartedRecord", id(start), "pauseUntilSeason", "124");
+  assert.fieldEquals("AutoConvertProgram", p, "resetPauseUntilSeason", "124");
+  const later = event([n("programId", 1), bool("paused", false)], 3);
+  later.block.timestamp = BigInt.fromI32(1700604800);
+  handleAutoConvertPauseChanged(later);
+  assert.fieldEquals("AutoConvertProgram", p, "resetPauseUntilSeason", "124");
+  handleAutoConvertResetPauseExpired(event([n("programId", 1), n("pauseUntilSeason", 124)], 4));
+  assert.fieldEquals("AutoConvertProgram", p, "resetPauseUntilSeason", "0");
+  assert.fieldEquals("AutoConvertProgram", p, "resetPauseDurationSunrises", "24");
+});
 test("controller lifecycle survives pauses, expiry and program replacement", () => {
   const e = event(
     [
@@ -89,13 +118,19 @@ test("controller lifecycle survives pauses, expiry and program replacement", () 
   assert.fieldEquals("AutoConvertProgram", p, "paused", "true");
   handleAutoConvertResetPauseStarted(
     event(
-      [n("programId", 1), n("season", 101), n("triggeredAt", 1000), n("previousPauseUntil", 0), n("pauseUntil", 2000)],
+      [
+        n("programId", 1),
+        n("season", 101),
+        n("triggeredAt", 1000),
+        n("previousPauseUntilSeason", 0),
+        n("pauseUntilSeason", 2000)
+      ],
       4
     )
   );
-  assert.fieldEquals("AutoConvertProgram", p, "resetPauseUntil", "2000");
-  handleAutoConvertResetPauseExpired(event([n("programId", 1), n("pauseUntil", 2000)], 5));
-  assert.fieldEquals("AutoConvertProgram", p, "resetPauseUntil", "0");
+  assert.fieldEquals("AutoConvertProgram", p, "resetPauseUntilSeason", "2000");
+  handleAutoConvertResetPauseExpired(event([n("programId", 1), n("pauseUntilSeason", 2000)], 5));
+  assert.fieldEquals("AutoConvertProgram", p, "resetPauseUntilSeason", "0");
   handleAutoConvertConfigurationVersion(event([n("programId", 1), n("configVersion", 3)], 6));
   assert.fieldEquals("AutoConvertProgram", p, "configVersion", "3");
   const batch = changetype<AutoConvertBatch>(
@@ -288,10 +323,12 @@ test("scalar reset policy and live pause updates clear on completion", () => {
   handleAutoConvertResetPolicyConfigured(reset);
   assert.fieldEquals("AutoConvertResetPolicyConfiguredRecord", id(reset), "bufferBps", "250");
   const p = reset.address.toHexString() + "-1";
-  handleAutoConvertResetPauseUpdated(event([n("programId", 1), n("previousUntil", 2000), n("pauseUntil", 1500)], 2));
-  assert.fieldEquals("AutoConvertProgram", p, "resetPauseUntil", "1500");
-  handleAutoConvertResetPauseClearedByCompletion(event([n("programId", 1), n("pauseUntil", 1500)], 3));
-  assert.fieldEquals("AutoConvertProgram", p, "resetPauseUntil", "0");
+  handleAutoConvertResetPauseUpdated(
+    event([n("programId", 1), n("previousPauseUntilSeason", 2000), n("pauseUntilSeason", 1500)], 2)
+  );
+  assert.fieldEquals("AutoConvertProgram", p, "resetPauseUntilSeason", "1500");
+  handleAutoConvertResetPauseClearedByCompletion(event([n("programId", 1), n("pauseUntilSeason", 1500)], 3));
+  assert.fieldEquals("AutoConvertProgram", p, "resetPauseUntilSeason", "0");
 });
 test("EMA configuration remains distinct from the active threshold until Sunrise", () => {
   const init = event([n("minGrownStalkPerBdv", 48), n("season", 100)], 1);

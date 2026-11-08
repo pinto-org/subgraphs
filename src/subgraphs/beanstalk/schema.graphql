@@ -2249,8 +2249,10 @@ type AutoConvertProgram @entity(immutable: false) {
   configuration: AutoConvertConfiguredRecord
   parameters: AutoConvertParametersRecord
   resetPolicy: AutoConvertResetPolicyConfiguredRecord
-  resetPauseDuration: BigInt
-  resetPauseUntil: BigInt
+  # Completed Sunrises after the reset Sunrise; not wall-clock seconds.
+  resetPauseDurationSunrises: BigInt
+  # Ending Season. Missed wall-clock hours do not advance the pause.
+  resetPauseUntilSeason: BigInt
   scheduleStarted: AutoConvertScheduleStartedRecord
   scheduleReset: AutoConvertScheduleResetRecord
   flowState: AutoConvertFlowStateRecord
@@ -2645,7 +2647,7 @@ type AutoConvertResetPauseClearedByCompletionRecord @entity(immutable: true) {
   blockNumber: BigInt!
   timestamp: BigInt!
   programId: BigInt!
-  pauseUntil: BigInt!
+  pauseUntilSeason: BigInt!
 }
 
 type AutoConvertResetPauseDurationConfiguredRecord @entity(immutable: true) {
@@ -2656,7 +2658,7 @@ type AutoConvertResetPauseDurationConfiguredRecord @entity(immutable: true) {
   blockNumber: BigInt!
   timestamp: BigInt!
   programId: BigInt!
-  durationSeconds: BigInt!
+  durationSunrises: BigInt!
 }
 
 type AutoConvertResetPauseExpiredRecord @entity(immutable: true) {
@@ -2667,7 +2669,7 @@ type AutoConvertResetPauseExpiredRecord @entity(immutable: true) {
   blockNumber: BigInt!
   timestamp: BigInt!
   programId: BigInt!
-  pauseUntil: BigInt!
+  pauseUntilSeason: BigInt!
 }
 
 type AutoConvertResetPauseStartedRecord @entity(immutable: true) {
@@ -2680,8 +2682,8 @@ type AutoConvertResetPauseStartedRecord @entity(immutable: true) {
   programId: BigInt!
   season: BigInt!
   triggeredAt: BigInt!
-  previousPauseUntil: BigInt!
-  pauseUntil: BigInt!
+  previousPauseUntilSeason: BigInt!
+  pauseUntilSeason: BigInt!
 }
 
 type AutoConvertResetPauseUpdatedRecord @entity(immutable: true) {
@@ -2692,8 +2694,8 @@ type AutoConvertResetPauseUpdatedRecord @entity(immutable: true) {
   blockNumber: BigInt!
   timestamp: BigInt!
   programId: BigInt!
-  previousUntil: BigInt!
-  pauseUntil: BigInt!
+  previousPauseUntilSeason: BigInt!
+  pauseUntilSeason: BigInt!
 }
 
 type AutoConvertResetPolicyConfiguredRecord @entity(immutable: true) {
